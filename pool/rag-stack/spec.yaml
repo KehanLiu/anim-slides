@@ -1,0 +1,42 @@
+# Layers of a retrieval-augmented generation (RAG) app: one question goes down the stack,
+# relevant chunks come back up, and the LLM answers with citations. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/rag-stack/spec.yaml -o pool/rag-stack/rag-stack.html --rendered-width 1200
+# The shipped rag-stack.html is hand-built on top of the scaffold: one aligned chip column with
+# offset down/up wires, a chat transcript, retrieval scores and source documents with citation
+# badges, and packet hops timed so the holder of the packet is the one active chip.
+name: rag-stack
+archetype: layers
+size: [1200, 640]
+control: loop
+cycle: 13
+nodes:
+  - { id: chat,   label: Chat UI,       sub: "question in, answer out", layer: 3, group: ui }
+  - { id: orch,   label: Orchestrator,  sub: "retrieve, then prompt", layer: 2, group: app }
+  - { id: llm,    label: LLM,           sub: "writes the answer",  layer: 2, group: app }
+  - { id: index,  label: Vector index,  sub: "similarity search", layer: 1, group: retrieval, kind: store }
+  - { id: docs,   label: Documents,     sub: "split into chunks",  layer: 0, group: data, kind: data }
+edges:
+  - { from: chat,  to: orch }
+  - { from: orch,  to: index }
+  - { from: index, to: docs }
+  - { from: docs,  to: index }
+  - { from: index, to: orch }
+  - { from: orch,  to: llm }
+  - { from: llm,   to: orch }
+  - { from: orch,  to: chat }
+groups:
+  - { id: ui,        label: Interface }
+  - { id: app,       label: Orchestration }
+  - { id: retrieval, label: Retrieval }
+  - { id: data,      label: Data sources }
+phases:
+  - { t: 0,    label: build,    note: "A RAG app in four layers" }
+  - { t: 1.4,  label: ask,      active: [chat],  flow: ["chat>orch"],   note: "A user asks a question" }
+  - { t: 2.6,  label: search,   active: [orch],  flow: ["orch>index"],  note: "The question is embedded and searched" }
+  - { t: 3.8,  label: lookup,   active: [index], flow: ["index>docs"],  note: "Nearest chunks point at their sources" }
+  - { t: 5.0,  label: chunks,   active: [docs],  flow: ["docs>index"],  note: "The relevant chunks come back up" }
+  - { t: 6.2,  label: top-k,    active: [index], flow: ["index>orch"],  note: "Top-k chunks reach the orchestrator" }
+  - { t: 7.4,  label: prompt,   active: [orch],  flow: ["orch>llm"],    note: "Question plus chunks go to the LLM" }
+  - { t: 8.6,  label: generate, active: [llm],   flow: ["llm>orch"],    note: "The LLM drafts a grounded answer" }
+  - { t: 9.8,  label: answer,   active: [chat],  flow: ["orch>chat"],   note: "Answer with citations returns to the UI" }
+  - { t: 11.2, label: hold,     active: [chat] }

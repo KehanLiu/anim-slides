@@ -406,4 +406,4 @@ phases:
   - {t: 10, label: hold, active: [incident-log]}
 ```
 
-More examples: [`examples/specs/`](../examples/specs/).
+More examples: the `spec.yaml` files in [`pool/`](../pool/), listed in `pool/index.yaml`.

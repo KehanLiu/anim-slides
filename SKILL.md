@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.3.0"
+  version: "0.4.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
@@ -46,6 +46,17 @@ Write `anim/<name>/spec.yaml` following `references/spec-format.md`: name, arche
 edges, groups, phases with second marks, cycle, control (`loop` default, `step` only when the
 presenter must drive phases or the story has four or more narrated phases). Reuse the
 source's own words as labels. Keep a spec under about 12 nodes; split otherwise.
+
+### 1b. Check the pool
+Read `<skill-dir>/pool/index.yaml`, then `$ANIM_POOL/index.yaml` (or list `$ANIM_POOL/*/`) if
+that variable is set, and look for an entry with the same archetype and a similar story or tags.
+- **Close match**: copy the folder to `anim/<name>/`, rename the fragment and every prefix to
+  `<name>`, then adapt labels, data, timing and viewBox to the spec in step 3 instead of
+  scaffolding. Its `spec.yaml`, if present, is a starting point for yours.
+- **Same archetype only**: scaffold as usual, and open the pool fragment as the quality bar for
+  density, motion and resting frame.
+- **Nothing fits**: build from the spec; the closest pool entry is still worth one look.
+Never copy a pool fragment unchanged into a deck: its story is an example, not the user's.
 
 ### 2. Slot and brief
 Measure the free box on the slide (`references/layouts.md`), pick a viewBox with the same aspect
@@ -112,7 +123,7 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `scripts/render-phases.sh` — phase PNGs and contact sheet with headless Chrome
 - `scripts/integrate_fragment.py` — idempotent inlining into a deck, gate rewrite, prefix safety net
 - `scripts/snippets/observer.html`, `scripts/snippets/step-host.html` — host-side helpers
-- `examples/db-failover.html`, `examples/latency-trace.html` — finished reference fragments; `examples/specs/` — one spec per archetype family (pipeline, graph, timeline, states, chart)
+- `pool/` — finished, checked fragments, at least one per archetype, with thumbnails and specs; `pool/index.yaml` lists them (step 1b)
 
 ## Related skills (use them when your harness has them; none is required)
 - A motion-design skill for deeper timing and easing guidance.

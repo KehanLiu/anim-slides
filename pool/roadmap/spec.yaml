@@ -1,0 +1,24 @@
+# Product roadmap: three milestones shipped, one in progress ("now"), one planned. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/roadmap/spec.yaml -o pool/roadmap/roadmap.html
+# The shipped HTML is hand-polished beyond the scaffold: status chips under each date
+# (in progress / shipped / planned), the progress line stops at "now" (Q4) with a halo,
+# and the planned milestone is drawn dashed on a dotted axis segment.
+name: roadmap
+archetype: timeline
+size: [1680, 440]
+control: loop
+cycle: 12
+nodes:
+  - { id: alpha,  label: Private alpha,        sub: "20 design partners", kind: milestone, at: "Q1" }
+  - { id: beta,   label: Public beta,          sub: "self-serve signup",  kind: milestone, at: "Q2" }
+  - { id: ga,     label: General availability, sub: "99.9 % SLA",         kind: milestone, at: "Q3" }
+  - { id: mobile, label: Mobile apps,          sub: "iOS and Android",    kind: milestone, at: "Q4" }
+  - { id: v2,     label: Platform v2,          sub: "plugin API",         kind: milestone, at: "next Q1" }
+phases:
+  - { t: 0,   label: setup,                                         note: "Q1: private alpha with 20 design partners" }
+  - { t: 1.0, label: alpha,  show: [alpha],  active: [alpha] }
+  - { t: 2.8, label: beta,   show: [beta],   active: [beta],   note: "Q2: public beta opens self-serve signup" }
+  - { t: 4.6, label: ga,     show: [ga],     active: [ga],     note: "Q3: general availability with a 99.9 % SLA" }
+  - { t: 6.4, label: mobile, show: [mobile], active: [mobile], note: "Now: native iOS and Android apps in progress" }
+  - { t: 8.0, label: v2,     show: [v2],     active: [mobile], note: "Next: platform v2 opens a plugin API" }
+  - { t: 9.6, label: hold,                   active: [mobile], note: "Three milestones shipped, mobile in progress, v2 next" }

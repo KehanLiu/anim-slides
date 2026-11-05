@@ -1,0 +1,78 @@
+# Pool of finished, checked fragments. One entry per folder: pool/<name>/<name>.html,
+# plus thumb.png (resting frame) and, where it exists, spec.yaml.
+# Agents: match on archetype and tags first, then read the story; open only the fragment you pick.
+# All entries: data-anim-control="loop", CSS only, pass check_fragment.py at viewBox width.
+
+- name: deploy-pipeline
+  archetype: pipeline
+  viewbox: [1680, 440]
+  cycle: 12
+  spec: true
+  story: A commit moves through build, test and staging, then a 5 % canary earns 100 % of traffic while an auto-rollback edge stands by.
+  tags: [ci-cd, deployment, canary, rollback, devops, stages]
+
+- name: service-deps
+  archetype: graph
+  viewbox: [1680, 600]
+  cycle: 14
+  spec: true
+  story: A service graph builds rank by rank, one request is traced through it, then a third-party outage stays contained to Payments.
+  tags: [dependencies, microservices, blast-radius, outage, architecture]
+
+- name: db-failover
+  archetype: graph
+  viewbox: [1000, 560]
+  cycle: 14
+  spec: false
+  story: Requests reach the primary database, it fails, health checks propose promoting the replica, on-call approves and traffic is rerouted.
+  tags: [failover, incident, database, high-availability, approval, phased-story]
+  technique: phase changes as opacity swaps on stacked layers, timed by shared keyframes
+
+- name: roadmap
+  archetype: timeline
+  viewbox: [1680, 440]
+  cycle: 12
+  spec: true
+  story: Three milestones ship one after another, mobile apps are in progress and platform v2 is planned.
+  tags: [roadmap, product, milestones, planning, release]
+
+- name: job-states
+  archetype: states
+  viewbox: [1200, 600]
+  cycle: 12
+  spec: true
+  story: A job is picked, fails with a timeout, retries after a backoff and succeeds on the second attempt, with an event log filling in.
+  tags: [lifecycle, retry, state-machine, jobs, error-handling]
+
+- name: cache-compare
+  archetype: compare
+  viewbox: [1680, 600]
+  cycle: 12
+  spec: true
+  story: The same four reads without and with a cache; repeated 180 ms database reads become 8 ms hits and database load drops.
+  tags: [caching, latency, database, before-after, performance]
+
+- name: rag-stack
+  archetype: layers
+  viewbox: [1200, 640]
+  cycle: 13
+  spec: true
+  story: One question travels down a four-layer RAG stack, matching chunks come back up, the LLM drafts an answer and it returns with citations.
+  tags: [rag, llm, retrieval, vector-search, architecture, ai]
+
+- name: cloud-spend
+  archetype: chart
+  viewbox: [1680, 600]
+  cycle: 12
+  spec: true
+  story: A line chart draws on as monthly spend climbs past a budget line, then bends back under it after an autoscaling event.
+  tags: [cost, budget-threshold, line-draw-on, optimization, monthly-trend]
+
+- name: latency-trace
+  archetype: chart
+  viewbox: [800, 500]
+  cycle: 14
+  spec: false
+  story: A scrolling strip chart of p99 latency; a deploy spikes it over the SLO line, an alert fires and a rollback brings it back.
+  tags: [latency, slo, monitoring, incident, rollback, strip-chart]
+  technique: continuous trace drawn twice and translated by one period, events baked into the trace

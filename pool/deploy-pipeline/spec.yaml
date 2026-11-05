@@ -1,0 +1,31 @@
+# CI/CD pipeline with a canary release and an armed rollback edge. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/deploy-pipeline/spec.yaml -o pool/deploy-pipeline/deploy-pipeline.html
+# The shipped HTML is hand-polished beyond the scaffold: status chips (queued/running/passed),
+# per-stage progress bars, check marks, a square "artifact" packet after Build, and a rollback
+# edge that is armed (marching, warn colour) during the canary instead of firing.
+name: deploy-pipeline
+archetype: pipeline
+size: [1680, 440]
+control: loop
+cycle: 12
+nodes:
+  - { id: commit,  label: Commit,     sub: "main · a1f9c3e",  kind: actor }
+  - { id: build,   label: Build,      sub: "v1.4.2 · ~3 min", kind: process }
+  - { id: test,    label: Test,       sub: "unit + e2e",      kind: process }
+  - { id: staging, label: Staging,    sub: "smoke test",      kind: process }
+  - { id: prod,    label: Production, sub: "canary 5 %",      kind: process }
+edges:
+  - { from: commit,  to: build,   kind: flow }
+  - { from: build,   to: test,    kind: flow }
+  - { from: test,    to: staging, kind: flow }
+  - { from: staging, to: prod,    kind: flow }
+  - { from: prod,    to: staging, kind: event, label: auto-rollback }
+phases:
+  - { t: 0,   label: setup,                                                  note: "A commit lands on main" }
+  - { t: 0.9, label: push,    active: [commit] }
+  - { t: 2.2, label: build,   active: [build],   flow: ["commit>build"],     note: "CI builds one immutable artifact" }
+  - { t: 4.0, label: test,    active: [test],    flow: ["build>test"],       note: "Unit and end-to-end tests gate the artifact" }
+  - { t: 5.8, label: staging, active: [staging], flow: ["test>staging"],     note: "Smoke tests pass on staging" }
+  - { t: 7.6, label: canary,  active: [prod, "prod>staging"], flow: ["staging>prod"], note: "Canary on 5 % of traffic, auto-rollback armed" }
+  - { t: 9.4, label: promote, active: [prod],                                note: "Error rate stayed under 1 %: promoted to 100 %" }
+  - { t: 10.4, label: hold }

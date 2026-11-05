@@ -12,6 +12,32 @@ illustrating, writes a spec and a brief for each, builds a self-contained animat
 fragment, renders phase frames with headless Chrome and looks at them, and inlines the result
 into your deck.
 
+## Pool
+
+The skill ships a pool of finished, checked fragments, at least one per archetype. The agent
+starts from the closest one before building from scratch. Resting frames (each one is an animated
+loop in the deck):
+
+<table>
+<tr>
+<td><img src="pool/deploy-pipeline/thumb.png" alt="deploy-pipeline"><br><code>deploy-pipeline</code></td>
+<td><img src="pool/service-deps/thumb.png" alt="service-deps"><br><code>service-deps</code></td>
+<td><img src="pool/rag-stack/thumb.png" alt="rag-stack"><br><code>rag-stack</code></td>
+</tr>
+<tr>
+<td><img src="pool/cache-compare/thumb.png" alt="cache-compare"><br><code>cache-compare</code></td>
+<td><img src="pool/job-states/thumb.png" alt="job-states"><br><code>job-states</code></td>
+<td><img src="pool/roadmap/thumb.png" alt="roadmap"><br><code>roadmap</code></td>
+</tr>
+<tr>
+<td><img src="pool/cloud-spend/thumb.png" alt="cloud-spend"><br><code>cloud-spend</code></td>
+<td><img src="pool/latency-trace/thumb.png" alt="latency-trace"><br><code>latency-trace</code></td>
+<td><img src="pool/db-failover/thumb.png" alt="db-failover"><br><code>db-failover</code></td>
+</tr>
+</table>
+
+See [`pool/README.md`](pool/README.md) for stories, sizes and how to add your own private pool.
+
 ## What you get
 
 Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a single HTML file.
@@ -31,7 +57,7 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
 
 ## Install
 
-The skill is one folder (`SKILL.md`, `references/`, `scripts/`, `examples/`). Any harness that
+The skill is one folder (`SKILL.md`, `references/`, `scripts/`, `pool/`). Any harness that
 reads the Agent Skills format picks it up from its skills directory; the folder name must stay
 `anim-slides`.
 
@@ -172,7 +198,7 @@ agents/openai.yaml       optional Codex metadata; other harnesses ignore it
 .claude-plugin/          marketplace manifest for the Claude Code plugin install
 references/              contract, spec format, archetypes, input stage, brief, layouts, motion rules, lessons
 scripts/                 extract, scaffold, check, render, integrate; host snippets
-examples/                two finished fragments and five example specs
+pool/                    finished fragments, one or more per archetype, with thumbnails, specs and index.yaml
 docs/                    design notes and history
 ```
 

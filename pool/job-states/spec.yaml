@@ -1,0 +1,29 @@
+# Job lifecycle with one failure, a retry and a success on the second attempt. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/job-states/spec.yaml -o pool/job-states/job-states.html
+# job-states.html is hand-tuned beyond the scaffold: one token per hop (coloured by transition),
+# stacked "attempt 1 of 3" / "attempt 2 of 3" text in Running, transition labels that light up,
+# and an event log panel (bottom right) that fills in one line per transition. The spec's notes
+# are the log lines, so the fragment has no caption strip.
+name: job-states
+archetype: states
+size: [1200, 600]
+control: loop
+cycle: 12
+nodes:
+  - { id: queued,  label: Queued }
+  - { id: running, label: Running,   sub: "attempt 1 of 3" }
+  - { id: done,    label: Succeeded, kind: milestone }
+  - { id: failed,  label: Failed }
+edges:
+  - { from: queued,  to: running, label: picked }
+  - { from: running, to: done,    label: exit 0 }
+  - { from: running, to: failed,  label: error,       kind: event }
+  - { from: failed,  to: queued,  label: "retry · 2 s", kind: event }
+phases:
+  - { t: 0,   label: queued,  active: [queued],                            note: "00:00 queued" }
+  - { t: 1,   label: pick,    active: [running], flow: ["queued>running"], note: "00:02 picked · attempt 1" }
+  - { t: 3.4, label: fail,    active: [failed],  flow: ["running>failed"], note: "00:31 error · timeout" }
+  - { t: 5.2, label: retry,   active: [queued],  flow: ["failed>queued"],  note: "00:33 retry after 2 s" }
+  - { t: 6.6, label: repick,  active: [running], flow: ["queued>running"], note: "00:35 picked · attempt 2" }
+  - { t: 8.4, label: success, active: [done],    flow: ["running>done"],   note: "00:58 exit 0 · succeeded" }
+  - { t: 9.4, label: hold,    active: [done] }

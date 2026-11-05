@@ -1,0 +1,367 @@
+<!-- deploy-pipeline (pool, archetype pipeline). Hand-polished from the scaffold of spec.yaml.
+  Story: commit > build > test > staging > canary; the rollback edge is armed during the canary,
+  errors stay under the limit and production is promoted to 100 %. Cycle 12 s, hold 9.4-11.5 s. -->
+<style>
+.anim-deploy-pipeline{
+  --anim-bg:       var(--anim-theme-bg,       #0f1218);
+  --anim-panel:    var(--anim-theme-panel,    #1a2030);
+  --anim-line:     var(--anim-theme-line,     #3a4660);
+  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
+  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
+  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
+  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
+  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
+  --anim-warn:     var(--anim-theme-warn,     #ffb454);
+  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-deploy-pipeline svg{display:block;width:100%;height:100%}
+.anim-deploy-pipeline .deploy-pipeline-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-deploy-pipeline .deploy-pipeline-lbl{font-size:22px;font-weight:700}
+.anim-deploy-pipeline .deploy-pipeline-sub{font-size:18px;fill:var(--anim-muted)}
+.anim-deploy-pipeline .deploy-pipeline-note{font-size:22px}
+.anim-deploy-pipeline .deploy-pipeline-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-deploy-pipeline .deploy-pipeline-sub.deploy-pipeline-gn,.anim-deploy-pipeline .deploy-pipeline-mono.deploy-pipeline-gn{fill:var(--anim-ok)}
+.anim-deploy-pipeline .deploy-pipeline-mono.deploy-pipeline-cy{fill:var(--anim-accent)}
+.anim-deploy-pipeline .deploy-pipeline-mono.deploy-pipeline-wn{fill:var(--anim-warn)}
+.anim-deploy-pipeline .deploy-pipeline-wire{fill:none;stroke:var(--anim-line);stroke-width:3;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0}
+.anim-deploy-pipeline .deploy-pipeline-arrow{fill:none;stroke:var(--anim-line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-deploy-pipeline .deploy-pipeline-arc{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:2 9}
+.anim-deploy-pipeline .deploy-pipeline-arc-head{stroke:var(--anim-muted);stroke-width:2.5}
+.anim-deploy-pipeline .deploy-pipeline-arc-armed{stroke:var(--anim-warn);stroke-width:3;stroke-dasharray:2 11}
+.anim-deploy-pipeline .deploy-pipeline-box{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
+.anim-deploy-pipeline .deploy-pipeline-box-run{fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-panel));stroke:var(--anim-accent);stroke-width:2.5}
+.anim-deploy-pipeline .deploy-pipeline-box-ok{fill:color-mix(in srgb,var(--anim-ok) 8%,var(--anim-panel));stroke:var(--anim-ok)}
+.anim-deploy-pipeline .deploy-pipeline-bar{fill:var(--anim-line);opacity:.6}
+.anim-deploy-pipeline .deploy-pipeline-fill{fill:var(--anim-ok);transform-box:fill-box;transform-origin:left center;transform:scaleX(1)}
+.anim-deploy-pipeline .deploy-pipeline-check{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-deploy-pipeline .deploy-pipeline-chip{stroke-width:1.5}
+.anim-deploy-pipeline .deploy-pipeline-chip-q{fill:none;stroke:var(--anim-line)}
+.anim-deploy-pipeline .deploy-pipeline-chip-r{fill:color-mix(in srgb,var(--anim-accent) 14%,transparent);stroke:var(--anim-accent)}
+.anim-deploy-pipeline .deploy-pipeline-chip-o{fill:color-mix(in srgb,var(--anim-ok) 14%,transparent);stroke:var(--anim-ok)}
+.anim-deploy-pipeline .deploy-pipeline-pkt{fill:var(--anim-accent);stroke:var(--anim-bg);stroke-width:3;opacity:0}
+.anim-deploy-pipeline .deploy-pipeline-p0{offset-path:path('M280 174 H380');offset-rotate:0deg}
+.anim-deploy-pipeline .deploy-pipeline-p1{offset-path:path('M620 174 H720');offset-rotate:0deg}
+.anim-deploy-pipeline .deploy-pipeline-p2{offset-path:path('M960 174 H1060');offset-rotate:0deg}
+.anim-deploy-pipeline .deploy-pipeline-p3{offset-path:path('M1300 174 H1400');offset-rotate:0deg}
+.anim-deploy-pipeline .deploy-pipeline-cap{fill:var(--anim-panel)}
+.anim-deploy-pipeline .deploy-pipeline-scene{opacity:1}
+/* resting frame = finished story: every stage passed, production live at 100 %, rollback guard idle */
+.anim-deploy-pipeline .deploy-pipeline-box-run,.anim-deploy-pipeline .deploy-pipeline-arc-armed,.anim-deploy-pipeline .deploy-pipeline-rb-on,.anim-deploy-pipeline .deploy-pipeline-prod-s1,.anim-deploy-pipeline .deploy-pipeline-commit-c0,.anim-deploy-pipeline .deploy-pipeline-commit-c1,.anim-deploy-pipeline .deploy-pipeline-build-c0,.anim-deploy-pipeline .deploy-pipeline-build-c1,.anim-deploy-pipeline .deploy-pipeline-test-c0,.anim-deploy-pipeline .deploy-pipeline-test-c1,.anim-deploy-pipeline .deploy-pipeline-staging-c0,.anim-deploy-pipeline .deploy-pipeline-staging-c1,.anim-deploy-pipeline .deploy-pipeline-prod-c0,.anim-deploy-pipeline .deploy-pipeline-prod-c1,.anim-deploy-pipeline .deploy-pipeline-n0,.anim-deploy-pipeline .deploy-pipeline-n1,.anim-deploy-pipeline .deploy-pipeline-n2,.anim-deploy-pipeline .deploy-pipeline-n3,.anim-deploy-pipeline .deploy-pipeline-n4{opacity:0}
+
+/* ---- motion (12 s cycle), only when the slide is visible ---- */
+/* fade in 0-0.3 s, hold until 11.5 s, reset 11.5-11.8 s */
+@keyframes deploy-pipeline-scene{0%{opacity:0}2.5%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+/* stage 0 enters at 0.05 s */
+@keyframes deploy-pipeline-st0{0%,0.42%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.17%,100%{opacity:1;transform:translateY(0)}}
+/* stage 1 enters at 0.13 s */
+@keyframes deploy-pipeline-st1{0%,1.08%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.83%,100%{opacity:1;transform:translateY(0)}}
+/* stage 2 enters at 0.21 s */
+@keyframes deploy-pipeline-st2{0%,1.75%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.5%,100%{opacity:1;transform:translateY(0)}}
+/* stage 3 enters at 0.29 s */
+@keyframes deploy-pipeline-st3{0%,2.42%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.17%,100%{opacity:1;transform:translateY(0)}}
+/* stage 4 enters at 0.37 s */
+@keyframes deploy-pipeline-st4{0%,3.08%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.83%,100%{opacity:1;transform:translateY(0)}}
+/* wire 0 draws on at 0.35 s */
+@keyframes deploy-pipeline-w0{0%,2.92%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.5%,100%{stroke-dashoffset:0}}
+/* from 0.75s */
+@keyframes deploy-pipeline-w0a{0%,6.25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.92%,100%{opacity:1}}
+/* wire 1 draws on at 0.43 s */
+@keyframes deploy-pipeline-w1{0%,3.58%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.17%,100%{stroke-dashoffset:0}}
+/* from 0.8300000000000001s */
+@keyframes deploy-pipeline-w1a{0%,6.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.58%,100%{opacity:1}}
+/* wire 2 draws on at 0.51 s */
+@keyframes deploy-pipeline-w2{0%,4.25%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.83%,100%{stroke-dashoffset:0}}
+/* from 0.91s */
+@keyframes deploy-pipeline-w2a{0%,7.58%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.25%,100%{opacity:1}}
+/* wire 3 draws on at 0.59 s */
+@keyframes deploy-pipeline-w3{0%,4.92%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.5%,100%{stroke-dashoffset:0}}
+/* from 0.99s */
+@keyframes deploy-pipeline-w3a{0%,8.25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.92%,100%{opacity:1}}
+/* rollback guard enters with the wires */
+@keyframes deploy-pipeline-rb{0%,5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.33%,100%{opacity:1}}
+/* 0.9s - 1.4s */
+@keyframes deploy-pipeline-commit-run{0%,7.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.17%{opacity:1}11.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}13.33%,100%{opacity:0}}
+/* from 1.4s */
+@keyframes deploy-pipeline-commit-ok{0%,11.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.75%,100%{opacity:1}}
+/* 0s - 0.9s */
+@keyframes deploy-pipeline-commit-c0{0%{opacity:1}7.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}8.75%,100%{opacity:0}}
+/* 0.9s - 1.4s */
+@keyframes deploy-pipeline-commit-c1{0%,7.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.17%{opacity:1}11.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}12.92%,100%{opacity:0}}
+/* from 1.4s */
+@keyframes deploy-pipeline-commit-c2{0%,11.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.33%,100%{opacity:1}}
+/* from 1.45s */
+@keyframes deploy-pipeline-commit-chk{0%,12.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.17%,100%{opacity:1}}
+/* progress 0.9-1.4 s */
+@keyframes deploy-pipeline-commit-fill{0%,7.5%{transform:scaleX(0);fill:var(--anim-accent);animation-timing-function:ease-in-out}11.67%{transform:scaleX(1);fill:var(--anim-accent)}13.75%,100%{transform:scaleX(1);fill:var(--anim-ok)}}
+/* 2.2s - 3.2s */
+@keyframes deploy-pipeline-build-run{0%,18.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20%{opacity:1}26.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}28.33%,100%{opacity:0}}
+/* from 3.2s */
+@keyframes deploy-pipeline-build-ok{0%,26.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.75%,100%{opacity:1}}
+/* 0s - 2.2s */
+@keyframes deploy-pipeline-build-c0{0%{opacity:1}18.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}19.58%,100%{opacity:0}}
+/* 2.2s - 3.2s */
+@keyframes deploy-pipeline-build-c1{0%,18.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20%{opacity:1}26.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}27.92%,100%{opacity:0}}
+/* from 3.2s */
+@keyframes deploy-pipeline-build-c2{0%,26.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.33%,100%{opacity:1}}
+/* from 3.25s */
+@keyframes deploy-pipeline-build-chk{0%,27.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.17%,100%{opacity:1}}
+/* progress 2.2-3.2 s */
+@keyframes deploy-pipeline-build-fill{0%,18.33%{transform:scaleX(0);fill:var(--anim-accent);animation-timing-function:ease-in-out}26.67%{transform:scaleX(1);fill:var(--anim-accent)}28.75%,100%{transform:scaleX(1);fill:var(--anim-ok)}}
+/* 4.0s - 5.0s */
+@keyframes deploy-pipeline-test-run{0%,33.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35%{opacity:1}41.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.33%,100%{opacity:0}}
+/* from 5.0s */
+@keyframes deploy-pipeline-test-ok{0%,41.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.75%,100%{opacity:1}}
+/* 0s - 4.0s */
+@keyframes deploy-pipeline-test-c0{0%{opacity:1}33.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.58%,100%{opacity:0}}
+/* 4.0s - 5.0s */
+@keyframes deploy-pipeline-test-c1{0%,33.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35%{opacity:1}41.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}42.92%,100%{opacity:0}}
+/* from 5.0s */
+@keyframes deploy-pipeline-test-c2{0%,41.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.33%,100%{opacity:1}}
+/* from 5.05s */
+@keyframes deploy-pipeline-test-chk{0%,42.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.17%,100%{opacity:1}}
+/* progress 4.0-5.0 s */
+@keyframes deploy-pipeline-test-fill{0%,33.33%{transform:scaleX(0);fill:var(--anim-accent);animation-timing-function:ease-in-out}41.67%{transform:scaleX(1);fill:var(--anim-accent)}43.75%,100%{transform:scaleX(1);fill:var(--anim-ok)}}
+/* 5.8s - 6.8s */
+@keyframes deploy-pipeline-staging-run{0%,48.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50%{opacity:1}56.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}58.33%,100%{opacity:0}}
+/* from 6.8s */
+@keyframes deploy-pipeline-staging-ok{0%,56.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.75%,100%{opacity:1}}
+/* 0s - 5.8s */
+@keyframes deploy-pipeline-staging-c0{0%{opacity:1}48.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}49.58%,100%{opacity:0}}
+/* 5.8s - 6.8s */
+@keyframes deploy-pipeline-staging-c1{0%,48.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50%{opacity:1}56.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}57.92%,100%{opacity:0}}
+/* from 6.8s */
+@keyframes deploy-pipeline-staging-c2{0%,56.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.33%,100%{opacity:1}}
+/* from 6.85s */
+@keyframes deploy-pipeline-staging-chk{0%,57.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.17%,100%{opacity:1}}
+/* progress 5.8-6.8 s */
+@keyframes deploy-pipeline-staging-fill{0%,48.33%{transform:scaleX(0);fill:var(--anim-accent);animation-timing-function:ease-in-out}56.67%{transform:scaleX(1);fill:var(--anim-accent)}58.75%,100%{transform:scaleX(1);fill:var(--anim-ok)}}
+/* 7.6s - 9.4s */
+@keyframes deploy-pipeline-prod-run{0%,63.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
+/* from 9.4s */
+@keyframes deploy-pipeline-prod-ok{0%,78.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.42%,100%{opacity:1}}
+/* 0s - 7.6s */
+@keyframes deploy-pipeline-prod-c0{0%{opacity:1}63.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}64.58%,100%{opacity:0}}
+/* 7.6s - 9.4s */
+@keyframes deploy-pipeline-prod-c1{0%,63.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}79.58%,100%{opacity:0}}
+/* from 9.4s */
+@keyframes deploy-pipeline-prod-c2{0%,78.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80%,100%{opacity:1}}
+/* from 9.450000000000001s */
+@keyframes deploy-pipeline-prod-chk{0%,78.75%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.83%,100%{opacity:1}}
+/* progress 7.6-9.4 s */
+@keyframes deploy-pipeline-prod-fill{0%,63.33%{transform:scaleX(0);fill:var(--anim-accent);animation-timing-function:ease-in-out}78.33%{transform:scaleX(1);fill:var(--anim-accent)}80.42%,100%{transform:scaleX(1);fill:var(--anim-ok)}}
+/* hop 1.4-2.2 s */
+@keyframes deploy-pipeline-p0{0%,11.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}12.5%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}17.5%{offset-distance:94%;opacity:1}18.33%,100%{offset-distance:100%;opacity:0}}
+/* hop 3.2-4.0 s */
+@keyframes deploy-pipeline-p1{0%,26.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}27.5%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}32.5%{offset-distance:94%;opacity:1}33.33%,100%{offset-distance:100%;opacity:0}}
+/* hop 5.0-5.8 s */
+@keyframes deploy-pipeline-p2{0%,41.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}42.5%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}47.5%{offset-distance:94%;opacity:1}48.33%,100%{offset-distance:100%;opacity:0}}
+/* hop 6.8-7.6 s */
+@keyframes deploy-pipeline-p3{0%,56.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}57.5%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}62.5%{offset-distance:94%;opacity:1}63.33%,100%{offset-distance:100%;opacity:0}}
+/* 0s - 9.4s */
+@keyframes deploy-pipeline-prod-s1{0%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
+/* from 9.4s */
+@keyframes deploy-pipeline-prod-s2{0%,78.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.83%,100%{opacity:1}}
+/* 7.6s - 9.4s */
+@keyframes deploy-pipeline-rb-on{0%,63.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65.83%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
+/* idle label hidden while armed */
+@keyframes deploy-pipeline-rb-idle{0%,63.33%{opacity:1}65%,78.33%{opacity:0}80.83%,100%{opacity:1}}
+/* armed rollback edge: 7.6 s - 9.4 s */
+@keyframes deploy-pipeline-armed{0%,63.33%{opacity:0}65.83%,78.33%{opacity:1}80%,100%{opacity:0}}
+@keyframes deploy-pipeline-march{to{stroke-dashoffset:-26}}
+/* 0s - 2.2s */
+@keyframes deploy-pipeline-n0{0%{opacity:1}18.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20%,100%{opacity:0}}
+/* 2.2s - 4.0s */
+@keyframes deploy-pipeline-n1{0%,18.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.83%{opacity:1}33.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}35%,100%{opacity:0}}
+/* 4.0s - 5.8s */
+@keyframes deploy-pipeline-n2{0%,33.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35.83%{opacity:1}48.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}50%,100%{opacity:0}}
+/* 5.8s - 7.6s */
+@keyframes deploy-pipeline-n3{0%,48.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.83%{opacity:1}63.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}65%,100%{opacity:0}}
+/* 7.6s - 9.4s */
+@keyframes deploy-pipeline-n4{0%,63.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65.83%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
+/* from 9.4s */
+@keyframes deploy-pipeline-n5{0%,78.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.83%,100%{opacity:1}}
+
+.visible .anim-deploy-pipeline .deploy-pipeline-scene{animation:deploy-pipeline-scene 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-st0{animation:deploy-pipeline-st0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-st1{animation:deploy-pipeline-st1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-st2{animation:deploy-pipeline-st2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-st3{animation:deploy-pipeline-st3 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-st4{animation:deploy-pipeline-st4 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-w0{animation:deploy-pipeline-w0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-w0a{animation:deploy-pipeline-w0a 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-w1{animation:deploy-pipeline-w1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-w1a{animation:deploy-pipeline-w1a 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-w2{animation:deploy-pipeline-w2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-w2a{animation:deploy-pipeline-w2a 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-w3{animation:deploy-pipeline-w3 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-w3a{animation:deploy-pipeline-w3a 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-rb{animation:deploy-pipeline-rb 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-run{animation:deploy-pipeline-commit-run 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-ok{animation:deploy-pipeline-commit-ok 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-c0{animation:deploy-pipeline-commit-c0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-c1{animation:deploy-pipeline-commit-c1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-c2{animation:deploy-pipeline-commit-c2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-chk{animation:deploy-pipeline-commit-chk 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-fill{animation:deploy-pipeline-commit-fill 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-run{animation:deploy-pipeline-build-run 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-ok{animation:deploy-pipeline-build-ok 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-c0{animation:deploy-pipeline-build-c0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-c1{animation:deploy-pipeline-build-c1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-c2{animation:deploy-pipeline-build-c2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-chk{animation:deploy-pipeline-build-chk 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-fill{animation:deploy-pipeline-build-fill 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-run{animation:deploy-pipeline-test-run 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-ok{animation:deploy-pipeline-test-ok 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-c0{animation:deploy-pipeline-test-c0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-c1{animation:deploy-pipeline-test-c1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-c2{animation:deploy-pipeline-test-c2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-chk{animation:deploy-pipeline-test-chk 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-fill{animation:deploy-pipeline-test-fill 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-run{animation:deploy-pipeline-staging-run 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-ok{animation:deploy-pipeline-staging-ok 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-c0{animation:deploy-pipeline-staging-c0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-c1{animation:deploy-pipeline-staging-c1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-c2{animation:deploy-pipeline-staging-c2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-chk{animation:deploy-pipeline-staging-chk 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-fill{animation:deploy-pipeline-staging-fill 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-run{animation:deploy-pipeline-prod-run 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-ok{animation:deploy-pipeline-prod-ok 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-c0{animation:deploy-pipeline-prod-c0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-c1{animation:deploy-pipeline-prod-c1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-c2{animation:deploy-pipeline-prod-c2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-chk{animation:deploy-pipeline-prod-chk 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-fill{animation:deploy-pipeline-prod-fill 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-p0{animation:deploy-pipeline-p0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-p1{animation:deploy-pipeline-p1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-p2{animation:deploy-pipeline-p2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-p3{animation:deploy-pipeline-p3 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-s1{animation:deploy-pipeline-prod-s1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-s2{animation:deploy-pipeline-prod-s2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-rb-on{animation:deploy-pipeline-rb-on 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-rb-idle{animation:deploy-pipeline-rb-idle 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-arc-armed{animation:deploy-pipeline-march .8s linear infinite,deploy-pipeline-armed 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-n0{animation:deploy-pipeline-n0 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-n1{animation:deploy-pipeline-n1 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-n2{animation:deploy-pipeline-n2 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-n3{animation:deploy-pipeline-n3 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-n4{animation:deploy-pipeline-n4 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-n5{animation:deploy-pipeline-n5 12s linear infinite}
+
+@media (prefers-reduced-motion: reduce) { .anim-deploy-pipeline * { animation: none !important; } }
+</style>
+<div class="anim anim-deploy-pipeline" data-anim="deploy-pipeline" data-anim-cycle="12" data-anim-control="loop">
+<svg viewBox="0 0 1680 440" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Deployment pipeline: a commit is built, tested and smoke-tested on staging, then released as a 5 % canary with automatic rollback armed; errors stay under 1 % and production is promoted to 100 % of traffic.">
+<g class="deploy-pipeline-scene">
+  <path class="deploy-pipeline-wire deploy-pipeline-w0" pathLength="100" d="M286 174 H376"/>
+  <path class="deploy-pipeline-arrow deploy-pipeline-w0a" d="M367 166 L376 174 L367 182"/>
+  <path class="deploy-pipeline-wire deploy-pipeline-w1" pathLength="100" d="M626 174 H716"/>
+  <path class="deploy-pipeline-arrow deploy-pipeline-w1a" d="M707 166 L716 174 L707 182"/>
+  <path class="deploy-pipeline-wire deploy-pipeline-w2" pathLength="100" d="M966 174 H1056"/>
+  <path class="deploy-pipeline-arrow deploy-pipeline-w2a" d="M1047 166 L1056 174 L1047 182"/>
+  <path class="deploy-pipeline-wire deploy-pipeline-w3" pathLength="100" d="M1306 174 H1396"/>
+  <path class="deploy-pipeline-arrow deploy-pipeline-w3a" d="M1387 166 L1396 174 L1387 182"/>
+  <g class="deploy-pipeline-rb">
+    <path class="deploy-pipeline-arc" d="M1520 238 C1520 308 1180 308 1180 240"/>
+    <path class="deploy-pipeline-arc deploy-pipeline-arc-armed" d="M1520 238 C1520 308 1180 308 1180 240"/>
+    <path class="deploy-pipeline-arrow deploy-pipeline-arc-head" d="M1171 252 L1180 241 L1189 252"/>
+    <text class="deploy-pipeline-mono deploy-pipeline-rb-idle" x="1350" y="326" text-anchor="middle">auto-rollback if errors &gt; 1 %</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-wn deploy-pipeline-rb-on" x="1350" y="326" text-anchor="middle">watching: errors 0.2 % of 1 %</text>
+  </g>
+  <g class="deploy-pipeline-stage deploy-pipeline-st0">
+    <rect class="deploy-pipeline-box" x="40" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-run deploy-pipeline-commit-run" x="40" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-ok deploy-pipeline-commit-ok" x="40" y="114" width="240" height="120" rx="8"/>
+    <text class="deploy-pipeline-t deploy-pipeline-lbl" x="160" y="160" text-anchor="middle">Commit</text>
+    <text class="deploy-pipeline-t deploy-pipeline-sub" x="160" y="190" text-anchor="middle">main · a1f9c3e</text>
+    <rect class="deploy-pipeline-bar" x="64" y="208" width="192" height="6" rx="3"/>
+    <rect class="deploy-pipeline-fill deploy-pipeline-commit-fill" x="64" y="208" width="192" height="6" rx="3"/>
+    <path class="deploy-pipeline-check deploy-pipeline-commit-chk" d="M246 140 l6 6 l11 -12"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-q deploy-pipeline-commit-c0" x="96" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-r deploy-pipeline-commit-c1" x="96" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-o deploy-pipeline-commit-c2" x="96" y="68" width="128" height="30" rx="15"/>
+    <text class="deploy-pipeline-mono deploy-pipeline-dm deploy-pipeline-commit-c0" x="160" y="89" text-anchor="middle">ready</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-cy deploy-pipeline-commit-c1" x="160" y="89" text-anchor="middle">pushing</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-gn deploy-pipeline-commit-c2" x="160" y="89" text-anchor="middle">pushed</text>
+  </g>
+  <g class="deploy-pipeline-stage deploy-pipeline-st1">
+    <rect class="deploy-pipeline-box" x="380" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-run deploy-pipeline-build-run" x="380" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-ok deploy-pipeline-build-ok" x="380" y="114" width="240" height="120" rx="8"/>
+    <text class="deploy-pipeline-t deploy-pipeline-lbl" x="500" y="160" text-anchor="middle">Build</text>
+    <text class="deploy-pipeline-t deploy-pipeline-sub" x="500" y="190" text-anchor="middle">v1.4.2 · ~3 min</text>
+    <rect class="deploy-pipeline-bar" x="404" y="208" width="192" height="6" rx="3"/>
+    <rect class="deploy-pipeline-fill deploy-pipeline-build-fill" x="404" y="208" width="192" height="6" rx="3"/>
+    <path class="deploy-pipeline-check deploy-pipeline-build-chk" d="M586 140 l6 6 l11 -12"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-q deploy-pipeline-build-c0" x="436" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-r deploy-pipeline-build-c1" x="436" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-o deploy-pipeline-build-c2" x="436" y="68" width="128" height="30" rx="15"/>
+    <text class="deploy-pipeline-mono deploy-pipeline-dm deploy-pipeline-build-c0" x="500" y="89" text-anchor="middle">queued</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-cy deploy-pipeline-build-c1" x="500" y="89" text-anchor="middle">running</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-gn deploy-pipeline-build-c2" x="500" y="89" text-anchor="middle">passed</text>
+  </g>
+  <g class="deploy-pipeline-stage deploy-pipeline-st2">
+    <rect class="deploy-pipeline-box" x="720" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-run deploy-pipeline-test-run" x="720" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-ok deploy-pipeline-test-ok" x="720" y="114" width="240" height="120" rx="8"/>
+    <text class="deploy-pipeline-t deploy-pipeline-lbl" x="840" y="160" text-anchor="middle">Test</text>
+    <text class="deploy-pipeline-t deploy-pipeline-sub" x="840" y="190" text-anchor="middle">unit + e2e</text>
+    <rect class="deploy-pipeline-bar" x="744" y="208" width="192" height="6" rx="3"/>
+    <rect class="deploy-pipeline-fill deploy-pipeline-test-fill" x="744" y="208" width="192" height="6" rx="3"/>
+    <path class="deploy-pipeline-check deploy-pipeline-test-chk" d="M926 140 l6 6 l11 -12"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-q deploy-pipeline-test-c0" x="776" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-r deploy-pipeline-test-c1" x="776" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-o deploy-pipeline-test-c2" x="776" y="68" width="128" height="30" rx="15"/>
+    <text class="deploy-pipeline-mono deploy-pipeline-dm deploy-pipeline-test-c0" x="840" y="89" text-anchor="middle">queued</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-cy deploy-pipeline-test-c1" x="840" y="89" text-anchor="middle">running</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-gn deploy-pipeline-test-c2" x="840" y="89" text-anchor="middle">passed</text>
+  </g>
+  <g class="deploy-pipeline-stage deploy-pipeline-st3">
+    <rect class="deploy-pipeline-box" x="1060" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-run deploy-pipeline-staging-run" x="1060" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-ok deploy-pipeline-staging-ok" x="1060" y="114" width="240" height="120" rx="8"/>
+    <text class="deploy-pipeline-t deploy-pipeline-lbl" x="1180" y="160" text-anchor="middle">Staging</text>
+    <text class="deploy-pipeline-t deploy-pipeline-sub" x="1180" y="190" text-anchor="middle">smoke test</text>
+    <rect class="deploy-pipeline-bar" x="1084" y="208" width="192" height="6" rx="3"/>
+    <rect class="deploy-pipeline-fill deploy-pipeline-staging-fill" x="1084" y="208" width="192" height="6" rx="3"/>
+    <path class="deploy-pipeline-check deploy-pipeline-staging-chk" d="M1266 140 l6 6 l11 -12"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-q deploy-pipeline-staging-c0" x="1116" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-r deploy-pipeline-staging-c1" x="1116" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-o deploy-pipeline-staging-c2" x="1116" y="68" width="128" height="30" rx="15"/>
+    <text class="deploy-pipeline-mono deploy-pipeline-dm deploy-pipeline-staging-c0" x="1180" y="89" text-anchor="middle">queued</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-cy deploy-pipeline-staging-c1" x="1180" y="89" text-anchor="middle">running</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-gn deploy-pipeline-staging-c2" x="1180" y="89" text-anchor="middle">passed</text>
+  </g>
+  <g class="deploy-pipeline-stage deploy-pipeline-st4">
+    <rect class="deploy-pipeline-box" x="1400" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-run deploy-pipeline-prod-run" x="1400" y="114" width="240" height="120" rx="8"/>
+    <rect class="deploy-pipeline-box deploy-pipeline-box-ok deploy-pipeline-prod-ok" x="1400" y="114" width="240" height="120" rx="8"/>
+    <text class="deploy-pipeline-t deploy-pipeline-lbl" x="1520" y="160" text-anchor="middle">Production</text>
+    <text class="deploy-pipeline-t deploy-pipeline-sub deploy-pipeline-prod-s1" x="1520" y="190" text-anchor="middle">canary 5 %</text>
+    <text class="deploy-pipeline-t deploy-pipeline-sub deploy-pipeline-gn deploy-pipeline-prod-s2" x="1520" y="190" text-anchor="middle">100 % traffic</text>
+    <rect class="deploy-pipeline-bar" x="1424" y="208" width="192" height="6" rx="3"/>
+    <rect class="deploy-pipeline-fill deploy-pipeline-prod-fill" x="1424" y="208" width="192" height="6" rx="3"/>
+    <path class="deploy-pipeline-check deploy-pipeline-prod-chk" d="M1606 140 l6 6 l11 -12"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-q deploy-pipeline-prod-c0" x="1456" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-r deploy-pipeline-prod-c1" x="1456" y="68" width="128" height="30" rx="15"/>
+    <rect class="deploy-pipeline-chip deploy-pipeline-chip-o deploy-pipeline-prod-c2" x="1456" y="68" width="128" height="30" rx="15"/>
+    <text class="deploy-pipeline-mono deploy-pipeline-dm deploy-pipeline-prod-c0" x="1520" y="89" text-anchor="middle">queued</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-cy deploy-pipeline-prod-c1" x="1520" y="89" text-anchor="middle">canary</text>
+    <text class="deploy-pipeline-mono deploy-pipeline-gn deploy-pipeline-prod-c2" x="1520" y="89" text-anchor="middle">live</text>
+  </g>
+  <circle class="deploy-pipeline-pkt deploy-pipeline-p0" r="9"/>
+  <rect class="deploy-pipeline-pkt deploy-pipeline-p1" x="-9" y="-9" width="18" height="18" rx="4"/>
+  <rect class="deploy-pipeline-pkt deploy-pipeline-p2" x="-9" y="-9" width="18" height="18" rx="4"/>
+  <rect class="deploy-pipeline-pkt deploy-pipeline-p3" x="-9" y="-9" width="18" height="18" rx="4"/>
+  <rect class="deploy-pipeline-cap" x="24" y="376" width="1632" height="56" rx="8"/>
+  <text class="deploy-pipeline-t deploy-pipeline-note deploy-pipeline-n0" x="840" y="412" text-anchor="middle">A commit lands on main</text>
+  <text class="deploy-pipeline-t deploy-pipeline-note deploy-pipeline-n1" x="840" y="412" text-anchor="middle">CI builds one immutable artifact</text>
+  <text class="deploy-pipeline-t deploy-pipeline-note deploy-pipeline-n2" x="840" y="412" text-anchor="middle">Unit and end-to-end tests gate the artifact</text>
+  <text class="deploy-pipeline-t deploy-pipeline-note deploy-pipeline-n3" x="840" y="412" text-anchor="middle">Smoke tests pass on staging</text>
+  <text class="deploy-pipeline-t deploy-pipeline-note deploy-pipeline-n4" x="840" y="412" text-anchor="middle">Canary on 5 % of traffic, auto-rollback armed</text>
+  <text class="deploy-pipeline-t deploy-pipeline-note deploy-pipeline-n5" x="840" y="412" text-anchor="middle">Error rate stayed under 1 %: promoted to 100 %</text>
+</g>
+</svg>
+</div>

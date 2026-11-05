@@ -1,0 +1,353 @@
+<style>
+.anim-cache-compare{
+  --anim-bg:       var(--anim-theme-bg,       #0f1218);
+  --anim-panel:    var(--anim-theme-panel,    #1a2030);
+  --anim-line:     var(--anim-theme-line,     #3a4660);
+  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
+  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
+  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
+  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
+  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
+  --anim-warn:     var(--anim-theme-warn,     #ffb454);
+  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  width:100%;height:100%
+}
+.anim-cache-compare svg{width:100%;height:100%;display:block}
+.anim-cache-compare .cache-compare-mono{font-family:var(--anim-mono);font-size:20px}
+.anim-cache-compare .cache-compare-sans{font-family:var(--anim-font);font-size:20px}
+.anim-cache-compare .cache-compare-head{font-size:26px;font-weight:700}
+.anim-cache-compare .cache-compare-lbl{font-size:22px;font-weight:600}
+.anim-cache-compare .cache-compare-bold{font-weight:700}
+.anim-cache-compare .cache-compare-fg{fill:var(--anim-fg)}
+.anim-cache-compare .cache-compare-dim{fill:var(--anim-muted)}
+.anim-cache-compare .cache-compare-gn{fill:var(--anim-ok)}
+.anim-cache-compare .cache-compare-am{fill:var(--anim-warn)}
+.anim-cache-compare .cache-compare-rd{fill:var(--anim-danger)}
+/* resting frame = end of the story: all rows in, left dimmed, right outlined, verdict shown.
+   Elements that belong only to earlier moments rest at opacity 0. */
+.anim-cache-compare .cache-compare-scene{opacity:1}
+.anim-cache-compare .cache-compare-panel{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:1.5px}
+.anim-cache-compare .cache-compare-panel-r{stroke:var(--anim-ok);stroke-width:3px}
+.anim-cache-compare .cache-compare-side-l{opacity:.68}
+.anim-cache-compare .cache-compare-wire{fill:none;stroke:var(--anim-line);stroke-width:3;stroke-linecap:round}
+.anim-cache-compare .cache-compare-box{fill:var(--anim-bg);stroke:var(--anim-muted);stroke-width:2;stroke-linejoin:round}
+.anim-cache-compare .cache-compare-cachebox{stroke:var(--anim-ok)}
+.anim-cache-compare .cache-compare-slot{fill:var(--anim-ok)}
+.anim-cache-compare .cache-compare-cyl path,.anim-cache-compare .cache-compare-cyl ellipse{stroke-width:2.5;stroke-linejoin:round}
+.anim-cache-compare .cache-compare-cyl-calm path,.anim-cache-compare .cache-compare-cyl-calm ellipse{fill:var(--anim-bg);stroke:var(--anim-muted)}
+.anim-cache-compare .cache-compare-cyl-busy path,.anim-cache-compare .cache-compare-cyl-busy ellipse{fill:color-mix(in srgb,var(--anim-danger) 16%,var(--anim-bg));stroke:var(--anim-danger)}
+.anim-cache-compare .cache-compare-chip rect{stroke-width:1.5}
+.anim-cache-compare .cache-compare-chip-dim rect{fill:none;stroke:var(--anim-muted)}
+.anim-cache-compare .cache-compare-chip-rd rect{fill:color-mix(in srgb,var(--anim-danger) 14%,var(--anim-bg));stroke:var(--anim-danger)}
+.anim-cache-compare .cache-compare-chip-gn rect,.anim-cache-compare .cache-compare-chip-hit rect{fill:color-mix(in srgb,var(--anim-ok) 14%,var(--anim-bg));stroke:var(--anim-ok)}
+.anim-cache-compare .cache-compare-chip-miss rect{fill:color-mix(in srgb,var(--anim-warn) 14%,var(--anim-bg));stroke:var(--anim-warn)}
+.anim-cache-compare .cache-compare-chip-miss,.anim-cache-compare .cache-compare-c-empty,.anim-cache-compare .cache-compare-rd-l0,.anim-cache-compare .cache-compare-rd-l1,.anim-cache-compare .cache-compare-rd-l2,.anim-cache-compare .cache-compare-rd-l3,.anim-cache-compare .cache-compare-rd-r0,
+.anim-cache-compare .cache-compare-pc-l0,.anim-cache-compare .cache-compare-pc-l1,.anim-cache-compare .cache-compare-pc-l2,.anim-cache-compare .cache-compare-pc-l3,.anim-cache-compare .cache-compare-pc-r0,.anim-cache-compare .cache-compare-pkt{opacity:0}
+.anim-cache-compare .cache-compare-meter{fill:var(--anim-bg);stroke:var(--anim-muted);stroke-width:2}
+.anim-cache-compare .cache-compare-fill{transform-box:fill-box;transform-origin:50% 100%}
+.anim-cache-compare .cache-compare-fill-l{fill:var(--anim-danger);transform:scaleY(.96)}
+.anim-cache-compare .cache-compare-fill-r{fill:var(--anim-ok);transform:scaleY(.24)}
+.anim-cache-compare .cache-compare-rowbox{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:1.5}
+.anim-cache-compare .cache-compare-row-r0 .cache-compare-rowbox,.anim-cache-compare .cache-compare-row-r1 .cache-compare-rowbox,.anim-cache-compare .cache-compare-row-r2 .cache-compare-rowbox,.anim-cache-compare .cache-compare-row-r3 .cache-compare-rowbox{stroke:color-mix(in srgb,var(--anim-ok) 55%,var(--anim-line))}
+.anim-cache-compare .cache-compare-bar{transform-box:fill-box;transform-origin:0 50%}
+.anim-cache-compare .cache-compare-bar-am{fill:var(--anim-warn)}
+.anim-cache-compare .cache-compare-bar-gn{fill:var(--anim-ok)}
+.anim-cache-compare .cache-compare-bar-l0,.anim-cache-compare .cache-compare-bar-l1,.anim-cache-compare .cache-compare-bar-l2,.anim-cache-compare .cache-compare-bar-l3,.anim-cache-compare .cache-compare-ms-l0,.anim-cache-compare .cache-compare-ms-l1,.anim-cache-compare .cache-compare-ms-l2,.anim-cache-compare .cache-compare-ms-l3{fill:var(--anim-muted)}
+.anim-cache-compare .cache-compare-pkt{fill:var(--anim-accent)}
+.anim-cache-compare .cache-compare-pkt-fill{fill:var(--anim-ok)}
+.anim-cache-compare .cache-compare-tick{fill:none;stroke:var(--anim-ok);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* 12 s cycle. 0-0.4 s in | 0.9-4.3 s four direct reads, database fills to busy
+   | 4.9-6.7 s read 1 misses and fills the cache | 7.3-9.3 s three cache hits, each dims its left pair
+   | 9.8 s right outlined, left recedes | 10.1 s verdict | hold to 11.5 s | 11.5-11.8 s reset */
+/* scene: in 0-0.4 s, hold, reset 11.5-11.8 s */
+@keyframes cache-compare-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}3.33%{opacity:1;}95.83%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}98.33%{opacity:0;}100%{opacity:0;}}
+/* left read 1: app -> db 0.9-1.6 s */
+@keyframes cache-compare-pkl0{0%{opacity:0;offset-distance:0%;}7.50%{opacity:0;offset-distance:0%;}7.92%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}12.92%{opacity:1;offset-distance:96%;}13.33%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* left row 1 lands 1.4 s */
+@keyframes cache-compare-rowl0{0%{opacity:0;transform:translateX(30px);}11.67%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+@keyframes cache-compare-barl0{0%{transform:scaleX(0);}12.50%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}16.67%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+/* left bar 1 dims when its right pair lands 6.8 s */
+@keyframes cache-compare-dim0{0%{fill:var(--anim-warn);}56.67%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}58.75%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
+@keyframes cache-compare-msl0{0%{opacity:0;}15.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}18.33%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-dimt0{0%{fill:var(--anim-warn);}56.67%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}58.75%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
+/* left read 2: app -> db 1.8-2.5 s */
+@keyframes cache-compare-pkl1{0%{opacity:0;offset-distance:0%;}15%{opacity:0;offset-distance:0%;}15.42%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}20.42%{opacity:1;offset-distance:96%;}20.83%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* left row 2 lands 2.3 s */
+@keyframes cache-compare-rowl1{0%{opacity:0;transform:translateX(30px);}19.17%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}22.50%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+@keyframes cache-compare-barl1{0%{transform:scaleX(0);}20%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}24.17%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+/* left bar 2 dims when its right pair lands 7.8 s */
+@keyframes cache-compare-dim1{0%{fill:var(--anim-warn);}65%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}67.08%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
+@keyframes cache-compare-msl1{0%{opacity:0;}23.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}25.83%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-dimt1{0%{fill:var(--anim-warn);}65%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}67.08%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
+/* left read 3: app -> db 2.7-3.4 s */
+@keyframes cache-compare-pkl2{0%{opacity:0;offset-distance:0%;}22.50%{opacity:0;offset-distance:0%;}22.92%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}27.92%{opacity:1;offset-distance:96%;}28.33%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* left row 3 lands 3.2 s */
+@keyframes cache-compare-rowl2{0%{opacity:0;transform:translateX(30px);}26.67%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}30%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+@keyframes cache-compare-barl2{0%{transform:scaleX(0);}27.50%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}31.67%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+/* left bar 3 dims when its right pair lands 8.5 s */
+@keyframes cache-compare-dim2{0%{fill:var(--anim-warn);}70.83%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}72.92%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
+@keyframes cache-compare-msl2{0%{opacity:0;}30.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}33.33%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-dimt2{0%{fill:var(--anim-warn);}70.83%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}72.92%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
+/* left read 4: app -> db 3.6-4.3 s */
+@keyframes cache-compare-pkl3{0%{opacity:0;offset-distance:0%;}30%{opacity:0;offset-distance:0%;}30.42%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}35.42%{opacity:1;offset-distance:96%;}35.83%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* left row 4 lands 4.1 s */
+@keyframes cache-compare-rowl3{0%{opacity:0;transform:translateX(30px);}34.17%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.50%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+@keyframes cache-compare-barl3{0%{transform:scaleX(0);}35%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}39.17%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+/* left bar 4 dims when its right pair lands 9.2 s */
+@keyframes cache-compare-dim3{0%{fill:var(--anim-warn);}76.67%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}78.75%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
+@keyframes cache-compare-msl3{0%{opacity:0;}38.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}40.83%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-dimt3{0%{fill:var(--anim-warn);}76.67%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}78.75%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
+@keyframes cache-compare-rdl0{0%{opacity:1;}12.25%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}13.33%{opacity:0;}100%{opacity:0;}}
+@keyframes cache-compare-rdl1{0%{opacity:0;}13.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15%{opacity:1;}19.75%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}20.83%{opacity:0;}100%{opacity:0;}}
+@keyframes cache-compare-rdl2{0%{opacity:0;}20.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}22.50%{opacity:1;}27.25%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}28.33%{opacity:0;}100%{opacity:0;}}
+@keyframes cache-compare-rdl3{0%{opacity:0;}28.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}30%{opacity:1;}34.75%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}35.83%{opacity:0;}100%{opacity:0;}}
+@keyframes cache-compare-rdl4{0%{opacity:0;}35.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.50%{opacity:1;}100%{opacity:1;}}
+/* left load 24 % per read */
+@keyframes cache-compare-fill-l{0%{transform:scaleY(0);}13.33%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1);}16.25%{transform:scaleY(0.24);}20.83%{transform:scaleY(0.24);animation-timing-function:cubic-bezier(0.2,0,0,1);}23.75%{transform:scaleY(0.48);}28.33%{transform:scaleY(0.48);animation-timing-function:cubic-bezier(0.2,0,0,1);}31.25%{transform:scaleY(0.72);}35.83%{transform:scaleY(0.72);animation-timing-function:cubic-bezier(0.2,0,0,1);}38.75%{transform:scaleY(0.96);}100%{transform:scaleY(0.96);}}
+@keyframes cache-compare-fillcol{0%{fill:var(--anim-warn);}35.83%{fill:var(--anim-warn);animation-timing-function:cubic-bezier(0.2,0,0,1);}37.92%{fill:var(--anim-danger);}100%{fill:var(--anim-danger);}}
+/* database busy from 4.3 s */
+@keyframes cache-compare-busy{0%{opacity:0;}35.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.33%{opacity:1;}100%{opacity:1;}}
+/* right read 1 app -> cache 4.9 s */
+@keyframes cache-compare-pkr0a{0%{opacity:0;offset-distance:0%;}40.83%{opacity:0;offset-distance:0%;}41.25%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}45.42%{opacity:1;offset-distance:96%;}45.83%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* miss: cache -> db 5.65 s */
+@keyframes cache-compare-pkr0b{0%{opacity:0;offset-distance:0%;}47.08%{opacity:0;offset-distance:0%;}47.50%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}51.67%{opacity:1;offset-distance:96%;}52.08%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* fill: db -> cache 6.4 s */
+@keyframes cache-compare-pkr0c{0%{opacity:0;offset-distance:0%;}53.33%{opacity:0;offset-distance:0%;}53.75%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}57.92%{opacity:1;offset-distance:96%;}58.33%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* MISS chip */
+@keyframes cache-compare-miss{0%{opacity:0;}45.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}47.50%{opacity:1;}64.75%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}65.83%{opacity:0;}100%{opacity:0;}}
+/* HIT chip from the first hit */
+@keyframes cache-compare-hit{0%{opacity:0;}65.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}67.50%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-cempty{0%{opacity:1;}57.08%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}58.33%{opacity:0;}100%{opacity:0;}}
+/* cache warm after the fill */
+@keyframes cache-compare-cwarm{0%{opacity:0;}58.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60.42%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-slot{0%{opacity:0;}58.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60%{opacity:1;}100%{opacity:1;}}
+/* cache outline turns ok once filled */
+@keyframes cache-compare-cbox{0%{stroke:var(--anim-muted);}58.33%{stroke:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1);}60.42%{stroke:var(--anim-ok);}100%{stroke:var(--anim-ok);}}
+@keyframes cache-compare-rdr0{0%{opacity:1;}51%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}52.08%{opacity:0;}100%{opacity:0;}}
+/* right database read once at 6.2 s */
+@keyframes cache-compare-rdr1{0%{opacity:0;}52.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}53.75%{opacity:1;}100%{opacity:1;}}
+/* right load 24 % after the single read */
+@keyframes cache-compare-fill-r{0%{transform:scaleY(0);}52.08%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1);}55%{transform:scaleY(0.24);}100%{transform:scaleY(0.24);}}
+/* right read 2 hit 7.3 s */
+@keyframes cache-compare-pkr1{0%{opacity:0;offset-distance:0%;}60.83%{opacity:0;offset-distance:0%;}61.25%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}65.42%{opacity:1;offset-distance:96%;}65.83%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* right read 3 hit 8.0 s */
+@keyframes cache-compare-pkr2{0%{opacity:0;offset-distance:0%;}66.67%{opacity:0;offset-distance:0%;}67.08%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}71.25%{opacity:1;offset-distance:96%;}71.67%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* right read 4 hit 8.7 s */
+@keyframes cache-compare-pkr3{0%{opacity:0;offset-distance:0%;}72.50%{opacity:0;offset-distance:0%;}72.92%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}77.08%{opacity:1;offset-distance:96%;}77.50%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+/* right row 1 lands 6.8 s */
+@keyframes cache-compare-rowr0{0%{opacity:0;transform:translateX(30px);}56.67%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+@keyframes cache-compare-barr0{0%{transform:scaleX(0);}57.50%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}61.67%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes cache-compare-msr0{0%{opacity:0;}60.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}63.33%{opacity:1;}100%{opacity:1;}}
+/* right row 2 lands 7.8 s */
+@keyframes cache-compare-rowr1{0%{opacity:0;transform:translateX(30px);}65%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}68.33%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+@keyframes cache-compare-barr1{0%{transform:scaleX(0);}65.83%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}67.92%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes cache-compare-msr1{0%{opacity:0;}67.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}70%{opacity:1;}100%{opacity:1;}}
+/* right row 3 lands 8.5 s */
+@keyframes cache-compare-rowr2{0%{opacity:0;transform:translateX(30px);}70.83%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}74.17%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+@keyframes cache-compare-barr2{0%{transform:scaleX(0);}71.67%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}73.75%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes cache-compare-msr2{0%{opacity:0;}73.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}75.83%{opacity:1;}100%{opacity:1;}}
+/* right row 4 lands 9.2 s */
+@keyframes cache-compare-rowr3{0%{opacity:0;transform:translateX(30px);}76.67%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}80%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+@keyframes cache-compare-barr3{0%{transform:scaleX(0);}77.50%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}79.58%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes cache-compare-msr3{0%{opacity:0;}79.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}81.67%{opacity:1;}100%{opacity:1;}}
+/* winner outlined 9.8 s */
+@keyframes cache-compare-win{0%{stroke:var(--anim-line);stroke-width:1.5px;}81.67%{stroke:var(--anim-line);stroke-width:1.5px;animation-timing-function:cubic-bezier(0.2,0,0,1);}83.75%{stroke:var(--anim-ok);stroke-width:3px;}100%{stroke:var(--anim-ok);stroke-width:3px;}}
+/* left recedes */
+@keyframes cache-compare-lose{0%{opacity:1;}81.67%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1);}85%{opacity:.68;}100%{opacity:.68;}}
+/* verdict 10.1 s */
+@keyframes cache-compare-verdict{0%{opacity:0;}84.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}87.92%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-vup{0%{transform:translateY(12px);}84.17%{transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}87.92%{transform:translateY(0);}100%{transform:translateY(0);}}
+
+.visible .anim-cache-compare .cache-compare-scene{animation:cache-compare-scene 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-l0{animation:cache-compare-pkl0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-row-l0{animation:cache-compare-rowl0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-bar-l0{animation:cache-compare-barl0 12s linear infinite,cache-compare-dim0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-ms-l0{animation:cache-compare-msl0 12s linear infinite,cache-compare-dimt0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-l1{animation:cache-compare-pkl1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-row-l1{animation:cache-compare-rowl1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-bar-l1{animation:cache-compare-barl1 12s linear infinite,cache-compare-dim1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-ms-l1{animation:cache-compare-msl1 12s linear infinite,cache-compare-dimt1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-l2{animation:cache-compare-pkl2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-row-l2{animation:cache-compare-rowl2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-bar-l2{animation:cache-compare-barl2 12s linear infinite,cache-compare-dim2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-ms-l2{animation:cache-compare-msl2 12s linear infinite,cache-compare-dimt2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-l3{animation:cache-compare-pkl3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-row-l3{animation:cache-compare-rowl3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-bar-l3{animation:cache-compare-barl3 12s linear infinite,cache-compare-dim3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-ms-l3{animation:cache-compare-msl3 12s linear infinite,cache-compare-dimt3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-rd-l0{animation:cache-compare-rdl0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pc-l0{animation:cache-compare-rdl0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-rd-l1{animation:cache-compare-rdl1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pc-l1{animation:cache-compare-rdl1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-rd-l2{animation:cache-compare-rdl2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pc-l2{animation:cache-compare-rdl2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-rd-l3{animation:cache-compare-rdl3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pc-l3{animation:cache-compare-rdl3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-rd-l4{animation:cache-compare-rdl4 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pc-l4{animation:cache-compare-rdl4 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-fill-l{animation:cache-compare-fill-l 12s linear infinite,cache-compare-fillcol 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-cyl-busy{animation:cache-compare-busy 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-r0a{animation:cache-compare-pkr0a 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-r0b{animation:cache-compare-pkr0b 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-r0c{animation:cache-compare-pkr0c 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-chip-miss{animation:cache-compare-miss 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-chip-hit{animation:cache-compare-hit 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-c-empty{animation:cache-compare-cempty 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-c-warm{animation:cache-compare-cwarm 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-slot{animation:cache-compare-slot 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-cachebox{animation:cache-compare-cbox 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-rd-r0{animation:cache-compare-rdr0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pc-r0{animation:cache-compare-rdr0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-rd-r1{animation:cache-compare-rdr1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pc-r1{animation:cache-compare-rdr1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-fill-r{animation:cache-compare-fill-r 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-r1{animation:cache-compare-pkr1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-r2{animation:cache-compare-pkr2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-pk-r3{animation:cache-compare-pkr3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-row-r0{animation:cache-compare-rowr0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-bar-r0{animation:cache-compare-barr0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-ms-r0{animation:cache-compare-msr0 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-row-r1{animation:cache-compare-rowr1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-bar-r1{animation:cache-compare-barr1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-ms-r1{animation:cache-compare-msr1 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-row-r2{animation:cache-compare-rowr2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-bar-r2{animation:cache-compare-barr2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-ms-r2{animation:cache-compare-msr2 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-row-r3{animation:cache-compare-rowr3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-bar-r3{animation:cache-compare-barr3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-ms-r3{animation:cache-compare-msr3 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-panel-r{animation:cache-compare-win 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-side-l{animation:cache-compare-lose 12s linear infinite}
+.visible .anim-cache-compare .cache-compare-verdict{animation:cache-compare-verdict 12s linear infinite,cache-compare-vup 12s linear infinite}
+
+@media (prefers-reduced-motion: reduce) { .anim-cache-compare * { animation: none !important; } }
+</style>
+<div class="anim anim-cache-compare" data-anim="cache-compare" data-anim-cycle="12" data-anim-control="loop">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side by side: without a cache every read goes to the database at 180 ms and the database gets busy; with a cache the first read misses and fills it, later reads hit it at 8 ms and database load stays low.">
+<g class="cache-compare-scene">
+<!-- ===================== without cache ===================== -->
+<rect class="cache-compare-panel cache-compare-panel-l" x="24" y="24" width="804" height="504" rx="8"/>
+<g class="cache-compare-side-l">
+<text class="cache-compare-sans cache-compare-head cache-compare-fg" x="48" y="70">Without cache</text>
+<path class="cache-compare-wire" d="M198 150 H584"/>
+<text class="cache-compare-mono cache-compare-dim" x="391" y="136" text-anchor="middle">every read</text>
+<rect class="cache-compare-box" x="48" y="118" width="150" height="64" rx="8"/>
+<text class="cache-compare-sans cache-compare-lbl cache-compare-fg" x="123" y="157" text-anchor="middle">App</text>
+<g class="cache-compare-cyl cache-compare-cyl-calm"><path d="M584 124 V184 A60 12 0 0 0 704 184 V124"/><ellipse cx="644" cy="124" rx="60" ry="12"/></g>
+<g class="cache-compare-cyl cache-compare-cyl-busy"><path d="M584 124 V184 A60 12 0 0 0 704 184 V124"/><ellipse cx="644" cy="124" rx="60" ry="12"/></g>
+<text class="cache-compare-mono cache-compare-fg" x="644" y="166" text-anchor="middle">Database</text>
+<g class="cache-compare-chip cache-compare-chip-dim cache-compare-rd-l0" transform="translate(644 222)"><rect x="-52" y="-15" width="104" height="30" rx="6"/><text class="cache-compare-mono cache-compare-fg" x="0" y="6" text-anchor="middle">0 reads</text></g>
+<g class="cache-compare-chip cache-compare-chip-dim cache-compare-rd-l1" transform="translate(644 222)"><rect x="-52" y="-15" width="104" height="30" rx="6"/><text class="cache-compare-mono cache-compare-fg" x="0" y="6" text-anchor="middle">1 read</text></g>
+<g class="cache-compare-chip cache-compare-chip-dim cache-compare-rd-l2" transform="translate(644 222)"><rect x="-52" y="-15" width="104" height="30" rx="6"/><text class="cache-compare-mono cache-compare-fg" x="0" y="6" text-anchor="middle">2 reads</text></g>
+<g class="cache-compare-chip cache-compare-chip-dim cache-compare-rd-l3" transform="translate(644 222)"><rect x="-52" y="-15" width="104" height="30" rx="6"/><text class="cache-compare-mono cache-compare-fg" x="0" y="6" text-anchor="middle">3 reads</text></g>
+<g class="cache-compare-chip cache-compare-chip-rd cache-compare-rd-l4" transform="translate(644 222)"><rect x="-52" y="-15" width="104" height="30" rx="6"/><text class="cache-compare-mono cache-compare-rd" x="0" y="6" text-anchor="middle">4 reads</text></g>
+<text class="cache-compare-mono cache-compare-dim" x="752" y="100" text-anchor="middle">load</text>
+<rect class="cache-compare-meter" x="740" y="112" width="24" height="88" rx="4"/>
+<rect class="cache-compare-fill cache-compare-fill-l" x="743" y="115" width="18" height="82" rx="2"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l0" x="752" y="228" text-anchor="middle">0 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l1" x="752" y="228" text-anchor="middle">24 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l2" x="752" y="228" text-anchor="middle">48 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l3" x="752" y="228" text-anchor="middle">72 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-rd cache-compare-pc-l4" x="752" y="228" text-anchor="middle">96 %</text>
+<g class="cache-compare-row cache-compare-row-l0">
+<rect class="cache-compare-rowbox" x="48" y="256" width="756" height="52" rx="6"/>
+<text class="cache-compare-mono cache-compare-fg cache-compare-rtx" x="68" y="289">read 1</text>
+<text class="cache-compare-mono cache-compare-dim" x="152" y="289">→ database</text>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l0" x="364" y="274" width="324" height="16" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-am cache-compare-ms cache-compare-ms-l0" x="784" y="289" text-anchor="end">180 ms</text>
+</g>
+<g class="cache-compare-row cache-compare-row-l1">
+<rect class="cache-compare-rowbox" x="48" y="320" width="756" height="52" rx="6"/>
+<text class="cache-compare-mono cache-compare-fg cache-compare-rtx" x="68" y="353">read 2</text>
+<text class="cache-compare-mono cache-compare-dim" x="152" y="353">→ database</text>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l1" x="364" y="338" width="324" height="16" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-am cache-compare-ms cache-compare-ms-l1" x="784" y="353" text-anchor="end">180 ms</text>
+</g>
+<g class="cache-compare-row cache-compare-row-l2">
+<rect class="cache-compare-rowbox" x="48" y="384" width="756" height="52" rx="6"/>
+<text class="cache-compare-mono cache-compare-fg cache-compare-rtx" x="68" y="417">read 3</text>
+<text class="cache-compare-mono cache-compare-dim" x="152" y="417">→ database</text>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l2" x="364" y="402" width="324" height="16" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-am cache-compare-ms cache-compare-ms-l2" x="784" y="417" text-anchor="end">180 ms</text>
+</g>
+<g class="cache-compare-row cache-compare-row-l3">
+<rect class="cache-compare-rowbox" x="48" y="448" width="756" height="52" rx="6"/>
+<text class="cache-compare-mono cache-compare-fg cache-compare-rtx" x="68" y="481">read 4</text>
+<text class="cache-compare-mono cache-compare-dim" x="152" y="481">→ database</text>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l3" x="364" y="466" width="324" height="16" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-am cache-compare-ms cache-compare-ms-l3" x="784" y="481" text-anchor="end">180 ms</text>
+</g>
+</g>
+<circle class="cache-compare-pkt cache-compare-pk-l0" r="8" style="offset-path:path('M198 150 H584')"/>
+<circle class="cache-compare-pkt cache-compare-pk-l1" r="8" style="offset-path:path('M198 150 H584')"/>
+<circle class="cache-compare-pkt cache-compare-pk-l2" r="8" style="offset-path:path('M198 150 H584')"/>
+<circle class="cache-compare-pkt cache-compare-pk-l3" r="8" style="offset-path:path('M198 150 H584')"/>
+<!-- ===================== with cache ===================== -->
+<rect class="cache-compare-panel cache-compare-panel-r" x="852" y="24" width="804" height="504" rx="8"/>
+<g class="cache-compare-side-r">
+<text class="cache-compare-sans cache-compare-head cache-compare-fg" x="876" y="70">With cache</text>
+<path class="cache-compare-wire" d="M1026 150 H1152"/>
+<path class="cache-compare-wire" d="M1312 150 H1412"/>
+<rect class="cache-compare-box" x="876" y="118" width="150" height="64" rx="8"/>
+<text class="cache-compare-sans cache-compare-lbl cache-compare-fg" x="951" y="157" text-anchor="middle">App</text>
+<rect class="cache-compare-box cache-compare-cachebox" x="1152" y="118" width="160" height="64" rx="8"/>
+<text class="cache-compare-sans cache-compare-lbl cache-compare-fg" x="1232" y="145" text-anchor="middle">Cache</text>
+<text class="cache-compare-mono cache-compare-dim cache-compare-c-empty" x="1232" y="170" text-anchor="middle">empty</text>
+<text class="cache-compare-mono cache-compare-gn cache-compare-c-warm" x="1232" y="170" text-anchor="middle">1 entry</text>
+<rect class="cache-compare-slot" x="1164" y="128" width="10" height="10" rx="2"/>
+<g class="cache-compare-chip cache-compare-chip-miss" transform="translate(1232.0 214)"><rect x="-46" y="-15" width="92" height="30" rx="6"/><text class="cache-compare-mono cache-compare-am cache-compare-bold" x="0" y="6" text-anchor="middle">MISS</text></g>
+<g class="cache-compare-chip cache-compare-chip-hit" transform="translate(1232.0 214)"><rect x="-46" y="-15" width="92" height="30" rx="6"/><text class="cache-compare-mono cache-compare-gn cache-compare-bold" x="0" y="6" text-anchor="middle">HIT</text></g>
+<g class="cache-compare-cyl cache-compare-cyl-calm"><path d="M1412 124 V184 A60 12 0 0 0 1532 184 V124"/><ellipse cx="1472" cy="124" rx="60" ry="12"/></g>
+<text class="cache-compare-mono cache-compare-fg" x="1472" y="166" text-anchor="middle">Database</text>
+<g class="cache-compare-chip cache-compare-chip-dim cache-compare-rd-r0" transform="translate(1472 222)"><rect x="-52" y="-15" width="104" height="30" rx="6"/><text class="cache-compare-mono cache-compare-fg" x="0" y="6" text-anchor="middle">0 reads</text></g>
+<g class="cache-compare-chip cache-compare-chip-gn cache-compare-rd-r1" transform="translate(1472 222)"><rect x="-52" y="-15" width="104" height="30" rx="6"/><text class="cache-compare-mono cache-compare-gn" x="0" y="6" text-anchor="middle">1 read</text></g>
+<text class="cache-compare-mono cache-compare-dim" x="1580" y="100" text-anchor="middle">load</text>
+<rect class="cache-compare-meter" x="1568" y="112" width="24" height="88" rx="4"/>
+<rect class="cache-compare-fill cache-compare-fill-r" x="1571" y="115" width="18" height="82" rx="2"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-r0" x="1580" y="228" text-anchor="middle">0 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-pc-r1" x="1580" y="228" text-anchor="middle">24 %</text>
+<g class="cache-compare-row cache-compare-row-r0">
+<rect class="cache-compare-rowbox" x="876" y="256" width="756" height="52" rx="6"/>
+<text class="cache-compare-mono cache-compare-fg cache-compare-rtx" x="896" y="289">read 1</text>
+<text class="cache-compare-mono cache-compare-dim" x="980" y="289">miss → DB, fill</text>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-r0" x="1192" y="274" width="333" height="16" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-am cache-compare-ms cache-compare-ms-r0" x="1612" y="289" text-anchor="end">185 ms</text>
+</g>
+<g class="cache-compare-row cache-compare-row-r1">
+<rect class="cache-compare-rowbox" x="876" y="320" width="756" height="52" rx="6"/>
+<text class="cache-compare-mono cache-compare-fg cache-compare-rtx" x="896" y="353">read 2</text>
+<text class="cache-compare-mono cache-compare-dim" x="980" y="353">cache hit</text>
+<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r1" x="1192" y="338" width="14.4" height="16" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms cache-compare-ms-r1" x="1612" y="353" text-anchor="end">8 ms</text>
+</g>
+<g class="cache-compare-row cache-compare-row-r2">
+<rect class="cache-compare-rowbox" x="876" y="384" width="756" height="52" rx="6"/>
+<text class="cache-compare-mono cache-compare-fg cache-compare-rtx" x="896" y="417">read 3</text>
+<text class="cache-compare-mono cache-compare-dim" x="980" y="417">cache hit</text>
+<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r2" x="1192" y="402" width="14.4" height="16" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms cache-compare-ms-r2" x="1612" y="417" text-anchor="end">8 ms</text>
+</g>
+<g class="cache-compare-row cache-compare-row-r3">
+<rect class="cache-compare-rowbox" x="876" y="448" width="756" height="52" rx="6"/>
+<text class="cache-compare-mono cache-compare-fg cache-compare-rtx" x="896" y="481">read 4</text>
+<text class="cache-compare-mono cache-compare-dim" x="980" y="481">cache hit</text>
+<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r3" x="1192" y="466" width="14.4" height="16" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms cache-compare-ms-r3" x="1612" y="481" text-anchor="end">8 ms</text>
+</g>
+</g>
+<circle class="cache-compare-pkt cache-compare-pk-r0a" r="8" style="offset-path:path('M1026 150 H1152')"/>
+<circle class="cache-compare-pkt cache-compare-pk-r0b" r="8" style="offset-path:path('M1312 150 H1412')"/>
+<circle class="cache-compare-pkt cache-compare-pkt-fill cache-compare-pk-r0c" r="8" style="offset-path:path('M1412 150 H1312')"/>
+<circle class="cache-compare-pkt cache-compare-pk-r1" r="8" style="offset-path:path('M1026 150 H1152')"/>
+<circle class="cache-compare-pkt cache-compare-pk-r2" r="8" style="offset-path:path('M1026 150 H1152')"/>
+<circle class="cache-compare-pkt cache-compare-pk-r3" r="8" style="offset-path:path('M1026 150 H1152')"/>
+<g class="cache-compare-verdict">
+<path class="cache-compare-tick" d="M510.0 566 l8 8 l16 -18"/>
+<text class="cache-compare-sans cache-compare-head cache-compare-fg" x="854" y="575" text-anchor="middle"><tspan class="cache-compare-gn">22× faster</tspan> on cache hits, <tspan class="cache-compare-gn">75 % fewer</tspan> database reads</text>
+</g>
+</g>
+</svg>
+</div>

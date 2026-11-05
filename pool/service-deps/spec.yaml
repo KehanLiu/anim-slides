@@ -1,0 +1,40 @@
+# Service dependency graph with two groups and a contained outage. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/service-deps/spec.yaml -o pool/service-deps/service-deps.html
+# service-deps.html is hand-tuned beyond the scaffold: fixed column/row layout so no edge crosses a
+# node, sub-labels, one packet per hop on the traced request, dimming of off-path nodes, and a
+# resting frame that shows the outage (provider DOWN, Payments DEGRADED, healthy path in green).
+name: service-deps
+archetype: graph
+size: [1680, 600]
+control: loop
+cycle: 14
+nodes:
+  - { id: web,       label: Web app,          sub: browser,          kind: process,  group: edge }
+  - { id: gateway,   label: API gateway,      sub: "auth · routing", kind: process,  group: edge }
+  - { id: orders,    label: Orders,           sub: REST,             kind: process,  group: core }
+  - { id: payments,  label: Payments,         sub: REST,             kind: process,  group: core }
+  - { id: inventory, label: Inventory,        sub: REST,             kind: process,  group: core }
+  - { id: db,        label: Orders DB,        sub: SQL,              kind: store,    group: core }
+  - { id: queue,     label: Event bus,        sub: pub/sub,          kind: data }
+  - { id: psp,       label: Payment provider, sub: third party,      kind: external }
+edges:
+  - { from: web,       to: gateway,   kind: depends }
+  - { from: gateway,   to: orders,    kind: depends }
+  - { from: gateway,   to: payments,  kind: depends }
+  - { from: orders,    to: inventory, kind: depends }
+  - { from: orders,    to: db,        kind: depends }
+  - { from: payments,  to: psp,       kind: depends, label: "HTTPS" }
+  - { from: orders,    to: queue,     kind: event,   label: "order.placed" }
+  - { from: inventory, to: queue,     kind: event }
+groups:
+  - { id: edge, label: Edge }
+  - { id: core, label: Core services }
+phases:
+  - { t: 0,   label: setup,    show: [edge, web, gateway],                      note: "Requests enter through the API gateway" }
+  - { t: 1.6, label: core,     show: [core, orders, payments],                  note: "Core services sit behind the gateway" }
+  - { t: 3,   label: storage,  show: [inventory, db] }
+  - { t: 4.2, label: external, show: [psp],                                     note: "Payments calls an external provider" }
+  - { t: 5.1, label: events,   show: [queue],                                   note: "Orders and Inventory publish events" }
+  - { t: 6.2, label: trace,    active: [gateway, orders, db], flow: ["web>gateway", "gateway>orders", "orders>db"], note: "One request: web app → gateway → Orders → database" }
+  - { t: 9,   label: blast,    active: [psp, payments],                         note: "Provider down: only Payments degrades, orders keep flowing" }
+  - { t: 10.6, label: hold }

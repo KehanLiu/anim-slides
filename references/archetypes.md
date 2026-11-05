@@ -231,7 +231,7 @@ Event: vertical dashed line `--anim-muted` from plot top to bottom at the event'
 
 **Techniques:** draw-on with `pathLength="100"` (the head dot uses `offset-path` with the same
 `d`), cross-fading `<text>` readouts, for live-looking signals a scrolling trace group with
-`translateX` (`linear`, see `examples/latency-trace.html`).
+`translateX` (`linear`, see `pool/latency-trace/latency-trace.html`).
 **Cycle:** 10-14 s.
 
 **Mistakes.**

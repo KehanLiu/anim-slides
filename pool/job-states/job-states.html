@@ -1,0 +1,142 @@
+<!-- job-states: states archetype, hand-tuned from pool/job-states/spec.yaml (scaffold, then rebuilt for layout and story).
+  12 s cycle: queued > running (attempt 1) > failed > retry > queued > running (attempt 2) > succeeded
+  | one token per hop, event log fills in | 9.4-11.5 s hold | 11.5 s reset -->
+<style>
+.anim-job-states {
+  --anim-bg:       var(--anim-theme-bg,       #0f1218);
+  --anim-panel:    var(--anim-theme-panel,    #1a2030);
+  --anim-line:     var(--anim-theme-line,     #3a4660);
+  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
+  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
+  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
+  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
+  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
+  --anim-warn:     var(--anim-theme-warn,     #ffb454);
+  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display: block; width: 100%; height: 100%;
+}
+.anim-job-states svg{display:block;width:100%;height:100%}
+.anim-job-states .job-states-c-acc{--job-states-k:var(--anim-accent)}
+.anim-job-states .job-states-c-ok{--job-states-k:var(--anim-ok)}
+.anim-job-states .job-states-c-bad{--job-states-k:var(--anim-danger)}
+.anim-job-states .job-states-c-wn{--job-states-k:var(--anim-warn)}
+.anim-job-states .job-states-lbl{font-family:var(--anim-font);font-size:22px;font-weight:600;fill:var(--anim-fg)}
+.anim-job-states .job-states-sub{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-job-states .job-states-albl{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-job-states .job-states-albl-on{fill:var(--job-states-k);font-weight:700}
+.anim-job-states .job-states-arc{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round}
+.anim-job-states .job-states-arc-evt{stroke-dasharray:3 8}
+.anim-job-states .job-states-arw{fill:var(--anim-line)}
+.anim-job-states .job-states-arc-on{fill:none;stroke:var(--job-states-k);stroke-width:3;stroke-linecap:round}
+.anim-job-states .job-states-arw-on{fill:var(--job-states-k)}
+.anim-job-states .job-states-pill{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:2}
+.anim-job-states .job-states-pill-on{fill:color-mix(in srgb,var(--job-states-k) 16%,var(--anim-panel));stroke:var(--job-states-k);stroke-width:3}
+.anim-job-states .job-states-chk{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-job-states .job-states-tok{fill:var(--job-states-k);stroke:var(--anim-bg);stroke-width:3;offset-rotate:0deg}
+.anim-job-states .job-states-panel{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:1.5}
+.anim-job-states .job-states-title{font-family:var(--anim-font);font-size:22px;font-weight:700;fill:var(--anim-fg)}
+.anim-job-states .job-states-ts{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-job-states .job-states-ev{font-family:var(--anim-mono);font-size:18px}
+.anim-job-states .job-states-t-fg{fill:var(--anim-fg)}
+.anim-job-states .job-states-t-rd{fill:var(--anim-danger)}
+.anim-job-states .job-states-t-wn{fill:var(--anim-warn)}
+.anim-job-states .job-states-t-gn{fill:var(--anim-ok)}
+/* resting frame = end of the story: job succeeded on attempt 2, full event log visible.
+   Layers that belong only to earlier phases rest at opacity 0. */
+.anim-job-states .job-states-on-exit,.anim-job-states .job-states-hot-done,.anim-job-states .job-states-att2,.anim-job-states .job-states-log0,.anim-job-states .job-states-log1,.anim-job-states .job-states-log2,.anim-job-states .job-states-log3,.anim-job-states .job-states-log4,.anim-job-states .job-states-log5{opacity:1}
+.anim-job-states .job-states-tk-h1,.anim-job-states .job-states-tk-h2,.anim-job-states .job-states-tk-h3,.anim-job-states .job-states-tk-h4,.anim-job-states .job-states-tk-h5,.anim-job-states .job-states-on-picked,.anim-job-states .job-states-on-error,.anim-job-states .job-states-on-retry,.anim-job-states .job-states-hot-queued,.anim-job-states .job-states-hot-running,.anim-job-states .job-states-hot-failed,.anim-job-states .job-states-att1{opacity:0}
+@keyframes job-states-tk-h1{0%,7.08%{opacity:0;offset-distance:0%}8.33%{opacity:1;offset-distance:0%}16.67%{opacity:1;offset-distance:100%}17.92%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h2{0%,27.08%{opacity:0;offset-distance:0%}28.33%{opacity:1;offset-distance:0%}36.67%{opacity:1;offset-distance:100%}37.92%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h3{0%,42.08%{opacity:0;offset-distance:0%}43.33%{opacity:1;offset-distance:0%}51.67%{opacity:1;offset-distance:100%}52.92%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h4{0%,53.75%{opacity:0;offset-distance:0%}55%{opacity:1;offset-distance:0%}63.33%{opacity:1;offset-distance:100%}64.58%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h5{0%,68.75%{opacity:0;offset-distance:0%}70%{opacity:1;offset-distance:0%}78.33%{opacity:1;offset-distance:100%}79.58%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-on-picked{0%,8.33%{opacity:0}10.42%,18.33%{opacity:1}19.69%,55%{opacity:0}57.08%,65%{opacity:1}66.35%,100%{opacity:0}}
+@keyframes job-states-on-error{0%,28.33%{opacity:0}30.42%,38.33%{opacity:1}39.68%,100%{opacity:0}}
+@keyframes job-states-on-retry{0%,43.33%{opacity:0}45.42%,53.33%{opacity:1}54.68%,100%{opacity:0}}
+@keyframes job-states-on-exit{0%,70%{opacity:0}72.08%,95.83%{opacity:1}97.18%,100%{opacity:0}}
+@keyframes job-states-hot-queued{0%,8.33%{opacity:1}9.69%,51.67%{opacity:0}53.75%,55%{opacity:1}56.35%,97.5%{opacity:0}100%{opacity:1}}
+@keyframes job-states-hot-running{0%,16.67%{opacity:0}18.75%,28.33%{opacity:1}29.68%,63.33%{opacity:0}65.42%,70%{opacity:1}71.35%,100%{opacity:0}}
+@keyframes job-states-hot-failed{0%,36.67%{opacity:0}38.75%,43.33%{opacity:1}44.68%,100%{opacity:0}}
+@keyframes job-states-hot-done{0%,78.33%{opacity:0}80.42%,95.83%{opacity:1}97.18%,100%{opacity:0}}
+@keyframes job-states-att1{0%,63.33%{opacity:1}65.42%,98.33%{opacity:0}100%{opacity:1}}
+@keyframes job-states-att2{0%,63.33%{opacity:0}65.83%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+@keyframes job-states-log0{0%,1.67%{opacity:0}4.17%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+@keyframes job-states-log1{0%,16.67%{opacity:0}19.17%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+@keyframes job-states-log2{0%,36.67%{opacity:0}39.17%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+@keyframes job-states-log3{0%,51.67%{opacity:0}54.17%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+@keyframes job-states-log4{0%,63.33%{opacity:0}65.83%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+@keyframes job-states-log5{0%,78.33%{opacity:0}80.83%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+.visible .anim-job-states .job-states-tk-h1{animation:job-states-tk-h1 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-tk-h2{animation:job-states-tk-h2 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-tk-h3{animation:job-states-tk-h3 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-tk-h4{animation:job-states-tk-h4 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-tk-h5{animation:job-states-tk-h5 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-on-picked{animation:job-states-on-picked 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-on-error{animation:job-states-on-error 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-on-retry{animation:job-states-on-retry 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-on-exit{animation:job-states-on-exit 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-hot-queued{animation:job-states-hot-queued 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-hot-running{animation:job-states-hot-running 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-hot-failed{animation:job-states-hot-failed 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-hot-done{animation:job-states-hot-done 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-att1{animation:job-states-att1 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-att2{animation:job-states-att2 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-log0{animation:job-states-log0 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-log1{animation:job-states-log1 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-log2{animation:job-states-log2 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-log3{animation:job-states-log3 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-log4{animation:job-states-log4 12s ease-in-out infinite}
+.visible .anim-job-states .job-states-log5{animation:job-states-log5 12s ease-in-out infinite}
+
+@media (prefers-reduced-motion: reduce) { .anim-job-states * { animation: none !important; } }
+</style>
+<div class="anim anim-job-states" data-anim="job-states" data-anim-cycle="12" data-anim-control="loop">
+<svg viewBox="0 0 1200 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Job lifecycle: a queued job is picked by a worker, fails with a timeout, is retried after a 2 second backoff and succeeds on the second attempt, with each transition written to an event log.">
+<path class="job-states-arc" d="M220 254 Q240 110 490 100"/>
+<path class="job-states-arw" d="M492.0 99.9 L480.7 93.4 L481.3 107.4 Z"/>
+<text class="job-states-albl" x="284" y="126" text-anchor="end">picked</text>
+<path class="job-states-arc" d="M710 100 Q960 110 982 244"/>
+<path class="job-states-arw" d="M982.3 246.0 L987.4 234.0 L973.6 236.3 Z"/>
+<text class="job-states-albl" x="920" y="126" text-anchor="start">exit 0</text>
+<path class="job-states-arc job-states-arc-evt" d="M600 138 Q652 290 602 434"/>
+<path class="job-states-arw" d="M601.3 435.9 L611.6 427.8 L598.3 423.2 Z"/>
+<text class="job-states-albl" x="646" y="296" text-anchor="start">error</text>
+<path class="job-states-arc job-states-arc-evt" d="M490 480 Q210 480 202 336"/>
+<path class="job-states-arw" d="M201.9 334.0 L195.5 345.4 L209.5 344.6 Z"/>
+<text class="job-states-albl" x="250" y="472" text-anchor="end">retry · 2 s</text>
+<g class="job-states-on-picked job-states-c-acc"><path class="job-states-arc-on" d="M220 254 Q240 110 490 100"/><path class="job-states-arw-on" d="M492.0 99.9 L480.7 93.4 L481.3 107.4 Z"/><text class="job-states-albl job-states-albl-on" x="284" y="126" text-anchor="end">picked</text></g>
+<g class="job-states-on-exit job-states-c-ok"><path class="job-states-arc-on" d="M710 100 Q960 110 982 244"/><path class="job-states-arw-on" d="M982.3 246.0 L987.4 234.0 L973.6 236.3 Z"/><text class="job-states-albl job-states-albl-on" x="920" y="126" text-anchor="start">exit 0</text></g>
+<g class="job-states-on-error job-states-c-bad"><path class="job-states-arc-on" d="M600 138 Q652 290 602 434"/><path class="job-states-arw-on" d="M601.3 435.9 L611.6 427.8 L598.3 423.2 Z"/><text class="job-states-albl job-states-albl-on" x="646" y="296" text-anchor="start">error</text></g>
+<g class="job-states-on-retry job-states-c-wn"><path class="job-states-arc-on" d="M490 480 Q210 480 202 336"/><path class="job-states-arw-on" d="M201.9 334.0 L195.5 345.4 L209.5 344.6 Z"/><text class="job-states-albl job-states-albl-on" x="250" y="472" text-anchor="end">retry · 2 s</text></g>
+<rect class="job-states-pill" x="100" y="254" width="200" height="72" rx="36"/>
+<rect class="job-states-pill-on job-states-c-acc job-states-hot-queued" x="100" y="254" width="200" height="72" rx="36"/>
+<text class="job-states-lbl" x="200" y="298" text-anchor="middle">Queued</text>
+<rect class="job-states-pill" x="500" y="64" width="200" height="72" rx="36"/>
+<rect class="job-states-pill-on job-states-c-acc job-states-hot-running" x="500" y="64" width="200" height="72" rx="36"/>
+<text class="job-states-lbl" x="600" y="96" text-anchor="middle">Running</text>
+<text class="job-states-sub job-states-att1" x="600" y="122" text-anchor="middle">attempt 1 of 3</text>
+<text class="job-states-sub job-states-att2" x="600" y="122" text-anchor="middle">attempt 2 of 3</text>
+<rect class="job-states-pill" x="900" y="254" width="200" height="72" rx="36"/>
+<rect class="job-states-pill-on job-states-c-ok job-states-hot-done" x="900" y="254" width="200" height="72" rx="36"/>
+<text class="job-states-lbl" x="1016" y="298" text-anchor="middle">Succeeded</text>
+<path class="job-states-chk job-states-hot-done" d="M924 290 l8 8 l14 -16"/>
+<rect class="job-states-pill" x="500" y="444" width="200" height="72" rx="36"/>
+<rect class="job-states-pill-on job-states-c-bad job-states-hot-failed" x="500" y="444" width="200" height="72" rx="36"/>
+<text class="job-states-lbl" x="600" y="488" text-anchor="middle">Failed</text>
+<circle class="job-states-tok job-states-c-acc job-states-tk-h1" r="12" style="offset-path:path('M220 254 Q240 110 490 100')"/>
+<circle class="job-states-tok job-states-c-bad job-states-tk-h2" r="12" style="offset-path:path('M600 138 Q652 290 602 434')"/>
+<circle class="job-states-tok job-states-c-wn job-states-tk-h3" r="12" style="offset-path:path('M490 480 Q210 480 202 336')"/>
+<circle class="job-states-tok job-states-c-acc job-states-tk-h4" r="12" style="offset-path:path('M220 254 Q240 110 490 100')"/>
+<circle class="job-states-tok job-states-c-ok job-states-tk-h5" r="12" style="offset-path:path('M710 100 Q960 110 982 244')"/>
+<rect class="job-states-panel" x="740" y="372" width="436" height="214" rx="8"/>
+<text class="job-states-title" x="760" y="404">job 4812 · event log</text>
+<g class="job-states-log0"><text class="job-states-ts" x="760" y="434">00:00</text><text class="job-states-ev job-states-t-fg" x="830" y="434">queued</text></g>
+<g class="job-states-log1"><text class="job-states-ts" x="760" y="461">00:02</text><text class="job-states-ev job-states-t-fg" x="830" y="461">picked · attempt 1</text></g>
+<g class="job-states-log2"><text class="job-states-ts" x="760" y="488">00:31</text><text class="job-states-ev job-states-t-rd" x="830" y="488">error · timeout</text></g>
+<g class="job-states-log3"><text class="job-states-ts" x="760" y="515">00:33</text><text class="job-states-ev job-states-t-wn" x="830" y="515">retry after 2 s</text></g>
+<g class="job-states-log4"><text class="job-states-ts" x="760" y="542">00:35</text><text class="job-states-ev job-states-t-fg" x="830" y="542">picked · attempt 2</text></g>
+<g class="job-states-log5"><text class="job-states-ts" x="760" y="569">00:58</text><text class="job-states-ev job-states-t-gn" x="830" y="569">exit 0 · succeeded</text></g>
+</svg>
+</div>

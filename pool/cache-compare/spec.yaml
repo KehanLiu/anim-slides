@@ -1,0 +1,30 @@
+# Same four reads with and without a read-through cache: the left side pays the database
+# round trip every time and the database gets busy; on the right the first read misses and
+# fills the cache, the rest hit it at about 8 ms. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/cache-compare/spec.yaml -o pool/cache-compare/cache-compare.html
+# The pool fragment was hand-polished after scaffolding (flow diagram per panel, latency bars,
+# load meters, verdict strip); re-scaffolding gives the row skeleton only.
+name: cache-compare
+archetype: compare
+size: [1680, 600]
+control: loop
+cycle: 12
+nodes:
+  - { id: l-r1, side: left,  group: nocache, label: "Read 1  → database", sub: "180 ms" }
+  - { id: l-r2, side: left,  group: nocache, label: "Read 2  → database", sub: "180 ms" }
+  - { id: l-r3, side: left,  group: nocache, label: "Read 3  → database", sub: "180 ms" }
+  - { id: l-r4, side: left,  group: nocache, label: "Read 4  → database", sub: "180 ms, DB busy" }
+  - { id: r-r1, side: right, group: cache,   label: "Read 1  miss, fill", sub: "185 ms" }
+  - { id: r-r2, side: right, group: cache,   label: "Read 2  cache hit",  sub: "8 ms" }
+  - { id: r-r3, side: right, group: cache,   label: "Read 3  cache hit",  sub: "8 ms" }
+  - { id: r-r4, side: right, group: cache,   label: "Read 4  cache hit",  sub: "8 ms" }
+groups:
+  - { id: nocache, label: "Without cache" }
+  - { id: cache,   label: "With cache" }
+phases:
+  - { t: 0,   label: setup,  show: [nocache, cache] }
+  - { t: 1,   label: direct, show: [l-r1, l-r2, l-r3, l-r4], note: "Every read goes to the database" }
+  - { t: 4.8, label: miss,   show: [r-r1], active: [r-r1, l-r1], note: "First read misses and fills the cache" }
+  - { t: 7.3, label: hits,   show: [r-r2, r-r3, r-r4], active: [r-r2, r-r3, r-r4], note: "Later reads hit the cache" }
+  - { t: 9.7, label: verdict, active: [cache], note: "22× faster on hits, 75 % fewer database reads" }
+  - { t: 10.8, label: hold }

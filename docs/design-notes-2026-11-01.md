@@ -114,13 +114,13 @@ anim-slides/
   scripts/render-phases.sh     fragment + viewBox -> phase PNGs
   scripts/integrate_fragment.py namespace classes, hoist <style>, insert into a slide
   scripts/check_fragment.py    static checks: no script, prefixes, .visible gating, text size
-  examples/db-failover.html          sequence-heavy reference
-  examples/latency-trace.html  strip-chart reference (continuous trace with baked events)
+  pool/db-failover/            sequence-heavy reference
+  pool/latency-trace/          strip-chart reference (continuous trace with baked events)
 ```
 
 Added since: `references/fragment-contract.md`, `spec-format.md`, `archetypes.md`,
 `input-stage.md`; `scripts/extract_slides.py`, `scripts/scaffold_from_spec.py`,
-`scripts/snippets/`; `examples/specs/`. The "no script" rule now has one exception:
+`scripts/snippets/`; `pool/*/spec.yaml`. The "no script" rule now has one exception:
 step mode allows one module script.
 
 ## 7. Open questions (resolved)
