@@ -1,65 +1,72 @@
-<!-- loan-decision (pool, archetype graph, domain finance). Hand-built.
+<!-- loan-decision (pool, archetype graph, domain finance). Hand-built, lean restyle (references/style.md).
   Story: two alternative inputs (apply online OR in a branch) merge at an OR junction into a real
   decision diamond. Application 1 passes the credit check; the yes branch forks into a group whose
   two checks run in parallel (progress bars of different length) and join into a loan offer.
   Application 2 fails the check; the no branch leads to a decline and a reason letter. The idle path
   dims while the other is told. Scores are illustrative. Cycle 13 s, hold 10.9-12.6 s. -->
 <style>
-.anim-loan-decision{
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+.anim-loan-decision {
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
-  display:block;width:100%;height:100%
+  display: block; width: 100%; height: 100%;
 }
 .anim-loan-decision svg{display:block;width:100%;height:100%;max-width:none}
+/* type */
 .anim-loan-decision .loan-decision-t{font-family:var(--anim-font);fill:var(--anim-fg)}
-.anim-loan-decision .loan-decision-lbl{font-size:24px;font-weight:700}
-.anim-loan-decision .loan-decision-sub{font-size:19px;fill:var(--anim-muted)}
-.anim-loan-decision .loan-decision-note{font-size:24px}
+.anim-loan-decision .loan-decision-lbl{font-size:24px;font-weight:600}
+.anim-loan-decision .loan-decision-tagbox{fill:none;stroke:var(--anim-line);stroke-width:2}
+.anim-loan-decision .loan-decision-sub{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-loan-decision .loan-decision-note{font-size:26px}
 .anim-loan-decision .loan-decision-mono{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted)}
 .anim-loan-decision .loan-decision-mono.loan-decision-gn{fill:var(--anim-ok)}
 .anim-loan-decision .loan-decision-mono.loan-decision-wn{fill:var(--anim-warn)}
 .anim-loan-decision .loan-decision-mono.loan-decision-b{font-weight:700}
-.anim-loan-decision .loan-decision-glbl{font-family:var(--anim-font);font-size:19px;fill:var(--anim-muted)}
-.anim-loan-decision .loan-decision-grp{fill:color-mix(in srgb,var(--anim-accent) 6%,transparent);stroke:var(--anim-line);stroke-width:2;stroke-dasharray:6 6}
-.anim-loan-decision .loan-decision-wire{fill:none;stroke:var(--anim-line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:0}
-.anim-loan-decision .loan-decision-arrow{fill:none;stroke:var(--anim-line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.anim-loan-decision .loan-decision-tr{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+.anim-loan-decision .loan-decision-glbl{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted);letter-spacing:.08em}
+/* group: hairline bracket, open on the label side */
+.anim-loan-decision .loan-decision-brk{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* wires */
+.anim-loan-decision .loan-decision-wire{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-loan-decision .loan-decision-arrow{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 60%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-tr{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
 .anim-loan-decision .loan-decision-tr-ok{stroke:var(--anim-ok)}
 .anim-loan-decision .loan-decision-tr-wn{stroke:var(--anim-warn)}
-.anim-loan-decision .loan-decision-box{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
-.anim-loan-decision .loan-decision-box-run{fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-panel));stroke:var(--anim-accent);stroke-width:3}
-.anim-loan-decision .loan-decision-box-ok{fill:color-mix(in srgb,var(--anim-ok) 8%,var(--anim-panel));stroke:var(--anim-ok);stroke-width:2.5}
-.anim-loan-decision .loan-decision-box-wn{fill:color-mix(in srgb,var(--anim-warn) 9%,var(--anim-panel));stroke:var(--anim-warn);stroke-width:2.5}
-.anim-loan-decision .loan-decision-dia{fill:var(--anim-panel);stroke:var(--anim-accent-2);stroke-width:2.5;stroke-linejoin:round}
-.anim-loan-decision .loan-decision-dia-run{fill:color-mix(in srgb,var(--anim-accent-2) 16%,var(--anim-panel));stroke:var(--anim-accent-2);stroke-width:4;stroke-linejoin:round}
-.anim-loan-decision .loan-decision-or{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2}
-.anim-loan-decision .loan-decision-or-run{fill:color-mix(in srgb,var(--anim-accent) 22%,var(--anim-bg));stroke:var(--anim-accent)}
-.anim-loan-decision .loan-decision-bar{fill:var(--anim-line);opacity:.6}
-.anim-loan-decision .loan-decision-fill{fill:var(--anim-ok);transform-box:fill-box;transform-origin:left center;transform:scaleX(1)}
-.anim-loan-decision .loan-decision-check{fill:none;stroke:var(--anim-ok);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
-.anim-loan-decision .loan-decision-env{fill:none;stroke:var(--anim-warn);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.anim-loan-decision .loan-decision-pkt{fill:var(--anim-accent);stroke:var(--anim-bg);stroke-width:3;opacity:0;offset-rotate:0deg}
-.anim-loan-decision .loan-decision-cap{fill:var(--anim-panel)}
-.anim-loan-decision .loan-decision-p-a1{offset-path:path('M290 158 C340 158 334 253 374 253 H506')}
-.anim-loan-decision .loan-decision-p-b1{offset-path:path('M290 348 C340 348 334 253 374 253 H506')}
-.anim-loan-decision .loan-decision-p-y1{offset-path:path('M814 253 H860 C900 253 900 128 936 128')}
-.anim-loan-decision .loan-decision-p-y2{offset-path:path('M814 253 H860 C892 253 900 244 936 244')}
-.anim-loan-decision .loan-decision-p-j1{offset-path:path('M1264 128 C1330 128 1330 186 1396 186')}
-.anim-loan-decision .loan-decision-p-j2{offset-path:path('M1264 244 C1330 244 1330 186 1396 186')}
-.anim-loan-decision .loan-decision-p-n1{offset-path:path('M660 367 V430 Q660 452 682 452 H936')}
-.anim-loan-decision .loan-decision-p-n2{offset-path:path('M1264 452 H1396')}
+/* nodes: rings with a line glyph, labels outside */
+.anim-loan-decision .loan-decision-ring{fill:var(--anim-bg);stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5}
+.anim-loan-decision .loan-decision-glyph{fill:none;stroke:var(--anim-muted);stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-halo{fill:none;stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;filter:blur(6px)}
+.anim-loan-decision .loan-decision-hot{fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-bg));stroke:var(--anim-accent);stroke-width:3}
+.anim-loan-decision .loan-decision-hotf{fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-bg));stroke:none}
+.anim-loan-decision .loan-decision-hotg{stroke:var(--anim-accent)}
+.anim-loan-decision .loan-decision-okring{fill:none;stroke:var(--anim-ok);stroke-width:2.5}
+.anim-loan-decision .loan-decision-wnring{fill:none;stroke:var(--anim-warn);stroke-width:2.5}
+.anim-loan-decision .loan-decision-fill{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+/* decision diamond: thin outline */
+.anim-loan-decision .loan-decision-dia{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-dia-run{fill:color-mix(in srgb,var(--anim-accent) 8%,transparent);stroke:var(--anim-accent);stroke-width:3;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-dia-halo{fill:none;stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;stroke-linejoin:round;filter:blur(6px)}
+.anim-loan-decision .loan-decision-check{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-env{fill:none;stroke:var(--anim-warn);stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-pkt{fill:var(--anim-accent);stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;opacity:0;offset-rotate:0deg}
+.anim-loan-decision .loan-decision-p-a1{offset-path:path('M160 150 C230 150 226 253 286 253 H410')}
+.anim-loan-decision .loan-decision-p-b1{offset-path:path('M160 356 C230 356 226 253 286 253 H410')}
+.anim-loan-decision .loan-decision-p-y1{offset-path:path('M670 253 H710 C760 253 780 118 854 118')}
+.anim-loan-decision .loan-decision-p-y2{offset-path:path('M670 253 H710 C760 253 780 268 854 268')}
+.anim-loan-decision .loan-decision-p-j1{offset-path:path('M1206 118 C1280 118 1280 193 1354 193')}
+.anim-loan-decision .loan-decision-p-j2{offset-path:path('M1206 268 C1280 268 1280 193 1354 193')}
+.anim-loan-decision .loan-decision-p-n1{offset-path:path('M540 353 V450 Q540 472 562 472 H854')}
+.anim-loan-decision .loan-decision-p-n2{offset-path:path('M1160 472 H1354')}
 /* resting frame = both outcomes shown: one offer, one reasoned decline; readout back at the threshold */
-.anim-loan-decision .loan-decision-box-run,.anim-loan-decision .loan-decision-dia-run,.anim-loan-decision .loan-decision-or-run,.anim-loan-decision .loan-decision-pkt,.anim-loan-decision .loan-decision-r1,.anim-loan-decision .loan-decision-r2,.anim-loan-decision .loan-decision-n0,.anim-loan-decision .loan-decision-n1,.anim-loan-decision .loan-decision-n2,.anim-loan-decision .loan-decision-n3,.anim-loan-decision .loan-decision-n4,.anim-loan-decision .loan-decision-n5,.anim-loan-decision .loan-decision-n6,.anim-loan-decision .loan-decision-n7{opacity:0}
+.anim-loan-decision .loan-decision-run-on,.anim-loan-decision .loan-decision-run-br,.anim-loan-decision .loan-decision-run-inc,.anim-loan-decision .loan-decision-run-col,.anim-loan-decision .loan-decision-run-off,.anim-loan-decision .loan-decision-run-dec,.anim-loan-decision .loan-decision-run-let,.anim-loan-decision .loan-decision-dia-a,.anim-loan-decision .loan-decision-dia-b,.anim-loan-decision .loan-decision-or-a,.anim-loan-decision .loan-decision-or-b,.anim-loan-decision .loan-decision-pkt,.anim-loan-decision .loan-decision-r1,.anim-loan-decision .loan-decision-r2,.anim-loan-decision .loan-decision-n0,.anim-loan-decision .loan-decision-n1,.anim-loan-decision .loan-decision-n2,.anim-loan-decision .loan-decision-n3,.anim-loan-decision .loan-decision-n4,.anim-loan-decision .loan-decision-n5,.anim-loan-decision .loan-decision-n6,.anim-loan-decision .loan-decision-n7{opacity:0}
 
 /* ---- motion (13 s cycle), only when the slide is visible ---- */
 /* fade in, hold to 12.6 s, reset */
@@ -73,47 +80,47 @@
 /* in at 0.35s */
 @keyframes loan-decision-e3{0%,2.69%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.15%,100%{opacity:1;transform:translateY(0)}}
 /* draw-on at 0.4s */
-@keyframes loan-decision-w-on{0%,3.08%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.69%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-on{0%,3.08%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.69%,100%{stroke-dashoffset:0}}
 /* in at 2.1s */
 @keyframes loan-decision-tr-on{0%,16.15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.46%,100%{opacity:1}}
 /* draw-on at 0.47s */
-@keyframes loan-decision-w-br{0%,3.62%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.23%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-br{0%,3.62%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.23%,100%{stroke-dashoffset:0}}
 /* in at 8.1s */
 @keyframes loan-decision-tr-br{0%,62.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.62%,100%{opacity:1}}
 /* draw-on at 0.54s */
-@keyframes loan-decision-w-or{0%,4.15%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.77%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-or{0%,4.15%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.77%,100%{stroke-dashoffset:0}}
 /* in at 0.99s */
 @keyframes loan-decision-wa-or{0%,7.62%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.15%,100%{opacity:1}}
 /* draw-on at 0.61s */
-@keyframes loan-decision-w-y1{0%,4.69%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.31%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-y1{0%,4.69%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.31%,100%{stroke-dashoffset:0}}
 /* in at 1.06s */
 @keyframes loan-decision-wa-y1{0%,8.15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.69%,100%{opacity:1}}
 /* in at 3.6s */
 @keyframes loan-decision-tr-y1{0%,27.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}30%,100%{opacity:1}}
 /* draw-on at 0.68s */
-@keyframes loan-decision-w-y2{0%,5.23%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.85%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-y2{0%,5.23%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.85%,100%{stroke-dashoffset:0}}
 /* in at 1.13s */
 @keyframes loan-decision-wa-y2{0%,8.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.23%,100%{opacity:1}}
 /* in at 3.6s */
 @keyframes loan-decision-tr-y2{0%,27.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}30%,100%{opacity:1}}
 /* draw-on at 0.75s */
-@keyframes loan-decision-w-j1{0%,5.77%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.38%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-j1{0%,5.77%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.38%,100%{stroke-dashoffset:0}}
 /* in at 5.8s */
 @keyframes loan-decision-tr-j1{0%,44.62%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.92%,100%{opacity:1}}
 /* draw-on at 0.82s */
-@keyframes loan-decision-w-j2{0%,6.31%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.92%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-j2{0%,6.31%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.92%,100%{stroke-dashoffset:0}}
 /* in at 1.27s */
 @keyframes loan-decision-wa-j2{0%,9.77%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.31%,100%{opacity:1}}
 /* in at 6.3s */
 @keyframes loan-decision-tr-j2{0%,48.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.77%,100%{opacity:1}}
 /* draw-on at 0.89s */
-@keyframes loan-decision-w-n1{0%,6.85%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.46%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-n1{0%,6.85%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.46%,100%{stroke-dashoffset:0}}
 /* in at 1.34s */
 @keyframes loan-decision-wa-n1{0%,10.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.85%,100%{opacity:1}}
 /* in at 9.6s */
 @keyframes loan-decision-tr-n1{0%,73.85%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.15%,100%{opacity:1}}
 /* draw-on at 0.96s */
-@keyframes loan-decision-w-n2{0%,7.38%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12%,100%{stroke-dashoffset:0}}
+@keyframes loan-decision-w-n2{0%,7.38%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12%,100%{stroke-dashoffset:0}}
 /* in at 1.41s */
 @keyframes loan-decision-wa-n2{0%,10.85%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.38%,100%{opacity:1}}
 /* in at 10.6s */
@@ -159,9 +166,9 @@
 /* in at 10.95s */
 @keyframes loan-decision-envg{0%,84.23%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.54%,100%{opacity:1;transform:scale(1)}}
 /* progress 3.8-5.2 s */
-@keyframes loan-decision-fill-inc{0%,29.23%{transform:scaleX(0);fill:var(--anim-accent);animation-timing-function:ease-in-out}40%{transform:scaleX(1);fill:var(--anim-accent)}41.92%,100%{transform:scaleX(1);fill:var(--anim-ok)}}
+@keyframes loan-decision-fill-inc{0%,29.23%{stroke-dashoffset:101;stroke:var(--anim-accent);animation-timing-function:ease-in-out}40%{stroke-dashoffset:0;stroke:var(--anim-accent)}41.92%,100%{stroke-dashoffset:0;stroke:var(--anim-ok)}}
 /* progress 3.8-5.7 s */
-@keyframes loan-decision-fill-col{0%,29.23%{transform:scaleX(0);fill:var(--anim-accent);animation-timing-function:ease-in-out}43.85%{transform:scaleX(1);fill:var(--anim-accent)}45.77%,100%{transform:scaleX(1);fill:var(--anim-ok)}}
+@keyframes loan-decision-fill-col{0%,29.23%{stroke-dashoffset:101;stroke:var(--anim-accent);animation-timing-function:ease-in-out}43.85%{stroke-dashoffset:0;stroke:var(--anim-accent)}45.77%,100%{stroke-dashoffset:0;stroke:var(--anim-ok)}}
 /* 1.7s - 2.1s */
 @keyframes loan-decision-or-a{0%,13.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.62%{opacity:1}16.15%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}17.69%,100%{opacity:0}}
 /* 7.7s - 8.1s */
@@ -304,128 +311,135 @@
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Loan decision: applications arrive online or in a branch and meet a credit check decision; on yes, income verification and collateral appraisal run in parallel and lead to a loan offer; on no, the application is declined with a reason letter.">
 <g class="loan-decision-scene">
   <g class="loan-decision-dimyes">
-  <g class="loan-decision-e2"><rect class="loan-decision-grp" x="916" y="40" width="368" height="272" rx="8"/><text class="loan-decision-glbl" x="936" y="68">In parallel</text></g>
-    <path class="loan-decision-wire loan-decision-w-on" pathLength="100" d="M290 158 C340 158 334 253 374 253"/>
-    <g class="loan-decision-tr-on"><path class="loan-decision-tr loan-decision-tr-ok" d="M290 158 C340 158 334 253 374 253"/></g>
-    <path class="loan-decision-wire loan-decision-w-y1" pathLength="100" d="M814 253 H860 C900 253 900 128 936 128"/>
-    <path class="loan-decision-arrow loan-decision-wa-y1" d="M927 120 L936 128 L927 136"/>
-    <g class="loan-decision-tr-y1"><path class="loan-decision-tr loan-decision-tr-ok" d="M814 253 H860 C900 253 900 128 936 128"/><path class="loan-decision-tr loan-decision-tr-ok" d="M927 120 L936 128 L927 136"/></g>
-    <path class="loan-decision-wire loan-decision-w-y2" pathLength="100" d="M814 253 H860 C892 253 900 244 936 244"/>
-    <path class="loan-decision-arrow loan-decision-wa-y2" d="M927 236 L936 244 L927 252"/>
-    <g class="loan-decision-tr-y2"><path class="loan-decision-tr loan-decision-tr-ok" d="M814 253 H860 C892 253 900 244 936 244"/><path class="loan-decision-tr loan-decision-tr-ok" d="M927 236 L936 244 L927 252"/></g>
-    <path class="loan-decision-wire loan-decision-w-j1" pathLength="100" d="M1264 128 C1330 128 1330 186 1396 186"/>
-    <g class="loan-decision-tr-j1"><path class="loan-decision-tr loan-decision-tr-ok" d="M1264 128 C1330 128 1330 186 1396 186"/></g>
-    <path class="loan-decision-wire loan-decision-w-j2" pathLength="100" d="M1264 244 C1330 244 1330 186 1396 186"/>
-    <path class="loan-decision-arrow loan-decision-wa-j2" d="M1387 178 L1396 186 L1387 194"/>
-    <g class="loan-decision-tr-j2"><path class="loan-decision-tr loan-decision-tr-ok" d="M1264 244 C1330 244 1330 186 1396 186"/><path class="loan-decision-tr loan-decision-tr-ok" d="M1387 178 L1396 186 L1387 194"/></g>
+  <g class="loan-decision-e2"><text class="loan-decision-glbl" x="836" y="52">In parallel</text><path class="loan-decision-brk" d="M976 46 H1176 V62"/></g>
+    <path class="loan-decision-wire loan-decision-w-on" pathLength="100" d="M160 150 C230 150 226 253 286 253"/>
+    <g class="loan-decision-tr-on"><path class="loan-decision-tr loan-decision-tr-ok" d="M160 150 C230 150 226 253 286 253"/></g>
+    <path class="loan-decision-wire loan-decision-w-y1" pathLength="100" d="M670 253 H710 C760 253 780 118 854 118"/>
+    <path class="loan-decision-arrow loan-decision-wa-y1" d="M845 110 L854 118 L845 126"/>
+    <g class="loan-decision-tr-y1"><path class="loan-decision-tr loan-decision-tr-ok" d="M670 253 H710 C760 253 780 118 854 118"/><path class="loan-decision-tr loan-decision-tr-ok" d="M845 110 L854 118 L845 126"/></g>
+    <path class="loan-decision-wire loan-decision-w-y2" pathLength="100" d="M670 253 H710 C760 253 780 268 854 268"/>
+    <path class="loan-decision-arrow loan-decision-wa-y2" d="M845 260 L854 268 L845 276"/>
+    <g class="loan-decision-tr-y2"><path class="loan-decision-tr loan-decision-tr-ok" d="M670 253 H710 C760 253 780 268 854 268"/><path class="loan-decision-tr loan-decision-tr-ok" d="M845 260 L854 268 L845 276"/></g>
+    <path class="loan-decision-wire loan-decision-w-j1" pathLength="100" d="M1206 118 C1280 118 1280 193 1354 193"/>
+    <g class="loan-decision-tr-j1"><path class="loan-decision-tr loan-decision-tr-ok" d="M1206 118 C1280 118 1280 193 1354 193"/></g>
+    <path class="loan-decision-wire loan-decision-w-j2" pathLength="100" d="M1206 268 C1280 268 1280 193 1354 193"/>
+    <path class="loan-decision-arrow loan-decision-wa-j2" d="M1345 185 L1354 193 L1345 201"/>
+    <g class="loan-decision-tr-j2"><path class="loan-decision-tr loan-decision-tr-ok" d="M1206 268 C1280 268 1280 193 1354 193"/><path class="loan-decision-tr loan-decision-tr-ok" d="M1345 185 L1354 193 L1345 201"/></g>
   <g class="loan-decision-e0">
-    <rect class="loan-decision-box" x="40" y="110" width="250" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-run loan-decision-run-on" x="40" y="110" width="250" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-ok loan-decision-ok-on" x="40" y="110" width="250" height="96" rx="8"/>
-    <text class="loan-decision-t loan-decision-lbl" x="64" y="150">Apply online</text>
-    <text class="loan-decision-t loan-decision-sub" x="64" y="178">web or mobile app</text>
-    <g class="loan-decision-chk-on" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M251 138 l6 6 l12 -13"/></g>
+    <circle class="loan-decision-ring" cx="124" cy="150" r="36"/>
+    <path class="loan-decision-glyph" transform="translate(124 150)" d="M-13 -10 H13 V10 H-13 Z M-13 -4 H13 M-9 -7 h.01 M-5.5 -7 h.01"/>
+    <g class="loan-decision-run-on"><circle class="loan-decision-halo" cx="124" cy="150" r="36"/><circle class="loan-decision-hot" cx="124" cy="150" r="36"/><path class="loan-decision-glyph loan-decision-hotg" transform="translate(124 150)" d="M-13 -10 H13 V10 H-13 Z M-13 -4 H13 M-9 -7 h.01 M-5.5 -7 h.01"/></g>
+    <circle class="loan-decision-okring loan-decision-ok-on" cx="124" cy="150" r="36"/>
+    <text class="loan-decision-t loan-decision-lbl" x="124" y="220" text-anchor="middle">Apply online</text>
+    <text class="loan-decision-t loan-decision-sub" x="124" y="246" text-anchor="middle">web or mobile app</text>
+    <g class="loan-decision-chk-on" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M148 110 l6 6 l12 -13"/></g>
   </g>
   <g class="loan-decision-e2">
-    <rect class="loan-decision-box" x="940" y="80" width="324" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-run loan-decision-run-inc" x="940" y="80" width="324" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-ok loan-decision-ok-inc" x="940" y="80" width="324" height="96" rx="8"/>
-    <text class="loan-decision-t loan-decision-lbl" x="964" y="120">Income verification</text>
-    <text class="loan-decision-t loan-decision-sub" x="964" y="148">payslips, bank data</text>
-    <rect class="loan-decision-bar" x="964" y="160" width="276" height="6" rx="3"/>
-    <rect class="loan-decision-fill loan-decision-fill-inc" x="964" y="160" width="276" height="6" rx="3"/>
-    <g class="loan-decision-chk-inc" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M1225 108 l6 6 l12 -13"/></g>
+    <circle class="loan-decision-ring" cx="890" cy="118" r="36"/>
+    <path class="loan-decision-glyph" transform="translate(890 118)" d="M-9 -13 H4 L9 -8 V13 H-9 Z M-5 -3 H5 M-5 3 H5 M-5 9 H1"/>
+    <g class="loan-decision-run-inc"><circle class="loan-decision-halo" cx="890" cy="118" r="36"/><circle class="loan-decision-hotf" cx="890" cy="118" r="36"/><path class="loan-decision-glyph loan-decision-hotg" transform="translate(890 118)" d="M-9 -13 H4 L9 -8 V13 H-9 Z M-5 -3 H5 M-5 3 H5 M-5 9 H1"/></g>
+    <path class="loan-decision-fill loan-decision-fill-inc" pathLength="100" d="M890 82 a36 36 0 1 1 0 72 a36 36 0 1 1 0 -72"/>
+    <circle class="loan-decision-okring loan-decision-ok-inc" cx="890" cy="118" r="36"/>
+    <text class="loan-decision-t loan-decision-lbl" x="946" y="114">Income verification</text>
+    <text class="loan-decision-t loan-decision-sub" x="946" y="140">payslips, bank data</text>
+    <g class="loan-decision-chk-inc" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M914 78 l6 6 l12 -13"/></g>
   </g>
   <g class="loan-decision-e2">
-    <rect class="loan-decision-box" x="940" y="196" width="324" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-run loan-decision-run-col" x="940" y="196" width="324" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-ok loan-decision-ok-col" x="940" y="196" width="324" height="96" rx="8"/>
-    <text class="loan-decision-t loan-decision-lbl" x="964" y="236">Collateral appraisal</text>
-    <text class="loan-decision-t loan-decision-sub" x="964" y="264">property valuation</text>
-    <rect class="loan-decision-bar" x="964" y="276" width="276" height="6" rx="3"/>
-    <rect class="loan-decision-fill loan-decision-fill-col" x="964" y="276" width="276" height="6" rx="3"/>
-    <g class="loan-decision-chk-col" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M1225 224 l6 6 l12 -13"/></g>
+    <circle class="loan-decision-ring" cx="890" cy="268" r="36"/>
+    <path class="loan-decision-glyph" transform="translate(890 268)" d="M-13 0 L0 -12 L13 0 M-9 -3 V12 H9 V-3 M-3 12 V5 H3 V12"/>
+    <g class="loan-decision-run-col"><circle class="loan-decision-halo" cx="890" cy="268" r="36"/><circle class="loan-decision-hotf" cx="890" cy="268" r="36"/><path class="loan-decision-glyph loan-decision-hotg" transform="translate(890 268)" d="M-13 0 L0 -12 L13 0 M-9 -3 V12 H9 V-3 M-3 12 V5 H3 V12"/></g>
+    <path class="loan-decision-fill loan-decision-fill-col" pathLength="100" d="M890 232 a36 36 0 1 1 0 72 a36 36 0 1 1 0 -72"/>
+    <circle class="loan-decision-okring loan-decision-ok-col" cx="890" cy="268" r="36"/>
+    <text class="loan-decision-t loan-decision-lbl" x="946" y="264">Collateral appraisal</text>
+    <text class="loan-decision-t loan-decision-sub" x="946" y="290">property valuation</text>
+    <g class="loan-decision-chk-col" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M914 228 l6 6 l12 -13"/></g>
   </g>
   <g class="loan-decision-e3">
-    <rect class="loan-decision-box" x="1400" y="138" width="240" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-run loan-decision-run-off" x="1400" y="138" width="240" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-ok loan-decision-ok-off" x="1400" y="138" width="240" height="96" rx="8"/>
-    <text class="loan-decision-t loan-decision-lbl" x="1424" y="178">Loan offer</text>
-    <text class="loan-decision-t loan-decision-sub" x="1424" y="206">terms sent</text>
-    <g class="loan-decision-chk-off" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M1601 166 l6 6 l12 -13"/></g>
+    <circle class="loan-decision-ring" cx="1390" cy="193" r="36"/>
+    <path class="loan-decision-glyph" transform="translate(1390 193)" d="M-9 -13 H9 V13 H-9 Z M-5 1 L-1 5 L5 -3"/>
+    <g class="loan-decision-run-off"><circle class="loan-decision-halo" cx="1390" cy="193" r="36"/><circle class="loan-decision-hot" cx="1390" cy="193" r="36"/><path class="loan-decision-glyph loan-decision-hotg" transform="translate(1390 193)" d="M-9 -13 H9 V13 H-9 Z M-5 1 L-1 5 L5 -3"/></g>
+    <circle class="loan-decision-okring loan-decision-ok-off" cx="1390" cy="193" r="36"/>
+    <text class="loan-decision-t loan-decision-lbl" x="1446" y="189">Loan offer</text>
+    <text class="loan-decision-t loan-decision-sub" x="1446" y="215">terms sent</text>
+    <g class="loan-decision-chk-off" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M1414 153 l6 6 l12 -13"/></g>
   </g>
-  <text class="loan-decision-mono" x="834" y="238" text-anchor="middle">yes</text>
-  <text class="loan-decision-mono loan-decision-gn loan-decision-b loan-decision-yes" x="834" y="238" text-anchor="middle">yes</text>
+  <text class="loan-decision-mono" x="690" y="238" text-anchor="middle">yes</text>
+  <text class="loan-decision-mono loan-decision-gn loan-decision-b loan-decision-yes" x="690" y="238" text-anchor="middle">yes</text>
   </g>
   <g class="loan-decision-dimno">
-    <path class="loan-decision-wire loan-decision-w-br" pathLength="100" d="M290 348 C340 348 334 253 374 253"/>
-    <g class="loan-decision-tr-br"><path class="loan-decision-tr loan-decision-tr-ok" d="M290 348 C340 348 334 253 374 253"/></g>
-    <path class="loan-decision-wire loan-decision-w-n1" pathLength="100" d="M660 367 V430 Q660 452 682 452 H936"/>
-    <path class="loan-decision-arrow loan-decision-wa-n1" d="M927 444 L936 452 L927 460"/>
-    <g class="loan-decision-tr-n1"><path class="loan-decision-tr loan-decision-tr-wn" d="M660 367 V430 Q660 452 682 452 H936"/><path class="loan-decision-tr loan-decision-tr-wn" d="M927 444 L936 452 L927 460"/></g>
-    <path class="loan-decision-wire loan-decision-w-n2" pathLength="100" d="M1264 452 H1396"/>
-    <path class="loan-decision-arrow loan-decision-wa-n2" d="M1387 444 L1396 452 L1387 460"/>
-    <g class="loan-decision-tr-n2"><path class="loan-decision-tr loan-decision-tr-wn" d="M1264 452 H1396"/><path class="loan-decision-tr loan-decision-tr-wn" d="M1387 444 L1396 452 L1387 460"/></g>
+    <path class="loan-decision-wire loan-decision-w-br" pathLength="100" d="M160 356 C230 356 226 253 286 253"/>
+    <g class="loan-decision-tr-br"><path class="loan-decision-tr loan-decision-tr-ok" d="M160 356 C230 356 226 253 286 253"/></g>
+    <path class="loan-decision-wire loan-decision-w-n1" pathLength="100" d="M540 353 V450 Q540 472 562 472 H854"/>
+    <path class="loan-decision-arrow loan-decision-wa-n1" d="M845 464 L854 472 L845 480"/>
+    <g class="loan-decision-tr-n1"><path class="loan-decision-tr loan-decision-tr-wn" d="M540 353 V450 Q540 472 562 472 H854"/><path class="loan-decision-tr loan-decision-tr-wn" d="M845 464 L854 472 L845 480"/></g>
+    <path class="loan-decision-wire loan-decision-w-n2" pathLength="100" d="M1160 472 H1354"/>
+    <path class="loan-decision-arrow loan-decision-wa-n2" d="M1345 464 L1354 472 L1345 480"/>
+    <g class="loan-decision-tr-n2"><path class="loan-decision-tr loan-decision-tr-wn" d="M1160 472 H1354"/><path class="loan-decision-tr loan-decision-tr-wn" d="M1345 464 L1354 472 L1345 480"/></g>
   <g class="loan-decision-e0">
-    <rect class="loan-decision-box" x="40" y="300" width="250" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-run loan-decision-run-br" x="40" y="300" width="250" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-ok loan-decision-ok-br" x="40" y="300" width="250" height="96" rx="8"/>
-    <text class="loan-decision-t loan-decision-lbl" x="64" y="340">Apply in branch</text>
-    <text class="loan-decision-t loan-decision-sub" x="64" y="368">with an advisor</text>
-    <g class="loan-decision-chk-br" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M251 328 l6 6 l12 -13"/></g>
+    <circle class="loan-decision-ring" cx="124" cy="356" r="36"/>
+    <path class="loan-decision-glyph" transform="translate(124 356)" d="M-13 -4 L0 -12 L13 -4 Z M-9 0 V9 M-3 0 V9 M3 0 V9 M9 0 V9 M-14 12 H14"/>
+    <g class="loan-decision-run-br"><circle class="loan-decision-halo" cx="124" cy="356" r="36"/><circle class="loan-decision-hot" cx="124" cy="356" r="36"/><path class="loan-decision-glyph loan-decision-hotg" transform="translate(124 356)" d="M-13 -4 L0 -12 L13 -4 Z M-9 0 V9 M-3 0 V9 M3 0 V9 M9 0 V9 M-14 12 H14"/></g>
+    <circle class="loan-decision-okring loan-decision-ok-br" cx="124" cy="356" r="36"/>
+    <text class="loan-decision-t loan-decision-lbl" x="124" y="426" text-anchor="middle">Apply in branch</text>
+    <text class="loan-decision-t loan-decision-sub" x="124" y="452" text-anchor="middle">with an advisor</text>
+    <g class="loan-decision-chk-br" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M148 316 l6 6 l12 -13"/></g>
   </g>
   <g class="loan-decision-e3">
-    <rect class="loan-decision-box" x="940" y="404" width="324" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-run loan-decision-run-dec" x="940" y="404" width="324" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-wn loan-decision-ok-dec" x="940" y="404" width="324" height="96" rx="8"/>
-    <text class="loan-decision-t loan-decision-lbl" x="964" y="444">Decline</text>
-    <text class="loan-decision-t loan-decision-sub" x="964" y="472">application closed</text>
+    <circle class="loan-decision-ring" cx="890" cy="472" r="36"/>
+    <path class="loan-decision-glyph" transform="translate(890 472)" d="M-8 -8 L8 8 M8 -8 L-8 8"/>
+    <g class="loan-decision-run-dec"><circle class="loan-decision-halo" cx="890" cy="472" r="36"/><circle class="loan-decision-hot" cx="890" cy="472" r="36"/><path class="loan-decision-glyph loan-decision-hotg" transform="translate(890 472)" d="M-8 -8 L8 8 M8 -8 L-8 8"/></g>
+    <circle class="loan-decision-wnring loan-decision-ok-dec" cx="890" cy="472" r="36"/>
+    <text class="loan-decision-t loan-decision-lbl" x="946" y="468">Decline</text>
+    <text class="loan-decision-t loan-decision-sub" x="946" y="494">application closed</text>
   </g>
   <g class="loan-decision-e3">
-    <rect class="loan-decision-box" x="1400" y="404" width="240" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-run loan-decision-run-let" x="1400" y="404" width="240" height="96" rx="8"/>
-    <rect class="loan-decision-box loan-decision-box-wn loan-decision-ok-let" x="1400" y="404" width="240" height="96" rx="8"/>
-    <text class="loan-decision-t loan-decision-lbl" x="1424" y="444">Reason letter</text>
-    <text class="loan-decision-t loan-decision-sub" x="1424" y="472">why, and what next</text>
-    <g class="loan-decision-envg" style="transform-box:fill-box;transform-origin:center"><rect class="loan-decision-env" x="1586" y="418" width="34" height="24" rx="3"/><path class="loan-decision-env" d="M1588 421 L1603 432 L1618 421"/></g>
+    <circle class="loan-decision-ring" cx="1390" cy="472" r="36"/>
+    <path class="loan-decision-glyph" transform="translate(1390 472)" d="M-14 -9 H14 V9 H-14 Z M-12 -7 L0 2 L12 -7"/>
+    <g class="loan-decision-run-let"><circle class="loan-decision-halo" cx="1390" cy="472" r="36"/><circle class="loan-decision-hot" cx="1390" cy="472" r="36"/><path class="loan-decision-glyph loan-decision-hotg" transform="translate(1390 472)" d="M-14 -9 H14 V9 H-14 Z M-12 -7 L0 2 L12 -7"/></g>
+    <circle class="loan-decision-wnring loan-decision-ok-let" cx="1390" cy="472" r="36"/>
+    <g class="loan-decision-envg" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-env" transform="translate(1390 472)" d="M-14 -9 H14 V9 H-14 Z M-12 -7 L0 2 L12 -7"/></g>
+    <text class="loan-decision-t loan-decision-lbl" x="1446" y="468">Reason letter</text>
+    <text class="loan-decision-t loan-decision-sub" x="1446" y="494">why, and what next</text>
   </g>
-  <text class="loan-decision-mono" x="674" y="414">no</text>
-  <text class="loan-decision-mono loan-decision-wn loan-decision-b loan-decision-no" x="674" y="414">no</text>
+  <text class="loan-decision-mono" x="554" y="414">no</text>
+  <text class="loan-decision-mono loan-decision-wn loan-decision-b loan-decision-no" x="554" y="414">no</text>
   </g>
-    <path class="loan-decision-wire loan-decision-w-or" pathLength="100" d="M446 253 H506"/>
-    <path class="loan-decision-arrow loan-decision-wa-or" d="M497 245 L506 253 L497 261"/>
+    <path class="loan-decision-wire loan-decision-w-or" pathLength="100" d="M334 253 H410"/>
+    <path class="loan-decision-arrow loan-decision-wa-or" d="M401 245 L410 253 L401 261"/>
   <g class="loan-decision-e1">
-    <rect class="loan-decision-or" x="374" y="233" width="72" height="40" rx="20"/>
-    <rect class="loan-decision-or loan-decision-or-run loan-decision-or-a" x="374" y="233" width="72" height="40" rx="20"/>
-    <rect class="loan-decision-or loan-decision-or-run loan-decision-or-b" x="374" y="233" width="72" height="40" rx="20"/>
-    <text class="loan-decision-mono loan-decision-b" x="410" y="260" text-anchor="middle" style="fill:var(--anim-fg)">OR</text>
-    <polygon class="loan-decision-dia" points="660,143 810,253 660,363 510,253"/>
-    <polygon class="loan-decision-dia-run loan-decision-dia-a" points="660,143 810,253 660,363 510,253"/>
-    <polygon class="loan-decision-dia-run loan-decision-dia-b" points="660,143 810,253 660,363 510,253"/>
-    <text class="loan-decision-t loan-decision-lbl" x="660" y="246" text-anchor="middle">Credit check</text>
-    <text class="loan-decision-t loan-decision-lbl" x="660" y="276" text-anchor="middle">passed?</text>
-    <text class="loan-decision-mono loan-decision-r0" x="660" y="122" text-anchor="middle">minimum score 680</text>
-    <text class="loan-decision-mono loan-decision-gn loan-decision-r1" x="660" y="122" text-anchor="middle">score 742 ≥ 680</text>
-    <text class="loan-decision-mono loan-decision-wn loan-decision-r2" x="660" y="122" text-anchor="middle">score 590 &lt; 680</text>
+    <circle class="loan-decision-ring" cx="310" cy="253" r="24"/>
+    <g class="loan-decision-or-a"><circle class="loan-decision-halo" cx="310" cy="253" r="24"/><circle class="loan-decision-hot" cx="310" cy="253" r="24"/></g>
+    <g class="loan-decision-or-b"><circle class="loan-decision-halo" cx="310" cy="253" r="24"/><circle class="loan-decision-hot" cx="310" cy="253" r="24"/></g>
+    <text class="loan-decision-mono loan-decision-b" x="310" y="260" text-anchor="middle" style="fill:var(--anim-fg);font-size:18px">OR</text>
+    <polygon class="loan-decision-dia" points="540,153 670,253 540,353 410,253"/>
+    <g class="loan-decision-dia-a"><polygon class="loan-decision-dia-halo" points="540,153 670,253 540,353 410,253"/><polygon class="loan-decision-dia-run" points="540,153 670,253 540,353 410,253"/></g>
+    <g class="loan-decision-dia-b"><polygon class="loan-decision-dia-halo" points="540,153 670,253 540,353 410,253"/><polygon class="loan-decision-dia-run" points="540,153 670,253 540,353 410,253"/></g>
+    <text class="loan-decision-t loan-decision-lbl" x="540" y="246" text-anchor="middle">Credit check</text>
+    <text class="loan-decision-t loan-decision-lbl" x="540" y="276" text-anchor="middle">passed?</text>
+    <text class="loan-decision-mono loan-decision-r0" x="540" y="128" text-anchor="middle">minimum score 680</text>
+    <text class="loan-decision-mono loan-decision-gn loan-decision-r1" x="540" y="128" text-anchor="middle">score 742 ≥ 680</text>
+    <text class="loan-decision-mono loan-decision-wn loan-decision-r2" x="540" y="128" text-anchor="middle">score 590 &lt; 680</text>
   </g>
-  <circle class="loan-decision-pkt loan-decision-p-a1" r="10"/>
-  <circle class="loan-decision-pkt loan-decision-p-b1" r="10"/>
-  <circle class="loan-decision-pkt loan-decision-p-y1" r="10"/>
-  <circle class="loan-decision-pkt loan-decision-p-y2" r="10"/>
-  <circle class="loan-decision-pkt loan-decision-p-j1" r="10"/>
-  <circle class="loan-decision-pkt loan-decision-p-j2" r="10"/>
-  <circle class="loan-decision-pkt loan-decision-p-n1" r="10"/>
-  <circle class="loan-decision-pkt loan-decision-p-n2" r="10"/>
-  <rect class="loan-decision-cap" x="24" y="536" width="1632" height="56" rx="8"/>
-  <text class="loan-decision-t loan-decision-note loan-decision-n0" x="840" y="573" text-anchor="middle">Two ways in: apply online or in a branch</text>
-  <text class="loan-decision-t loan-decision-note loan-decision-n1" x="840" y="573" text-anchor="middle">Application 1 arrives online</text>
-  <text class="loan-decision-t loan-decision-note loan-decision-n2" x="840" y="573" text-anchor="middle">Credit check: the score clears the minimum</text>
-  <text class="loan-decision-t loan-decision-note loan-decision-n3" x="840" y="573" text-anchor="middle">Income and collateral are verified in parallel</text>
-  <text class="loan-decision-t loan-decision-note loan-decision-n4" x="840" y="573" text-anchor="middle">Both confirmed: a loan offer is sent</text>
-  <text class="loan-decision-t loan-decision-note loan-decision-n5" x="840" y="573" text-anchor="middle">Application 2 arrives in a branch</text>
-  <text class="loan-decision-t loan-decision-note loan-decision-n6" x="840" y="573" text-anchor="middle">Credit check: the score falls short</text>
-  <text class="loan-decision-t loan-decision-note loan-decision-n7" x="840" y="573" text-anchor="middle">Declined, with a letter that explains why</text>
-  <text class="loan-decision-t loan-decision-note loan-decision-n8" x="840" y="573" text-anchor="middle">Every application ends in an offer or a reasoned decline</text>
+  <circle class="loan-decision-pkt loan-decision-p-a1" r="8"/>
+  <circle class="loan-decision-pkt loan-decision-p-b1" r="8"/>
+  <circle class="loan-decision-pkt loan-decision-p-y1" r="8"/>
+  <circle class="loan-decision-pkt loan-decision-p-y2" r="8"/>
+  <circle class="loan-decision-pkt loan-decision-p-j1" r="8"/>
+  <circle class="loan-decision-pkt loan-decision-p-j2" r="8"/>
+  <circle class="loan-decision-pkt loan-decision-p-n1" r="8"/>
+  <circle class="loan-decision-pkt loan-decision-p-n2" r="8"/>
+  <text class="loan-decision-t loan-decision-note loan-decision-n0" x="840" y="574" text-anchor="middle">Two ways in: apply online or in a branch</text>
+  <text class="loan-decision-t loan-decision-note loan-decision-n1" x="840" y="574" text-anchor="middle">Application 1 arrives online</text>
+  <text class="loan-decision-t loan-decision-note loan-decision-n2" x="840" y="574" text-anchor="middle">Credit check: the score clears the minimum</text>
+  <text class="loan-decision-t loan-decision-note loan-decision-n3" x="840" y="574" text-anchor="middle">Income and collateral are verified in parallel</text>
+  <text class="loan-decision-t loan-decision-note loan-decision-n4" x="840" y="574" text-anchor="middle">Both confirmed: a loan offer is sent</text>
+  <text class="loan-decision-t loan-decision-note loan-decision-n5" x="840" y="574" text-anchor="middle">Application 2 arrives in a branch</text>
+  <text class="loan-decision-t loan-decision-note loan-decision-n6" x="840" y="574" text-anchor="middle">Credit check: the score falls short</text>
+  <text class="loan-decision-t loan-decision-note loan-decision-n7" x="840" y="574" text-anchor="middle">Declined, with a letter that explains why</text>
+  <text class="loan-decision-t loan-decision-note loan-decision-n8" x="840" y="574" text-anchor="middle">Every application ends in an offer or a reasoned decline</text>
 </g>
+  <!-- illustrative values tag -->
+  <rect class="loan-decision-tagbox" x="1514" y="20" width="146" height="32" rx="4"/>
+  <text class="loan-decision-sub" x="1587" y="42" text-anchor="middle">illustrative</text>
 </svg>
 </div>

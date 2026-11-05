@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.5.1"
+  version: "0.6.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
@@ -77,8 +77,9 @@ The quality of the fragment tracks the quality of the brief.
 validates the spec and writes a contract-compliant skeleton (layout, phases, packets, notes,
 resting frame; font sizes raised to the floor at the rendered width), then runs the checker on
 it. The comment at the top of the output lists what to refine by hand. Refine it into the
-illustration the brief describes, using `references/archetypes.md` for composition and motion
-and `references/motion-rules.md` for timing and easing. For several illustrations, build one
+illustration the brief describes, using `references/archetypes.md` for composition and motion,
+`references/motion-rules.md` for timing and easing, and `references/style.md` for the look
+(lean: rings and thin lines, no boxes, one glowing accent, mono sub-labels, plain captions). For several illustrations, build one
 fragment at a time from the shared briefs, or one parallel subagent per fragment if the harness
 has them; integration always stays in the main thread.
 
@@ -157,6 +158,9 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - Text at or above 18 px at rendered size, titles 22 px and up.
 - Never add CDN or network loads. Work on a lean deck; bundle to one self-contained file only
   at hand-over when the user wants to share (`bundle_deck.py`, then `check_page.py`).
+- The look follows `references/style.md`: no filled cards, chips or caption bars; rings and
+  thin lines; one accent with glow; at most two semantic colours, each meaning something on
+  the slide.
 - At most three things moving at once, cycle 8 to 15 s with a hold, `linear` only for
   continuous loops, exits about 65 % of entrance length, reduced-motion block present.
 
@@ -174,6 +178,7 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `scripts/scaffold_from_spec.py` — spec validation and spec to skeleton fragment (loop or step); YAML or JSON, PyYAML optional
 - `scripts/check_fragment.py` — static contract checks
 - `scripts/verify_facts.py` — provenance gate: fragment text and numbers against the source slide
+- `references/style.md` — the visual style: lean, quiet, one accent, no boxes; checklist before shipping
 - `references/accuracy.md` — accuracy rules: numbers from the source, labels in its words, figures redrawn at scale
 - `scripts/render-phases.sh` — phase PNGs and contact sheet with headless Chrome
 - `scripts/measure_slot.py` — free box of a slide in stage pixels, with viewBox and checker flags

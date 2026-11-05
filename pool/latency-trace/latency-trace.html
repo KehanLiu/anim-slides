@@ -1,49 +1,46 @@
+<!-- latency-trace: chart archetype (scrolling strip), lean restyle (references/style.md).
+  14 s seamless loop, 45 px of trace per second: deploy v2.4 reaches now at 3.0 s, alert 4.6 s,
+  rollback 6.5 s, SLO met again 8.5 s; the strip content repeats every 630 px -->
 <style>
-.anim-latency-trace{
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+.anim-latency-trace {
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
-  width:100%;height:100%
+  display: block; width: 100%; height: 100%;
 }
 .anim-latency-trace svg{width:100%;height:100%;display:block}
+/* type */
 .anim-latency-trace .latency-trace-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
-.anim-latency-trace .latency-trace-title{font-family:var(--anim-font);font-size:24px;font-weight:700;fill:var(--anim-fg)}
+.anim-latency-trace .latency-trace-title{font-family:var(--anim-font);font-size:24px;font-weight:600;fill:var(--anim-fg)}
 .anim-latency-trace .latency-trace-readout{font-family:var(--anim-mono);font-size:26px;font-weight:600;fill:var(--anim-fg)}
 .anim-latency-trace .latency-trace-fg{fill:var(--anim-fg)}
-.anim-latency-trace .latency-trace-a2{fill:var(--anim-accent-2)}
 .anim-latency-trace .latency-trace-ok{fill:var(--anim-ok)}
-.anim-latency-trace .latency-trace-warn{fill:var(--anim-warn)}
 .anim-latency-trace .latency-trace-danger{fill:var(--anim-danger)}
-.anim-latency-trace .latency-trace-panel{fill:color-mix(in srgb,var(--anim-panel) 50%,transparent);stroke:var(--anim-line);stroke-width:1.5}
-.anim-latency-trace .latency-trace-grid{stroke:var(--anim-line);stroke-width:1.5;opacity:.6}
-.anim-latency-trace .latency-trace-vgrid{stroke:var(--anim-line);stroke-width:1;opacity:.35}
-.anim-latency-trace .latency-trace-axis{stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
+/* frame: thin axes, dotted grid */
+.anim-latency-trace .latency-trace-grid,.anim-latency-trace .latency-trace-vgrid{stroke:var(--anim-line);stroke-width:2;stroke-dasharray:1 9;stroke-linecap:round;opacity:.4}
+.anim-latency-trace .latency-trace-axis{stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
 .anim-latency-trace .latency-trace-zone{fill:color-mix(in srgb,var(--anim-danger) 7%,transparent)}
-.anim-latency-trace .latency-trace-slo{stroke:var(--anim-danger);stroke-width:2;stroke-dasharray:8 7;stroke-linecap:round;opacity:.85}
-.anim-latency-trace .latency-trace-now{stroke:var(--anim-muted);stroke-width:1.5;stroke-dasharray:3 5;opacity:.7}
-.anim-latency-trace .latency-trace-line{fill:none;stroke:var(--anim-accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.anim-latency-trace .latency-trace-breach{fill:none;stroke:var(--anim-danger);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.anim-latency-trace .latency-trace-ev{stroke-width:2;stroke-dasharray:5 6;stroke-linecap:round}
-.anim-latency-trace .latency-trace-ev-deploy{stroke:var(--anim-accent-2)}
-.anim-latency-trace .latency-trace-ev-rb{stroke:var(--anim-ok)}
-.anim-latency-trace .latency-trace-tick{stroke:var(--anim-danger);stroke-width:2;stroke-linecap:round}
+.anim-latency-trace .latency-trace-slo{stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-line));stroke-width:2;stroke-dasharray:8 7;stroke-linecap:round}
+.anim-latency-trace .latency-trace-now{stroke:var(--anim-line);stroke-width:2;stroke-dasharray:2 6;stroke-linecap:round}
+/* series and its glowing head */
+.anim-latency-trace .latency-trace-line{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-latency-trace .latency-trace-head{fill:var(--anim-accent)}
+.anim-latency-trace .latency-trace-halo{fill:var(--anim-accent);opacity:.3;filter:blur(4px)}
+/* events: outlined mono tags on dashed leaders */
+.anim-latency-trace .latency-trace-ev{stroke:var(--anim-line);stroke-width:2;stroke-dasharray:4 5;stroke-linecap:round}
+.anim-latency-trace .latency-trace-tag{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2}
 .anim-latency-trace .latency-trace-alert-dot{fill:var(--anim-danger);stroke:var(--anim-bg);stroke-width:2}
-.anim-latency-trace .latency-trace-head{fill:var(--anim-accent);stroke:var(--anim-bg);stroke-width:2}
-.anim-latency-trace .latency-trace-chip{fill:var(--anim-panel);stroke-width:2;stroke-linejoin:round}
-.anim-latency-trace .latency-trace-chip-line{stroke:var(--anim-line)}
-.anim-latency-trace .latency-trace-chip-a2{stroke:var(--anim-accent-2)}
-.anim-latency-trace .latency-trace-chip-ok{stroke:var(--anim-ok)}
-.anim-latency-trace .latency-trace-chip-danger{stroke:var(--anim-danger)}
-.anim-latency-trace .latency-trace-chip-warn{stroke:var(--anim-warn)}
+.anim-latency-trace .latency-trace-tagbox{fill:none;stroke:var(--anim-line);stroke-width:2}
+
 /* resting frame (no .visible): the strip at second 11, whole incident in the window, back on v2.3 */
 .anim-latency-trace .latency-trace-g{transform:translateX(-495px)}
 .anim-latency-trace .latency-trace-head-g{transform:translateY(332.3px)}
@@ -91,42 +88,25 @@
     <clipPath id="latency-trace-clip"><rect x="110" y="146" width="630" height="268"/></clipPath>
   </defs>
 
-  <!-- ================= header ================= -->
+  <!-- header: readouts as plain inline text -->
   <text class="latency-trace-title" x="40" y="48">p99 request latency</text>
   <text class="latency-trace-mono" x="40" y="78">web service · live</text>
   <text class="latency-trace-mono" x="652" y="48" text-anchor="end">p99 =</text>
   <text class="latency-trace-readout latency-trace-base latency-trace-r0" x="760" y="50" text-anchor="end">121 ms</text>
-  <text class="latency-trace-readout latency-trace-alt latency-trace-r1 latency-trace-warn" x="760" y="50" text-anchor="end">200 ms</text>
+  <text class="latency-trace-readout latency-trace-alt latency-trace-r1" x="760" y="50" text-anchor="end">200 ms</text>
   <text class="latency-trace-readout latency-trace-alt latency-trace-r2 latency-trace-danger" x="760" y="50" text-anchor="end">356 ms</text>
   <text class="latency-trace-readout latency-trace-alt latency-trace-r3" x="760" y="50" text-anchor="end">129 ms</text>
   <text class="latency-trace-readout latency-trace-alt latency-trace-r5 latency-trace-danger" x="760" y="50" text-anchor="end">323 ms</text>
-  <text class="latency-trace-readout latency-trace-alt latency-trace-r4 latency-trace-warn" x="760" y="50" text-anchor="end">221 ms</text>
+  <text class="latency-trace-readout latency-trace-alt latency-trace-r4" x="760" y="50" text-anchor="end">221 ms</text>
+  <!-- release -->
+  <text class="latency-trace-mono latency-trace-base latency-trace-v0" x="556" y="84" text-anchor="end">release v2.3</text>
+  <text class="latency-trace-mono latency-trace-fg latency-trace-alt latency-trace-v1" x="556" y="84" text-anchor="end">release v2.4</text>
+  <!-- status -->
+  <text class="latency-trace-mono latency-trace-ok latency-trace-base latency-trace-s0" x="760" y="84" text-anchor="end">SLO met</text>
+  <text class="latency-trace-mono latency-trace-danger latency-trace-alt latency-trace-s1" x="760" y="84" text-anchor="end">alert: SLO breach</text>
+  <text class="latency-trace-mono latency-trace-fg latency-trace-alt latency-trace-s2" x="760" y="84" text-anchor="end">rolling back</text>
 
-  <!-- release chip -->
-  <g class="latency-trace-base latency-trace-v0">
-    <rect class="latency-trace-chip latency-trace-chip-line" x="368" y="64" width="160" height="32" rx="6"/>
-    <text class="latency-trace-mono latency-trace-fg" x="448" y="86" text-anchor="middle">release v2.3</text>
-  </g>
-  <g class="latency-trace-alt latency-trace-v1">
-    <rect class="latency-trace-chip latency-trace-chip-a2" x="368" y="64" width="160" height="32" rx="6"/>
-    <text class="latency-trace-mono latency-trace-a2" x="448" y="86" text-anchor="middle">release v2.4</text>
-  </g>
-  <!-- status chip -->
-  <g class="latency-trace-base latency-trace-s0">
-    <rect class="latency-trace-chip latency-trace-chip-ok" x="540" y="64" width="220" height="32" rx="6"/>
-    <text class="latency-trace-mono latency-trace-ok" x="650" y="86" text-anchor="middle">SLO met</text>
-  </g>
-  <g class="latency-trace-alt latency-trace-s1">
-    <rect class="latency-trace-chip latency-trace-chip-danger" x="540" y="64" width="220" height="32" rx="6"/>
-    <text class="latency-trace-mono latency-trace-danger" x="650" y="86" text-anchor="middle">alert: SLO breach</text>
-  </g>
-  <g class="latency-trace-alt latency-trace-s2">
-    <rect class="latency-trace-chip latency-trace-chip-warn" x="540" y="64" width="220" height="32" rx="6"/>
-    <text class="latency-trace-mono latency-trace-warn" x="650" y="86" text-anchor="middle">rolling back</text>
-  </g>
-
-  <!-- ================= strip chart ================= -->
-  <rect class="latency-trace-panel" x="30" y="112" width="740" height="380" rx="6"/>
+  <!-- strip chart: y = 410 - 0.65 * ms -->
   <text class="latency-trace-mono" x="100" y="136" text-anchor="end">ms</text>
   <rect class="latency-trace-zone" x="110" y="150" width="630" height="97.5"/>
   <line class="latency-trace-grid" x1="110" y1="150" x2="740" y2="150"/>
@@ -135,10 +115,11 @@
   <line class="latency-trace-grid" x1="110" y1="345" x2="740" y2="345"/>
   <text class="latency-trace-mono" x="100" y="156" text-anchor="end">400</text>
   <text class="latency-trace-mono" x="100" y="221" text-anchor="end">300</text>
-  <text class="latency-trace-mono latency-trace-danger" x="100" y="253.5" text-anchor="end">SLO</text>
+  <text class="latency-trace-mono" x="100" y="253.5" text-anchor="end">SLO</text>
   <text class="latency-trace-mono" x="100" y="286" text-anchor="end">200</text>
   <text class="latency-trace-mono" x="100" y="351" text-anchor="end">100</text>
   <text class="latency-trace-mono" x="100" y="416" text-anchor="end">0</text>
+  <line class="latency-trace-slo" x1="110" y1="247.5" x2="740" y2="247.5"/>
 
   <g clip-path="url(#latency-trace-clip)">
     <g class="latency-trace-g">
@@ -156,39 +137,43 @@
       <line class="latency-trace-vgrid" x1="1265" y1="150" x2="1265" y2="410"/>
       <line class="latency-trace-vgrid" x1="1370" y1="150" x2="1370" y2="410"/>
       <polyline class="latency-trace-line" points="110.0,333.4 116.3,334.7 122.6,330.8 128.9,335.3 135.2,331.7 141.5,333.0 147.8,335.4 154.1,331.9 160.4,335.6 166.7,332.5 173.0,335.4 179.3,335.2 185.6,332.6 191.9,329.5 198.2,334.9 204.5,334.2 210.8,331.0 217.1,328.5 223.4,331.4 229.7,332.8 236.0,328.3 242.3,335.5 248.6,329.2 254.9,332.3 261.2,328.3 267.5,319.9 273.8,307.1 280.1,289.7 286.4,279.7 292.7,260.8 299.0,244.4 305.3,230.9 311.6,214.9 317.9,205.8 324.2,195.2 330.5,186.3 336.8,178.4 343.1,180.0 349.4,181.3 355.7,178.3 362.0,179.8 368.3,181.4 374.6,176.0 380.9,177.1 387.2,182.0 393.5,178.4 399.8,179.0 406.1,177.2 412.4,183.1 418.7,194.7 425.0,200.3 431.3,220.3 437.6,232.7 443.9,245.7 450.2,266.5 456.5,279.5 462.8,297.8 469.1,306.1 475.4,316.3 481.7,325.9 488.0,328.2 494.3,333.5 500.6,330.5 506.9,331.3 513.2,331.4 519.5,332.3 525.8,329.3 532.1,328.5 538.4,332.2 544.7,330.7 551.0,335.4 557.3,330.4 563.6,330.9 569.9,328.2 576.2,329.5 582.5,333.7 588.8,332.9 595.1,330.7 601.4,335.7 607.7,332.3 614.0,334.6 620.3,335.0 626.6,335.4 632.9,329.9 639.2,334.9 645.5,334.0 651.8,332.9 658.1,329.1 664.4,335.3 670.7,332.4 677.0,331.6 683.3,329.0 689.6,329.5 695.9,329.2 702.2,333.7 708.5,332.7 714.8,333.1 721.1,329.0 727.4,328.4 733.7,334.7 740.0,333.4 746.3,334.7 752.6,330.8 758.9,335.3 765.2,331.7 771.5,333.0 777.8,335.4 784.1,331.9 790.4,335.6 796.7,332.5 803.0,335.4 809.3,335.2 815.6,332.6 821.9,329.5 828.2,334.9 834.5,334.2 840.8,331.0 847.1,328.5 853.4,331.4 859.7,332.8 866.0,328.3 872.3,335.5 878.6,329.2 884.9,332.3 891.2,328.3 897.5,319.9 903.8,307.1 910.1,289.7 916.4,279.7 922.7,260.8 929.0,244.4 935.3,230.9 941.6,214.9 947.9,205.8 954.2,195.2 960.5,186.3 966.8,178.4 973.1,180.0 979.4,181.3 985.7,178.3 992.0,179.8 998.3,181.4 1004.6,176.0 1010.9,177.1 1017.2,182.0 1023.5,178.4 1029.8,179.0 1036.1,177.2 1042.4,183.1 1048.7,194.7 1055.0,200.3 1061.3,220.3 1067.6,232.7 1073.9,245.7 1080.2,266.5 1086.5,279.5 1092.8,297.8 1099.1,306.1 1105.4,316.3 1111.7,325.9 1118.0,328.2 1124.3,333.5 1130.6,330.5 1136.9,331.3 1143.2,331.4 1149.5,332.3 1155.8,329.3 1162.1,328.5 1168.4,332.2 1174.7,330.7 1181.0,335.4 1187.3,330.4 1193.6,330.9 1199.9,328.2 1206.2,329.5 1212.5,333.7 1218.8,332.9 1225.1,330.7 1231.4,335.7 1237.7,332.3 1244.0,334.6 1250.3,335.0 1256.6,335.4 1262.9,329.9 1269.2,334.9 1275.5,334.0 1281.8,332.9 1288.1,329.1 1294.4,335.3 1300.7,332.4 1307.0,331.6 1313.3,329.0 1319.6,329.5 1325.9,329.2 1332.2,333.7 1338.5,332.7 1344.8,333.1 1351.1,329.0 1357.4,328.4 1363.7,334.7 1370.0,333.4"/>
-      <polyline class="latency-trace-breach" points="297.8,247.5 305.3,230.9 311.6,214.9 317.9,205.8 324.2,195.2 330.5,186.3 336.8,178.4 343.1,180.0 349.4,181.3 355.7,178.3 362.0,179.8 368.3,181.4 374.6,176.0 380.9,177.1 387.2,182.0 393.5,178.4 399.8,179.0 406.1,177.2 412.4,183.1 418.7,194.7 425.0,200.3 431.3,220.3 437.6,232.7 443.9,245.7 444.4,247.5"/>
-      <polyline class="latency-trace-breach" points="927.8,247.5 935.3,230.9 941.6,214.9 947.9,205.8 954.2,195.2 960.5,186.3 966.8,178.4 973.1,180.0 979.4,181.3 985.7,178.3 992.0,179.8 998.3,181.4 1004.6,176.0 1010.9,177.1 1017.2,182.0 1023.5,178.4 1029.8,179.0 1036.1,177.2 1042.4,183.1 1048.7,194.7 1055.0,200.3 1061.3,220.3 1067.6,232.7 1073.9,245.7 1074.4,247.5"/>
       <g class="latency-trace-mk">
-        <line class="latency-trace-ev latency-trace-ev-deploy" x1="245" y1="152" x2="245" y2="408"/>
-        <text class="latency-trace-mono latency-trace-a2" x="253" y="398">deploy v2.4</text>
-        <line class="latency-trace-tick" x1="317" y1="247.5" x2="317" y2="265.5"/>
+        <line class="latency-trace-ev" x1="245" y1="340" x2="245" y2="370"/>
+        <rect class="latency-trace-tag" x="177" y="370" width="136" height="28" rx="4"/>
+        <text class="latency-trace-mono latency-trace-fg" x="245" y="390" text-anchor="middle">deploy v2.4</text>
+        <line class="latency-trace-ev" x1="317" y1="254" x2="338" y2="270"/>
+        <rect class="latency-trace-tag" x="330" y="266" width="72" height="28" rx="4"/>
         <circle class="latency-trace-alert-dot" cx="317" cy="247.5" r="6"/>
-        <text class="latency-trace-mono latency-trace-danger" x="325" y="283.5">alert</text>
-        <line class="latency-trace-ev latency-trace-ev-rb" x1="402" y1="152" x2="402" y2="408"/>
-        <text class="latency-trace-mono latency-trace-ok" x="410" y="398">rollback</text>
+        <text class="latency-trace-mono latency-trace-danger" x="366" y="286" text-anchor="middle">alert</text>
+        <line class="latency-trace-ev" x1="402" y1="186" x2="402" y2="370"/>
+        <rect class="latency-trace-tag" x="350" y="370" width="104" height="28" rx="4"/>
+        <text class="latency-trace-mono latency-trace-ok" x="402" y="390" text-anchor="middle">rollback</text>
       </g>
       <g class="latency-trace-mk">
-        <line class="latency-trace-ev latency-trace-ev-deploy" x1="875" y1="152" x2="875" y2="408"/>
-        <text class="latency-trace-mono latency-trace-a2" x="883" y="398">deploy v2.4</text>
-        <line class="latency-trace-tick" x1="947" y1="247.5" x2="947" y2="265.5"/>
+        <line class="latency-trace-ev" x1="875" y1="340" x2="875" y2="370"/>
+        <rect class="latency-trace-tag" x="807" y="370" width="136" height="28" rx="4"/>
+        <text class="latency-trace-mono latency-trace-fg" x="875" y="390" text-anchor="middle">deploy v2.4</text>
+        <line class="latency-trace-ev" x1="947" y1="254" x2="968" y2="270"/>
+        <rect class="latency-trace-tag" x="960" y="266" width="72" height="28" rx="4"/>
         <circle class="latency-trace-alert-dot" cx="947" cy="247.5" r="6"/>
-        <text class="latency-trace-mono latency-trace-danger" x="955" y="283.5">alert</text>
-        <line class="latency-trace-ev latency-trace-ev-rb" x1="1032" y1="152" x2="1032" y2="408"/>
-        <text class="latency-trace-mono latency-trace-ok" x="1040" y="398">rollback</text>
+        <text class="latency-trace-mono latency-trace-danger" x="996" y="286" text-anchor="middle">alert</text>
+        <line class="latency-trace-ev" x1="1032" y1="186" x2="1032" y2="370"/>
+        <rect class="latency-trace-tag" x="980" y="370" width="104" height="28" rx="4"/>
+        <text class="latency-trace-mono latency-trace-ok" x="1032" y="390" text-anchor="middle">rollback</text>
       </g>
     </g>
   </g>
 
-  <line class="latency-trace-slo" x1="110" y1="247.5" x2="740" y2="247.5"/>
   <line class="latency-trace-axis" x1="110" y1="410" x2="740" y2="410"/>
   <line class="latency-trace-axis" x1="110" y1="150" x2="110" y2="410"/>
   <line class="latency-trace-now" x1="740" y1="150" x2="740" y2="410"/>
-  <g class="latency-trace-head-g"><circle class="latency-trace-head" cx="740" cy="0" r="6"/></g>
+  <g class="latency-trace-head-g"><circle class="latency-trace-halo" cx="740" cy="0" r="12"/><circle class="latency-trace-head" cx="740" cy="0" r="6"/></g>
 
   <text class="latency-trace-mono" x="110" y="436" text-anchor="middle">−14 s</text>
   <text class="latency-trace-mono" x="425" y="436" text-anchor="middle">−7 s</text>
   <text class="latency-trace-mono latency-trace-fg" x="740" y="436" text-anchor="middle">now</text>
   <text class="latency-trace-mono" x="425" y="470" text-anchor="middle">time →</text>
-  <text class="latency-trace-mono" x="758" y="482" text-anchor="end" style="fill:var(--anim-muted)">illustrative</text>
+  <rect class="latency-trace-tagbox" x="616" y="458" width="144" height="30" rx="4"/>
+  <text class="latency-trace-mono" x="688" y="479" text-anchor="middle">illustrative</text>
 </svg>
 </div>

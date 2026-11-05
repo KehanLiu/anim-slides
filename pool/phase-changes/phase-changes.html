@@ -1,4 +1,4 @@
-<!-- phase-changes (pool, archetype states, domain chemistry). Hand-built from pool/phase-changes/spec.yaml.
+<!-- phase-changes (pool, archetype states, domain chemistry; lean restyle, references/style.md). Hand-built from pool/phase-changes/spec.yaml.
   Solid, liquid and gas with the six named transitions; changes toward gas (melting, vaporization,
   sublimation) absorb energy, changes toward solid (freezing, condensation, deposition) release it.
   Only temperatures shown: water at 1 atm (0 °C, 100 °C). Particle drawings are schematic.
@@ -6,45 +6,48 @@
   > gas > solid, 1.7 s apart | 11.1 s all six lit | hold to 13.5 s | reset. -->
 <style>
 .anim-phase-changes{
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
   display:block;width:100%;height:100%
 }
 .anim-phase-changes svg{display:block;width:100%;height:100%;max-width:none}
-.anim-phase-changes .phase-changes-box{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:2}
-.anim-phase-changes .phase-changes-ring{fill:none;stroke:var(--anim-fg);stroke-width:3}
-.anim-phase-changes .phase-changes-sname{font-family:var(--anim-font);font-size:24px;font-weight:700;fill:var(--anim-fg)}
-.anim-phase-changes .phase-changes-ssub{font-family:var(--anim-font);font-size:18px;fill:var(--anim-muted)}
-.anim-phase-changes .phase-changes-pt{fill:color-mix(in srgb,var(--anim-accent) 45%,var(--anim-panel));stroke:var(--anim-accent);stroke-width:2}
-.anim-phase-changes .phase-changes-trail{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round;opacity:.7}
-.anim-phase-changes .phase-changes-arc{fill:none;stroke:var(--anim-line);stroke-width:3;stroke-linecap:round}
-.anim-phase-changes .phase-changes-hd{fill:var(--anim-line)}
-.anim-phase-changes .phase-changes-tname{font-family:var(--anim-font);font-size:21px;font-weight:700;fill:var(--anim-muted)}
+/* states: thin outlined containers, no fill; the current state gets a brighter outline */
+.anim-phase-changes .phase-changes-box{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2}
+.anim-phase-changes .phase-changes-ring{fill:none;stroke:var(--anim-fg);stroke-width:2.5}
+.anim-phase-changes .phase-changes-sname{font-family:var(--anim-font);font-size:24px;font-weight:600;fill:var(--anim-fg)}
+.anim-phase-changes .phase-changes-ssub{font-family:var(--anim-font);font-size:20px;fill:var(--anim-muted)}
+/* particles: small outlined circles */
+.anim-phase-changes .phase-changes-pt{fill:none;stroke:color-mix(in srgb,var(--anim-fg) 70%,var(--anim-bg));stroke-width:2}
+.anim-phase-changes .phase-changes-trail{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;opacity:.5}
+/* transitions: thin arcs, small open arrowheads */
+.anim-phase-changes .phase-changes-arc{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round}
+.anim-phase-changes .phase-changes-hd{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-phase-changes .phase-changes-tname{font-family:var(--anim-font);font-size:22px;font-weight:600;fill:var(--anim-muted)}
 .anim-phase-changes .phase-changes-tname.phase-changes-on-name{fill:var(--anim-fg)}
-.anim-phase-changes .phase-changes-tsep{font-family:var(--anim-font);font-size:21px;fill:var(--anim-muted)}
-.anim-phase-changes .phase-changes-ten{font-family:var(--anim-font);font-size:18px;font-weight:600}
-.anim-phase-changes .phase-changes-tline{font-family:var(--anim-font);font-size:21px}
+.anim-phase-changes .phase-changes-tsep{font-family:var(--anim-font);font-size:22px;fill:var(--anim-muted)}
+.anim-phase-changes .phase-changes-ten{font-family:var(--anim-mono);font-size:18px}
+.anim-phase-changes .phase-changes-tline{font-family:var(--anim-font);font-size:22px}
 .anim-phase-changes .phase-changes-k-dim{fill:var(--anim-muted)}
 .anim-phase-changes .phase-changes-k-abs{fill:var(--anim-accent-2)}
 .anim-phase-changes .phase-changes-k-rel{fill:var(--anim-accent)}
-.anim-phase-changes .phase-changes-arc.phase-changes-k-abs-s{stroke:var(--anim-accent-2)}
-.anim-phase-changes .phase-changes-arc.phase-changes-k-rel-s{stroke:var(--anim-accent)}
-.anim-phase-changes .phase-changes-k-abs-f{fill:var(--anim-accent-2)}
-.anim-phase-changes .phase-changes-k-rel-f{fill:var(--anim-accent)}
+.anim-phase-changes .phase-changes-arc.phase-changes-k-abs-s,.anim-phase-changes .phase-changes-hd.phase-changes-k-abs-h{stroke:var(--anim-accent-2)}
+.anim-phase-changes .phase-changes-arc.phase-changes-k-rel-s,.anim-phase-changes .phase-changes-hd.phase-changes-k-rel-h{stroke:var(--anim-accent)}
+.anim-phase-changes .phase-changes-k-abs-f{fill:var(--anim-accent-2);stroke:var(--anim-accent-2)}
+.anim-phase-changes .phase-changes-k-rel-f{fill:var(--anim-accent);stroke:var(--anim-accent)}
 .anim-phase-changes .phase-changes-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
-.anim-phase-changes .phase-changes-tok{stroke:var(--anim-bg);stroke-width:3;offset-rotate:0deg;offset-distance:100%}
-.anim-phase-changes .phase-changes-cap{fill:var(--anim-panel)}
-.anim-phase-changes .phase-changes-note{font-family:var(--anim-font);font-size:22px;font-weight:600;fill:var(--anim-fg)}
+/* token: a glowing dot in its energy colour */
+.anim-phase-changes .phase-changes-tok{stroke-width:14;stroke-opacity:.3;offset-rotate:0deg;offset-distance:100%}
+.anim-phase-changes .phase-changes-note{font-family:var(--anim-font);font-size:26px;fill:var(--anim-fg)}
 .anim-phase-changes .phase-changes-state{transform-box:view-box;transform-origin:0px 0px}
 /* resting frame = the end: all six transitions lit in their energy colour, no token, no state ring, last caption */
 .anim-phase-changes .phase-changes-hot-solid, .anim-phase-changes .phase-changes-hot-liquid, .anim-phase-changes .phase-changes-hot-gas, .anim-phase-changes .phase-changes-tk-melt, .anim-phase-changes .phase-changes-tk-vap, .anim-phase-changes .phase-changes-tk-cond, .anim-phase-changes .phase-changes-tk-frz, .anim-phase-changes .phase-changes-tk-sub, .anim-phase-changes .phase-changes-tk-dep, .anim-phase-changes .phase-changes-n0, .anim-phase-changes .phase-changes-n1, .anim-phase-changes .phase-changes-n2, .anim-phase-changes .phase-changes-n3, .anim-phase-changes .phase-changes-n4, .anim-phase-changes .phase-changes-n5, .anim-phase-changes .phase-changes-n6{opacity:0}
@@ -135,9 +138,8 @@
 <div class="anim anim-phase-changes" data-anim="phase-changes" data-anim-cycle="14" data-anim-control="loop">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Phase changes between solid, liquid and gas: melting, vaporization and sublimation absorb energy; freezing, condensation and deposition release it. A token travels each of the six transitions in turn.">
 <g class="phase-changes-scene">
-<path class="phase-changes-arc phase-changes-k-abs-s" d="M24 40 H58"/><path class="phase-changes-k-abs-f" d="M72.0 40.0 L58.0 47.0 L58.0 33.0 Z"/><text class="phase-changes-ten phase-changes-k-abs" x="86" y="46">absorbs energy</text>
-<path class="phase-changes-arc phase-changes-k-rel-s" d="M86 0" style="display:none"/>
-<path class="phase-changes-arc phase-changes-k-rel-s" d="M72 74 H38"/><path class="phase-changes-k-rel-f" d="M24.0 74.0 L38.0 67.0 L38.0 81.0 Z"/><text class="phase-changes-ten phase-changes-k-rel" x="86" y="80">releases energy</text>
+<path class="phase-changes-arc phase-changes-k-abs-s" d="M24 40 H58"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M58.0 47.0 L72.0 40.0 L58.0 33.0"/><text class="phase-changes-ten phase-changes-k-abs" x="86" y="46">absorbs energy</text>
+<path class="phase-changes-arc phase-changes-k-rel-s" d="M72 74 H38"/><path class="phase-changes-hd phase-changes-k-rel-h" d="M38.0 67.0 L24.0 74.0 L38.0 81.0"/><text class="phase-changes-ten phase-changes-k-rel" x="86" y="80">releases energy</text>
 <text class="phase-changes-mono" x="1656" y="40" text-anchor="end">water at 1 atm:</text>
 <text class="phase-changes-mono" x="1656" y="66" text-anchor="end">melts at 0 °C, boils at 100 °C</text>
 <g class="phase-changes-state phase-changes-st-solid">
@@ -145,57 +147,57 @@
   <rect class="phase-changes-ring phase-changes-hot-solid" x="100" y="170" width="320" height="220" rx="8"/>
   <text class="phase-changes-sname" x="260.0" y="208" text-anchor="middle">Solid</text>
   <text class="phase-changes-ssub" x="260.0" y="234" text-anchor="middle">ordered, fixed in place</text>
-  <circle class="phase-changes-pt" cx="185.0" cy="266" r="12"/>
-  <circle class="phase-changes-pt" cx="215.0" cy="266" r="12"/>
-  <circle class="phase-changes-pt" cx="245.0" cy="266" r="12"/>
-  <circle class="phase-changes-pt" cx="275.0" cy="266" r="12"/>
-  <circle class="phase-changes-pt" cx="305.0" cy="266" r="12"/>
-  <circle class="phase-changes-pt" cx="335.0" cy="266" r="12"/>
-  <circle class="phase-changes-pt" cx="185.0" cy="296" r="12"/>
-  <circle class="phase-changes-pt" cx="215.0" cy="296" r="12"/>
-  <circle class="phase-changes-pt" cx="245.0" cy="296" r="12"/>
-  <circle class="phase-changes-pt" cx="275.0" cy="296" r="12"/>
-  <circle class="phase-changes-pt" cx="305.0" cy="296" r="12"/>
-  <circle class="phase-changes-pt" cx="335.0" cy="296" r="12"/>
-  <circle class="phase-changes-pt" cx="185.0" cy="326" r="12"/>
-  <circle class="phase-changes-pt" cx="215.0" cy="326" r="12"/>
-  <circle class="phase-changes-pt" cx="245.0" cy="326" r="12"/>
-  <circle class="phase-changes-pt" cx="275.0" cy="326" r="12"/>
-  <circle class="phase-changes-pt" cx="305.0" cy="326" r="12"/>
-  <circle class="phase-changes-pt" cx="335.0" cy="326" r="12"/>
-  <circle class="phase-changes-pt" cx="185.0" cy="356" r="12"/>
-  <circle class="phase-changes-pt" cx="215.0" cy="356" r="12"/>
-  <circle class="phase-changes-pt" cx="245.0" cy="356" r="12"/>
-  <circle class="phase-changes-pt" cx="275.0" cy="356" r="12"/>
-  <circle class="phase-changes-pt" cx="305.0" cy="356" r="12"/>
-  <circle class="phase-changes-pt" cx="335.0" cy="356" r="12"/>
+  <circle class="phase-changes-pt" cx="185.0" cy="266" r="11"/>
+  <circle class="phase-changes-pt" cx="215.0" cy="266" r="11"/>
+  <circle class="phase-changes-pt" cx="245.0" cy="266" r="11"/>
+  <circle class="phase-changes-pt" cx="275.0" cy="266" r="11"/>
+  <circle class="phase-changes-pt" cx="305.0" cy="266" r="11"/>
+  <circle class="phase-changes-pt" cx="335.0" cy="266" r="11"/>
+  <circle class="phase-changes-pt" cx="185.0" cy="296" r="11"/>
+  <circle class="phase-changes-pt" cx="215.0" cy="296" r="11"/>
+  <circle class="phase-changes-pt" cx="245.0" cy="296" r="11"/>
+  <circle class="phase-changes-pt" cx="275.0" cy="296" r="11"/>
+  <circle class="phase-changes-pt" cx="305.0" cy="296" r="11"/>
+  <circle class="phase-changes-pt" cx="335.0" cy="296" r="11"/>
+  <circle class="phase-changes-pt" cx="185.0" cy="326" r="11"/>
+  <circle class="phase-changes-pt" cx="215.0" cy="326" r="11"/>
+  <circle class="phase-changes-pt" cx="245.0" cy="326" r="11"/>
+  <circle class="phase-changes-pt" cx="275.0" cy="326" r="11"/>
+  <circle class="phase-changes-pt" cx="305.0" cy="326" r="11"/>
+  <circle class="phase-changes-pt" cx="335.0" cy="326" r="11"/>
+  <circle class="phase-changes-pt" cx="185.0" cy="356" r="11"/>
+  <circle class="phase-changes-pt" cx="215.0" cy="356" r="11"/>
+  <circle class="phase-changes-pt" cx="245.0" cy="356" r="11"/>
+  <circle class="phase-changes-pt" cx="275.0" cy="356" r="11"/>
+  <circle class="phase-changes-pt" cx="305.0" cy="356" r="11"/>
+  <circle class="phase-changes-pt" cx="335.0" cy="356" r="11"/>
 </g>
 <g class="phase-changes-state phase-changes-st-liquid">
   <rect class="phase-changes-box" x="680" y="170" width="320" height="220" rx="8"/>
   <rect class="phase-changes-ring phase-changes-hot-liquid" x="680" y="170" width="320" height="220" rx="8"/>
   <text class="phase-changes-sname" x="840.0" y="208" text-anchor="middle">Liquid</text>
   <text class="phase-changes-ssub" x="840.0" y="234" text-anchor="middle">close, slide past each other</text>
-  <circle class="phase-changes-pt" cx="723.0" cy="364" r="12"/>
-  <circle class="phase-changes-pt" cx="749.0" cy="363" r="12"/>
-  <circle class="phase-changes-pt" cx="776.0" cy="364" r="12"/>
-  <circle class="phase-changes-pt" cx="804.0" cy="363" r="12"/>
-  <circle class="phase-changes-pt" cx="831.0" cy="364" r="12"/>
-  <circle class="phase-changes-pt" cx="859.0" cy="363" r="12"/>
-  <circle class="phase-changes-pt" cx="887.0" cy="364" r="12"/>
-  <circle class="phase-changes-pt" cx="916.0" cy="363" r="12"/>
-  <circle class="phase-changes-pt" cx="943.0" cy="364" r="12"/>
-  <circle class="phase-changes-pt" cx="736.0" cy="339" r="12"/>
-  <circle class="phase-changes-pt" cx="766.0" cy="337" r="12"/>
-  <circle class="phase-changes-pt" cx="817.0" cy="339" r="12"/>
-  <circle class="phase-changes-pt" cx="846.0" cy="337" r="12"/>
-  <circle class="phase-changes-pt" cx="900.0" cy="338" r="12"/>
-  <circle class="phase-changes-pt" cx="929.0" cy="339" r="12"/>
-  <circle class="phase-changes-pt" cx="958.0" cy="341" r="12"/>
-  <circle class="phase-changes-pt" cx="752.0" cy="313" r="12"/>
-  <circle class="phase-changes-pt" cx="792.0" cy="316" r="12"/>
-  <circle class="phase-changes-pt" cx="830.0" cy="312" r="12"/>
-  <circle class="phase-changes-pt" cx="914.0" cy="313" r="12"/>
-  <circle class="phase-changes-pt" cx="876.0" cy="330" r="12"/>
+  <circle class="phase-changes-pt" cx="723.0" cy="364" r="11"/>
+  <circle class="phase-changes-pt" cx="749.0" cy="363" r="11"/>
+  <circle class="phase-changes-pt" cx="776.0" cy="364" r="11"/>
+  <circle class="phase-changes-pt" cx="804.0" cy="363" r="11"/>
+  <circle class="phase-changes-pt" cx="831.0" cy="364" r="11"/>
+  <circle class="phase-changes-pt" cx="859.0" cy="363" r="11"/>
+  <circle class="phase-changes-pt" cx="887.0" cy="364" r="11"/>
+  <circle class="phase-changes-pt" cx="916.0" cy="363" r="11"/>
+  <circle class="phase-changes-pt" cx="943.0" cy="364" r="11"/>
+  <circle class="phase-changes-pt" cx="736.0" cy="339" r="11"/>
+  <circle class="phase-changes-pt" cx="766.0" cy="337" r="11"/>
+  <circle class="phase-changes-pt" cx="817.0" cy="339" r="11"/>
+  <circle class="phase-changes-pt" cx="846.0" cy="337" r="11"/>
+  <circle class="phase-changes-pt" cx="900.0" cy="338" r="11"/>
+  <circle class="phase-changes-pt" cx="929.0" cy="339" r="11"/>
+  <circle class="phase-changes-pt" cx="958.0" cy="341" r="11"/>
+  <circle class="phase-changes-pt" cx="752.0" cy="313" r="11"/>
+  <circle class="phase-changes-pt" cx="792.0" cy="316" r="11"/>
+  <circle class="phase-changes-pt" cx="830.0" cy="312" r="11"/>
+  <circle class="phase-changes-pt" cx="914.0" cy="313" r="11"/>
+  <circle class="phase-changes-pt" cx="876.0" cy="330" r="11"/>
 </g>
 <g class="phase-changes-state phase-changes-st-gas">
   <rect class="phase-changes-box" x="1260" y="170" width="320" height="220" rx="8"/>
@@ -203,39 +205,38 @@
   <text class="phase-changes-sname" x="1420.0" y="208" text-anchor="middle">Gas</text>
   <text class="phase-changes-ssub" x="1420.0" y="234" text-anchor="middle">far apart, move freely</text>
   <path class="phase-changes-trail" d="M1272.6 267.0 L1289.0 276.5"/>
-  <circle class="phase-changes-pt" cx="1302.0" cy="284" r="12"/>
+  <circle class="phase-changes-pt" cx="1302.0" cy="284" r="11"/>
   <path class="phase-changes-trail" d="M1358.1 323.6 L1375.9 317.1"/>
-  <circle class="phase-changes-pt" cx="1390.0" cy="312" r="12"/>
+  <circle class="phase-changes-pt" cx="1390.0" cy="312" r="11"/>
   <path class="phase-changes-trail" d="M1517.9 264.4 L1500.1 270.9"/>
-  <circle class="phase-changes-pt" cx="1486.0" cy="276" r="12"/>
+  <circle class="phase-changes-pt" cx="1486.0" cy="276" r="11"/>
   <path class="phase-changes-trail" d="M1571.9 345.6 L1554.1 339.1"/>
-  <circle class="phase-changes-pt" cx="1540.0" cy="334" r="12"/>
+  <circle class="phase-changes-pt" cx="1540.0" cy="334" r="11"/>
   <path class="phase-changes-trail" d="M1302.0 379.9 L1316.5 367.6"/>
-  <circle class="phase-changes-pt" cx="1328.0" cy="358" r="12"/>
+  <circle class="phase-changes-pt" cx="1328.0" cy="358" r="11"/>
   <path class="phase-changes-trail" d="M1455.0 334.6 L1445.5 351.0"/>
-  <circle class="phase-changes-pt" cx="1438.0" cy="364" r="12"/>
+  <circle class="phase-changes-pt" cx="1438.0" cy="364" r="11"/>
   <path class="phase-changes-trail" d="M1343.2 265.2 L1361.5 270.1"/>
-  <circle class="phase-changes-pt" cx="1376.0" cy="274" r="12"/>
+  <circle class="phase-changes-pt" cx="1376.0" cy="274" r="11"/>
 </g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M436 268 H652"/><path class="phase-changes-hd" d="M666.0 268.0 L650.0 276.0 L650.0 260.0 Z"/><text class="phase-changes-tname" x="550" y="226" text-anchor="middle">melting</text><text class="phase-changes-ten phase-changes-k-dim" x="550" y="250" text-anchor="middle">absorbs energy</text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M1016 268 H1232"/><path class="phase-changes-hd" d="M1246.0 268.0 L1230.0 276.0 L1230.0 260.0 Z"/><text class="phase-changes-tname" x="1130" y="226" text-anchor="middle">vaporization</text><text class="phase-changes-ten phase-changes-k-dim" x="1130" y="250" text-anchor="middle">absorbs energy</text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M1244 318 H1028"/><path class="phase-changes-hd" d="M1014.0 318.0 L1030.0 310.0 L1030.0 326.0 Z"/><text class="phase-changes-tname" x="1130" y="350" text-anchor="middle">condensation</text><text class="phase-changes-ten phase-changes-k-dim" x="1130" y="374" text-anchor="middle">releases energy</text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M664 318 H448"/><path class="phase-changes-hd" d="M434.0 318.0 L450.0 310.0 L450.0 326.0 Z"/><text class="phase-changes-tname" x="550" y="350" text-anchor="middle">freezing</text><text class="phase-changes-ten phase-changes-k-dim" x="550" y="374" text-anchor="middle">releases energy</text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M260 164 C260 52 1420 52 1420 154"/><path class="phase-changes-hd" d="M1420.0 167.0 L1412.0 151.0 L1428.0 151.0 Z"/><text class="phase-changes-tline" x="840" y="64" text-anchor="middle"><tspan class="phase-changes-tname">sublimation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">absorbs energy</tspan></text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M1420 396 C1420 508 260 508 260 406"/><path class="phase-changes-hd" d="M260.0 393.0 L268.0 409.0 L252.0 409.0 Z"/><text class="phase-changes-tline" x="840" y="514" text-anchor="middle"><tspan class="phase-changes-tname">deposition</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">releases energy</tspan></text></g>
-<g class="phase-changes-on phase-changes-on-melt"><path class="phase-changes-arc phase-changes-k-abs-s" d="M436 268 H652"/><path class="phase-changes-k-abs-f" d="M666.0 268.0 L650.0 276.0 L650.0 260.0 Z"/><text class="phase-changes-tname phase-changes-on-name" x="550" y="226" text-anchor="middle">melting</text><text class="phase-changes-ten phase-changes-k-abs" x="550" y="250" text-anchor="middle">absorbs energy</text></g>
-<g class="phase-changes-on phase-changes-on-vap"><path class="phase-changes-arc phase-changes-k-abs-s" d="M1016 268 H1232"/><path class="phase-changes-k-abs-f" d="M1246.0 268.0 L1230.0 276.0 L1230.0 260.0 Z"/><text class="phase-changes-tname phase-changes-on-name" x="1130" y="226" text-anchor="middle">vaporization</text><text class="phase-changes-ten phase-changes-k-abs" x="1130" y="250" text-anchor="middle">absorbs energy</text></g>
-<g class="phase-changes-on phase-changes-on-cond"><path class="phase-changes-arc phase-changes-k-rel-s" d="M1244 318 H1028"/><path class="phase-changes-k-rel-f" d="M1014.0 318.0 L1030.0 310.0 L1030.0 326.0 Z"/><text class="phase-changes-tname phase-changes-on-name" x="1130" y="350" text-anchor="middle">condensation</text><text class="phase-changes-ten phase-changes-k-rel" x="1130" y="374" text-anchor="middle">releases energy</text></g>
-<g class="phase-changes-on phase-changes-on-frz"><path class="phase-changes-arc phase-changes-k-rel-s" d="M664 318 H448"/><path class="phase-changes-k-rel-f" d="M434.0 318.0 L450.0 310.0 L450.0 326.0 Z"/><text class="phase-changes-tname phase-changes-on-name" x="550" y="350" text-anchor="middle">freezing</text><text class="phase-changes-ten phase-changes-k-rel" x="550" y="374" text-anchor="middle">releases energy</text></g>
-<g class="phase-changes-on phase-changes-on-sub"><path class="phase-changes-arc phase-changes-k-abs-s" d="M260 164 C260 52 1420 52 1420 154"/><path class="phase-changes-k-abs-f" d="M1420.0 167.0 L1412.0 151.0 L1428.0 151.0 Z"/><text class="phase-changes-tline" x="840" y="64" text-anchor="middle"><tspan class="phase-changes-tname phase-changes-on-name">sublimation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-abs">absorbs energy</tspan></text></g>
-<g class="phase-changes-on phase-changes-on-dep"><path class="phase-changes-arc phase-changes-k-rel-s" d="M1420 396 C1420 508 260 508 260 406"/><path class="phase-changes-k-rel-f" d="M260.0 393.0 L268.0 409.0 L252.0 409.0 Z"/><text class="phase-changes-tline" x="840" y="514" text-anchor="middle"><tspan class="phase-changes-tname phase-changes-on-name">deposition</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-rel">releases energy</tspan></text></g>
-<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-melt" r="12" style="offset-path:path('M436 268 H652')"/>
-<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-vap" r="12" style="offset-path:path('M1016 268 H1232')"/>
-<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-cond" r="12" style="offset-path:path('M1244 318 H1028')"/>
-<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-frz" r="12" style="offset-path:path('M664 318 H448')"/>
-<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-sub" r="12" style="offset-path:path('M260 164 C260 52 1420 52 1420 154')"/>
-<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-dep" r="12" style="offset-path:path('M1420 396 C1420 508 260 508 260 406')"/>
-<rect class="phase-changes-cap" x="24" y="540" width="1632" height="52" rx="8"/>
+<g class="phase-changes-base"><path class="phase-changes-arc" d="M436 268 H652"/><path class="phase-changes-hd" d="M650.0 276.0 L666.0 268.0 L650.0 260.0"/><text class="phase-changes-tname" x="550" y="226" text-anchor="middle">melting</text><text class="phase-changes-ten phase-changes-k-dim" x="550" y="250" text-anchor="middle">absorbs energy</text></g>
+<g class="phase-changes-base"><path class="phase-changes-arc" d="M1016 268 H1232"/><path class="phase-changes-hd" d="M1230.0 276.0 L1246.0 268.0 L1230.0 260.0"/><text class="phase-changes-tname" x="1130" y="226" text-anchor="middle">vaporization</text><text class="phase-changes-ten phase-changes-k-dim" x="1130" y="250" text-anchor="middle">absorbs energy</text></g>
+<g class="phase-changes-base"><path class="phase-changes-arc" d="M1244 318 H1028"/><path class="phase-changes-hd" d="M1030.0 310.0 L1014.0 318.0 L1030.0 326.0"/><text class="phase-changes-tname" x="1130" y="350" text-anchor="middle">condensation</text><text class="phase-changes-ten phase-changes-k-dim" x="1130" y="374" text-anchor="middle">releases energy</text></g>
+<g class="phase-changes-base"><path class="phase-changes-arc" d="M664 318 H448"/><path class="phase-changes-hd" d="M450.0 310.0 L434.0 318.0 L450.0 326.0"/><text class="phase-changes-tname" x="550" y="350" text-anchor="middle">freezing</text><text class="phase-changes-ten phase-changes-k-dim" x="550" y="374" text-anchor="middle">releases energy</text></g>
+<g class="phase-changes-base"><path class="phase-changes-arc" d="M260 164 C260 52 1420 52 1420 154"/><path class="phase-changes-hd" d="M1412.0 151.0 L1420.0 167.0 L1428.0 151.0"/><text class="phase-changes-tline" x="840" y="64" text-anchor="middle"><tspan class="phase-changes-tname">sublimation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">absorbs energy</tspan></text></g>
+<g class="phase-changes-base"><path class="phase-changes-arc" d="M1420 396 C1420 508 260 508 260 406"/><path class="phase-changes-hd" d="M268.0 409.0 L260.0 393.0 L252.0 409.0"/><text class="phase-changes-tline" x="840" y="514" text-anchor="middle"><tspan class="phase-changes-tname">deposition</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">releases energy</tspan></text></g>
+<g class="phase-changes-on phase-changes-on-melt"><path class="phase-changes-arc phase-changes-k-abs-s" d="M436 268 H652"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M650.0 276.0 L666.0 268.0 L650.0 260.0"/><text class="phase-changes-tname phase-changes-on-name" x="550" y="226" text-anchor="middle">melting</text><text class="phase-changes-ten phase-changes-k-abs" x="550" y="250" text-anchor="middle">absorbs energy</text></g>
+<g class="phase-changes-on phase-changes-on-vap"><path class="phase-changes-arc phase-changes-k-abs-s" d="M1016 268 H1232"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M1230.0 276.0 L1246.0 268.0 L1230.0 260.0"/><text class="phase-changes-tname phase-changes-on-name" x="1130" y="226" text-anchor="middle">vaporization</text><text class="phase-changes-ten phase-changes-k-abs" x="1130" y="250" text-anchor="middle">absorbs energy</text></g>
+<g class="phase-changes-on phase-changes-on-cond"><path class="phase-changes-arc phase-changes-k-rel-s" d="M1244 318 H1028"/><path class="phase-changes-hd phase-changes-k-rel-h" d="M1030.0 310.0 L1014.0 318.0 L1030.0 326.0"/><text class="phase-changes-tname phase-changes-on-name" x="1130" y="350" text-anchor="middle">condensation</text><text class="phase-changes-ten phase-changes-k-rel" x="1130" y="374" text-anchor="middle">releases energy</text></g>
+<g class="phase-changes-on phase-changes-on-frz"><path class="phase-changes-arc phase-changes-k-rel-s" d="M664 318 H448"/><path class="phase-changes-hd phase-changes-k-rel-h" d="M450.0 310.0 L434.0 318.0 L450.0 326.0"/><text class="phase-changes-tname phase-changes-on-name" x="550" y="350" text-anchor="middle">freezing</text><text class="phase-changes-ten phase-changes-k-rel" x="550" y="374" text-anchor="middle">releases energy</text></g>
+<g class="phase-changes-on phase-changes-on-sub"><path class="phase-changes-arc phase-changes-k-abs-s" d="M260 164 C260 52 1420 52 1420 154"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M1412.0 151.0 L1420.0 167.0 L1428.0 151.0"/><text class="phase-changes-tline" x="840" y="64" text-anchor="middle"><tspan class="phase-changes-tname phase-changes-on-name">sublimation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-abs">absorbs energy</tspan></text></g>
+<g class="phase-changes-on phase-changes-on-dep"><path class="phase-changes-arc phase-changes-k-rel-s" d="M1420 396 C1420 508 260 508 260 406"/><path class="phase-changes-hd phase-changes-k-rel-h" d="M268.0 409.0 L260.0 393.0 L252.0 409.0"/><text class="phase-changes-tline" x="840" y="514" text-anchor="middle"><tspan class="phase-changes-tname phase-changes-on-name">deposition</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-rel">releases energy</tspan></text></g>
+<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-melt" r="9" style="offset-path:path('M436 268 H652')"/>
+<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-vap" r="9" style="offset-path:path('M1016 268 H1232')"/>
+<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-cond" r="9" style="offset-path:path('M1244 318 H1028')"/>
+<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-frz" r="9" style="offset-path:path('M664 318 H448')"/>
+<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-sub" r="9" style="offset-path:path('M260 164 C260 52 1420 52 1420 154')"/>
+<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-dep" r="9" style="offset-path:path('M1420 396 C1420 508 260 508 260 406')"/>
 <text class="phase-changes-note phase-changes-n0" x="840" y="574" text-anchor="middle">Three states of matter and the six named changes between them</text>
 <text class="phase-changes-note phase-changes-n1" x="840" y="574" text-anchor="middle">Melting: particles leave their fixed positions as the solid absorbs energy</text>
 <text class="phase-changes-note phase-changes-n2" x="840" y="574" text-anchor="middle">Vaporization: particles absorb energy and escape into the gas</text>

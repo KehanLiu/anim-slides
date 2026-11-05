@@ -179,8 +179,8 @@ def slide_html(n, chunk, ctx):
 
 
 THEMES = {
-    "dark": dict(bg="#0f1218", panel="#1a2030", line="#3a4660", fg="#eef2f8", muted="#9aa7bd",
-                 accent="#4cc2ff", accent2="#ffb454", page="#05070a"),
+    "dark": dict(bg="#0F1E27", panel="#0D1820", line="#2A3D49", fg="#E6EDF0", muted="#93A7B2",
+                 accent="#34D1BF", accent2="#FF8A3D", page="#05070a"),
     "light": dict(bg="#ffffff", panel="#eef1f6", line="#c4ccd8", fg="#16202e", muted="#5a6678",
                   accent="#0b6bcb", accent2="#c2410c", page="#d9dde3"),
 }

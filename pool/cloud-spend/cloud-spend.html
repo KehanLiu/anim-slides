@@ -1,40 +1,46 @@
+<!-- cloud-spend: chart archetype, lean restyle (references/style.md).
+  12 s cycle: budget and series fade in | trace draws Jan..Dec 0.8-9.6 s | over budget 4.57 s
+  | fix tagged at Jul 5.6 s | back under 7.82 s | Dec readout 9.6 s | hold | reset -->
 <style>
-.anim-cloud-spend{
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+.anim-cloud-spend {
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
-  display:block;width:100%;height:100%
+  display: block; width: 100%; height: 100%;
 }
 .anim-cloud-spend svg{display:block;width:100%;height:100%}
-.anim-cloud-spend .cloud-spend-title{font-family:var(--anim-font);font-size:28px;font-weight:700;fill:var(--anim-fg)}
+/* type */
+.anim-cloud-spend .cloud-spend-title{font-family:var(--anim-font);font-size:28px;font-weight:600;fill:var(--anim-fg)}
 .anim-cloud-spend .cloud-spend-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
-.anim-cloud-spend .cloud-spend-big{font-family:var(--anim-mono);font-size:24px;font-weight:700;fill:var(--anim-accent)}
+.anim-cloud-spend .cloud-spend-stat{font-family:var(--anim-mono);font-size:20px}
+.anim-cloud-spend .cloud-spend-big{font-family:var(--anim-mono);font-size:26px;font-weight:600;fill:var(--anim-accent)}
 .anim-cloud-spend .cloud-spend-fg{fill:var(--anim-fg)}
-.anim-cloud-spend .cloud-spend-a2{fill:var(--anim-accent-2)}
 .anim-cloud-spend .cloud-spend-ok{fill:var(--anim-ok)}
 .anim-cloud-spend .cloud-spend-danger{fill:var(--anim-danger)}
-.anim-cloud-spend .cloud-spend-grid{stroke:var(--anim-line);stroke-width:1.5;opacity:.6}
-.anim-cloud-spend .cloud-spend-axis{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.anim-cloud-spend .cloud-spend-tick{stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
-.anim-cloud-spend .cloud-spend-budget-line{stroke:var(--anim-accent-2);stroke-width:2.5;stroke-dasharray:10 8;stroke-linecap:round}
-.anim-cloud-spend .cloud-spend-over{fill:color-mix(in srgb,var(--anim-danger) 18%,transparent)}
-.anim-cloud-spend .cloud-spend-line{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.anim-cloud-spend .cloud-spend-breach{fill:none;stroke:var(--anim-danger);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.anim-cloud-spend .cloud-spend-dot{fill:var(--anim-accent);stroke:var(--anim-bg);stroke-width:2.5}
+/* frame: thin axes, dotted grid */
+.anim-cloud-spend .cloud-spend-grid{stroke:var(--anim-line);stroke-width:2;stroke-dasharray:1 9;stroke-linecap:round;opacity:.4}
+.anim-cloud-spend .cloud-spend-axis{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-cloud-spend .cloud-spend-tick{stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
+/* reference line */
+.anim-cloud-spend .cloud-spend-budget-line{stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-line));stroke-width:2;stroke-dasharray:10 8;stroke-linecap:round}
+.anim-cloud-spend .cloud-spend-over{fill:color-mix(in srgb,var(--anim-danger) 10%,transparent)}
+/* series */
+.anim-cloud-spend .cloud-spend-line{fill:none;stroke:var(--anim-accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.anim-cloud-spend .cloud-spend-dot{fill:var(--anim-accent)}
+.anim-cloud-spend .cloud-spend-halo{fill:var(--anim-accent);opacity:.3;filter:blur(5px)}
 .anim-cloud-spend .cloud-spend-peak{fill:var(--anim-bg);stroke:var(--anim-danger);stroke-width:2.5}
-.anim-cloud-spend .cloud-spend-ev{stroke:var(--anim-ok);stroke-width:2;stroke-dasharray:5 6;stroke-linecap:round}
-.anim-cloud-spend .cloud-spend-chip{fill:var(--anim-panel);stroke-width:2;stroke-linejoin:round}
-.anim-cloud-spend .cloud-spend-chip-ok{stroke:var(--anim-ok)}
-.anim-cloud-spend .cloud-spend-chip-danger{stroke:var(--anim-danger)}
+/* event tag + outlined tags */
+.anim-cloud-spend .cloud-spend-lead{stroke:var(--anim-line);stroke-width:2;stroke-dasharray:4 5;stroke-linecap:round}
+.anim-cloud-spend .cloud-spend-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
 
 /* resting frame (no .visible): the full year drawn, fix tagged, back under budget */
 .anim-cloud-spend .cloud-spend-clip-r{width:1378px}
@@ -116,23 +122,14 @@
     <clipPath id="cloud-spend-clip"><rect class="cloud-spend-clip-r" x="120" y="110" width="1378" height="370"/></clipPath>
   </defs>
 
-  <!-- ================= header ================= -->
+  <!-- header: title left, status as plain text right -->
   <text class="cloud-spend-title" x="40" y="52">Monthly cloud spend</text>
   <text class="cloud-spend-mono" x="40" y="82">$k per month · last 12 months</text>
-  <g class="cloud-spend-s0">
-    <rect class="cloud-spend-chip cloud-spend-chip-ok" x="1420" y="34" width="220" height="36" rx="6"/>
-    <text class="cloud-spend-mono cloud-spend-ok" x="1530" y="58" text-anchor="middle">within budget</text>
-  </g>
-  <g class="cloud-spend-s1">
-    <rect class="cloud-spend-chip cloud-spend-chip-danger" x="1420" y="34" width="220" height="36" rx="6"/>
-    <text class="cloud-spend-mono cloud-spend-danger" x="1530" y="58" text-anchor="middle">over budget</text>
-  </g>
-  <g class="cloud-spend-s2">
-    <rect class="cloud-spend-chip cloud-spend-chip-ok" x="1420" y="34" width="220" height="36" rx="6"/>
-    <text class="cloud-spend-mono cloud-spend-ok" x="1530" y="58" text-anchor="middle">back under budget</text>
-  </g>
+  <text class="cloud-spend-stat cloud-spend-ok cloud-spend-s0" x="1640" y="56" text-anchor="end">within budget</text>
+  <text class="cloud-spend-stat cloud-spend-danger cloud-spend-s1" x="1640" y="56" text-anchor="end">over budget</text>
+  <text class="cloud-spend-stat cloud-spend-ok cloud-spend-s2" x="1640" y="56" text-anchor="end">back under budget</text>
 
-  <!-- ================= axes: y = 470 - 1.7 * $k ================= -->
+  <!-- axes: y = 470 - 1.7 * $k -->
   <text class="cloud-spend-mono" x="108" y="108" text-anchor="end">$k</text>
   <line class="cloud-spend-grid" x1="120" y1="130" x2="1500" y2="130"/>
   <line class="cloud-spend-grid" x1="120" y1="215" x2="1500" y2="215"/>
@@ -169,35 +166,38 @@
   <text class="cloud-spend-mono" x="1370" y="502" text-anchor="middle">Nov</text>
   <text class="cloud-spend-mono" x="1492" y="502" text-anchor="middle">Dec</text>
   <text class="cloud-spend-mono" x="821" y="540" text-anchor="middle">month →</text>
-  <text class="cloud-spend-mono" x="1640" y="584" text-anchor="end" style="fill:var(--anim-muted)">illustrative</text>
+  <rect class="cloud-spend-tag" x="1496" y="558" width="144" height="30" rx="4"/>
+  <text class="cloud-spend-mono" x="1568" y="579" text-anchor="middle">illustrative</text>
 
-  <!-- ================= budget: $155k ================= -->
+  <!-- budget: $155k -->
   <g class="cloud-spend-budget">
     <line class="cloud-spend-budget-line" x1="120" y1="206.5" x2="1500" y2="206.5"/>
-    <text class="cloud-spend-mono cloud-spend-a2" x="1512" y="200">budget $155k</text>
+    <text class="cloud-spend-mono" x="1512" y="200">budget $155k</text>
   </g>
 
-  <!-- ================= fix event at Jul ================= -->
+  <!-- fix event at Jul: outlined tag attached to the peak -->
   <g class="cloud-spend-event">
-    <line class="cloud-spend-ev" x1="882" y1="124" x2="882" y2="468"/>
-    <rect class="cloud-spend-chip cloud-spend-chip-ok" x="692" y="88" width="380" height="34" rx="6"/>
-    <text class="cloud-spend-mono cloud-spend-ok" x="882" y="111" text-anchor="middle">autoscaling + reserved instances</text>
-    <circle class="cloud-spend-peak" cx="882" cy="157.2" r="6"/>
-    <text class="cloud-spend-mono cloud-spend-danger" x="896" y="150">peak $184k</text>
+    <line class="cloud-spend-lead" x1="882" y1="120" x2="882" y2="148"/>
+    <rect class="cloud-spend-tag" x="696" y="88" width="372" height="32" rx="4"/>
+    <text class="cloud-spend-mono cloud-spend-fg" x="882" y="110" text-anchor="middle">autoscaling + reserved instances</text>
+    <circle class="cloud-spend-peak" cx="882" cy="157.2" r="7"/>
+    <text class="cloud-spend-mono cloud-spend-danger" x="900" y="146">peak $184k</text>
   </g>
 
-  <!-- ================= spend series ================= -->
+  <!-- spend series -->
   <g class="cloud-spend-sg">
     <g clip-path="url(#cloud-spend-clip)">
       <polygon class="cloud-spend-over" points="724.1,206.5 760,198 882,157.2 1004,167.4 1126,189.5 1219.8,206.5"/>
       <polyline class="cloud-spend-line" points="150,306.8 272,293.2 394,274.5 516,252.4 638,226.9 760,198 882,157.2 1004,167.4 1126,189.5 1248,211.6 1370,225.2 1492,233.7"/>
-      <polyline class="cloud-spend-breach" points="724.1,206.5 760,198 882,157.2 1004,167.4 1126,189.5 1219.8,206.5"/>
     </g>
-    <circle class="cloud-spend-dot cloud-spend-head" cx="0" cy="0" r="7"/>
+    <g class="cloud-spend-head">
+      <circle class="cloud-spend-halo" cx="0" cy="0" r="14"/>
+      <circle class="cloud-spend-dot" cx="0" cy="0" r="7"/>
+    </g>
   </g>
   <g class="cloud-spend-end">
-    <text class="cloud-spend-big" x="1512" y="243">$139k</text>
-    <text class="cloud-spend-mono cloud-spend-ok" x="1512" y="268">−24% vs peak</text>
+    <text class="cloud-spend-big" x="1512" y="245">$139k</text>
+    <text class="cloud-spend-mono cloud-spend-ok" x="1512" y="272">−24% vs peak</text>
   </g>
 </svg>
 </div>

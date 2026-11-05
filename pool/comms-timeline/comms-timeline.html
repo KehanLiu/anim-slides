@@ -6,50 +6,38 @@
   each era begins. Sub-lines are strictly factual. Cycle 12 s, hold 8.4-11.5 s. -->
 <style>
 .anim-comms-timeline{
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
   display:block;width:100%;height:100%
 }
 .anim-comms-timeline svg{display:block;width:100%;height:100%}
-.anim-comms-timeline .comms-timeline-t{font-family:var(--anim-font);fill:var(--anim-fg)}
-.anim-comms-timeline .comms-timeline-title{font-size:26px;font-weight:700}
-.anim-comms-timeline .comms-timeline-lbl{font-size:22px;font-weight:700}
-.anim-comms-timeline .comms-timeline-sub{font-size:18px;fill:var(--anim-muted)}
-.anim-comms-timeline .comms-timeline-yr{font-family:var(--anim-mono);font-size:22px;font-weight:700}
-.anim-comms-timeline .comms-timeline-era{font-size:20px;font-weight:600}
-.anim-comms-timeline .comms-timeline-axis{fill:none;stroke:var(--anim-line);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-comms-timeline .comms-timeline-prog{fill:none;stroke:var(--anim-fg);stroke-width:4;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-comms-timeline .comms-timeline-mk{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:3}
-.anim-comms-timeline .comms-timeline-halo{fill:none;stroke:var(--anim-ok);stroke-width:2;opacity:.45}
-.anim-comms-timeline .comms-timeline-tick{fill:none;stroke:var(--anim-line);stroke-width:1.5}
-.anim-comms-timeline .comms-timeline-box{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
+/* lean style (references/style.md): one axis, dots, labels alternate above and below on thin leaders,
+   no cards; eras are hairline brackets with mono labels; the latest milestone is a glowing accent ring */
+.anim-comms-timeline .comms-timeline-title{font-family:var(--anim-font);font-size:24px;font-weight:600;fill:var(--anim-muted)}
+.anim-comms-timeline .comms-timeline-lbl{font-family:var(--anim-font);font-size:26px;font-weight:600;fill:var(--anim-fg)}
+.anim-comms-timeline .comms-timeline-sub{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted)}
+.anim-comms-timeline .comms-timeline-yr{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-fg)}
+.anim-comms-timeline .comms-timeline-era{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted);letter-spacing:.04em}
+.anim-comms-timeline .comms-timeline-axis{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-comms-timeline .comms-timeline-prog{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-comms-timeline .comms-timeline-mk{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2.5}
+.anim-comms-timeline .comms-timeline-fl{fill:var(--anim-muted);stroke:var(--anim-muted)}
+.anim-comms-timeline .comms-timeline-ring{fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:3}
+.anim-comms-timeline .comms-timeline-dot{fill:var(--anim-accent)}
+.anim-comms-timeline .comms-timeline-glow{fill:none;stroke:var(--anim-accent);stroke-width:10;stroke-opacity:.35;filter:blur(7px)}
+.anim-comms-timeline .comms-timeline-tick{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
 .anim-comms-timeline .comms-timeline-card{transform-box:fill-box}
-.anim-comms-timeline .comms-timeline-card-up{transform-origin:center bottom}
-.anim-comms-timeline .comms-timeline-card-dn{transform-origin:center top}
-.anim-comms-timeline .comms-timeline-br{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-
-.anim-comms-timeline .comms-timeline-fi-a2{fill:var(--anim-accent-2)}
-.anim-comms-timeline .comms-timeline-st-a2{stroke:var(--anim-accent-2)}
-.anim-comms-timeline .comms-timeline-fl-a2{fill:var(--anim-accent-2);stroke:var(--anim-accent-2)}
-.anim-comms-timeline .comms-timeline-now-a2{fill:color-mix(in srgb,var(--anim-accent-2) 14%,var(--anim-panel));stroke:var(--anim-accent-2);stroke-width:2.5}
-.anim-comms-timeline .comms-timeline-fi-ac{fill:var(--anim-accent)}
-.anim-comms-timeline .comms-timeline-st-ac{stroke:var(--anim-accent)}
-.anim-comms-timeline .comms-timeline-fl-ac{fill:var(--anim-accent);stroke:var(--anim-accent)}
-.anim-comms-timeline .comms-timeline-now-ac{fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-panel));stroke:var(--anim-accent);stroke-width:2.5}
-.anim-comms-timeline .comms-timeline-fi-ok{fill:var(--anim-ok)}
-.anim-comms-timeline .comms-timeline-st-ok{stroke:var(--anim-ok)}
-.anim-comms-timeline .comms-timeline-fl-ok{fill:var(--anim-ok);stroke:var(--anim-ok)}
-.anim-comms-timeline .comms-timeline-now-ok{fill:color-mix(in srgb,var(--anim-ok) 14%,var(--anim-panel));stroke:var(--anim-ok);stroke-width:2.5}
+.anim-comms-timeline .comms-timeline-br{fill:none;stroke:var(--anim-muted);stroke-opacity:.6;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 /* resting frame = the full timeline: every milestone shown, the latest (1989) current */
 .anim-comms-timeline .comms-timeline-now0,.anim-comms-timeline .comms-timeline-now1,.anim-comms-timeline .comms-timeline-now2,.anim-comms-timeline .comms-timeline-now3{opacity:0}
 /* ---- motion (12 s cycle), milestones reached at 1.0, 2.6, 4.4, 6.2, 7.8 s; hold 8.4-11.5 s ---- */
@@ -69,7 +57,7 @@
 .visible .anim-comms-timeline .comms-timeline-mk0{animation:comms-timeline-mk0 12s infinite}
 @keyframes comms-timeline-mk0{0%,8.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.00%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-card0{animation:comms-timeline-card0 12s infinite}
-@keyframes comms-timeline-card0{0%,8.33%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.08%,100%{opacity:1;transform:scale(1)}}
+@keyframes comms-timeline-card0{0%,8.33%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.08%,100%{opacity:1;transform:translateY(0)}}
 .visible .anim-comms-timeline .comms-timeline-sub0{animation:comms-timeline-sub0 12s infinite}
 @keyframes comms-timeline-sub0{0%,9.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.50%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-now0{animation:comms-timeline-now0 12s infinite}
@@ -78,7 +66,7 @@
 .visible .anim-comms-timeline .comms-timeline-mk1{animation:comms-timeline-mk1 12s infinite}
 @keyframes comms-timeline-mk1{0%,21.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.33%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-card1{animation:comms-timeline-card1 12s infinite}
-@keyframes comms-timeline-card1{0%,21.67%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.42%,100%{opacity:1;transform:scale(1)}}
+@keyframes comms-timeline-card1{0%,21.67%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.42%,100%{opacity:1;transform:translateY(0)}}
 .visible .anim-comms-timeline .comms-timeline-sub1{animation:comms-timeline-sub1 12s infinite}
 @keyframes comms-timeline-sub1{0%,22.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.83%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-now1{animation:comms-timeline-now1 12s infinite}
@@ -87,7 +75,7 @@
 .visible .anim-comms-timeline .comms-timeline-mk2{animation:comms-timeline-mk2 12s infinite}
 @keyframes comms-timeline-mk2{0%,36.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.33%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-card2{animation:comms-timeline-card2 12s infinite}
-@keyframes comms-timeline-card2{0%,36.67%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.42%,100%{opacity:1;transform:scale(1)}}
+@keyframes comms-timeline-card2{0%,36.67%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.42%,100%{opacity:1;transform:translateY(0)}}
 .visible .anim-comms-timeline .comms-timeline-sub2{animation:comms-timeline-sub2 12s infinite}
 @keyframes comms-timeline-sub2{0%,37.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.83%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-now2{animation:comms-timeline-now2 12s infinite}
@@ -96,7 +84,7 @@
 .visible .anim-comms-timeline .comms-timeline-mk3{animation:comms-timeline-mk3 12s infinite}
 @keyframes comms-timeline-mk3{0%,51.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.33%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-card3{animation:comms-timeline-card3 12s infinite}
-@keyframes comms-timeline-card3{0%,51.67%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.42%,100%{opacity:1;transform:scale(1)}}
+@keyframes comms-timeline-card3{0%,51.67%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.42%,100%{opacity:1;transform:translateY(0)}}
 .visible .anim-comms-timeline .comms-timeline-sub3{animation:comms-timeline-sub3 12s infinite}
 @keyframes comms-timeline-sub3{0%,52.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.83%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-now3{animation:comms-timeline-now3 12s infinite}
@@ -105,14 +93,14 @@
 .visible .anim-comms-timeline .comms-timeline-mk4{animation:comms-timeline-mk4 12s infinite}
 @keyframes comms-timeline-mk4{0%,65.00%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}66.67%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-card4{animation:comms-timeline-card4 12s infinite}
-@keyframes comms-timeline-card4{0%,65.00%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.75%,100%{opacity:1;transform:scale(1)}}
+@keyframes comms-timeline-card4{0%,65.00%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.75%,100%{opacity:1;transform:translateY(0)}}
 .visible .anim-comms-timeline .comms-timeline-sub4{animation:comms-timeline-sub4 12s infinite}
 @keyframes comms-timeline-sub4{0%,65.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.17%,100%{opacity:1}}
 .visible .anim-comms-timeline .comms-timeline-now4{animation:comms-timeline-now4 12s infinite}
 @keyframes comms-timeline-now4{0%,65.00%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.08%,100%{opacity:1}}
 /* halo marks the latest milestone */
 .visible .anim-comms-timeline .comms-timeline-halo{animation:comms-timeline-halo 12s infinite}
-@keyframes comms-timeline-halo{0%,66.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.00%,100%{opacity:.45}}
+@keyframes comms-timeline-halo{0%,66.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.00%,100%{opacity:1}}
 /* era 'wire' bracket draws as its first milestone lands */
 .visible .anim-comms-timeline .comms-timeline-br0{animation:comms-timeline-br0 12s infinite}
 @keyframes comms-timeline-br0{0%,10.83%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.83%,100%{stroke-dashoffset:0}}
@@ -133,71 +121,66 @@
 <div class="anim anim-comms-timeline" data-anim="comms-timeline" data-anim-cycle="12" data-anim-control="loop">
 <svg viewBox="0 0 1680 520" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline of milestones in long-distance communication: electric telegraph line Washington to Baltimore 1844, telephone patent 1876, first transatlantic radio signal 1901, ARPANET first link 1969, World Wide Web proposal 1989.">
 <g class="comms-timeline-scene">
-  <text class="comms-timeline-t comms-timeline-title" x="40" y="50">Milestones in long-distance communication</text>
+  <text class="comms-timeline-title" x="40" y="50">Milestones in long-distance communication</text>
   <path class="comms-timeline-axis" pathLength="100" d="M220 268 H1460"/>
   <path class="comms-timeline-prog" pathLength="100" d="M220 268 H1460"/>
   <!-- 1844 Electric telegraph -->
-  <circle class="comms-timeline-mk" cx="220" cy="268" r="12"/>
-  <circle class="comms-timeline-mk comms-timeline-fl-a2 comms-timeline-mk0" cx="220" cy="268" r="12"/>
-  <text class="comms-timeline-yr comms-timeline-fi-a2 comms-timeline-yr" x="220" y="308" text-anchor="middle">1844</text>
+  <circle class="comms-timeline-mk" cx="220" cy="268" r="9"/>
+  <circle class="comms-timeline-mk comms-timeline-fl comms-timeline-mk0" cx="220" cy="268" r="9"/>
+  <g class="comms-timeline-now0"><circle class="comms-timeline-glow" cx="220" cy="268" r="16"/><circle class="comms-timeline-ring" cx="220" cy="268" r="16"/><circle class="comms-timeline-dot" cx="220" cy="268" r="7"/></g>
+  <text class="comms-timeline-yr" x="220" y="314" text-anchor="middle">1844</text>
   <g class="comms-timeline-card comms-timeline-card-up comms-timeline-card0">
-    <path class="comms-timeline-tick" d="M220 188 V255"/>
-    <rect class="comms-timeline-box" x="30" y="104" width="380" height="84" rx="8"/>
-    <rect class="comms-timeline-box comms-timeline-now-a2 comms-timeline-now0" x="30" y="104" width="380" height="84" rx="8"/>
-    <text class="comms-timeline-t comms-timeline-lbl" x="220" y="140" text-anchor="middle">Electric telegraph</text>
-    <text class="comms-timeline-t comms-timeline-sub comms-timeline-sub0" x="220" y="168" text-anchor="middle">Washington to Baltimore line</text>
+    <path class="comms-timeline-tick" d="M220 220 V248"/>
+    <text class="comms-timeline-lbl" x="220" y="176" text-anchor="middle">Electric telegraph</text>
+    <text class="comms-timeline-sub comms-timeline-sub0" x="220" y="206" text-anchor="middle">Washington to Baltimore line</text>
   </g>
   <!-- 1876 Telephone patent -->
-  <circle class="comms-timeline-mk" cx="530" cy="268" r="12"/>
-  <circle class="comms-timeline-mk comms-timeline-fl-a2 comms-timeline-mk1" cx="530" cy="268" r="12"/>
-  <text class="comms-timeline-yr comms-timeline-fi-a2 comms-timeline-yr" x="530" y="246" text-anchor="middle">1876</text>
+  <circle class="comms-timeline-mk" cx="530" cy="268" r="9"/>
+  <circle class="comms-timeline-mk comms-timeline-fl comms-timeline-mk1" cx="530" cy="268" r="9"/>
+  <g class="comms-timeline-now1"><circle class="comms-timeline-glow" cx="530" cy="268" r="16"/><circle class="comms-timeline-ring" cx="530" cy="268" r="16"/><circle class="comms-timeline-dot" cx="530" cy="268" r="7"/></g>
+  <text class="comms-timeline-yr" x="530" y="242" text-anchor="middle">1876</text>
   <g class="comms-timeline-card comms-timeline-card-dn comms-timeline-card1">
-    <path class="comms-timeline-tick" d="M530 281 V348"/>
-    <rect class="comms-timeline-box" x="340" y="348" width="380" height="84" rx="8"/>
-    <rect class="comms-timeline-box comms-timeline-now-a2 comms-timeline-now1" x="340" y="348" width="380" height="84" rx="8"/>
-    <text class="comms-timeline-t comms-timeline-lbl" x="530" y="384" text-anchor="middle">Telephone patent</text>
-    <text class="comms-timeline-t comms-timeline-sub comms-timeline-sub1" x="530" y="412" text-anchor="middle">US patent No. 174,465 issued</text>
+    <path class="comms-timeline-tick" d="M530 288 V318"/>
+    <text class="comms-timeline-lbl" x="530" y="350" text-anchor="middle">Telephone patent</text>
+    <text class="comms-timeline-sub comms-timeline-sub1" x="530" y="380" text-anchor="middle">US patent No. 174,465 issued</text>
   </g>
   <!-- 1901 Transatlantic radio signal -->
-  <circle class="comms-timeline-mk" cx="840" cy="268" r="12"/>
-  <circle class="comms-timeline-mk comms-timeline-fl-ac comms-timeline-mk2" cx="840" cy="268" r="12"/>
-  <text class="comms-timeline-yr comms-timeline-fi-ac comms-timeline-yr" x="840" y="308" text-anchor="middle">1901</text>
+  <circle class="comms-timeline-mk" cx="840" cy="268" r="9"/>
+  <circle class="comms-timeline-mk comms-timeline-fl comms-timeline-mk2" cx="840" cy="268" r="9"/>
+  <g class="comms-timeline-now2"><circle class="comms-timeline-glow" cx="840" cy="268" r="16"/><circle class="comms-timeline-ring" cx="840" cy="268" r="16"/><circle class="comms-timeline-dot" cx="840" cy="268" r="7"/></g>
+  <text class="comms-timeline-yr" x="840" y="314" text-anchor="middle">1901</text>
   <g class="comms-timeline-card comms-timeline-card-up comms-timeline-card2">
-    <path class="comms-timeline-tick" d="M840 188 V255"/>
-    <rect class="comms-timeline-box" x="650" y="104" width="380" height="84" rx="8"/>
-    <rect class="comms-timeline-box comms-timeline-now-ac comms-timeline-now2" x="650" y="104" width="380" height="84" rx="8"/>
-    <text class="comms-timeline-t comms-timeline-lbl" x="840" y="140" text-anchor="middle">Transatlantic radio signal</text>
-    <text class="comms-timeline-t comms-timeline-sub comms-timeline-sub2" x="840" y="168" text-anchor="middle">Cornwall to Newfoundland</text>
+    <path class="comms-timeline-tick" d="M840 220 V248"/>
+    <text class="comms-timeline-lbl" x="840" y="176" text-anchor="middle">Transatlantic radio signal</text>
+    <text class="comms-timeline-sub comms-timeline-sub2" x="840" y="206" text-anchor="middle">Cornwall to Newfoundland</text>
   </g>
   <!-- 1969 ARPANET’s first link -->
-  <circle class="comms-timeline-mk" cx="1150" cy="268" r="12"/>
-  <circle class="comms-timeline-mk comms-timeline-fl-ok comms-timeline-mk3" cx="1150" cy="268" r="12"/>
-  <text class="comms-timeline-yr comms-timeline-fi-ok comms-timeline-yr" x="1150" y="246" text-anchor="middle">1969</text>
+  <circle class="comms-timeline-mk" cx="1150" cy="268" r="9"/>
+  <circle class="comms-timeline-mk comms-timeline-fl comms-timeline-mk3" cx="1150" cy="268" r="9"/>
+  <g class="comms-timeline-now3"><circle class="comms-timeline-glow" cx="1150" cy="268" r="16"/><circle class="comms-timeline-ring" cx="1150" cy="268" r="16"/><circle class="comms-timeline-dot" cx="1150" cy="268" r="7"/></g>
+  <text class="comms-timeline-yr" x="1150" y="242" text-anchor="middle">1969</text>
   <g class="comms-timeline-card comms-timeline-card-dn comms-timeline-card3">
-    <path class="comms-timeline-tick" d="M1150 281 V348"/>
-    <rect class="comms-timeline-box" x="960" y="348" width="380" height="84" rx="8"/>
-    <rect class="comms-timeline-box comms-timeline-now-ok comms-timeline-now3" x="960" y="348" width="380" height="84" rx="8"/>
-    <text class="comms-timeline-t comms-timeline-lbl" x="1150" y="384" text-anchor="middle">ARPANET’s first link</text>
-    <text class="comms-timeline-t comms-timeline-sub comms-timeline-sub3" x="1150" y="412" text-anchor="middle">UCLA to Stanford Research Institute</text>
+    <path class="comms-timeline-tick" d="M1150 288 V318"/>
+    <text class="comms-timeline-lbl" x="1150" y="350" text-anchor="middle">ARPANET’s first link</text>
+    <text class="comms-timeline-sub comms-timeline-sub3" x="1150" y="380" text-anchor="middle">UCLA to Stanford Research Institute</text>
   </g>
   <!-- 1989 World Wide Web proposal -->
-  <circle class="comms-timeline-mk" cx="1460" cy="268" r="12"/>
-  <circle class="comms-timeline-mk comms-timeline-fl-ok comms-timeline-mk4" cx="1460" cy="268" r="12"/>
-  <circle class="comms-timeline-halo comms-timeline-halo" cx="1460" cy="268" r="22"/>
-  <text class="comms-timeline-yr comms-timeline-fi-ok comms-timeline-yr" x="1460" y="308" text-anchor="middle">1989</text>
+  <circle class="comms-timeline-mk" cx="1460" cy="268" r="9"/>
+  <circle class="comms-timeline-mk comms-timeline-fl comms-timeline-mk4" cx="1460" cy="268" r="9"/>
+  <g class="comms-timeline-now4"><circle class="comms-timeline-glow" cx="1460" cy="268" r="16"/><circle class="comms-timeline-ring" cx="1460" cy="268" r="16"/><circle class="comms-timeline-dot" cx="1460" cy="268" r="7"/></g>
+  <g class="comms-timeline-halo"><circle class="comms-timeline-glow" cx="1460" cy="268" r="16"/><circle class="comms-timeline-ring" cx="1460" cy="268" r="16"/><circle class="comms-timeline-dot" cx="1460" cy="268" r="7"/></g>
+  <text class="comms-timeline-yr" x="1460" y="314" text-anchor="middle">1989</text>
   <g class="comms-timeline-card comms-timeline-card-up comms-timeline-card4">
-    <path class="comms-timeline-tick" d="M1460 188 V255"/>
-    <rect class="comms-timeline-box" x="1270" y="104" width="380" height="84" rx="8"/>
-    <rect class="comms-timeline-box comms-timeline-now-ok comms-timeline-now4" x="1270" y="104" width="380" height="84" rx="8"/>
-    <text class="comms-timeline-t comms-timeline-lbl" x="1460" y="140" text-anchor="middle">World Wide Web proposal</text>
-    <text class="comms-timeline-t comms-timeline-sub comms-timeline-sub4" x="1460" y="168" text-anchor="middle">Tim Berners-Lee, CERN</text>
+    <path class="comms-timeline-tick" d="M1460 220 V248"/>
+    <text class="comms-timeline-lbl" x="1460" y="176" text-anchor="middle">World Wide Web proposal</text>
+    <text class="comms-timeline-sub comms-timeline-sub4" x="1460" y="206" text-anchor="middle">Tim Berners-Lee, CERN</text>
   </g>
-  <path class="comms-timeline-br comms-timeline-st-a2 comms-timeline-br0" pathLength="100" d="M180 452 V466 H570 V452"/>
-  <text class="comms-timeline-t comms-timeline-era comms-timeline-fi-a2 comms-timeline-el0" x="375" y="496" text-anchor="middle">wire</text>
-  <path class="comms-timeline-br comms-timeline-st-ac comms-timeline-br1" pathLength="100" d="M800 452 V466 H880 V452"/>
-  <text class="comms-timeline-t comms-timeline-era comms-timeline-fi-ac comms-timeline-el1" x="840" y="496" text-anchor="middle">radio</text>
-  <path class="comms-timeline-br comms-timeline-st-ok comms-timeline-br2" pathLength="100" d="M1110 452 V466 H1500 V452"/>
-  <text class="comms-timeline-t comms-timeline-era comms-timeline-fi-ok comms-timeline-el2" x="1305" y="496" text-anchor="middle">computer networks</text>
+  <path class="comms-timeline-br comms-timeline-br0" pathLength="100" d="M180 446 V432 H570 V446"/>
+  <text class="comms-timeline-era comms-timeline-el0" x="375" y="470" text-anchor="middle">wire</text>
+  <path class="comms-timeline-br comms-timeline-br1" pathLength="100" d="M800 446 V432 H880 V446"/>
+  <text class="comms-timeline-era comms-timeline-el1" x="840" y="470" text-anchor="middle">radio</text>
+  <path class="comms-timeline-br comms-timeline-br2" pathLength="100" d="M1110 446 V432 H1500 V446"/>
+  <text class="comms-timeline-era comms-timeline-el2" x="1305" y="470" text-anchor="middle">computer networks</text>
 </g>
 </svg>
 </div>

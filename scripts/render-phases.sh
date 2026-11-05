@@ -37,7 +37,7 @@
 #
 # Environment (all optional):
 #   CHROME     path to a Chrome/Chromium/Edge binary (auto-detected otherwise)
-#   BG         fragment mode: page background behind the fragment (default #0f1218 = --anim-bg fallback)
+#   BG         fragment mode: page background behind the fragment (default #0F1E27 = --anim-bg fallback)
 #   GATE       gate class (default visible): put on the wrapper in fragment mode, stripped for rest in page mode
 #   FONTS_CSS  a <link> or <style> string injected into the preview head (host fonts)
 #   THEME_CSS  path to a CSS file injected into the preview (e.g. :root{--anim-theme-*:...})
@@ -136,7 +136,7 @@ if [ -z "$CHROME" ] || ! { [ -x "$CHROME" ] || command -v "$CHROME" >/dev/null 2
   echo "error: no Chrome/Chromium/Edge found; set CHROME=/path/to/chrome" >&2; exit 1
 fi
 
-BG="${BG:-#0f1218}"
+BG="${BG:-#0F1E27}"
 GATE="${GATE:-visible}"
 [[ "$GATE" =~ ^[A-Za-z_][A-Za-z0-9_-]*$ ]] || { echo "GATE must be a single class name" >&2; exit 2; }
 FONTS_CSS="${FONTS_CSS:-}"

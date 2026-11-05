@@ -2,6 +2,15 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.6.0 - 2026-11-05
+
+- **Lean style.** New `references/style.md`: rings and thin lines, no cards or chips, one
+  accent with a soft glow, mono sub-labels, plain captions, more space. Every pool entry and
+  the scaffolder follow it; the default token palette changed to match (`#0F1E27` ground,
+  `#34D1BF` accent). Hosts that set `--anim-theme-*` are unaffected.
+- **Illustrations stay.** Rule: pictures that label a column, lane, category or actor are
+  content; embed them beside the fragment (licence permitting) or redraw them as glyphs.
+
 ## 0.5.1 - 2026-11-05
 
 Accuracy and hand-over, from two fresh-user runs and independent audits of every pool entry

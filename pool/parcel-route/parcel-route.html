@@ -1,68 +1,72 @@
-<!-- parcel-route: hero demo fragment (archetype pipeline). Story: a parcel hops ordered > picked > sorted >
-  on the van > delivered; each hand-off turns green, the route fills, the lead time lands.
+<!-- parcel-route: hero demo fragment (archetype pipeline), lean style (references/style.md).
+  Story: a parcel hops ordered > picked > sorted > on the van > delivered; the active ring lights in the
+  accent, each hand-off settles in ok, the route draws on, the lead time lands.
   Cycle 8 s, hold 6.5-7.6 s. Resting frame = delivered.
   Names, numbers and times are illustrative examples. -->
 <style>
 .anim-parcel-route{
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
   display:block;width:100%;height:100%
 }
 .anim-parcel-route svg{display:block;width:100%;height:100%}
-.anim-parcel-route .parcel-route-t{font-family:var(--anim-font);fill:var(--anim-fg)}
-.anim-parcel-route .parcel-route-lbl{font-size:34px;font-weight:700}
-.anim-parcel-route .parcel-route-sub{font-size:24px;fill:var(--anim-muted)}
-.anim-parcel-route .parcel-route-big{font-size:32px;font-weight:600}
-.anim-parcel-route .parcel-route-hl{fill:var(--anim-ok);font-weight:800}
-.anim-parcel-route .parcel-route-track{fill:var(--anim-line)}
-.anim-parcel-route .parcel-route-prog{fill:var(--anim-ok);transform-box:fill-box;transform-origin:left center;transform:scaleX(1)}
-.anim-parcel-route .parcel-route-disc{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:3}
-.anim-parcel-route .parcel-route-ring{fill:color-mix(in srgb,var(--anim-accent) 16%,var(--anim-panel));stroke:var(--anim-accent);stroke-width:4;opacity:0;transform-box:fill-box;transform-origin:center}
-.anim-parcel-route .parcel-route-okring{fill:color-mix(in srgb,var(--anim-ok) 10%,var(--anim-panel));stroke:var(--anim-ok);stroke-width:3}
-.anim-parcel-route .parcel-route-ico{fill:none;stroke:var(--anim-fg);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
-.anim-parcel-route .parcel-route-badge{fill:var(--anim-ok);stroke:var(--anim-bg);stroke-width:4}
-.anim-parcel-route .parcel-route-tick{fill:none;stroke:var(--anim-bg);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.anim-parcel-route .parcel-route-lbl{font-family:var(--anim-font);font-size:28px;font-weight:600;fill:var(--anim-fg)}
+.anim-parcel-route .parcel-route-sub{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
+.anim-parcel-route .parcel-route-big{font-family:var(--anim-font);font-size:28px;font-weight:400;fill:var(--anim-fg)}
+.anim-parcel-route .parcel-route-hl{fill:var(--anim-accent);font-weight:600}
+.anim-parcel-route .parcel-route-track{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round}
+.anim-parcel-route .parcel-route-prog{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-parcel-route .parcel-route-progglow{fill:none;stroke:var(--anim-ok);stroke-width:10;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0;opacity:.18;filter:blur(6px)}
+.anim-parcel-route .parcel-route-disc{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2.5}
+.anim-parcel-route .parcel-route-ring{opacity:0;transform-box:fill-box;transform-origin:center}
+.anim-parcel-route .parcel-route-ring-run{fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:4}
+.anim-parcel-route .parcel-route-ring-glow{fill:none;stroke:var(--anim-accent);stroke-width:12;opacity:.3;filter:blur(8px)}
+.anim-parcel-route .parcel-route-okring{fill:var(--anim-bg);stroke:var(--anim-ok);stroke-width:2.5}
+.anim-parcel-route .parcel-route-ico{fill:none;stroke:var(--anim-muted);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.anim-parcel-route .parcel-route-ico-run{stroke:var(--anim-accent)}
+.anim-parcel-route .parcel-route-ico-ok{stroke:var(--anim-ok)}
 .anim-parcel-route .parcel-route-ok0,.anim-parcel-route .parcel-route-ok1,.anim-parcel-route .parcel-route-ok2,.anim-parcel-route .parcel-route-ok3,.anim-parcel-route .parcel-route-ok4{transform-box:fill-box;transform-origin:center}
-.anim-parcel-route .parcel-route-box{fill:var(--anim-accent-2);stroke:var(--anim-bg);stroke-width:3}
-.anim-parcel-route .parcel-route-tape{fill:none;stroke:color-mix(in srgb,var(--anim-bg) 45%,var(--anim-accent-2));stroke-width:4;stroke-linecap:round}
-.anim-parcel-route .parcel-route-pin{fill:var(--anim-accent-2)}
+.anim-parcel-route .parcel-route-box{fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:2.5;stroke-linejoin:round}
+.anim-parcel-route .parcel-route-boxglow{fill:var(--anim-accent);opacity:.3;filter:blur(8px)}
+.anim-parcel-route .parcel-route-tape{fill:none;stroke:var(--anim-accent);stroke-width:2;stroke-linecap:round}
+.anim-parcel-route .parcel-route-pin{fill:none;stroke:var(--anim-accent);stroke-width:2;stroke-linecap:round;opacity:.6}
 .anim-parcel-route .parcel-route-mk{transform:translateX(1280px)}
 /* motion, only when the slide is visible */
 @keyframes parcel-route-scene{0%{opacity:0}3.125%,95%{opacity:1}98.125%,100%{opacity:0}}
-@keyframes parcel-route-st0{0%,1.25%{opacity:0;transform:translateY(14px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-st1{0%,2.25%{opacity:0;transform:translateY(14px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-st2{0%,3.25%{opacity:0;transform:translateY(14px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-st3{0%,4.25%{opacity:0;transform:translateY(14px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-st4{0%,5.25%{opacity:0;transform:translateY(14px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-ring0{0%,9.375%{opacity:0;transform:scale(.85);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.5%{opacity:1;transform:scale(1)}15%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}16.875%,100%{opacity:0;transform:scale(1.12)}}
-@keyframes parcel-route-ok0{0%,15%{opacity:0;transform:scale(.6);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.75%,100%{opacity:1;transform:scale(1)}}
+@keyframes parcel-route-st0{0%,1.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.875%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-st1{0%,2.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.875%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-st2{0%,3.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.875%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-st3{0%,4.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.875%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-st4{0%,5.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.875%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-ring0{0%,9.375%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.5%{opacity:1;transform:scale(1)}15%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}16.875%,100%{opacity:0;transform:scale(1.04)}}
+@keyframes parcel-route-ok0{0%,15%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.75%,100%{opacity:1;transform:scale(1)}}
 @keyframes parcel-route-done0{0%,15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.125%,100%{opacity:1}}
-@keyframes parcel-route-ring1{0%,23.125%{opacity:0;transform:scale(.85);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26.25%{opacity:1;transform:scale(1)}30%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}31.875%,100%{opacity:0;transform:scale(1.12)}}
-@keyframes parcel-route-ok1{0%,30%{opacity:0;transform:scale(.6);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.75%,100%{opacity:1;transform:scale(1)}}
+@keyframes parcel-route-ring1{0%,23.125%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26.25%{opacity:1;transform:scale(1)}30%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}31.875%,100%{opacity:0;transform:scale(1.04)}}
+@keyframes parcel-route-ok1{0%,30%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.75%,100%{opacity:1;transform:scale(1)}}
 @keyframes parcel-route-done1{0%,30%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.125%,100%{opacity:1}}
-@keyframes parcel-route-ring2{0%,38.125%{opacity:0;transform:scale(.85);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.25%{opacity:1;transform:scale(1)}45%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}46.875%,100%{opacity:0;transform:scale(1.12)}}
-@keyframes parcel-route-ok2{0%,45%{opacity:0;transform:scale(.6);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.75%,100%{opacity:1;transform:scale(1)}}
+@keyframes parcel-route-ring2{0%,38.125%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.25%{opacity:1;transform:scale(1)}45%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}46.875%,100%{opacity:0;transform:scale(1.04)}}
+@keyframes parcel-route-ok2{0%,45%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.75%,100%{opacity:1;transform:scale(1)}}
 @keyframes parcel-route-done2{0%,45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.125%,100%{opacity:1}}
-@keyframes parcel-route-ring3{0%,53.125%{opacity:0;transform:scale(.85);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.25%{opacity:1;transform:scale(1)}60%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}61.875%,100%{opacity:0;transform:scale(1.12)}}
-@keyframes parcel-route-ok3{0%,60%{opacity:0;transform:scale(.6);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.75%,100%{opacity:1;transform:scale(1)}}
+@keyframes parcel-route-ring3{0%,53.125%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.25%{opacity:1;transform:scale(1)}60%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}61.875%,100%{opacity:0;transform:scale(1.04)}}
+@keyframes parcel-route-ok3{0%,60%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.75%,100%{opacity:1;transform:scale(1)}}
 @keyframes parcel-route-done3{0%,60%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.125%,100%{opacity:1}}
-@keyframes parcel-route-ring4{0%,68.125%{opacity:0;transform:scale(.85);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.25%{opacity:1;transform:scale(1)}73.75%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}75.625%,100%{opacity:0;transform:scale(1.12)}}
-@keyframes parcel-route-ok4{0%,73.75%{opacity:0;transform:scale(.6);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.5%,100%{opacity:1;transform:scale(1)}}
+@keyframes parcel-route-ring4{0%,68.125%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.25%{opacity:1;transform:scale(1)}73.75%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}75.625%,100%{opacity:0;transform:scale(1.04)}}
+@keyframes parcel-route-ok4{0%,73.75%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.5%,100%{opacity:1;transform:scale(1)}}
 @keyframes parcel-route-done4{0%,73.75%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.875%,100%{opacity:1}}
 @keyframes parcel-route-mk{0%,15%{transform:translateX(0);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}23.75%,30%{transform:translateX(320px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}38.75%,45%{transform:translateX(640px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}53.75%,60%{transform:translateX(960px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}68.75%,100%{transform:translateX(1280px)}}
-@keyframes parcel-route-mkin{0%,6.25%{opacity:0;transform:translateY(-26px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-prog{0%,15%{transform:scaleX(0);fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}23.75%,30%{transform:scaleX(0.25);fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}38.75%,45%{transform:scaleX(0.5);fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}53.75%,60%{transform:scaleX(0.75);fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}68.75%{transform:scaleX(1);fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}76.25%,100%{transform:scaleX(1);fill:var(--anim-ok)}}
-@keyframes parcel-route-note{0%,75%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.25%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-mkin{0%,6.25%{opacity:0;transform:translateY(-16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-prog{0%,15%{stroke-dashoffset:101;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}23.75%,30%{stroke-dashoffset:75;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}38.75%,45%{stroke-dashoffset:50;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}53.75%,60%{stroke-dashoffset:25;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}68.75%{stroke-dashoffset:0;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}76.25%,100%{stroke-dashoffset:0;stroke:var(--anim-ok)}}
+@keyframes parcel-route-note{0%,75%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.25%,100%{opacity:1;transform:translateY(0)}}
 .visible .anim-parcel-route .parcel-route-scene{animation:parcel-route-scene 8s infinite both}
 .visible .anim-parcel-route .parcel-route-st0{animation:parcel-route-st0 8s infinite both}
 .visible .anim-parcel-route .parcel-route-st1{animation:parcel-route-st1 8s infinite both}
@@ -86,66 +90,68 @@
 .visible .anim-parcel-route .parcel-route-done4{animation:parcel-route-done4 8s infinite both}
 .visible .anim-parcel-route .parcel-route-mk{animation:parcel-route-mk 8s infinite both}
 .visible .anim-parcel-route .parcel-route-mk-in{animation:parcel-route-mkin 8s infinite both}
-.visible .anim-parcel-route .parcel-route-prog{animation:parcel-route-prog 8s infinite both}
+.visible .anim-parcel-route .parcel-route-prog,.visible .anim-parcel-route .parcel-route-progglow{animation:parcel-route-prog 8s infinite both}
 .visible .anim-parcel-route .parcel-route-note{animation:parcel-route-note 8s infinite both}
 @media (prefers-reduced-motion: reduce){.anim-parcel-route *{animation:none !important}}
 </style>
 <div class="anim anim-parcel-route" data-anim="parcel-route" data-anim-cycle="8" data-anim-control="loop">
 <svg viewBox="0 0 1600 520" width="100%" height="100%" role="img" aria-label="A parcel moves through five delivery stages, from order to doorstep, each turning green as it is handed off.">
 <g class="parcel-route-scene">
-<rect class="parcel-route-track" x="160" y="186" width="1280" height="8" rx="4"/>
-<rect class="parcel-route-prog" x="160" y="186" width="1280" height="8" rx="4"/>
+<path class="parcel-route-track" d="M160 190 H1440"/>
+<path class="parcel-route-progglow parcel-route-prog-g" pathLength="100" d="M160 190 H1440"/>
+<path class="parcel-route-prog" pathLength="100" d="M160 190 H1440"/>
 <g transform="translate(160 190)"><g class="parcel-route-st0">
-<circle class="parcel-route-disc" r="66"/>
-<circle class="parcel-route-ring parcel-route-ring0" r="66"/>
-<circle class="parcel-route-okring parcel-route-done0" r="66"/>
-<g class="parcel-route-ico"><path d="M-30 -22 H-20 L-12 12 H22 L30 -12 H-16"/><circle cx="-8" cy="24" r="4"/><circle cx="18" cy="24" r="4"/></g>
-<g class="parcel-route-ok0"><g transform="translate(48 -48)"><circle class="parcel-route-badge" r="20"/><path class="parcel-route-tick" d="M-9 0 L-3 7 L10 -7"/></g></g>
-<text class="parcel-route-t parcel-route-lbl" y="128" text-anchor="middle">Ordered</text>
-<text class="parcel-route-t parcel-route-sub" y="166" text-anchor="middle">Mon 09:12 · online</text>
+<circle class="parcel-route-disc" r="44"/>
+<g class="parcel-route-ico " transform="scale(.7)"><path d="M-30 -22 H-20 L-12 12 H22 L30 -12 H-16"/><circle cx="-8" cy="24" r="4"/><circle cx="18" cy="24" r="4"/></g>
+<circle class="parcel-route-okring parcel-route-done0" r="44"/>
+<g class="parcel-route-ok0"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-30 -22 H-20 L-12 12 H22 L30 -12 H-16"/><circle cx="-8" cy="24" r="4"/><circle cx="18" cy="24" r="4"/></g></g>
+<g class="parcel-route-ring parcel-route-ring0"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-30 -22 H-20 L-12 12 H22 L30 -12 H-16"/><circle cx="-8" cy="24" r="4"/><circle cx="18" cy="24" r="4"/></g></g>
+<text class="parcel-route-lbl" y="92" text-anchor="middle">Ordered</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">Mon 09:12 · online</text>
 </g></g>
 <g transform="translate(480 190)"><g class="parcel-route-st1">
-<circle class="parcel-route-disc" r="66"/>
-<circle class="parcel-route-ring parcel-route-ring1" r="66"/>
-<circle class="parcel-route-okring parcel-route-done1" r="66"/>
-<g class="parcel-route-ico"><path d="M-32 28 V-8 L0 -28 L32 -8 V28 Z"/><path d="M-18 28 V4 H18 V28 M-18 16 H18"/></g>
-<g class="parcel-route-ok1"><g transform="translate(48 -48)"><circle class="parcel-route-badge" r="20"/><path class="parcel-route-tick" d="M-9 0 L-3 7 L10 -7"/></g></g>
-<text class="parcel-route-t parcel-route-lbl" y="128" text-anchor="middle">Picked</text>
-<text class="parcel-route-t parcel-route-sub" y="166" text-anchor="middle">Warehouse, aisle 14</text>
+<circle class="parcel-route-disc" r="44"/>
+<g class="parcel-route-ico " transform="scale(.7)"><path d="M-32 28 V-8 L0 -28 L32 -8 V28 Z"/><path d="M-18 28 V4 H18 V28 M-18 16 H18"/></g>
+<circle class="parcel-route-okring parcel-route-done1" r="44"/>
+<g class="parcel-route-ok1"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-32 28 V-8 L0 -28 L32 -8 V28 Z"/><path d="M-18 28 V4 H18 V28 M-18 16 H18"/></g></g>
+<g class="parcel-route-ring parcel-route-ring1"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-32 28 V-8 L0 -28 L32 -8 V28 Z"/><path d="M-18 28 V4 H18 V28 M-18 16 H18"/></g></g>
+<text class="parcel-route-lbl" y="92" text-anchor="middle">Picked</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">Warehouse, aisle 14</text>
 </g></g>
 <g transform="translate(800 190)"><g class="parcel-route-st2">
-<circle class="parcel-route-disc" r="66"/>
-<circle class="parcel-route-ring parcel-route-ring2" r="66"/>
-<circle class="parcel-route-okring parcel-route-done2" r="66"/>
-<g class="parcel-route-ico"><path d="M-32 0 H-8 C6 0 6 -20 22 -20 M-8 0 H22 M-8 0 C6 0 6 20 22 20"/><circle cx="28" cy="-20" r="5"/><circle cx="28" cy="0" r="5"/><circle cx="28" cy="20" r="5"/></g>
-<g class="parcel-route-ok2"><g transform="translate(48 -48)"><circle class="parcel-route-badge" r="20"/><path class="parcel-route-tick" d="M-9 0 L-3 7 L10 -7"/></g></g>
-<text class="parcel-route-t parcel-route-lbl" y="128" text-anchor="middle">Sorted</text>
-<text class="parcel-route-t parcel-route-sub" y="166" text-anchor="middle">Regional hub</text>
+<circle class="parcel-route-disc" r="44"/>
+<g class="parcel-route-ico " transform="scale(.7)"><path d="M-32 0 H-8 C6 0 6 -20 22 -20 M-8 0 H22 M-8 0 C6 0 6 20 22 20"/><circle cx="28" cy="-20" r="5"/><circle cx="28" cy="0" r="5"/><circle cx="28" cy="20" r="5"/></g>
+<circle class="parcel-route-okring parcel-route-done2" r="44"/>
+<g class="parcel-route-ok2"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-32 0 H-8 C6 0 6 -20 22 -20 M-8 0 H22 M-8 0 C6 0 6 20 22 20"/><circle cx="28" cy="-20" r="5"/><circle cx="28" cy="0" r="5"/><circle cx="28" cy="20" r="5"/></g></g>
+<g class="parcel-route-ring parcel-route-ring2"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-32 0 H-8 C6 0 6 -20 22 -20 M-8 0 H22 M-8 0 C6 0 6 20 22 20"/><circle cx="28" cy="-20" r="5"/><circle cx="28" cy="0" r="5"/><circle cx="28" cy="20" r="5"/></g></g>
+<text class="parcel-route-lbl" y="92" text-anchor="middle">Sorted</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">Regional hub</text>
 </g></g>
 <g transform="translate(1120 190)"><g class="parcel-route-st3">
-<circle class="parcel-route-disc" r="66"/>
-<circle class="parcel-route-ring parcel-route-ring3" r="66"/>
-<circle class="parcel-route-okring parcel-route-done3" r="66"/>
-<g class="parcel-route-ico"><path d="M-34 16 V-16 H10 V16 Z M10 -6 H24 L34 6 V16 H10"/><circle cx="-18" cy="20" r="6"/><circle cx="22" cy="20" r="6"/></g>
-<g class="parcel-route-ok3"><g transform="translate(48 -48)"><circle class="parcel-route-badge" r="20"/><path class="parcel-route-tick" d="M-9 0 L-3 7 L10 -7"/></g></g>
-<text class="parcel-route-t parcel-route-lbl" y="128" text-anchor="middle">On the van</text>
-<text class="parcel-route-t parcel-route-sub" y="166" text-anchor="middle">Van 7 · 32 stops</text>
+<circle class="parcel-route-disc" r="44"/>
+<g class="parcel-route-ico " transform="scale(.7)"><path d="M-34 16 V-16 H10 V16 Z M10 -6 H24 L34 6 V16 H10"/><circle cx="-18" cy="20" r="6"/><circle cx="22" cy="20" r="6"/></g>
+<circle class="parcel-route-okring parcel-route-done3" r="44"/>
+<g class="parcel-route-ok3"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-34 16 V-16 H10 V16 Z M10 -6 H24 L34 6 V16 H10"/><circle cx="-18" cy="20" r="6"/><circle cx="22" cy="20" r="6"/></g></g>
+<g class="parcel-route-ring parcel-route-ring3"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-34 16 V-16 H10 V16 Z M10 -6 H24 L34 6 V16 H10"/><circle cx="-18" cy="20" r="6"/><circle cx="22" cy="20" r="6"/></g></g>
+<text class="parcel-route-lbl" y="92" text-anchor="middle">On the van</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">Van 7 · 32 stops</text>
 </g></g>
 <g transform="translate(1440 190)"><g class="parcel-route-st4">
-<circle class="parcel-route-disc" r="66"/>
-<circle class="parcel-route-ring parcel-route-ring4" r="66"/>
-<circle class="parcel-route-okring parcel-route-done4" r="66"/>
-<g class="parcel-route-ico"><path d="M-30 -2 L0 -28 L30 -2 M-22 -8 V28 H22 V-8"/><path d="M-7 28 V10 H7 V28"/></g>
-<g class="parcel-route-ok4"><g transform="translate(48 -48)"><circle class="parcel-route-badge" r="20"/><path class="parcel-route-tick" d="M-9 0 L-3 7 L10 -7"/></g></g>
-<text class="parcel-route-t parcel-route-lbl" y="128" text-anchor="middle">Delivered</text>
-<text class="parcel-route-t parcel-route-sub" y="166" text-anchor="middle">Tue 13:40 · signed</text>
+<circle class="parcel-route-disc" r="44"/>
+<g class="parcel-route-ico " transform="scale(.7)"><path d="M-30 -2 L0 -28 L30 -2 M-22 -8 V28 H22 V-8"/><path d="M-7 28 V10 H7 V28"/></g>
+<circle class="parcel-route-okring parcel-route-done4" r="44"/>
+<g class="parcel-route-ok4"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-30 -2 L0 -28 L30 -2 M-22 -8 V28 H22 V-8"/><path d="M-7 28 V10 H7 V28"/></g></g>
+<g class="parcel-route-ring parcel-route-ring4"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-30 -2 L0 -28 L30 -2 M-22 -8 V28 H22 V-8"/><path d="M-7 28 V10 H7 V28"/></g></g>
+<text class="parcel-route-lbl" y="92" text-anchor="middle">Delivered</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">Tue 13:40 · signed</text>
 </g></g>
-<g transform="translate(160 62)"><g class="parcel-route-mk"><g class="parcel-route-mk-in">
-<path class="parcel-route-pin" d="M-10 30 L0 44 L10 30 Z"/>
-<rect class="parcel-route-box" x="-30" y="-28" width="60" height="56" rx="6"/>
-<path class="parcel-route-tape" d="M0 -28 V28 M-30 -8 H30"/>
+<g transform="translate(160 96)"><g class="parcel-route-mk"><g class="parcel-route-mk-in">
+<rect class="parcel-route-boxglow" x="-20" y="-18" width="40" height="36" rx="5"/>
+<path class="parcel-route-pin" d="M0 26 V40"/>
+<rect class="parcel-route-box" x="-20" y="-18" width="40" height="36" rx="5"/>
+<path class="parcel-route-tape" d="M0 -18 V18 M-20 -5 H20"/>
 </g></g></g>
-<g class="parcel-route-note"><text class="parcel-route-t parcel-route-big" x="800" y="482" text-anchor="middle">Order to doorstep in <tspan class="parcel-route-hl">28 hours</tspan> · 4 hand-offs, tracked live</text></g>
+<g class="parcel-route-note"><text class="parcel-route-big" x="800" y="440" text-anchor="middle">Order to doorstep in <tspan class="parcel-route-hl">28 hours</tspan> · 4 hand-offs, tracked live</text></g>
 </g>
 </svg>
 </div>

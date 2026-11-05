@@ -57,6 +57,9 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
 
 - **Drop-in.** Works in reveal.js, impress.js, Slidev, frontend-slides decks, hand-written HTML
   and plain scrolling pages. No framework, no build tool, no dependency.
+- **Lean by default.** Rings and thin lines on a quiet dark ground, one accent that lights the
+  active step, mono sub-labels, no boxes. `references/style.md` is the guide; the scaffolder
+  emits it.
 - **Themed by variables.** Fragments read `--anim-theme-*` CSS variables and carry neutral
   fallbacks, so one `:root` rule rethemes every illustration to your brand.
 - **Safe to paste.** Every class, id and keyframe is prefixed, so nothing collides with the deck's
@@ -218,10 +221,10 @@ A fragment adds motion, not facts. The skill is built to keep it that way:
 
 ```css
 :root {
-  --anim-theme-bg: #0f1218;  --anim-theme-panel: #1a2030;  --anim-theme-line: #3a4660;
-  --anim-theme-fg: #eef2f8;  --anim-theme-muted: #9aa7bd;
-  --anim-theme-accent: #4cc2ff;  --anim-theme-accent-2: #ffb454;
-  --anim-theme-ok: #3ecf8e;  --anim-theme-warn: #ffb454;  --anim-theme-danger: #ff5d5d;
+  --anim-theme-bg: #0F1E27;  --anim-theme-panel: #0D1820;  --anim-theme-line: #2A3D49;
+  --anim-theme-fg: #E6EDF0;  --anim-theme-muted: #93A7B2;
+  --anim-theme-accent: #34D1BF;  --anim-theme-accent-2: #FF8A3D;
+  --anim-theme-ok: #8ED7AD;  --anim-theme-warn: #FFD15C;  --anim-theme-danger: #FF6B6B;
   --anim-theme-font: system-ui, sans-serif;  --anim-theme-mono: ui-monospace, monospace;
 }
 ```

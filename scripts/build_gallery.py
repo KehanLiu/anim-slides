@@ -209,12 +209,12 @@ FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
 
 CSS = r"""
 :root{
-  --anim-theme-bg:#0f1218;--anim-theme-panel:#1a2030;--anim-theme-line:#3a4660;
-  --anim-theme-fg:#eef2f8;--anim-theme-muted:#9aa7bd;--anim-theme-accent:#4cc2ff;
-  --anim-theme-accent-2:#ffb454;--anim-theme-ok:#3ecf8e;--anim-theme-warn:#ffb454;
-  --anim-theme-danger:#ff5d5d;
-  --page:#0a0d12;--card:#131823;--border:#252d3d;--text:#e8edf5;--muted:#93a0b6;--link:#4cc2ff;
-  --chip:#1a2130;--chip-on:#4cc2ff;--chip-on-text:#06121c;
+  --anim-theme-bg:#0F1E27;--anim-theme-panel:#0D1820;--anim-theme-line:#2A3D49;
+  --anim-theme-fg:#E6EDF0;--anim-theme-muted:#93A7B2;--anim-theme-accent:#34D1BF;
+  --anim-theme-accent-2:#FF8A3D;--anim-theme-ok:#8ED7AD;--anim-theme-warn:#FFD15C;
+  --anim-theme-danger:#FF6B6B;
+  --page:#0a0d12;--card:#131823;--border:#252d3d;--text:#e8edf5;--muted:#93a0b6;--link:#34D1BF;
+  --chip:#1a2130;--chip-on:#34D1BF;--chip-on-text:#06121c;
   --ui:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --code:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   color-scheme:dark;

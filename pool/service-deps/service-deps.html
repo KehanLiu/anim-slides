@@ -1,57 +1,61 @@
-<!-- service-deps: graph archetype, hand-tuned from pool/service-deps/spec.yaml (scaffold, then rebuilt for layout and story).
+<!-- service-deps: graph archetype, lean restyle (references/style.md) of pool/service-deps.
   14 s cycle: 0-6 s graph builds rank by rank | 6.2-8.6 s one request traced web > gateway > Orders > DB
   | 9-10.6 s provider fails, Payments degrades, the rest is untouched | hold | 13.3 s fade, restart -->
 <style>
 .anim-service-deps {
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
   display: block; width: 100%; height: 100%;
 }
 .anim-service-deps svg{display:block;width:100%;height:100%}
-.anim-service-deps .service-deps-lbl{font-family:var(--anim-font);font-size:22px;font-weight:600;fill:var(--anim-fg)}
+/* type */
+.anim-service-deps .service-deps-lbl{font-family:var(--anim-font);font-size:24px;font-weight:600;fill:var(--anim-fg)}
 .anim-service-deps .service-deps-sub{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
-.anim-service-deps .service-deps-glbl{font-family:var(--anim-font);font-size:18px;fill:var(--anim-muted)}
+.anim-service-deps .service-deps-glbl{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted);letter-spacing:.08em}
 .anim-service-deps .service-deps-elbl{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
-.anim-service-deps .service-deps-cap{font-family:var(--anim-font);font-size:22px;fill:var(--anim-fg)}
-.anim-service-deps .service-deps-capbg{fill:var(--anim-panel)}
-.anim-service-deps .service-deps-grp{fill:color-mix(in srgb,var(--anim-accent) 6%,transparent);stroke:var(--anim-line);stroke-width:1.5}
-.anim-service-deps .service-deps-box{fill:var(--anim-panel);stroke:var(--anim-muted);stroke-width:2;stroke-linejoin:round}
-.anim-service-deps .service-deps-box.service-deps-ext{stroke-dasharray:8 6}
-.anim-service-deps .service-deps-hot{fill:color-mix(in srgb,var(--anim-accent) 16%,var(--anim-panel));stroke:var(--anim-accent);stroke-width:2.5;stroke-linejoin:round}
-.anim-service-deps .service-deps-downbox{fill:color-mix(in srgb,var(--anim-danger) 16%,var(--anim-panel));stroke:var(--anim-danger);stroke-width:2.5;stroke-dasharray:8 6}
-.anim-service-deps .service-deps-degbox{fill:color-mix(in srgb,var(--anim-warn) 14%,var(--anim-panel));stroke:var(--anim-warn);stroke-width:2.5}
-.anim-service-deps .service-deps-glyph{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round}
-.anim-service-deps .service-deps-dep{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0}
-.anim-service-deps .service-deps-evt{fill:none;stroke:var(--anim-accent-2);stroke-width:2;stroke-linecap:round;stroke-dasharray:2 7}
-.anim-service-deps .service-deps-arw{fill:var(--anim-muted)}
-.anim-service-deps .service-deps-arw-evt{fill:var(--anim-accent-2)}
-.anim-service-deps .service-deps-trace{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round}
-.anim-service-deps .service-deps-bad{fill:none;stroke:var(--anim-danger);stroke-width:3;stroke-linecap:round;stroke-dasharray:10 8}
-.anim-service-deps .service-deps-arw-bad{fill:var(--anim-danger)}
-.anim-service-deps .service-deps-warnl{fill:none;stroke:var(--anim-warn);stroke-width:3;stroke-linecap:round}
-.anim-service-deps .service-deps-arw-warn{fill:var(--anim-warn)}
-.anim-service-deps .service-deps-okl{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round}
-.anim-service-deps .service-deps-arw-ok{fill:var(--anim-ok)}
-.anim-service-deps .service-deps-xbg{fill:var(--anim-bg);stroke:var(--anim-danger);stroke-width:2}
+.anim-service-deps .service-deps-cap{font-family:var(--anim-font);font-size:26px;fill:var(--anim-fg)}
+.anim-service-deps .service-deps-tagt{font-family:var(--anim-mono);font-size:18px;font-weight:700;letter-spacing:.1em}
+.anim-service-deps .service-deps-tag-rd{fill:var(--anim-danger)}
+.anim-service-deps .service-deps-tag-wn{fill:var(--anim-accent-2)}
+/* groups: hairline bracket over the group, open on the label side */
+.anim-service-deps .service-deps-brk{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* nodes: rings with a line glyph */
+.anim-service-deps .service-deps-ring{fill:var(--anim-bg);stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5}
+.anim-service-deps .service-deps-ring.service-deps-ext{stroke-dasharray:6 6}
+.anim-service-deps .service-deps-glyph{fill:none;stroke:var(--anim-muted);stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+.anim-service-deps .service-deps-halo{fill:none;stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;filter:blur(6px)}
+.anim-service-deps .service-deps-hot{fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-bg));stroke:var(--anim-accent);stroke-width:3}
+.anim-service-deps .service-deps-hotg{stroke:var(--anim-accent)}
+.anim-service-deps .service-deps-okring{fill:none;stroke:var(--anim-accent);stroke-width:2.5}
+.anim-service-deps .service-deps-degring{fill:color-mix(in srgb,var(--anim-accent-2) 12%,var(--anim-bg));stroke:var(--anim-accent-2);stroke-width:3}
+.anim-service-deps .service-deps-degg{stroke:var(--anim-accent-2)}
+.anim-service-deps .service-deps-downring{fill:color-mix(in srgb,var(--anim-danger) 10%,var(--anim-bg));stroke:var(--anim-danger);stroke-width:3;stroke-dasharray:6 6}
+.anim-service-deps .service-deps-downg{stroke:var(--anim-danger)}
+/* wires */
+.anim-service-deps .service-deps-dep{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-service-deps .service-deps-evt{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-dasharray:4 9}
+.anim-service-deps .service-deps-arw{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 60%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-service-deps .service-deps-trace,.anim-service-deps .service-deps-okl{fill:none;stroke:var(--anim-accent);stroke-width:4;stroke-linecap:round}
+.anim-service-deps .service-deps-glow{fill:none;stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;stroke-linecap:round;filter:blur(5px)}
+.anim-service-deps .service-deps-arw-ok{stroke:var(--anim-accent);stroke-width:3}
+.anim-service-deps .service-deps-bad{fill:none;stroke:var(--anim-danger);stroke-width:3;stroke-linecap:round;stroke-dasharray:8 9}
+.anim-service-deps .service-deps-arw-bad{stroke:var(--anim-danger);stroke-width:3}
+.anim-service-deps .service-deps-warnl{fill:none;stroke:var(--anim-accent-2);stroke-width:3;stroke-linecap:round}
+.anim-service-deps .service-deps-arw-warn{stroke:var(--anim-accent-2);stroke-width:3}
+.anim-service-deps .service-deps-xbg{fill:var(--anim-bg);stroke:var(--anim-danger);stroke-width:2.5}
 .anim-service-deps .service-deps-x{fill:none;stroke:var(--anim-danger);stroke-width:3;stroke-linecap:round}
-.anim-service-deps .service-deps-tag rect{stroke-width:1.5}
-.anim-service-deps .service-deps-tagt{font-family:var(--anim-mono);font-size:18px;font-weight:700}
-.anim-service-deps .service-deps-tag-rd rect{fill:color-mix(in srgb,var(--anim-danger) 16%,var(--anim-bg));stroke:var(--anim-danger)}
-.anim-service-deps .service-deps-tag-rd text{fill:var(--anim-danger)}
-.anim-service-deps .service-deps-tag-wn rect{fill:color-mix(in srgb,var(--anim-warn) 16%,var(--anim-bg));stroke:var(--anim-warn)}
-.anim-service-deps .service-deps-tag-wn text{fill:var(--anim-warn)}
-.anim-service-deps .service-deps-pkt{fill:var(--anim-accent);offset-rotate:0deg}
-/* resting frame = end of the story: full graph, provider down, Payments degraded, last caption.
+.anim-service-deps .service-deps-pkt{fill:var(--anim-accent);stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;offset-rotate:0deg}
+/* resting frame = end of the story: full graph, provider down, Payments degraded, healthy path lit, last caption.
    Layers that belong only to earlier phases rest at opacity 0. */
 .anim-service-deps .service-deps-n-web,.anim-service-deps .service-deps-n-gw,.anim-service-deps .service-deps-n-orders,.anim-service-deps .service-deps-n-pay,.anim-service-deps .service-deps-n-inv,.anim-service-deps .service-deps-n-db,.anim-service-deps .service-deps-n-psp,.anim-service-deps .service-deps-n-bus,.anim-service-deps .service-deps-a-e1,.anim-service-deps .service-deps-a-e2,.anim-service-deps .service-deps-a-e3,.anim-service-deps .service-deps-a-e4,.anim-service-deps .service-deps-a-e5,.anim-service-deps .service-deps-a-e8,.anim-service-deps .service-deps-a-e6,.anim-service-deps .service-deps-a-e7,.anim-service-deps .service-deps-g-edge,.anim-service-deps .service-deps-g-core,.anim-service-deps .service-deps-down-psp,.anim-service-deps .service-deps-down-e8,.anim-service-deps .service-deps-deg-pay,.anim-service-deps .service-deps-deg-e3,.anim-service-deps .service-deps-ok,.anim-service-deps .service-deps-cap5{opacity:1}
 .anim-service-deps .service-deps-hot-web,.anim-service-deps .service-deps-hot-gw,.anim-service-deps .service-deps-hot-orders,.anim-service-deps .service-deps-hot-db,.anim-service-deps .service-deps-trace,.anim-service-deps .service-deps-pkt,.anim-service-deps .service-deps-cap0,.anim-service-deps .service-deps-cap1,.anim-service-deps .service-deps-cap2,.anim-service-deps .service-deps-cap3,.anim-service-deps .service-deps-cap4{opacity:0}
@@ -63,17 +67,17 @@
 @keyframes service-deps-n-db{0%,25.36%{opacity:0}28.21%,97.14%{opacity:1}97.86%,100%{opacity:0}}
 @keyframes service-deps-n-psp{0%,32.86%{opacity:0}35.71%,42.86%{opacity:1}45.71%,63.57%{opacity:.4}66.43%,97.14%{opacity:1}97.86%,100%{opacity:0}}
 @keyframes service-deps-n-bus{0%,38.57%{opacity:0}41.43%,42.86%{opacity:1}45.71%,63.57%{opacity:.4}66.43%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e1{0%,4.29%{stroke-dashoffset:100}8.57%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:100}}
+@keyframes service-deps-d-e1{0%,4.29%{stroke-dashoffset:101}8.57%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
 @keyframes service-deps-a-e1{0%,7.5%{opacity:0}9.64%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e2{0%,12.86%{stroke-dashoffset:100}17.14%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:100}}
+@keyframes service-deps-d-e2{0%,12.86%{stroke-dashoffset:101}17.14%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
 @keyframes service-deps-a-e2{0%,16.07%{opacity:0}18.21%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e3{0%,13.57%{stroke-dashoffset:100}17.86%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:100}}
+@keyframes service-deps-d-e3{0%,13.57%{stroke-dashoffset:101}17.86%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
 @keyframes service-deps-a-e3{0%,16.79%{opacity:0}18.93%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e4{0%,21.43%{stroke-dashoffset:100}25.71%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:100}}
+@keyframes service-deps-d-e4{0%,21.43%{stroke-dashoffset:101}25.71%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
 @keyframes service-deps-a-e4{0%,24.64%{opacity:0}26.79%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e5{0%,22.14%{stroke-dashoffset:100}26.43%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:100}}
+@keyframes service-deps-d-e5{0%,22.14%{stroke-dashoffset:101}26.43%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
 @keyframes service-deps-a-e5{0%,25.36%{opacity:0}27.5%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e8{0%,30%{stroke-dashoffset:100}34.29%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:100}}
+@keyframes service-deps-d-e8{0%,30%{stroke-dashoffset:101}34.29%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
 @keyframes service-deps-a-e8{0%,33.21%{opacity:0}35.36%,97.14%{opacity:1}97.86%,100%{opacity:0}}
 @keyframes service-deps-a-e6{0%,35.71%{opacity:0}37.86%,97.14%{opacity:1}97.86%,100%{opacity:0}}
 @keyframes service-deps-a-e7{0%,36.43%{opacity:0}38.57%,97.14%{opacity:1}97.86%,100%{opacity:0}}
@@ -155,110 +159,94 @@
 <div class="anim anim-service-deps" data-anim="service-deps" data-anim-cycle="14" data-anim-control="loop">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Service dependency graph: a request flows from the web app through the API gateway to Orders and its database; when the external payment provider goes down, only Payments degrades while orders keep flowing.">
 <g class="service-deps-scene">
-<g class="service-deps-g-edge"><rect class="service-deps-grp" x="30" y="216" width="600" height="156" rx="8"/><text class="service-deps-glbl" x="46" y="242">Edge</text></g>
-<g class="service-deps-g-core"><rect class="service-deps-grp" x="710" y="34" width="600" height="432" rx="8"/><text class="service-deps-glbl" x="726" y="60">Core services</text></g>
+<g class="service-deps-g-edge"><text class="service-deps-glbl" x="150" y="234">Edge</text><path class="service-deps-brk" d="M208 228 H530 V244"/></g>
+<g class="service-deps-g-core"><text class="service-deps-glbl" x="770" y="22">Core services</text><path class="service-deps-brk" d="M928 16 H1230 V32"/></g>
 <g class="service-deps-edges">
-<g>
-<path class="service-deps-dep service-deps-d-e1" d="M270 310 L382 310" pathLength="100"/>
-<path class="service-deps-arw service-deps-a-e1" d="M380 303 L390 310 L380 317 Z"/>
+<g><path class="service-deps-dep service-deps-d-e1" d="M235 300 L445 300" pathLength="100"/><path class="service-deps-arw service-deps-a-e1" d="M437 293 L445 300 L437 307"/></g>
+<g><path class="service-deps-dep service-deps-d-e2" d="M525 300 C650 300 660 200 775 200" pathLength="100"/><path class="service-deps-arw service-deps-a-e2" d="M767 193 L775 200 L767 207"/></g>
+<g class="service-deps-dim"><path class="service-deps-dep service-deps-d-e3" d="M525 300 C650 300 660 400 775 400" pathLength="100"/><path class="service-deps-arw service-deps-a-e3" d="M767 393 L775 400 L767 407"/></g>
+<g class="service-deps-dim"><path class="service-deps-dep service-deps-d-e4" d="M848 177 C930 140 1000 120 1105 120" pathLength="100"/><path class="service-deps-arw service-deps-a-e4" d="M1097 113 L1105 120 L1097 127"/></g>
+<g><path class="service-deps-dep service-deps-d-e5" d="M848 223 C930 260 1000 280 1105 280" pathLength="100"/><path class="service-deps-arw service-deps-a-e5" d="M1097 273 L1105 280 L1097 287"/></g>
+<g class="service-deps-dim"><path class="service-deps-dep service-deps-d-e8" d="M855 400 L1445 400" pathLength="100"/><path class="service-deps-arw service-deps-a-e8" d="M1437 393 L1445 400 L1437 407"/></g>
+<g class="service-deps-dim"><path class="service-deps-evt service-deps-a-e6" d="M855 200 L1445 200"/><path class="service-deps-arw service-deps-a-e6" d="M1437 193 L1445 200 L1437 207"/></g>
+<g class="service-deps-dim"><path class="service-deps-evt service-deps-a-e7" d="M1185 120 C1360 120 1485 120 1485 160"/><path class="service-deps-arw service-deps-a-e7" d="M1478 152 L1485 160 L1492 152"/></g>
 </g>
-<g>
-<path class="service-deps-dep service-deps-d-e2" d="M610 310 C690 310 650 216 722 216" pathLength="100"/>
-<path class="service-deps-arw service-deps-a-e2" d="M720 209 L730 216 L720 223 Z"/>
-</g>
-<g class="service-deps-dim">
-<path class="service-deps-dep service-deps-d-e3" d="M610 310 C690 310 650 404 722 404" pathLength="100"/>
-<path class="service-deps-arw service-deps-a-e3" d="M720 397 L730 404 L720 411 Z"/>
-</g>
-<g class="service-deps-dim">
-<path class="service-deps-dep service-deps-d-e4" d="M950 196 C1010 196 1010 128 1062 128" pathLength="100"/>
-<path class="service-deps-arw service-deps-a-e4" d="M1060 121 L1070 128 L1060 135 Z"/>
-</g>
-<g>
-<path class="service-deps-dep service-deps-d-e5" d="M950 236 C1010 236 1010 300 1062 300" pathLength="100"/>
-<path class="service-deps-arw service-deps-a-e5" d="M1060 293 L1070 300 L1060 307 Z"/>
-</g>
-<g class="service-deps-dim">
-<path class="service-deps-dep service-deps-d-e8" d="M950 404 L1402 404" pathLength="100"/>
-<path class="service-deps-arw service-deps-a-e8" d="M1400 397 L1410 404 L1400 411 Z"/>
-</g>
-<g class="service-deps-dim">
-<path class="service-deps-evt service-deps-a-e6" d="M950 216 L1402 216"/>
-<path class="service-deps-arw service-deps-a-e6 service-deps-arw-evt" d="M1400 209 L1410 216 L1400 223 Z"/>
-</g>
-<g class="service-deps-dim">
-<path class="service-deps-evt service-deps-a-e7" d="M1290 128 C1350 128 1350 196 1402 196"/>
-<path class="service-deps-arw service-deps-a-e7 service-deps-arw-evt" d="M1400 189 L1410 196 L1400 203 Z"/>
-</g>
-</g>
-<g class="service-deps-dim"><text class="service-deps-elbl service-deps-a-e6" x="1180" y="206" text-anchor="middle">order.placed</text>
-<text class="service-deps-elbl service-deps-a-e8" x="1360" y="392" text-anchor="middle">HTTPS</text></g>
-<path class="service-deps-trace service-deps-tr-e1" d="M270 310 L382 310"/>
-<path class="service-deps-trace service-deps-tr-e2" d="M610 310 C690 310 650 216 722 216"/>
-<path class="service-deps-trace service-deps-tr-e5" d="M950 236 C1010 236 1010 300 1062 300"/>
-<path class="service-deps-bad service-deps-down-e8" d="M950 404 L1402 404"/>
-<path class="service-deps-arw service-deps-arw-bad service-deps-down-e8" d="M1400 397 L1410 404 L1400 411 Z"/>
-<g class="service-deps-down-e8"><circle class="service-deps-xbg" cx="1180" cy="404" r="16"/><path class="service-deps-x" d="M1173 397 L1187 411 M1187 397 L1173 411"/></g>
-<path class="service-deps-warnl service-deps-deg-e3" d="M610 310 C690 310 650 404 722 404"/>
-<path class="service-deps-arw service-deps-arw-warn service-deps-deg-e3" d="M720 397 L730 404 L720 411 Z"/>
+<g class="service-deps-dim"><text class="service-deps-elbl service-deps-a-e6" x="1330" y="186" text-anchor="middle">order.placed</text>
+<text class="service-deps-elbl service-deps-a-e8" x="1330" y="386" text-anchor="middle">HTTPS</text></g>
+<path class="service-deps-trace service-deps-glow service-deps-tr-e1" d="M235 300 L445 300"/><path class="service-deps-trace service-deps-tr-e1" d="M235 300 L445 300"/>
+<path class="service-deps-trace service-deps-glow service-deps-tr-e2" d="M525 300 C650 300 660 200 775 200"/><path class="service-deps-trace service-deps-tr-e2" d="M525 300 C650 300 660 200 775 200"/>
+<path class="service-deps-trace service-deps-glow service-deps-tr-e5" d="M848 223 C930 260 1000 280 1105 280"/><path class="service-deps-trace service-deps-tr-e5" d="M848 223 C930 260 1000 280 1105 280"/>
+<path class="service-deps-bad service-deps-down-e8" d="M855 400 L1445 400"/>
+<path class="service-deps-arw service-deps-arw-bad service-deps-down-e8" d="M1437 393 L1445 400 L1437 407"/>
+<g class="service-deps-down-e8"><circle class="service-deps-xbg" cx="1000" cy="400" r="15"/><path class="service-deps-x" d="M994 394 L1006 406 M1006 394 L994 406"/></g>
+<path class="service-deps-warnl service-deps-deg-e3" d="M525 300 C650 300 660 400 775 400"/>
+<path class="service-deps-arw service-deps-arw-warn service-deps-deg-e3" d="M767 393 L775 400 L767 407"/>
 <g class="service-deps-ok">
-<path class="service-deps-okl" d="M270 310 L382 310"/>
-<path class="service-deps-arw service-deps-arw-ok" d="M380 303 L390 310 L380 317 Z"/>
-<path class="service-deps-okl" d="M610 310 C690 310 650 216 722 216"/>
-<path class="service-deps-arw service-deps-arw-ok" d="M720 209 L730 216 L720 223 Z"/>
-<path class="service-deps-okl" d="M950 236 C1010 236 1010 300 1062 300"/>
-<path class="service-deps-arw service-deps-arw-ok" d="M1060 293 L1070 300 L1060 307 Z"/>
+<path class="service-deps-glow" d="M235 300 L445 300"/><path class="service-deps-okl" d="M235 300 L445 300"/><path class="service-deps-arw service-deps-arw-ok" d="M437 293 L445 300 L437 307"/>
+<path class="service-deps-glow" d="M525 300 C650 300 660 200 775 200"/><path class="service-deps-okl" d="M525 300 C650 300 660 200 775 200"/><path class="service-deps-arw service-deps-arw-ok" d="M767 193 L775 200 L767 207"/>
+<path class="service-deps-glow" d="M848 223 C930 260 1000 280 1105 280"/><path class="service-deps-okl" d="M848 223 C930 260 1000 280 1105 280"/><path class="service-deps-arw service-deps-arw-ok" d="M1097 273 L1105 280 L1097 287"/>
 </g>
 <g class="service-deps-n-web">
-<rect class="service-deps-box service-deps-base" x="50" y="268" width="220" height="84" rx="8"/>
-<rect class="service-deps-hot service-deps-hot-web" x="50" y="268" width="220" height="84" rx="8"/>
-<text class="service-deps-lbl" x="160" y="308" text-anchor="middle">Web app</text><text class="service-deps-sub" x="160" y="334" text-anchor="middle">browser</text>
+<circle class="service-deps-ring" cx="195" cy="300" r="34"/>
+<path class="service-deps-glyph" transform="translate(195 300)" d="M-13 -10 H13 V10 H-13 Z M-13 -4 H13 M-9 -7 h.01 M-5.5 -7 h.01"/>
+<g class="service-deps-hot-web"><circle class="service-deps-halo" cx="195" cy="300" r="34"/><circle class="service-deps-hot" cx="195" cy="300" r="34"/><path class="service-deps-glyph service-deps-hotg" transform="translate(195 300)" d="M-13 -10 H13 V10 H-13 Z M-13 -4 H13 M-9 -7 h.01 M-5.5 -7 h.01"/></g>
+<text class="service-deps-lbl" x="195" y="370" text-anchor="middle">Web app</text><text class="service-deps-sub" x="195" y="394" text-anchor="middle">browser</text>
 </g>
 <g class="service-deps-n-gw">
-<rect class="service-deps-box service-deps-base" x="390" y="268" width="220" height="84" rx="8"/>
-<rect class="service-deps-hot service-deps-hot-gw" x="390" y="268" width="220" height="84" rx="8"/>
-<text class="service-deps-lbl" x="500" y="308" text-anchor="middle">API gateway</text><text class="service-deps-sub" x="500" y="334" text-anchor="middle">auth · routing</text>
+<circle class="service-deps-ring" cx="485" cy="300" r="34"/>
+<path class="service-deps-glyph" transform="translate(485 300)" d="M-8 -12 V12 M8 -12 V12 M-15 0 H13 M8.5 -4.5 L13 0 L8.5 4.5"/>
+<g class="service-deps-hot-gw"><circle class="service-deps-halo" cx="485" cy="300" r="34"/><circle class="service-deps-hot" cx="485" cy="300" r="34"/><path class="service-deps-glyph service-deps-hotg" transform="translate(485 300)" d="M-8 -12 V12 M8 -12 V12 M-15 0 H13 M8.5 -4.5 L13 0 L8.5 4.5"/></g>
+<text class="service-deps-lbl" x="485" y="370" text-anchor="middle">API gateway</text><text class="service-deps-sub" x="485" y="394" text-anchor="middle">auth · routing</text>
 </g>
 <g class="service-deps-n-orders">
-<rect class="service-deps-box service-deps-base" x="730" y="174" width="220" height="84" rx="8"/>
-<rect class="service-deps-hot service-deps-hot-orders" x="730" y="174" width="220" height="84" rx="8"/>
-<text class="service-deps-lbl" x="840" y="214" text-anchor="middle">Orders</text><text class="service-deps-sub" x="840" y="240" text-anchor="middle">REST</text>
+<circle class="service-deps-ring" cx="815" cy="200" r="34"/>
+<path class="service-deps-glyph" transform="translate(815 200)" d="M0 -12 L10.4 -6 V6 L0 12 L-10.4 6 V-6 Z M0 -3 a3 3 0 1 0 .01 0"/>
+<g class="service-deps-hot-orders"><circle class="service-deps-halo" cx="815" cy="200" r="34"/><circle class="service-deps-hot" cx="815" cy="200" r="34"/><path class="service-deps-glyph service-deps-hotg" transform="translate(815 200)" d="M0 -12 L10.4 -6 V6 L0 12 L-10.4 6 V-6 Z M0 -3 a3 3 0 1 0 .01 0"/></g>
+<text class="service-deps-lbl" x="815" y="270" text-anchor="middle">Orders</text><text class="service-deps-sub" x="815" y="294" text-anchor="middle">REST</text>
 </g>
 <g class="service-deps-n-pay">
-<rect class="service-deps-box service-deps-base" x="730" y="362" width="220" height="84" rx="8"/>
-<rect class="service-deps-degbox service-deps-deg-pay" x="730" y="362" width="220" height="84" rx="8"/>
-<text class="service-deps-lbl" x="840" y="402" text-anchor="middle">Payments</text><text class="service-deps-sub" x="840" y="428" text-anchor="middle">REST</text>
+<circle class="service-deps-ring" cx="815" cy="400" r="34"/>
+<path class="service-deps-glyph" transform="translate(815 400)" d="M0 -12 L10.4 -6 V6 L0 12 L-10.4 6 V-6 Z M0 -3 a3 3 0 1 0 .01 0"/>
+<g class="service-deps-deg-pay"><circle class="service-deps-degring" cx="815" cy="400" r="34"/><path class="service-deps-glyph service-deps-degg" transform="translate(815 400)" d="M0 -12 L10.4 -6 V6 L0 12 L-10.4 6 V-6 Z M0 -3 a3 3 0 1 0 .01 0"/></g>
+<text class="service-deps-lbl" x="815" y="470" text-anchor="middle">Payments</text><text class="service-deps-sub" x="815" y="494" text-anchor="middle">REST</text>
 </g>
 <g class="service-deps-n-inv">
-<rect class="service-deps-box service-deps-base" x="1070" y="86" width="220" height="84" rx="8"/>
-<text class="service-deps-lbl" x="1180" y="126" text-anchor="middle">Inventory</text><text class="service-deps-sub" x="1180" y="152" text-anchor="middle">REST</text>
+<circle class="service-deps-ring" cx="1145" cy="120" r="34"/>
+<path class="service-deps-glyph" transform="translate(1145 120)" d="M0 -12 L10.4 -6 V6 L0 12 L-10.4 6 V-6 Z M0 -3 a3 3 0 1 0 .01 0"/>
+<text class="service-deps-lbl" x="1145" y="46" text-anchor="middle">Inventory</text><text class="service-deps-sub" x="1145" y="70" text-anchor="middle">REST</text>
 </g>
 <g class="service-deps-n-db">
-<g class="service-deps-base"><path class="service-deps-box" d="M1070 270 V330 A110 12 0 0 0 1290 330 V270"/><ellipse class="service-deps-box" cx="1180" cy="270" rx="110" ry="12"/></g>
-<g class="service-deps-hot-db"><path class="service-deps-hot" d="M1070 270 V330 A110 12 0 0 0 1290 330 V270"/><ellipse class="service-deps-hot" cx="1180" cy="270" rx="110" ry="12"/></g>
-<text class="service-deps-lbl" x="1180" y="304" text-anchor="middle">Orders DB</text><text class="service-deps-sub" x="1180" y="330" text-anchor="middle">SQL</text>
+<circle class="service-deps-ring" cx="1145" cy="280" r="34"/>
+<path class="service-deps-glyph" transform="translate(1145 280)" d="M-11 -8 A11 4 0 0 0 11 -8 A11 4 0 0 0 -11 -8 V8 A11 4 0 0 0 11 8 V-8 M-11 0 A11 4 0 0 0 11 0"/>
+<g class="service-deps-hot-db"><circle class="service-deps-halo" cx="1145" cy="280" r="34"/><circle class="service-deps-hot" cx="1145" cy="280" r="34"/><path class="service-deps-glyph service-deps-hotg" transform="translate(1145 280)" d="M-11 -8 A11 4 0 0 0 11 -8 A11 4 0 0 0 -11 -8 V8 A11 4 0 0 0 11 8 V-8 M-11 0 A11 4 0 0 0 11 0"/></g>
+<text class="service-deps-lbl" x="1145" y="350" text-anchor="middle">Orders DB</text><text class="service-deps-sub" x="1145" y="374" text-anchor="middle">SQL</text>
 </g>
 <g class="service-deps-n-bus">
-<rect class="service-deps-box service-deps-base" x="1410" y="184" width="220" height="84" rx="8"/>
-<text class="service-deps-lbl" x="1520" y="224" text-anchor="middle">Event bus</text><text class="service-deps-sub" x="1520" y="250" text-anchor="middle">pub/sub</text><path class="service-deps-glyph" d="M1432 212 h18 M1432 222 h18 M1432 232 h18"/>
+<circle class="service-deps-ring" cx="1485" cy="200" r="34"/>
+<path class="service-deps-glyph" transform="translate(1485 200)" d="M-13 -7 H13 M-13 0 H13 M-13 7 H13"/>
+<text class="service-deps-lbl" x="1485" y="270" text-anchor="middle">Event bus</text><text class="service-deps-sub" x="1485" y="294" text-anchor="middle">pub/sub</text>
 </g>
 <g class="service-deps-n-psp">
-<rect class="service-deps-box service-deps-ext service-deps-base" x="1410" y="362" width="220" height="84" rx="8"/>
-<rect class="service-deps-downbox service-deps-ext service-deps-down-psp" x="1410" y="362" width="220" height="84" rx="8"/>
-<text class="service-deps-lbl" x="1520" y="402" text-anchor="middle">Payment provider</text><text class="service-deps-sub" x="1520" y="428" text-anchor="middle">third party</text>
+<circle class="service-deps-ring service-deps-ext" cx="1485" cy="400" r="34"/>
+<path class="service-deps-glyph" transform="translate(1485 400)" d="M-12 0 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0 M-12 0 H12 M0 -12 a5 12 0 0 0 0 24 a5 12 0 0 0 0 -24"/>
+<g class="service-deps-down-psp"><circle class="service-deps-downring" cx="1485" cy="400" r="34"/><path class="service-deps-glyph service-deps-downg" transform="translate(1485 400)" d="M-12 0 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0 M-12 0 H12 M0 -12 a5 12 0 0 0 0 24 a5 12 0 0 0 0 -24"/></g>
+<text class="service-deps-lbl" x="1485" y="470" text-anchor="middle">Payment provider</text><text class="service-deps-sub" x="1485" y="494" text-anchor="middle">third party</text>
 </g>
-<g class="service-deps-down-psp service-deps-tag service-deps-tag-rd" transform="translate(1520 338)"><rect x="-44" y="-15" width="88" height="30" rx="6"/><text class="service-deps-tagt" y="6" text-anchor="middle">DOWN</text></g>
-<g class="service-deps-deg-pay service-deps-tag service-deps-tag-wn" transform="translate(840 336)"><rect x="-66" y="-15" width="132" height="30" rx="6"/><text class="service-deps-tagt" y="6" text-anchor="middle">DEGRADED</text></g>
-<circle class="service-deps-pkt service-deps-pk-e1" r="9" style="offset-path:path('M270 310 L382 310')"/>
-<circle class="service-deps-pkt service-deps-pk-e2" r="9" style="offset-path:path('M610 310 C690 310 650 216 722 216')"/>
-<circle class="service-deps-pkt service-deps-pk-e5" r="9" style="offset-path:path('M950 236 C1010 236 1010 300 1062 300')"/>
-<rect class="service-deps-capbg" x="30" y="508" width="1620" height="64" rx="8"/>
-<text class="service-deps-cap service-deps-cap0" x="840" y="548" text-anchor="middle">Requests enter through the API gateway</text>
-<text class="service-deps-cap service-deps-cap1" x="840" y="548" text-anchor="middle">Core services sit behind the gateway</text>
-<text class="service-deps-cap service-deps-cap2" x="840" y="548" text-anchor="middle">Payments calls an external provider</text>
-<text class="service-deps-cap service-deps-cap3" x="840" y="548" text-anchor="middle">Orders and Inventory publish events</text>
-<text class="service-deps-cap service-deps-cap4" x="840" y="548" text-anchor="middle">One request: web app → gateway → Orders → database</text>
-<text class="service-deps-cap service-deps-cap5" x="840" y="548" text-anchor="middle">Provider down: only Payments degrades, orders keep flowing</text>
+<g class="service-deps-ok"><circle class="service-deps-okring" cx="195" cy="300" r="34"/>
+<circle class="service-deps-okring" cx="485" cy="300" r="34"/>
+<circle class="service-deps-okring" cx="815" cy="200" r="34"/>
+<circle class="service-deps-okring" cx="1145" cy="280" r="34"/></g>
+<text class="service-deps-tagt service-deps-tag-rd service-deps-down-psp" x="1485" y="350" text-anchor="middle">DOWN</text>
+<text class="service-deps-tagt service-deps-tag-wn service-deps-deg-pay" x="815" y="350" text-anchor="middle">DEGRADED</text>
+<circle class="service-deps-pkt service-deps-pk-e1" r="8" style="offset-path:path('M235 300 L445 300')"/>
+<circle class="service-deps-pkt service-deps-pk-e2" r="8" style="offset-path:path('M525 300 C650 300 660 200 775 200')"/>
+<circle class="service-deps-pkt service-deps-pk-e5" r="8" style="offset-path:path('M848 223 C930 260 1000 280 1105 280')"/>
+<text class="service-deps-cap service-deps-cap0" x="840" y="570" text-anchor="middle">Requests enter through the API gateway</text>
+<text class="service-deps-cap service-deps-cap1" x="840" y="570" text-anchor="middle">Core services sit behind the gateway</text>
+<text class="service-deps-cap service-deps-cap2" x="840" y="570" text-anchor="middle">Payments calls an external provider</text>
+<text class="service-deps-cap service-deps-cap3" x="840" y="570" text-anchor="middle">Orders and Inventory publish events</text>
+<text class="service-deps-cap service-deps-cap4" x="840" y="570" text-anchor="middle">One request: web app → gateway → Orders → database</text>
+<text class="service-deps-cap service-deps-cap5" x="840" y="570" text-anchor="middle">Provider down: only Payments degrades, orders keep flowing</text>
 </g>
 </svg>
 </div>

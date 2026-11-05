@@ -2,42 +2,48 @@
   Story: one cohort enters at Awareness and thins out stage by stage; each band shows its count
   (one dot = 50 people) and the conversion to the next stage. ILLUSTRATIVE numbers, marked in the
   fragment: 10,000 -> 2,500 (25 %) -> 800 (32 %) -> 200 (25 %) -> 150 (75 %). Band widths taper
-  evenly and are not to scale; the dot counts are. Cycle 13 s, hold 10.6-12.5 s. -->
+  evenly and are not to scale; the dot counts are. Cycle 13 s, hold 10.6-12.5 s.
+  Lean style: thin band outlines, quiet fills, the active band in the accent over a blurred glow
+  copy, plain caption, outlined illustrative tag. -->
 <style>
 .anim-sales-funnel{
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
   display:block;width:100%;height:100%
 }
-.anim-sales-funnel svg{display:block;width:100%;height:100%}
+.anim-sales-funnel svg{display:block;width:100%;height:100%;max-width:none}
 .anim-sales-funnel .sales-funnel-t{font-family:var(--anim-font);fill:var(--anim-fg)}
-.anim-sales-funnel .sales-funnel-title{font-size:26px;font-weight:700}
-.anim-sales-funnel .sales-funnel-lbl{font-size:22px;font-weight:700}
-.anim-sales-funnel .sales-funnel-note{font-size:22px}
-.anim-sales-funnel .sales-funnel-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
-.anim-sales-funnel .sales-funnel-num{font-family:var(--anim-mono);font-size:26px;font-weight:700;fill:var(--anim-fg)}
-.anim-sales-funnel .sales-funnel-pct{font-family:var(--anim-mono);font-size:22px;font-weight:700;fill:var(--anim-accent-2)}
-.anim-sales-funnel .sales-funnel-warn{fill:var(--anim-warn)}
-.anim-sales-funnel .sales-funnel-band{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
-.anim-sales-funnel .sales-funnel-hi{fill:color-mix(in srgb,var(--anim-accent) 10%,var(--anim-panel));stroke:var(--anim-accent);stroke-width:2.5;stroke-linejoin:round;opacity:0}
-.anim-sales-funnel .sales-funnel-hi-ok{fill:color-mix(in srgb,var(--anim-ok) 10%,var(--anim-panel));stroke:var(--anim-ok);opacity:1}
+.anim-sales-funnel .sales-funnel-title{font-size:26px;font-weight:600}
+.anim-sales-funnel .sales-funnel-lbl{font-size:26px;font-weight:600}
+.anim-sales-funnel .sales-funnel-note{font-size:26px;font-weight:400}
+.anim-sales-funnel .sales-funnel-mono{font-family:var(--anim-mono);font-size:18px;font-weight:400;fill:var(--anim-muted)}
+.anim-sales-funnel .sales-funnel-num{font-family:var(--anim-font);font-size:26px;font-weight:600;fill:var(--anim-fg)}
+.anim-sales-funnel .sales-funnel-pct{font-family:var(--anim-mono);font-size:22px;font-weight:600;fill:var(--anim-accent)}
+/* bands: thin outline, flat quiet fill; the active band is outlined in the accent over a blurred glow copy */
+.anim-sales-funnel .sales-funnel-band{fill:color-mix(in srgb,var(--anim-fg) 5%,var(--anim-bg));stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
+.anim-sales-funnel .sales-funnel-hi{opacity:0}
+.anim-sales-funnel .sales-funnel-hi-line{fill:color-mix(in srgb,var(--anim-accent) 7%,var(--anim-bg));stroke:var(--anim-accent);stroke-width:3;stroke-linejoin:round}
+.anim-sales-funnel .sales-funnel-hi-glow{fill:none;stroke:var(--anim-accent);stroke-width:10;stroke-linejoin:round;opacity:.3;filter:blur(7px)}
+.anim-sales-funnel .sales-funnel-hi4{opacity:1}
 .anim-sales-funnel .sales-funnel-keep{fill:var(--anim-accent)}
 .anim-sales-funnel .sales-funnel-keep-ok{fill:var(--anim-ok)}
 .anim-sales-funnel .sales-funnel-drop{fill:var(--anim-muted);opacity:.4}
-.anim-sales-funnel .sales-funnel-arc{fill:none;stroke:var(--anim-accent-2);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-sales-funnel .sales-funnel-cap{fill:var(--anim-panel)}
+/* conversion: a thin bracket from one stage to the next, drawn on */
+.anim-sales-funnel .sales-funnel-arc{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0;opacity:.7}
+.anim-sales-funnel .sales-funnel-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
+.anim-sales-funnel .sales-funnel-tagt{font-family:var(--anim-mono);font-size:18px;font-weight:400;fill:var(--anim-muted)}
 .anim-sales-funnel .sales-funnel-legend{fill:var(--anim-accent)}
-/* resting frame: whole funnel, every count and conversion, last stage marked ok, takeaway shown */
+/* resting frame: whole funnel, every count and conversion, last stage active with retained dots in ok, takeaway shown */
 .anim-sales-funnel .sales-funnel-n0{opacity:0}
 
 /* ---- motion (13 s cycle). Stage i lands at 0.8, 2.8, 4.8, 6.8, 8.8 s; its drop-outs dim 1 s later as the conversion draws. Hold 10.6-12.5 s ---- */
@@ -111,12 +117,13 @@
   <text class="sales-funnel-t sales-funnel-title" x="40" y="46">Sales funnel</text>
   <circle class="sales-funnel-legend" cx="49" cy="70" r="4.5"/>
   <text class="sales-funnel-mono" x="62" y="76">= 50 people</text>
-  <text class="sales-funnel-mono sales-funnel-warn" x="190" y="76">· illustrative numbers</text>
+  <rect class="sales-funnel-tag" x="1424" y="20" width="232" height="36" rx="6"/>
+  <text class="sales-funnel-tagt" x="1540" y="44" text-anchor="middle">illustrative numbers</text>
   <text class="sales-funnel-mono" x="1230" y="76">people</text>
   <text class="sales-funnel-mono" x="1456" y="76">to next stage</text>
   <!-- Awareness: 10,000 = 200 dots -->
   <path class="sales-funnel-band" d="M260.0 96 H1180.0 L1120.0 168 H320.0 Z"/>
-  <path class="sales-funnel-hi sales-funnel-hi0" d="M260.0 96 H1180.0 L1120.0 168 H320.0 Z"/>
+  <g class="sales-funnel-hi sales-funnel-hi0"><path class="sales-funnel-hi-glow" d="M260.0 96 H1180.0 L1120.0 168 H320.0 Z"/><path class="sales-funnel-hi-line" d="M260.0 96 H1180.0 L1120.0 168 H320.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="140">Awareness</text>
   <g class="sales-funnel-dots0">
     <g class="sales-funnel-keep"><circle cx="377.0" cy="112.5" r="4.5"/><circle cx="433.0" cy="112.5" r="4.5"/><circle cx="489.0" cy="112.5" r="4.5"/><circle cx="545.0" cy="112.5" r="4.5"/><circle cx="601.0" cy="112.5" r="4.5"/><circle cx="657.0" cy="112.5" r="4.5"/><circle cx="713.0" cy="112.5" r="4.5"/><circle cx="769.0" cy="112.5" r="4.5"/><circle cx="825.0" cy="112.5" r="4.5"/><circle cx="881.0" cy="112.5" r="4.5"/><circle cx="937.0" cy="112.5" r="4.5"/><circle cx="993.0" cy="112.5" r="4.5"/><circle cx="1049.0" cy="112.5" r="4.5"/><circle cx="405.0" cy="125.5" r="4.5"/><circle cx="461.0" cy="125.5" r="4.5"/><circle cx="517.0" cy="125.5" r="4.5"/><circle cx="573.0" cy="125.5" r="4.5"/><circle cx="629.0" cy="125.5" r="4.5"/><circle cx="685.0" cy="125.5" r="4.5"/><circle cx="741.0" cy="125.5" r="4.5"/><circle cx="797.0" cy="125.5" r="4.5"/><circle cx="853.0" cy="125.5" r="4.5"/><circle cx="909.0" cy="125.5" r="4.5"/><circle cx="965.0" cy="125.5" r="4.5"/><circle cx="1021.0" cy="125.5" r="4.5"/><circle cx="377.0" cy="138.5" r="4.5"/><circle cx="433.0" cy="138.5" r="4.5"/><circle cx="489.0" cy="138.5" r="4.5"/><circle cx="545.0" cy="138.5" r="4.5"/><circle cx="601.0" cy="138.5" r="4.5"/><circle cx="657.0" cy="138.5" r="4.5"/><circle cx="713.0" cy="138.5" r="4.5"/><circle cx="769.0" cy="138.5" r="4.5"/><circle cx="825.0" cy="138.5" r="4.5"/><circle cx="881.0" cy="138.5" r="4.5"/><circle cx="937.0" cy="138.5" r="4.5"/><circle cx="993.0" cy="138.5" r="4.5"/><circle cx="1049.0" cy="138.5" r="4.5"/><circle cx="405.0" cy="151.5" r="4.5"/><circle cx="461.0" cy="151.5" r="4.5"/><circle cx="517.0" cy="151.5" r="4.5"/><circle cx="573.0" cy="151.5" r="4.5"/><circle cx="629.0" cy="151.5" r="4.5"/><circle cx="685.0" cy="151.5" r="4.5"/><circle cx="741.0" cy="151.5" r="4.5"/><circle cx="797.0" cy="151.5" r="4.5"/><circle cx="853.0" cy="151.5" r="4.5"/><circle cx="909.0" cy="151.5" r="4.5"/><circle cx="965.0" cy="151.5" r="4.5"/><circle cx="1021.0" cy="151.5" r="4.5"/></g>
@@ -130,7 +137,7 @@
   <text class="sales-funnel-pct sales-funnel-pc0" x="1456" y="169">25 %</text>
   <!-- Interest: 2,500 = 50 dots -->
   <path class="sales-funnel-band" d="M330.0 180 H1110.0 L1050.0 252 H390.0 Z"/>
-  <path class="sales-funnel-hi sales-funnel-hi1" d="M330.0 180 H1110.0 L1050.0 252 H390.0 Z"/>
+  <g class="sales-funnel-hi sales-funnel-hi1"><path class="sales-funnel-hi-glow" d="M330.0 180 H1110.0 L1050.0 252 H390.0 Z"/><path class="sales-funnel-hi-line" d="M330.0 180 H1110.0 L1050.0 252 H390.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="224">Interest</text>
   <g class="sales-funnel-dots1">
     <g class="sales-funnel-keep"><circle cx="566.0" cy="209.5" r="4.5"/><circle cx="608.0" cy="209.5" r="4.5"/><circle cx="650.0" cy="209.5" r="4.5"/><circle cx="692.0" cy="209.5" r="4.5"/><circle cx="734.0" cy="209.5" r="4.5"/><circle cx="776.0" cy="209.5" r="4.5"/><circle cx="818.0" cy="209.5" r="4.5"/><circle cx="860.0" cy="209.5" r="4.5"/><circle cx="580.0" cy="222.5" r="4.5"/><circle cx="622.0" cy="222.5" r="4.5"/><circle cx="664.0" cy="222.5" r="4.5"/><circle cx="706.0" cy="222.5" r="4.5"/><circle cx="748.0" cy="222.5" r="4.5"/><circle cx="790.0" cy="222.5" r="4.5"/><circle cx="832.0" cy="222.5" r="4.5"/><circle cx="874.0" cy="222.5" r="4.5"/></g>
@@ -144,7 +151,7 @@
   <text class="sales-funnel-pct sales-funnel-pc1" x="1456" y="253">32 %</text>
   <!-- Consideration: 800 = 16 dots -->
   <path class="sales-funnel-band" d="M400.0 264 H1040.0 L980.0 336 H460.0 Z"/>
-  <path class="sales-funnel-hi sales-funnel-hi2" d="M400.0 264 H1040.0 L980.0 336 H460.0 Z"/>
+  <g class="sales-funnel-hi sales-funnel-hi2"><path class="sales-funnel-hi-glow" d="M400.0 264 H1040.0 L980.0 336 H460.0 Z"/><path class="sales-funnel-hi-line" d="M400.0 264 H1040.0 L980.0 336 H460.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="308">Consideration</text>
   <g class="sales-funnel-dots2">
     <g class="sales-funnel-keep"><circle cx="685.0" cy="293.5" r="4.5"/><circle cx="741.0" cy="293.5" r="4.5"/><circle cx="713.0" cy="306.5" r="4.5"/><circle cx="769.0" cy="306.5" r="4.5"/></g>
@@ -158,7 +165,7 @@
   <text class="sales-funnel-pct sales-funnel-pc2" x="1456" y="337">25 %</text>
   <!-- Purchase: 200 = 4 dots -->
   <path class="sales-funnel-band" d="M470.0 348 H970.0 L910.0 420 H530.0 Z"/>
-  <path class="sales-funnel-hi sales-funnel-hi3" d="M470.0 348 H970.0 L910.0 420 H530.0 Z"/>
+  <g class="sales-funnel-hi sales-funnel-hi3"><path class="sales-funnel-hi-glow" d="M470.0 348 H970.0 L910.0 420 H530.0 Z"/><path class="sales-funnel-hi-line" d="M470.0 348 H970.0 L910.0 420 H530.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="392">Purchase</text>
   <g class="sales-funnel-dots3">
     <g class="sales-funnel-keep"><circle cx="699.0" cy="384.0" r="4.5"/><circle cx="727.0" cy="384.0" r="4.5"/><circle cx="741.0" cy="384.0" r="4.5"/></g>
@@ -172,7 +179,7 @@
   <text class="sales-funnel-pct sales-funnel-pc3" x="1456" y="421">75 %</text>
   <!-- Retention: 150 = 3 dots -->
   <path class="sales-funnel-band" d="M540.0 432 H900.0 L840.0 504 H600.0 Z"/>
-  <path class="sales-funnel-hi sales-funnel-hi4 sales-funnel-hi-ok" d="M540.0 432 H900.0 L840.0 504 H600.0 Z"/>
+  <g class="sales-funnel-hi sales-funnel-hi4"><path class="sales-funnel-hi-glow" d="M540.0 432 H900.0 L840.0 504 H600.0 Z"/><path class="sales-funnel-hi-line" d="M540.0 432 H900.0 L840.0 504 H600.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="476">Retention</text>
   <g class="sales-funnel-dots4">
     <g class="sales-funnel-keep-ok sales-funnel-keep4"><circle cx="706.0" cy="468.0" r="4.5"/><circle cx="720.0" cy="468.0" r="4.5"/><circle cx="734.0" cy="468.0" r="4.5"/></g>
@@ -181,7 +188,6 @@
     <text class="sales-funnel-num" x="1230" y="466">150</text>
     <text class="sales-funnel-mono" x="1230" y="492">1.5 % of cohort</text>
   </g>
-  <rect class="sales-funnel-cap" x="24" y="528" width="1632" height="56" rx="8"/>
   <text class="sales-funnel-t sales-funnel-note sales-funnel-n0" x="840" y="564" text-anchor="middle">One cohort of 10,000 people, followed stage by stage</text>
   <text class="sales-funnel-t sales-funnel-note sales-funnel-n1" x="840" y="564" text-anchor="middle">2 % of the cohort buys; 75 % of buyers are retained</text>
 </g>
