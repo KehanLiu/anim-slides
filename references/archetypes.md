@@ -22,6 +22,10 @@ A roadmap with dependencies between items is `timeline` plus notes, not `graph`.
 
 ## Shared frame
 
+The drawing follows `style.md`: nodes are rings (r 34 at 1920) with the text outside (label
+24 px 600, sub 18 px mono muted), groups are hairline brackets with a mono label, the caption is
+plain centred text with no strip, and the active element carries the accent with a soft glow.
+
 All coordinates are viewBox units for the archetype's default `size`.
 
 - Padding 24 on every side.

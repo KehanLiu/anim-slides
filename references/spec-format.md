@@ -59,6 +59,7 @@ events:                        # chart archetype only
 | `control` | no | `loop` | `loop` = CSS keyframes; `step` = paused GSAP timeline, one label per phase. |
 | `cycle` | loop: no | `12` | Seconds, 8 to 15 inclusive (contract section 6). Ignored in `step`. |
 | `domain` | no | none | Metadata only (e.g. `biology`, `finance`), used by `pool/index.yaml`; no effect on layout. |
+| `illustrative` | no | `false` | `true` draws the standard outlined "illustrative" tag at the top right; use it whenever the values are examples. |
 | `lanes` | no | `false` | Graph only. `true` draws `groups` as full-width horizontal swimlanes (lane name in a left column) with nodes placed by rank inside their lane; ungrouped nodes go in an unlabelled last lane. Ignored with a warning when there are no groups. |
 | `nodes` | yes* | - | 1 to 20 entries; warn above 12. *`chart` may have none; chart nodes are ignored by the scaffold with a warning. |
 | `edges` | no | `[]` | See edges. |
@@ -408,7 +409,8 @@ phases:
   - {t: 10, label: hold, active: [incident-log]}
 ```
 
-Layout notes the scaffolder applies on its own:
+Layout notes the scaffolder applies on its own (all in the lean style of `style.md`: rings with
+the text outside, hairline brackets for groups, plain captions, one accent with glow):
 - **pipeline** wraps into a two-row snake (wrap wire round the right end) when one row would
   make the boxes narrower than their labels; otherwise it warns with a suggested width.
 - **compare** spreads rows over the full height and stacks `sub` under the label when a row is long.

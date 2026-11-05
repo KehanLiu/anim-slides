@@ -38,7 +38,7 @@ NODE_KINDS = ('process', 'data', 'actor', 'decision', 'external', 'store', 'mile
 EDGE_KINDS = ('flow', 'depends', 'data', 'event')
 KEYS = {
     'top': {'name', 'archetype', 'title', 'size', 'control', 'cycle', 'nodes', 'edges', 'groups', 'lanes',
-            'domain',
+            'domain', 'illustrative',
             'phases', 'series', 'events'},
     'node': {'id', 'label', 'sub', 'kind', 'group', 'at', 'side', 'layer'},
     'edge': {'from', 'to', 'label', 'kind'},
@@ -354,6 +354,8 @@ def validate(sp, args):
     hint(S.title, 48, 'title')
 
     need(sp.get('domain') is None or isinstance(sp.get('domain'), str), 'domain must be a string')  # pool metadata only
+    S.illustrative = sp.get('illustrative', False)
+    need(S.illustrative in (True, False), 'illustrative must be true or false')
     S.lanes = sp.get('lanes', False)
     need(S.lanes in (True, False), 'lanes must be true or false')
     if S.lanes and S.arch != 'graph':
@@ -619,11 +621,11 @@ def text_w(s, fs, mono=False):
     return len(s) * fs * (0.6 if mono else 0.56)
 
 
-def wrap(text, fs, maxw, maxlines=2):
+def wrap(text, fs, maxw, maxlines=2, mono=False):
     lines, cur = [], ''
     for word in text.split():
         cand = f'{cur} {word}'.strip()
-        if cur and text_w(cand, fs) > maxw:
+        if cur and text_w(cand, fs, mono) > maxw:
             lines.append(cur)
             cur = word
         else:
@@ -669,15 +671,16 @@ def bez_mid(c):
     return tuple((c[0][k] + 3 * c[1][k] + 3 * c[2][k] + c[3][k]) / 8 for k in (0, 1))
 
 
-def arrow_d(c, size=12):
+def arrow_d(c, size=11):
+    """Small open chevron at the end of a wire."""
     c = segs(c)[-1]
     tip, back = c[3], c[2] if c[2] != c[3] else c[0]
     dx, dy = tip[0] - back[0], tip[1] - back[1]
     ln = math.hypot(dx, dy) or 1
     ux, uy = dx / ln, dy / ln
     bx, by = tip[0] - ux * size, tip[1] - uy * size
-    return (f'M {pt(tip)} L {pt((bx - uy * size * 0.5, by + ux * size * 0.5))} '
-            f'L {pt((bx + uy * size * 0.5, by - ux * size * 0.5))} Z')
+    return (f'M {pt((bx - uy * size * 0.6, by + ux * size * 0.6))} L {pt(tip)} '
+            f'L {pt((bx + uy * size * 0.6, by - ux * size * 0.6))}')
 
 
 def centre(b):
@@ -712,103 +715,218 @@ def over_arc(a, b, depth=64):
 
 
 # ============================================================================ layouts
-# Every layout returns a scene: nodes {id: box}, edges {edge id: cubic}, containers (panels,
-# bands) and `back` markup drawn behind everything. Boxes are dicts x, y, w, h (+ extras).
+# Every layout returns a scene: nodes {id: mark}, edges {edge id: cubic}, containers (columns,
+# bands, lanes) and `back` markup drawn behind everything. A mark is the node's drawn shape (ring,
+# diamond, dot or text row) as a box x, y, w, h with its centre cx, cy and radius r; wires attach
+# to that box. Its text sits outside the shape: `lab` says where, `lbox` is the text's box and
+# `foot` the union of both (what must stay clear of other nodes and inside the viewBox).
+LABEL_GAP = 14      # ring edge to the first text line
+WIRE_GAP = 6        # ring edge to the end of a wire
+
 
 def frame(S, F):
     top = max(64, F['title'] + 38) if S.title else 24
+    if S.illustrative and not S.title:
+        top = max(top, 24 + F['mono'] + 16 + 18)     # the illustrative tag gets the top-right corner
     strip = max(56, F['note'] + 26)
     has_note = any(p['note'] for p in S.phases)
     bottom = S.H - strip - 16 if has_note else S.H - 24
     return top, bottom, strip, has_note
 
 
-def min_box_w(S, F, subs=True):
-    """Narrowest box in which every label wraps to at most two lines and (subs) every sub fits."""
-    need = 150 if subs else 120
-    for nd in S.nodes:
-        pad = 64 if nd['kind'] in ('actor', 'decision', 'milestone') else 28
-        words = max((text_w(x, F['lbl']) for x in nd['label'].split()), default=0)
-        need = max(need, words + pad, text_w(nd['label'], F['lbl']) * 0.55 + pad,
-                   text_w(nd['sub'], F['sub']) + 28 if nd['sub'] and subs else 0)
+def label_lines(n, F, maxw, maxl=2):
+    """A node's text as (text, role) lines: the label wrapped to maxl lines, the sub (mono) to 2."""
+    out = [(t, 'lbl') for t in wrap(n['label'], F['lbl'], maxw, maxl)]
+    if n['sub']:
+        out += [(t, 'sub') for t in wrap(n['sub'], F['sub'], maxw, 2, True)]
+    return out
+
+
+def line_w(t, role, F):
+    return text_w(t, F[role], role in ('sub', 'mono', 'edge'))
+
+
+def block_w(lines, F):
+    return max((line_w(t, r, F) for t, r in lines), default=0)
+
+
+def need_w(S, F, subs=True):
+    """Narrowest text column in which every label wraps to at most two lines (and every sub)."""
+    need = 60
+    for n in S.nodes:
+        need = max(need, max((text_w(x, F['lbl']) for x in n['label'].split()), default=0),
+                   text_w(n['label'], F['lbl']) * 0.55)
+        if n['sub'] and subs:
+            need = max(need, max((text_w(x, F['sub'], True) for x in n['sub'].split()), default=0),
+                       text_w(n['sub'], F['sub'], True) * 0.55)
     return need
 
 
+def mark(F, n, cx, cy, shape=None):
+    """The drawn shape of a node: a ring (r 32-44 at a 1920 stage), a thin diamond for decisions."""
+    shape = shape or ('diamond' if n['kind'] == 'decision' else 'ring')
+    r = F['ring'] * (1.3 if shape == 'diamond' else 1) if shape != 'dot' else F['dot']
+    return dict(x=cx - r, y=cy - r, w=2 * r, h=2 * r, cx=cx, cy=cy, r=r, shape=shape)
+
+
+def union(a, b):
+    x0, y0 = min(a['x'], b['x']), min(a['y'], b['y'])
+    return dict(x=x0, y=y0, w=max(a['x'] + a['w'], b['x'] + b['w']) - x0,
+                h=max(a['y'] + a['h'], b['y'] + b['h']) - y0)
+
+
+def put_label(b, lines, side, F, gap=LABEL_GAP):
+    """Place a node's text block outside its mark: below, above, left or right."""
+    th, bw = text_h(lines, F), block_w(lines, F)
+    if side == 'below':
+        x, y, anchor, bx = b['cx'], b['y'] + b['h'] + gap, 'middle', b['cx'] - bw / 2
+    elif side == 'above':
+        x, y, anchor, bx = b['cx'], b['y'] - gap - th, 'middle', b['cx'] - bw / 2
+    elif side == 'right':
+        x, y, anchor, bx = b['x'] + b['w'] + gap, b['cy'] - th / 2, 'start', b['x'] + b['w'] + gap
+    else:
+        x, y, anchor, bx = b['x'] - gap, b['cy'] - th / 2, 'end', b['x'] - gap - bw
+    b['lab'] = dict(lines=lines, x=x, y=y, anchor=anchor, side=side)
+    b['lbox'] = dict(x=bx, y=y, w=bw, h=th)
+    b['foot'] = union(b, b['lbox'])
+    return b
+
+
+def foot(b):
+    return b.get('foot', b)
+
+
+def ring_port(b, side, dy):
+    """x where a wire leaving at height cy + dy meets the side (+1 right, -1 left) of a mark."""
+    if b.get('shape') == 'diamond':
+        return b['cx'] + side * (b['r'] - abs(dy)) + side * WIRE_GAP
+    if b.get('shape') in ('ring', 'dot'):
+        return b['cx'] + side * (math.sqrt(max(0.0, b['r'] ** 2 - dy * dy)) + WIRE_GAP)
+    return b['x'] + (b['w'] if side > 0 else 0)
+
+
+def quarter(p, q, horizontal_first):
+    """A rounded corner from p to q as one cubic."""
+    k = 0.5523
+    if horizontal_first:
+        return cubic(p, (p[0] + (q[0] - p[0]) * k, p[1]), (q[0], q[1] - (q[1] - p[1]) * k), q)
+    return cubic(p, (p[0], p[1] + (q[1] - p[1]) * k), (q[0] - (q[0] - p[0]) * k, q[1]), q)
+
+
+def top_arc(a, b, depth):
+    """Arc from the top of mark a to the top of mark b, bowing up by about 0.75 * depth."""
+    p0, p3 = (a['cx'], a['y'] - WIRE_GAP), (b['cx'], b['y'] - WIRE_GAP)
+    yc = min(p0[1], p3[1]) - depth
+    return cubic(p0, (p0[0], yc), (p3[0], yc), p3)
+
+
+def bottom_arc(a, b, depth):
+    p0, p3 = (a['cx'], a['y'] + a['h'] + WIRE_GAP), (b['cx'], b['y'] + b['h'] + WIRE_GAP)
+    yc = max(p0[1], p3[1]) + depth
+    return cubic(p0, (p0[0], yc), (p3[0], yc), p3)
+
+
+def ring_route(a, b):
+    """Cubic between the facing sides of two marks."""
+    (ax, ay), (bx, by) = (a['cx'], a['cy']), (b['cx'], b['cy'])
+    if abs(bx - ax) >= abs(by - ay):
+        s = 1 if bx > ax else -1
+        p0, p3 = (ring_port(a, s, 0), ay), (ring_port(b, -s, 0), by)
+        kk = max(40, min(120, abs(p3[0] - p0[0]) / 2))
+        return cubic(p0, (p0[0] + s * kk, p0[1]), (p3[0] - s * kk, p3[1]), p3)
+    s = 1 if by > ay else -1
+    p0, p3 = (ax, ay + s * (a['h'] / 2 + WIRE_GAP)), (bx, by - s * (b['h'] / 2 + WIRE_GAP))
+    kk = max(30, min(100, abs(p3[1] - p0[1]) / 2))
+    return cubic(p0, (p0[0], p0[1] + s * kk), (p3[0], p3[1] - s * kk), p3)
+
+
 def layout_pipeline(S, F, top, bottom):
+    """Rings on one thin line, labels below; skip and back edges arc over the top."""
     n, W = len(S.nodes), S.W
-    w, h = (240, 120) if n < 7 else (200, 110)
-    gap = (W - 80 - n * w) / (n - 1) if n > 1 else 0
-    if n > 1 and gap < 60:
-        gap = 60
-        w = (W - 80 - (n - 1) * gap) / n
-    need = min_box_w(S, F)
-    w2 = min(260, (W - 192 - (math.ceil(n / 2) - 1) * 56) / math.ceil(n / 2))
-    if n >= 4 and w < need and w2 > w * 1.15:      # wrap only when two rows really give wider boxes
+    pitch = min(380, (W - 80) / n)
+    need = max(need_w(S, F), max(text_w(nd['sub'], F['sub'], True) for nd in S.nodes if nd['sub'])
+               if any(nd['sub'] for nd in S.nodes) else 0)
+    m = math.ceil(n / 2)
+    pitch2 = min(380, (W - 80 - 140) / m)
+    if n >= 4 and need > pitch - 28 and pitch2 > pitch * 1.15:   # wrap only when two rows really give room
         return layout_pipeline_snake(S, F, top, bottom, need)
+    if need > pitch - 28:
+        warn(f'pipeline: labels need a {need:.0f} px column, one row gives {pitch - 28:.0f}; widen --viewbox '
+             f'(about {math.ceil(n * (need + 28) + 80)} wide) or shorten labels')
     idx = {nd['id']: i for i, nd in enumerate(S.nodes)}
-    back = any(idx[e['to']] < idx[e['from']] for e in S.edges)
-    cy = (top + bottom) / 2 - (24 if back else 0)
-    x0 = (W - (n * w + (n - 1) * gap)) / 2
-    nodes = {nd['id']: dict(x=x0 + i * (w + gap), y=cy - h / 2, w=w, h=h) for i, nd in enumerate(S.nodes)}
+    arcs = [e for e in S.edges if idx[e['to']] != idx[e['from']] + 1]
+    labs = {nd['id']: label_lines(nd, F, pitch - 28) for nd in S.nodes}
+    th = max(text_h(v, F) for v in labs.values())
+    hr = max(mark(F, nd, 0, 0)['r'] for nd in S.nodes)
+    up = (max(56, 40 + 16 * (len(arcs) - 1)) + (F['edge'] + 8 if any(e['label'] for e in arcs) else 0)) if arcs else 0
+    fig = up + 2 * hr + LABEL_GAP + th
+    cy = top + max(0, (bottom - top - fig) / 2) + up + hr
+    x0 = W / 2 - (n - 1) * pitch / 2
+    nodes = {nd['id']: put_label(mark(F, nd, x0 + i * pitch, cy), labs[nd['id']], 'below', F)
+             for i, nd in enumerate(S.nodes)}
     edges = {}
-    for e in S.edges:
+    depth = 40
+    for e in sorted(S.edges, key=lambda e: abs(idx[e['to']] - idx[e['from']])):
         a, b = nodes[e['from']], nodes[e['to']]
-        i, j = idx[e['from']], idx[e['to']]
-        if j == i + 1:
-            edges[e['id']] = straight((a['x'] + w, cy), (b['x'], cy))
-        elif j > i:
-            edges[e['id']] = over_arc(a, b)
+        if e not in arcs:
+            edges[e['id']] = straight((ring_port(a, 1, 0), cy), (ring_port(b, -1, 0), cy))
         else:
-            edges[e['id']] = under_arc(a, b)
+            edges[e['id']] = top_arc(a, b, depth / 0.75)
+            depth += 16
     return dict(nodes=nodes, edges=edges)
 
 
 def layout_pipeline_snake(S, F, top, bottom, need):
     """Two rows: the first left to right, the second right to left under it, joined by a wrap
-    wire that bends round the right end. Used when one row would need boxes under `need`."""
+    wire that bends round the right end (and a return wire round the left end, if any)."""
     n, W = len(S.nodes), S.W
     m = math.ceil(n / 2)
-    side, gap = 96, 56                      # side margin leaves room for the wrap bend
-    w = min(260, (W - 2 * side - (m - 1) * gap) / m)
-    if w < need:
-        warn(f'pipeline: {n} nodes need boxes {need:.0f} wide but two rows only give {w:.0f}; '
-             f'widen --viewbox (about {math.ceil(m * need + (m - 1) * gap + 2 * side)} wide) or split the spec')
-    gap = (W - 2 * side - m * w) / (m - 1) if m > 1 else 0
-    gap = min(gap, max(56, w * 0.6))
-    x0 = (W - (m * w + (m - 1) * gap)) / 2
     idx = {nd['id']: i for i, nd in enumerate(S.nodes)}
-    arcs = [e for e in S.edges if not (idx[e['to']] == idx[e['from']] + 1 or
-            col_of(idx[e['to']], m) == col_of(idx[e['from']], m))]
-    avail = bottom - top - (56 if arcs else 0)
-    h = max(72, min(120, (avail - 64) / 2))
-    rgap = min(120, max(64, avail - 2 * h))
-    y0 = top + (bottom - top - (2 * h + rgap)) / 2
+    back_l = [e for e in S.edges if col_of(idx[e['from']], m) == col_of(idx[e['to']], m) == 0
+              and idx[e['from']] // m != idx[e['to']] // m]
+    res_r, res_l = 64, 64 if back_l else 0
+    pitch = min(380, (W - 80 - res_r - res_l) / m)
+    if need > pitch - 28:
+        warn(f'pipeline: {n} nodes need a {need:.0f} px text column but two rows only give {pitch - 28:.0f}; '
+             f'widen --viewbox (about {math.ceil(m * (need + 28) + 80 + res_r + res_l)} wide) or split the spec')
+    labs = {nd['id']: label_lines(nd, F, pitch - 28) for nd in S.nodes}
+    th = max(text_h(v, F) for v in labs.values())
+    hr = max(mark(F, nd, 0, 0)['r'] for nd in S.nodes)
+    arcs = [e for e in S.edges if e not in back_l and not (idx[e['to']] == idx[e['from']] + 1)]
+    up = 40 if arcs else 0
+    rgap = 2 * hr + LABEL_GAP + th + 48
+    fig = up + rgap + 2 * hr + LABEL_GAP + th
+    y0 = top + max(0, (bottom - top - fig) / 2) + up + hr
+    left = (W - m * pitch - res_r - res_l) / 2 + res_l
+    xs = [left + pitch / 2 + c * pitch for c in range(m)]
     nodes = {}
     for i, nd in enumerate(S.nodes):
         r, c = divmod(i, m)
         c = c if r == 0 else m - 1 - c
-        nodes[nd['id']] = dict(x=x0 + c * (w + gap), y=y0 + r * (h + rgap), w=w, h=h, col=c, lane=r)
+        b = mark(F, nd, xs[c], y0 + r * rgap)
+        b.update(col=c, lane=r)
+        nodes[nd['id']] = put_label(b, labs[nd['id']], 'below', F)
+    xr, xl, rad = xs[-1] + pitch / 2 + 20, xs[0] - pitch / 2 - 20, 32
     edges = {}
     for e in S.edges:
         a, b = nodes[e['from']], nodes[e['to']]
-        (ax, ay), (bx, by) = centre(a), centre(b)
+        ay, by = a['cy'], b['cy']
         if a['lane'] == b['lane'] and abs(a['col'] - b['col']) == 1:
-            s = 1 if bx > ax else -1
-            edges[e['id']] = straight((ax + s * w / 2, ay), (bx - s * w / 2, by))
-        elif a['lane'] != b['lane'] and a['col'] == b['col'] and a['col'] == m - 1 and idx[e['to']] == idx[e['from']] + 1:
-            p0, p3 = (a['x'] + w, ay), (b['x'] + w, by)     # the wrap wire: out right, round, back in
-            k = min(side - 16, 72)
-            edges[e['id']] = cubic(p0, (p0[0] + k, p0[1]), (p3[0] + k, p3[1]), p3)
-        elif a['col'] == b['col']:
-            s = 1 if by > ay else -1
-            dx = 0 if a['col'] != m - 1 else -w / 4      # keep clear of the wrap bend
-            edges[e['id']] = straight((ax + dx, ay + s * h / 2), (bx + dx, by - s * h / 2))
-        elif a['lane'] == b['lane'] == 0:
-            edges[e['id']] = over_arc(a, b, 40)
-        elif a['lane'] == b['lane'] == 1:
-            edges[e['id']] = under_arc(a, b, 40)
+            s = 1 if b['cx'] > a['cx'] else -1
+            edges[e['id']] = straight((ring_port(a, s, 0), ay), (ring_port(b, -s, 0), by))
+        elif a['lane'] != b['lane'] and a['col'] == b['col'] in (0, m - 1) and (a['col'] == m - 1 or e in back_l):
+            s = 1 if a['col'] == m - 1 and e not in back_l else -1     # round the right (or left) end
+            x = xr if s > 0 else xl
+            dy = 1 if by > ay else -1
+            p0, p3 = (ring_port(a, s, 0), ay), (ring_port(b, s, 0), by)
+            c1, c2 = (x - s * rad, ay), (x - s * rad, by)
+            edges[e['id']] = [straight(p0, c1), quarter(c1, (x, ay + dy * rad), True),
+                              straight((x, ay + dy * rad), (x, by - dy * rad)),
+                              quarter((x, by - dy * rad), c2, False), straight(c2, p3)]
+        elif a['lane'] == b['lane']:
+            edges[e['id']] = top_arc(a, b, 40)
         else:
-            edges[e['id']] = route(a, b)
+            edges[e['id']] = ring_route(a, b)
     return dict(nodes=nodes, edges=edges)
 
 
@@ -849,10 +967,10 @@ def ranks(S, backs=None, pull=False):
     return rank
 
 
-# graph squeeze levels, loosest first: spacing and box sizes shrink, fonts never do
-GRAPH_FIT = (dict(margin=40, gap=60, vgap=36, gpad=20, ghead=52, clear=22, nh=84, nw=220),
-             dict(margin=32, gap=44, vgap=26, gpad=16, ghead=46, clear=18, nh=80, nw=200),
-             dict(margin=24, gap=32, vgap=18, gpad=12, ghead=40, clear=14, nh=76, nw=180))
+# graph squeeze levels, loosest first: spacing and text columns shrink, fonts never do
+GRAPH_FIT = (dict(margin=40, gap=60, vgap=30, gpad=20, ghead=44, clear=22, nw=240),
+             dict(margin=32, gap=44, vgap=22, gpad=16, ghead=40, clear=18, nw=210),
+             dict(margin=24, gap=32, vgap=14, gpad=12, ghead=36, clear=14, nw=180))
 
 
 def layer_crossings(layers, ladj):
@@ -866,31 +984,20 @@ def layer_crossings(layers, ladj):
     return total
 
 
-def node_text_h(n, F, w):
-    """Height of a node's label (wrapped as emit wraps it) plus its sub."""
-    maxw = w - (64 if n['kind'] in ('actor', 'decision', 'milestone', 'store', 'data') else 24)
-    lines = [(t, 'lbl') for t in wrap(n['label'], F['lbl'], maxw)] + ([(n['sub'], 'sub')] if n['sub'] else [])
-    return text_h(lines, F)
-
-
-def diamond_fit(n, F, w0, h0, maxw, maxh):
-    for k in (1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9):
-        w, h = min(w0 * k, maxw), min(h0 * k, maxh)
-        if w < w0 or h < h0:
-            break
-        if diamond_lines(n, F, w, h):
-            return w, h
-    return None
-
-
-def layout_graph(S, F, top, bottom, level=0):
+def layout_graph(S, F, top, bottom, level=0, mode='below'):
     """Layered left to right (Sugiyama): ranks by longest path, edges that skip ranks get a
     waypoint in every column they pass, columns ordered by barycenter sweeps (spec order breaks
     ties, group members kept together), rows placed by a constrained relaxation that keeps nodes
-    out of foreign group boxes. Back edges: a reverse pair runs as a twin wire, longer ones arc
-    below (or above) everything they span."""
+    out of foreign group brackets. Each node is a ring with its text below, so a node reaches r
+    above its centre and r + text below. Back edges: a reverse pair runs as a twin wire, longer
+    ones arc below (or above) everything they span. mode 'side' (the fallback when the text
+    below does not fit the height) puts the text right of the ring and wires leave past it."""
+    side = mode == 'side'
     if S.lanes:
         return layout_lanes(S, F, top, bottom)
+    lg = LABEL_GAP
+    if mode == 'small':                               # last resort before giving up: smaller rings
+        F, lg = dict(F, ring=round(F['ring'] * 0.72)), 10
     P = GRAPH_FIT[level]
     backs = set()
     rank = ranks(S, backs, pull=True)
@@ -963,21 +1070,24 @@ def layout_graph(S, F, top, bottom, level=0):
             break
     layers = best
 
-    # ---- sizes and columns (x)
-    need_w = min_box_w(S, F, subs=False)              # floor: labels wrap to two lines; a long sub only warns
-    nw = max(need_w, min(P['nw'], (S.W - 2 * P['margin'] - P['gap'] * (R - 1)) / R))
-    nh = max(P['nh'], max(node_text_h(n, F, nw) for n in S.nodes) + (14 if level == 0 else 10))
-    size = {}
-    for n in S.nodes:
-        size[n['id']] = (nw, nh, False)
-        if n['kind'] == 'decision':
-            d = diamond_fit(n, F, nw, nh, nw * 1.7, min(nh * 1.9, (bottom - top) * 0.6))
-            if d:
-                size[n['id']] = (d[0], d[1], True)
-    cw = [max(size[i][0] for i in L if not isinstance(i, tuple)) for L in layers]
+    # ---- text columns and footprints (x)
+    tw_need = need_w(S, F, subs=False)                # floor: labels wrap to two lines; a long sub only warns
     avail = S.W - 2 * P['margin']
+    nw = max(tw_need, min(P['nw'], (avail - P['gap'] * (R - 1)) / R))
+    proto = {n['id']: mark(F, n, 0, 0) for n in S.nodes}
+    if side:
+        hr = max(b['r'] for b in proto.values())
+        nw = max(tw_need, min(P['nw'], (avail - P['gap'] * (R - 1)) / R - 2 * hr - lg))
+    labs = {n['id']: label_lines(n, F, nw) for n in S.nodes}
+    if side:
+        size = {i: (proto[i]['w'] + lg + block_w(labs[i], F), max(proto[i]['r'], text_h(labs[i], F) / 2),
+                    max(proto[i]['r'], text_h(labs[i], F) / 2)) for i in proto}
+    else:
+        size = {i: (max(proto[i]['w'], block_w(labs[i], F)), proto[i]['r'],
+                    proto[i]['r'] + lg + text_h(labs[i], F)) for i in proto}
+    cw = [max([size[i][0] for i in L if not isinstance(i, tuple)] or [0]) for L in layers]
     gap = (avail - sum(cw)) / (R - 1) if R > 1 else 0
-    gap = max(P['gap'], min(gap, 2 * nw))
+    gap = max(P['gap'], min(gap, 2.2 * nw))
     total = sum(cw) + gap * (R - 1)
     xl, x = [], (S.W - total) / 2
     for r in range(R):
@@ -985,7 +1095,7 @@ def layout_graph(S, F, top, bottom, level=0):
         x += cw[r] + gap
     cx = [xl[r] + cw[r] / 2 for r in range(R)]
 
-    # ---- group headers (label may wrap once the box width is known)
+    # ---- group headers (label may wrap once the bracket width is known)
     head = {}
     for g in S.groups:
         ms = [n['id'] for n in S.nodes if n.get('group') == g['id']]
@@ -994,11 +1104,12 @@ def layout_graph(S, F, top, bottom, level=0):
         x0 = min(cx[rank[i]] - size[i][0] / 2 for i in ms) - P['gpad']
         x1 = max(cx[rank[i]] + size[i][0] / 2 for i in ms) + P['gpad']
         nl = len(group_label_lines(g, F, x1 - x0))
-        head[g['id']] = max(P['ghead'], 18 + F['sub'] * 1.3 + 10) + (nl - 1) * F['sub'] * 1.25
+        head[g['id']] = max(P['ghead'], 14 + F['sub'] * 1.3 + 10) + (nl - 1) * F['sub'] * 1.25
 
-    # ---- rows (y)
-    lo, hi = top, bottom - (40 if arcs else 0)
-    hh = {it: (size[it][1] / 2 if not isinstance(it, tuple) else 0) for L in layers for it in L}
+    # ---- rows (y): ht = extent above the centre, hb = below it (ring + text)
+    lo, hi = top + (40 if arcs else 0), bottom
+    ht = {it: (size[it][1] if not isinstance(it, tuple) else 0) for L in layers for it in L}
+    hb = {it: (size[it][2] if not isinstance(it, tuple) else 0) for L in layers for it in L}
 
     def gap_of(a, b):
         da, db = isinstance(a, tuple), isinstance(b, tuple)
@@ -1006,7 +1117,7 @@ def layout_graph(S, F, top, bottom, level=0):
         ga, gb = grp[a], grp[b]
         if ga != gb:
             base = max(base, (P['gpad'] if ga else 0) + (head[gb] if gb else 0) + (12 if not (da or db) else 8))
-        return hh[a] + hh[b] + base
+        return hb[a] + ht[b] + base
 
     y = {}
     for L in layers:                                  # start: each column stacked round the middle
@@ -1016,11 +1127,11 @@ def layout_graph(S, F, top, bottom, level=0):
             y[it] = yy
             yy += gaps[k] if k < len(gaps) else 0
     col = {it: r for r, L in enumerate(layers) for it in L}
-    lb = {it: lo + hh[it] + (head[grp[it]] if grp[it] else 0) for it in y}
-    ub = {it: hi - hh[it] - (P['gpad'] if grp[it] else 0) for it in y}
+    lb = {it: lo + ht[it] + (head[grp[it]] if grp[it] else 0) for it in y}
+    ub = {it: hi - hb[it] - (P['gpad'] if grp[it] else 0) for it in y}
     members = {g: [it for it in y if grp[it] == g] for g in head}
     gix = {g['id']: k for k, g in enumerate(S.groups)}
-    gx = {}                                           # group box x range (fixed by the columns)
+    gx = {}                                           # group bracket x range (fixed by the columns)
     for g in head:
         ns = [i for i in members[g] if not isinstance(i, tuple)]
         gx[g] = (min(cx[rank[i]] - size[i][0] / 2 for i in ns) - P['gpad'],
@@ -1034,7 +1145,7 @@ def layout_graph(S, F, top, bottom, level=0):
         return cx[r] - size[it][0] / 2, cx[r] + size[it][0] / 2
 
     def sides():
-        """(item, group, above): every foreign item whose column crosses a group box."""
+        """(item, group, above): every foreign item whose column crosses a group's span."""
         out = []
         for r, L in enumerate(layers):
             for k, it in enumerate(L):
@@ -1047,7 +1158,7 @@ def layout_graph(S, F, top, bottom, level=0):
                         above = k < here[0]
                     else:
                         ms = members[g]
-                        c = (min(y[m] - hh[m] for m in ms) + max(y[m] + hh[m] for m in ms)) / 2
+                        c = (min(y[m] - ht[m] for m in ms) + max(y[m] + hb[m] for m in ms)) / 2
                         above = y[it] < c - 1 if abs(y[it] - c) > 1 else \
                             (grp[it] is not None and gix[grp[it]] < gix[g])
                     out.append((it, g, above))
@@ -1059,9 +1170,9 @@ def layout_graph(S, F, top, bottom, level=0):
             o, cl = grp[it], 10 if isinstance(it, tuple) else 12
             for m in members[g]:
                 if above:
-                    out.append((it, m, hh[it] + cl + (P['gpad'] if o else 0) + head[g] + hh[m]))
+                    out.append((it, m, hb[it] + cl + (P['gpad'] if o else 0) + head[g] + ht[m]))
                 else:
-                    out.append((m, it, hh[m] + P['gpad'] + cl + (head[o] if o else 0) + hh[it]))
+                    out.append((m, it, hb[m] + P['gpad'] + cl + (head[o] if o else 0) + ht[it]))
         return out
 
     def project(cons):
@@ -1097,16 +1208,14 @@ def layout_graph(S, F, top, bottom, level=0):
     def boxes():
         out = {}
         for g, ms in members.items():
-            out[g] = dict(x=gx[g][0], y=min(y[i] - hh[i] for i in ms) - head[g], w=gx[g][1] - gx[g][0])
-            out[g]['h'] = max(y[i] + hh[i] for i in ms) + P['gpad'] - out[g]['y']
+            out[g] = dict(x=gx[g][0], y=min(y[i] - ht[i] for i in ms) - head[g], w=gx[g][1] - gx[g][0])
+            out[g]['h'] = max(y[i] + hb[i] for i in ms) + P['gpad'] - out[g]['y']
         return out
-
-    gb = boxes()
 
     # centre the drawing vertically in the band
     gb = boxes()
-    ys0 = [y[i] - hh[i] for i in y] + [b['y'] for b in gb.values()]
-    ys1 = [y[i] + hh[i] for i in y] + [b['y'] + b['h'] for b in gb.values()]
+    ys0 = [y[i] - ht[i] for i in y] + [b['y'] for b in gb.values()]
+    ys1 = [y[i] + hb[i] for i in y] + [b['y'] + b['h'] for b in gb.values()]
     dy = (lo + hi) / 2 - (min(ys0) + max(ys1)) / 2
     if min(ys0) + dy >= top - 0.5 and max(ys1) + dy <= hi + 0.5:
         for i in y:
@@ -1117,19 +1226,16 @@ def layout_graph(S, F, top, bottom, level=0):
     nodes = {}
     for n in S.nodes:
         i = n['id']
-        w, h, dm = size[i]
-        nodes[i] = dict(x=cx[rank[i]] - w / 2, y=y[i] - h / 2, w=w, h=h)
-        if dm:
-            nodes[i]['diamond'] = True
+        if side:
+            nodes[i] = put_label(mark(F, n, cx[rank[i]] - size[i][0] / 2 + proto[i]['r'], y[i]), labs[i], 'right', F, lg)
+        else:
+            nodes[i] = put_label(mark(F, n, cx[rank[i]], y[i]), labs[i], 'below', F, lg)
+
+    def out_port(i, dy_):
+        b = nodes[i]
+        return b['foot']['x'] + b['foot']['w'] + WIRE_GAP if side else ring_port(b, 1, dy_)
 
     # ---- routing
-    def port_x(i, side, dy_):
-        b = nodes[i]
-        x0 = b['x'] + (b['w'] if side > 0 else 0)
-        if b.get('diamond'):
-            x0 -= side * b['w'] / 2 * abs(dy_) / (b['h'] / 2)
-        return x0
-
     def spread(i, lst):
         """lst: [(key y, edge id)] on one side of node i -> {edge id: dy}"""
         lst.sort()
@@ -1137,7 +1243,7 @@ def layout_graph(S, F, top, bottom, level=0):
         n_ = len(lst)
         if n_ < 2:
             return {eid: 0.0 for _, eid in lst}
-        sp = min(16 if not b.get('diamond') else 12, (b['h'] * (0.3 if b.get('diamond') else 1) - 28) / (n_ - 1))
+        sp = min(14 if b['shape'] != 'diamond' else 10, (b['r'] * (1.2 if b['shape'] != 'diamond' else 0.5)) / (n_ - 1))
         sp = max(sp, 6)
         return {eid: (k - (n_ - 1) / 2) * sp for k, (_, eid) in enumerate(lst)}
 
@@ -1160,7 +1266,7 @@ def layout_graph(S, F, top, bottom, level=0):
     for e in fwd:
         seq = chain[e['id']]
         tw = 7 if f'{e["to"]}>{e["from"]}' in pair else 0
-        p = (port_x(e['from'], 1, po[e['id']] - tw), y[e['from']] + po[e['id']] - tw)
+        p = (out_port(e['from'], po[e['id']] - tw), y[e['from']] + po[e['id']] - tw)
         segs_ = []
         for d in seq[1:-1]:
             r = d[2]
@@ -1168,28 +1274,39 @@ def layout_graph(S, F, top, bottom, level=0):
             segs_.append(s_curve(p, a))
             segs_.append(straight(a, b))
             p = b
-        q = (port_x(e['to'], -1, pi[e['id']] - tw), y[e['to']] + pi[e['id']] - tw)
+        q = (ring_port(nodes[e['to']], -1, pi[e['id']] - tw), y[e['to']] + pi[e['id']] - tw)
         segs_.append(s_curve(p, q))
         edges[e['id']] = segs_ if len(segs_) > 1 else segs_[0]
         if tw:
             rev = [tuple((pt_[0], pt_[1] + 2 * tw) for pt_ in reversed(c)) for c in reversed(segs(edges[e['id']]))]
             edges[f'{e["to"]}>{e["from"]}'] = rev if len(rev) > 1 else rev[0]
-    for e in arcs:
+    for e in arcs:                                    # back edges: over the top of everything they span
         a, b = nodes[e['from']], nodes[e['to']]
-        x0e, x1e = sorted((centre(a)[0], centre(b)[0]))
-        sp_ = [o for o in nodes.values() if o['x'] < x1e and o['x'] + o['w'] > x0e]
-        sp_ += [bx for gid, bx in gb.items() if gid not in (grp[e['from']], grp[e['to']])
-                and bx['x'] < x1e and bx['x'] + bx['w'] > x0e]
-        base = max(a['y'] + a['h'], b['y'] + b['h'])
-        low = max(o['y'] + o['h'] for o in sp_) + 28
-        if low <= bottom - 4 or not (min(o['y'] for o in sp_) - 28 >= top + 4):
-            edges[e['id']] = under_arc(a, b, max(40, (low - base) / 0.75))
+        x0e, x1e = sorted((a['cx'], b['cx']))
+        sp_ = [foot(o) for o in nodes.values() if foot(o)['x'] < x1e and foot(o)['x'] + foot(o)['w'] > x0e]
+        sp_ += [bx for gid, bx in gb.items() if bx['x'] < x1e and bx['x'] + bx['w'] > x0e]
+        hi_ = min(o['y'] for o in sp_) - 24
+        if hi_ >= top - 0.5:
+            edges[e['id']] = top_arc(a, b, max(40, (min(a['y'], b['y']) - hi_) / 0.75))
         else:
-            hi_ = min(o['y'] for o in sp_) - 28
-            edges[e['id']] = over_arc(a, b, max(40, (min(a['y'], b['y']) - hi_) / 0.75))
-    scene = dict(nodes=nodes, edges=edges, gboxes=gb, level=level, conflicts=conflicts)
+            edges[e['id']] = loop_under(a, b, max(o['y'] + o['h'] for o in sp_) + 24)
+    scene = dict(nodes=nodes, edges=edges, gboxes=gb, level=level, conflicts=conflicts, mode=mode)
     scene['labels'] = place_edge_labels(S, F, scene)
     return scene
+
+
+def loop_under(a, b, yl, rad=28):
+    """Back wire that leaves mark a on its far side, drops below everything to yl, runs across
+    and climbs into mark b from b's far side: a rounded rectangle under the text blocks."""
+    s = 1 if b['cx'] > a['cx'] else -1
+    ext = lambda m: max(m['r'], m.get('lbox', {'w': 0})['w'] / 2) + 24   # noqa: E731
+    xa, xb = a['cx'] - s * ext(a), b['cx'] + s * ext(b)
+    p0, p3 = (ring_port(a, -s, 0), a['cy']), (ring_port(b, s, 0), b['cy'])
+    return [straight(p0, (xa + s * rad, a['cy'])), quarter((xa + s * rad, a['cy']), (xa, a['cy'] + rad), True),
+            straight((xa, a['cy'] + rad), (xa, yl - rad)), quarter((xa, yl - rad), (xa + s * rad, yl), False),
+            straight((xa + s * rad, yl), (xb - s * rad, yl)), quarter((xb - s * rad, yl), (xb, yl - rad), True),
+            straight((xb, yl - rad), (xb, b['cy'] + rad)), quarter((xb, b['cy'] + rad), (xb - s * rad, b['cy']), False),
+            straight((xb - s * rad, b['cy']), p3)]
 
 
 def sample(c, n=16):
@@ -1237,11 +1354,21 @@ def place_edge_labels(S, F, scene):
             continue
         P_ = pts[e['id']]
         best = None
+        cands = []
         for f in (0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.18, 0.82):
-            at = P_[round(f * (len(P_) - 1))]
+            k = round(f * (len(P_) - 1))
+            p0, p1 = P_[max(0, k - 1)], P_[min(len(P_) - 1, k + 1)]
+            ln = math.hypot(p1[0] - p0[0], p1[1] - p0[1]) or 1
+            nx, ny = -(p1[1] - p0[1]) / ln, (p1[0] - p0[0]) / ln       # beside the wire, not on it
+            tw = text_w(e['label'], F['edge'], True) + 12
+            d = abs(nx) * tw / 2 + abs(ny) * F['edge'] * 0.625 + 6
+            for sg in ((-1, 1) if ny <= 0 else (1, -1)):
+                cands.append((P_[k][0] + sg * nx * d, P_[k][1] + sg * ny * d))
+        for at in cands:
             box = edge_label_box(S, F, e, at)
-            hits = sum(1 for o in S.edges if o['id'] != e['id'] and poly_hits_box(pts[o['id']], box, 2))
-            hits += sum(1 for b in scene['nodes'].values() if overlaps(box, b, 4))
+            hits = sum(1 for o in S.edges if poly_hits_box(pts[o['id']], box, 2))
+            hits += sum(1 for b in scene['nodes'].values() if overlaps(box, b, 4)
+                        or ('lbox' in b and overlaps(box, b['lbox'], 4)))
             hits += sum(1 for b in taken if overlaps(box, b, 4))
             if best is None or hits < best[0]:
                 best = (hits, at, box)
@@ -1256,7 +1383,7 @@ def place_edge_labels(S, F, scene):
 
 
 def edge_report(S, scene):
-    """(crossings, edges through nodes) of the drawn wires."""
+    """(crossings, edges through nodes or their text) of the drawn wires."""
     pts = {e['id']: sample(scene['edges'][e['id']], 24) for e in S.edges}
     cross = []
     es = S.edges
@@ -1273,20 +1400,20 @@ def edge_report(S, scene):
         for nid, b in scene['nodes'].items():
             if nid in (e['from'], e['to']):
                 continue
-            if poly_hits_box(pts[e['id']], b, -2):
+            if poly_hits_box(pts[e['id']], b, -2) or ('lbox' in b and poly_hits_box(pts[e['id']], b['lbox'], -2)):
                 through.append(f'{e["id"]} through {nid}')
     return cross, through
 
 
 def group_label_lines(g, F, w):
-    return wrap(g['label'], F['sub'], w - 32, 3)
+    return wrap(g['label'], F['sub'], w - 32, 3, True)
 
 
 def group_box(S, nodes, gid, F=None):
-    """Box round a group's members; with F the top grows so a wrapped label fits above them."""
-    bs = [nodes[n['id']] for n in S.nodes if n.get('group') == gid]
-    x, y = min(b['x'] for b in bs) - 20, min(b['y'] for b in bs) - 52
-    box = dict(x=x, y=y, w=max(b['x'] + b['w'] for b in bs) + 20 - x, h=max(b['y'] + b['h'] for b in bs) + 20 - y)
+    """Box round a group's members (rings and text); with F the top grows so a wrapped label fits."""
+    bs = [foot(nodes[n['id']]) for n in S.nodes if n.get('group') == gid]
+    x, y = min(b['x'] for b in bs) - 20, min(b['y'] for b in bs) - 44
+    box = dict(x=x, y=y, w=max(b['x'] + b['w'] for b in bs) + 20 - x, h=max(b['y'] + b['h'] for b in bs) + 16 - y)
     if F:
         extra = (len(group_label_lines(S.group[gid], F, box['w'])) - 1) * F['sub'] * 1.25
         box['y'] -= extra
@@ -1299,118 +1426,109 @@ def overlaps(a, b, pad=0):
             and a['y'] < b['y'] + b['h'] + pad and a['y'] + a['h'] + pad > b['y'])
 
 
-def diamond_lines(n, F, w, h):
-    """Label (+ sub) lines that fit inside a w x h diamond, or None."""
-    lines = [(t, 'lbl') for t in wrap(n['label'], F['lbl'], w * 0.5, 2)]
-    if n['sub']:
-        lines.append((n['sub'], 'sub'))
-    if len(lines) > 3:
-        return None
-    y = -text_h(lines, F) / 2
-    for t, r in lines:
-        fs = F[r]
-        dy = max(abs(y), abs(y + fs * 1.0))          # the line's edge furthest from the centre
-        if text_w(t, fs) > w * (1 - 2 * dy / h) - 10:
-            return None
-        y += fs * 1.25
-    return lines
-
-
-def diamonds(S, F, nodes, maxw, maxh):
-    """Grow each decision node into a true diamond when its text fits one within maxw x maxh;
-    otherwise it stays a rect with a diamond badge."""
-    for n in S.nodes:
-        if n['kind'] != 'decision':
-            continue
-        b = nodes[n['id']]
-        for k in (1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9):
-            w, h = min(b['w'] * k, maxw), min(b['h'] * k, maxh)
-            if w < b['w'] or h < b['h']:
-                break
-            if diamond_lines(n, F, w, h):
-                cx, cy = centre(b)
-                b.update(x=cx - w / 2, y=cy - h / 2, w=w, h=h, diamond=True)
-                break
+def put_label_low(b, lines, F, gap=LABEL_GAP):
+    """Text to the right of the ring, hanging just under the centre line, so a wire that leaves
+    the ring sideways runs over it (a label on a line)."""
+    th, bw = text_h(lines, F), block_w(lines, F)
+    x, y = b['x'] + b['w'] + gap, b['cy'] + 8
+    b['lab'] = dict(lines=lines, x=x, y=y, anchor='start', side='right')
+    b['lbox'] = dict(x=x, y=y, w=bw, h=th)
+    b['foot'] = union(b, b['lbox'])
+    return b
 
 
 def layout_lanes(S, F, top, bottom):
-    """Swimlanes: one full-width band per group (list order, ungrouped nodes in a last band),
-    nodes placed by rank left to right inside their lane."""
+    """Swimlanes: one band per group (list order, ungrouped nodes in a last band) separated by
+    hairlines, lane names in mono at the left; nodes placed by rank left to right inside their
+    lane, each a ring with its text hanging right of it under the wire line."""
     rank = ranks(S)
     R = max(rank.values()) + 1
     lanes = [(g, [n['id'] for n in S.nodes if n.get('group') == g['id']]) for g in S.groups]
     rest = [n['id'] for n in S.nodes if not n.get('group')]
     if rest:
         lanes.append((None, rest))
-    W, gap_y = S.W, 10
-    name_w = min(0.2 * W, max(140, max(text_w(g['label'], F['lbl']) + 40 for g in S.groups)))
-    need = min_box_w(S, F)
-    side = (W - 48 - name_w - 32 * (R - 1)) / R >= need      # lane names in a left column?
-    x0 = 24 + (name_w if side else 16)
-    area = W - 24 - 16 - x0
-    nw = min(240, (area - 40 * (R - 1)) / R)
-    if nw < need:
-        nw = min(240, (area - 28 * (R - 1)) / R)
-    if nw < need * 0.85:
-        warn(f'lanes: {R} ranks leave boxes {nw:.0f} wide (labels need ~{need:.0f}); widen --viewbox or shorten labels')
-    pitch_x = (area - nw) / (R - 1) if R > 1 else 0
-    head = 0 if side else F['lbl'] * 1.25 + 4
-    sub_rows = [max(sum(1 for i in m if rank[i] == r) for r in range(R)) for _, m in lanes]
-    inner = bottom - top - gap_y * (len(lanes) - 1) - head * len(lanes) - 16 * len(lanes)
+    W, r = S.W, F['ring']
+    hr = max(mark(F, n, 0, 0)['r'] for n in S.nodes)
+    name_w = min(0.2 * W, max(120, max(text_w(g['label'], F['mono'], True) * 1.1 for g in S.groups) + 40))
+    need = need_w(S, F)
+
+    def text_col(x0):
+        lw = (W - 24 - x0 + 24) / R - 2 * hr - LABEL_GAP - 24
+        return min(240, lw)
+    side = text_col(24 + name_w) >= need                 # lane names in a left column?
+    x0 = 24 + (name_w if side else 8)
+    lw = text_col(x0)
+    if lw < need * 0.85:
+        warn(f'lanes: {R} ranks leave a {lw:.0f} px text column (labels need ~{need:.0f}); widen --viewbox or shorten labels')
+    labs = {n['id']: label_lines(n, F, max(lw, 60)) for n in S.nodes}
+    block = 2 * hr + LABEL_GAP + max(block_w(v, F) for v in labs.values())
+    pitch_x = (W - 24 - x0 - block) / (R - 1) if R > 1 else 0
+    head = 0 if side else F['mono'] * 1.25 + 10
+    sub_rows = [max(sum(1 for i in m if rank[i] == rr) for rr in range(R)) for _, m in lanes]
+    row_h = max(2 * hr, hr + 8 + max(text_h(v, F) for v in labs.values())) + 8
+    inner = bottom - top - head * len(lanes)
     pitch_y = inner / sum(sub_rows)
-    nh = min(96, pitch_y - 12)
+    tight = pitch_y < row_h                          # no room to hang the text under the wire line
+    if tight:
+        row_h = max(2 * hr, max(text_h(v, F) for v in labs.values())) + 8
     nodes, conts, y = {}, [], top
     order = [n['id'] for n in S.nodes]
     for li, ((g, members), rows) in enumerate(zip(lanes, sub_rows)):
-        lh = head + 16 + rows * pitch_y
+        lh = head + rows * pitch_y
         conts.append(dict(key=g['id'] if g else 'c-lane', group=g, x=24, y=y, w=W - 48, h=lh,
                           label=g['label'] if g else '', style='lane', members=members, order=li,
                           side=side, name_w=name_w))
-        mid = y + head + 8 + rows * pitch_y / 2
-        for r in range(R):
-            col = sorted((i for i in members if rank[i] == r), key=order.index)
+        for rr in range(R):
+            col = sorted((i for i in members if rank[i] == rr), key=order.index)
             for k, i in enumerate(col):
-                cy = mid + (k - (len(col) - 1) / 2) * pitch_y
-                nodes[i] = dict(x=x0 + r * pitch_x, y=cy - nh / 2, w=nw, h=nh)
-        y += lh + gap_y
-    diamonds(S, F, nodes, min(nw * 1.5, 2 * pitch_x - nw - 40) if R > 1 else nw * 1.5,
-             min(pitch_y - 8, nh * 1.9))
+                b = mark(F, S.node[i], x0 + hr + rr * pitch_x, 0)
+                if tight:
+                    b = mark(F, S.node[i], b['cx'], y + head + (k + 0.5) * pitch_y)
+                    nodes[i] = put_label(b, labs[i], 'right', F)
+                else:
+                    b = mark(F, S.node[i], b['cx'], y + head + k * pitch_y + (pitch_y - (row_h - 8)) / 2 + hr)
+                    nodes[i] = put_label_low(b, labs[i], F)
+        y += lh
     ports = {}                                        # cross-lane wires share a side: spread them
     for e in S.edges:
         if e['from'] in lane_of(lanes, e['to']):
             continue
         a, b = nodes[e['from']], nodes[e['to']]
-        down = centre(b)[1] > centre(a)[1]
-        ports.setdefault((e['from'], down), []).append((centre(b)[0], e['id'], 0))
-        ports.setdefault((e['to'], not down), []).append((centre(a)[0], e['id'], 1))
+        down = b['cy'] > a['cy']
+        ports.setdefault((e['from'], down), []).append((b['cx'], e['id'], 0))
+        ports.setdefault((e['to'], not down), []).append((a['cx'], e['id'], 1))
     px = {}
     for (nid, _), lst in ports.items():
         lst.sort()
-        w = nodes[nid]['w'] * (0.5 if not nodes[nid].get('diamond') else 0)
+        w = nodes[nid]['r'] * (0.9 if nodes[nid]['shape'] != 'diamond' else 0)
         for k, (_, eid, end) in enumerate(lst):
             px[eid, end] = (k - (len(lst) - 1) / 2) * (w / max(1, len(lst) - 1)) if len(lst) > 1 else 0
     edges = {}
     for e in S.edges:
         a, b = nodes[e['from']], nodes[e['to']]
         same = e['from'] in lane_of(lanes, e['to'])
-        (ax, ay), (bx, by) = centre(a), centre(b)
-        if same and abs(ay - by) < 1 and abs(rank[e['to']] - rank[e['from']]) == 1:
+        (ax, ay), (bx, by) = (a['cx'], a['cy']), (b['cx'], b['cy'])
+        if same and abs(ay - by) < 1 and abs(rank[e['to']] - rank[e['from']]) == 1 and tight:
+            c = bottom_arc(a, b, 26)
+        elif same and abs(ay - by) < 1 and abs(rank[e['to']] - rank[e['from']]) == 1:
             s = 1 if bx > ax else -1
-            c = straight((ax + s * a['w'] / 2, ay), (bx - s * b['w'] / 2, by))
-        elif same and rank[e['to']] < rank[e['from']]:
-            c = over_arc(a, b, 30)
-        elif same and abs(rank[e['to']] - rank[e['from']]) > 1:
-            c = under_arc(a, b, 30)
+            c = straight((ring_port(a, s, 0), ay), (ring_port(b, -s, 0), by))
+        elif same and abs(ay - by) < 1:
+            c = top_arc(a, b, 30 if rank[e['to']] > rank[e['from']] else 44)
         elif not same:                                # across lanes: leave by the top or bottom
             sy = 1 if by > ay else -1
-            p0 = (ax + px[e['id'], 0], ay + sy * a['h'] / 2)
-            p3 = (bx + px[e['id'], 1], by - sy * b['h'] / 2)
+
+            def yport(m, dx, s_):
+                if m['shape'] == 'diamond':
+                    return m['cy'] + s_ * (m['r'] + WIRE_GAP)
+                return m['cy'] + s_ * (math.sqrt(max(0.0, m['r'] ** 2 - dx * dx)) + WIRE_GAP)
+            p0 = (ax + px[e['id'], 0], yport(a, px[e['id'], 0], sy))
+            p3 = (bx + px[e['id'], 1], yport(b, px[e['id'], 1], -sy))
             k = abs(p3[1] - p0[1]) / 2
             edges[e['id']] = cubic(p0, (p0[0], p0[1] + sy * k), (p3[0], p3[1] - sy * k), p3)
             continue
         else:
-            gap = abs(bx - ax) - (a['w'] + b['w']) / 2
-            c = route(a, b, k=max(20, min(60, gap / 2)) if gap > 0 else None)
+            c = ring_route(a, b)
         if f'{e["to"]}>{e["from"]}' in S.edge:          # a reverse pair: pull the two wires apart
             c = offset_curve(c, 9)
         edges[e['id']] = c
@@ -1430,69 +1548,120 @@ def offset_curve(c, d):
 
 
 def layout_timeline(S, F, top, bottom):
+    """One axis with dots; labels alternate above and below on thin leaders, the `at` label sits
+    on the other side of the dot; groups (eras) are hairline brackets under everything."""
     n, W = len(S.nodes), S.W
-    spacing = (W - 240) / max(1, n - 1)
-    alt = n > 5 and spacing < 280
-    cw = min(260, (2 * spacing if alt else spacing) - 24)
-    m = max(160, 24 + cw / 2)                 # end cards stay inside the viewBox (archetypes.md: x 160 to 1520)
+    alt = n >= 4
+    m = 120
+    for _ in range(3):                         # the end labels stay inside the viewBox
+        spacing = (W - 2 * m) / max(1, n - 1)
+        lw = min(300, (2 * spacing if alt else spacing) - 40) if n > 1 else W - 96
+        m = max(80, 24 + min(lw, max(need_w(S, F), 0) + 8) / 2 + 4)
     xs = [W / 2] if n == 1 else [m + i * (W - 2 * m) / (n - 1) for i in range(n)]
-    ay = (top + bottom) / 2 + (0 if alt else 44)
+    labs = {nd['id']: label_lines(nd, F, lw) for nd in S.nodes}
+    below = {nd['id']: alt and i % 2 == 1 for i, nd in enumerate(S.nodes)}
+    dot, lead, at_gap = F['dot'], 40, 12
+    th_up = max([text_h(labs[i], F) for i in labs if not below[i]] or [0])
+    th_dn = max([text_h(labs[i], F) for i in labs if below[i]] or [0])
+    at_h = dot + at_gap + F['mono']
+    up = max(dot + lead + th_up if th_up else 0, at_h if any(below.values()) else 0)
+    down = max(dot + lead + th_dn if th_dn else 0, at_h)
+    # eras: bracket spans, stacked where they overlap
+    half = min(40, (xs[1] - xs[0]) * 0.4) if n > 1 else 40
+    spans, levels = [], []
+    for g in S.groups:
+        mx = [xs[k] for k, nd in enumerate(S.nodes) if nd.get('group') == g['id']]
+        x0, x1 = min(mx) - half, max(mx) + half
+        lv = 0
+        while any(l == lv and a < x1 + 8 and x0 < b + 8 for a, b, l in levels):
+            lv += 1
+        levels.append((x0, x1, lv))
+        spans.append((g, x0, x1, lv))
+    lvh = F['sub'] * 1.25 + 22
+    nlv = max([lv for *_, lv in spans] + [-1]) + 1
+    extra = 24 + nlv * lvh if nlv else 0
+    ay = top + max(0, (bottom - top - (up + down + extra)) / 2) + up
     nodes, back = {}, []
     for i, nd in enumerate(S.nodes):
-        lines = len(wrap(nd['label'], F['lbl'], cw - 24))
-        ch = 20 + lines * F['lbl'] * 1.25 + (F['sub'] * 1.25 if nd['sub'] else 0)
-        below = alt and i % 2 == 1
-        y = ay + 30 + F['mono'] + 16 if below else ay - 34 - ch
-        nodes[nd['id']] = dict(x=xs[i] - cw / 2, y=y, w=cw, h=ch, marker=(xs[i], ay), below=below)
-        back.append(f'<circle class="{S.name}-mk" cx="{f1(xs[i])}" cy="{f1(ay)}" r="14"/>'
-                    f'<text class="{S.name}-t {S.name}-mono" x="{f1(xs[i])}" y="{f1(ay + 30 + F["mono"] * 0.6)}" '
-                    f'text-anchor="middle">{escape(str(nd["at"]))}</text>')
-    axis = f'M {f1(xs[0])},{f1(ay)} L {f1(xs[-1] if n > 1 else xs[0] + 1)},{f1(ay)}'
-    back.insert(0, f'<path class="{S.name}-axis" d="{axis}"/>')
-    back.insert(1, f'<path id="{S.name}-progress" class="{S.name}-prog" d="{axis}" pathLength="100"/>')
-    edges = {e['id']: route(nodes[e['from']], nodes[e['to']]) for e in S.edges}
-    return dict(nodes=nodes, edges=edges, back=back)
+        b = put_label(mark(F, nd, xs[i], ay, 'dot'), labs[nd['id']], 'below' if below[nd['id']] else 'above', F, lead)
+        ya = ay - dot - at_gap - F['mono'] * 0.2 if below[nd['id']] else ay + dot + at_gap + F['mono'] * 0.8
+        b['at'] = (xs[i], ya)
+        b['atbox'] = dict(x=xs[i] - text_w(str(nd['at']), F['mono'], True) / 2, y=ya - F['mono'] * 0.8,
+                          w=text_w(str(nd['at']), F['mono'], True), h=F['mono'])
+        b['foot'] = union(b['foot'], b['atbox'])
+        b['leader'] = (xs[i], ay + (dot + 4 if below[nd['id']] else -dot - 4),
+                       b['lbox']['y'] - 6 if below[nd['id']] else b['lbox']['y'] + b['lbox']['h'] + 6)
+        nodes[nd['id']] = b
+    axis = f'M {f1(xs[0] - (24 if n > 1 else 60))},{f1(ay)} L {f1(xs[-1] + (24 if n > 1 else 60))},{f1(ay)}'
+    back.append(f'<path class="{S.name}-axis" d="{axis}"/>')
+    back.append(f'<path id="{S.name}-progress" class="{S.name}-prog" d="{axis}" pathLength="100"/>')
+    yb = ay + down + 24
+    brackets = [(g, x0, x1, yb + lv * lvh) for g, x0, x1, lv in spans]
+    edges = {e['id']: ring_route(nodes[e['from']], nodes[e['to']]) for e in S.edges}
+    return dict(nodes=nodes, edges=edges, back=back, brackets=brackets)
 
 
 def layout_states(S, F, top, bottom):
+    """Rings on an ellipse, each label outside it (radially), transitions as thin arcs that bow
+    toward the centre so the outside stays free for the text."""
     n = len(S.nodes)
-    w, h = 200, 72
-    for nd in S.nodes:
-        w = max(w, min(280, text_w(nd['label'], F['lbl']) + 48))
-    cx, cy = S.W / 2, (top + bottom) / 2
-    rx, ry = (S.W - 48 - w) / 2 - 40, max(60, (bottom - top - h) / 2 - 26)
+    lw = min(260, max(160, need_w(S, F) + 8))
+    labs = {nd['id']: label_lines(nd, F, lw) for nd in S.nodes}
+    cx0, cy0 = S.W / 2, (top + bottom) / 2
+    ang = [math.pi + i * 2 * math.pi / n for i in range(n)]
+    sides = []
+    for a in ang:
+        s, c = math.sin(a), math.cos(a)
+        sides.append(('above' if s < 0 else 'below') if abs(s) >= 0.5 else ('left' if c < 0 else 'right'))
+    rx, ry = (S.W - 48) / 2, (bottom - top) / 2
+    for i, nd in enumerate(S.nodes):
+        b = mark(F, nd, 0, 0)
+        L = labs[nd['id']]
+        bw, th = block_w(L, F), text_h(L, F)
+        ex = b['r'] + LABEL_GAP + bw if sides[i] in ('left', 'right') else max(b['r'], bw / 2)
+        ey = b['r'] + LABEL_GAP + th if sides[i] in ('above', 'below') else max(b['r'], th / 2)
+        c, s = math.cos(ang[i]), math.sin(ang[i])
+        if abs(c) > 1e-6:
+            rx = min(rx, (S.W / 2 - 24 - ex) / abs(c))
+        else:
+            rx = min(rx, (S.W / 2 - 24 - ex) / 0.3)
+        if abs(s) > 1e-6:
+            ry = min(ry, ((bottom - top) / 2 - ey) / abs(s))
+    rx, ry = max(rx, 60), max(ry, 40)
+    rx = min(rx, max(ry * 2.6, (S.W - 48) * 0.3))
     nodes = {}
     for i, nd in enumerate(S.nodes):
-        a = math.pi + i * 2 * math.pi / n
-        nodes[nd['id']] = dict(x=cx + rx * math.cos(a) - w / 2, y=cy + ry * math.sin(a) - h / 2,
-                               w=w, h=h, pill=True)
+        b = mark(F, nd, cx0 + rx * math.cos(ang[i]), cy0 + ry * math.sin(ang[i]))
+        nodes[nd['id']] = put_label(b, labs[nd['id']], sides[i], F)
     edges, idx = {}, {nd['id']: i for i, nd in enumerate(S.nodes)}
     for e in S.edges:
         a, b = nodes[e['from']], nodes[e['to']]
-        pa, pb = centre(a), centre(b)
-        p0, p3 = clip_box(a, pb), clip_box(b, pa)
-        m = lerp(p0, p3, 0.5)
-        dx, dy = m[0] - cx, m[1] - cy
+        pa, pb = (a['cx'], a['cy']), (b['cx'], b['cy'])
+        m = lerp(pa, pb, 0.5)
+        dx, dy = m[0] - cx0, m[1] - cy0
         d = math.hypot(dx, dy) or 1
-        bulge = 0.18 * math.hypot(p3[0] - p0[0], p3[1] - p0[1]) + 20
+        chord = math.hypot(pb[0] - pa[0], pb[1] - pa[1]) or 1
+        bulge = -(0.14 * chord + 12)                 # toward the centre
         if f'{e["to"]}>{e["from"]}' in S.edge and idx[e['from']] > idx[e['to']]:
             bulge = -bulge
-        chord = math.hypot(p3[0] - p0[0], p3[1] - p0[1]) or 1
         if d < 0.15 * chord:            # chord through the centre: bend sideways
-            dx, dy, d = -(p3[1] - p0[1]), p3[0] - p0[0], chord
-        edges[e['id']] = quad(p0, (m[0] + dx / d * bulge, m[1] + dy / d * bulge), p3)
+            dx, dy, d = -(pb[1] - pa[1]), pb[0] - pa[0], chord
+            bulge = abs(bulge)
+        q = (m[0] + dx / d * bulge, m[1] + dy / d * bulge)
+        edges[e['id']] = quad(edge_end(a, q), q, edge_end(b, q))
     return dict(nodes=nodes, edges=edges)
 
 
-def clip_box(b, toward, pad=4):
-    c = centre(b)
-    dx, dy = toward[0] - c[0], toward[1] - c[1]
-    k = min((b['w'] / 2 + pad) / abs(dx) if dx else 1e9, (b['h'] / 2 + pad) / abs(dy) if dy else 1e9)
-    return (c[0] + dx * k, c[1] + dy * k)
+def edge_end(b, toward):
+    """Point on a mark's outline (plus the wire gap) in the direction of `toward`."""
+    dx, dy = toward[0] - b['cx'], toward[1] - b['cy']
+    d = math.hypot(dx, dy) or 1
+    rr = b['r'] if b['shape'] != 'diamond' else b['r'] / (abs(dx / d) + abs(dy / d))
+    return (b['cx'] + dx / d * (rr + WIRE_GAP), b['cy'] + dy / d * (rr + WIRE_GAP))
 
 
 def container_label(S, members):
-    """A group whose members are exactly these nodes names the panel / band."""
+    """A group whose members are exactly these nodes names the column / band."""
     for g in S.groups:
         gm = {n['id'] for n in S.nodes if n.get('group') == g['id']}
         if gm and gm <= set(members):
@@ -1509,15 +1678,15 @@ def compare_sides(S):
 
 
 def row_text(n, F, w, stack=False):
-    """Text of a compare row: None = label left and sub right on one line; otherwise a list of
-    (text, role) lines, the label wrapped and the sub on its own line below. stack=True (some
+    """Text of a compare row: None = label left and sub (mono) right on one line; otherwise a list
+    of (text, role) lines, the label wrapped and the sub on its own line below. stack=True (some
     row of the slide needs two lines) stacks every row that has a sub, so the rows match."""
-    one = text_w(n['label'], F['lbl']) + (text_w(n['sub'], F['sub']) + 24 if n['sub'] else 0) + 40 <= w
+    one = text_w(n['label'], F['lbl']) + (text_w(n['sub'], F['sub'], True) + 32 if n['sub'] else 0) + 8 <= w
     if one and not (stack and n['sub']):
         return None
-    out = [(t, 'lbl') for t in wrap(n['label'], F['lbl'], w - 40, 3)]
+    out = [(t, 'lbl') for t in wrap(n['label'], F['lbl'], w - 8, 3)]
     if n['sub']:
-        out += [(t, 'sub') for t in wrap(n['sub'], F['sub'], w - 40, 2)]
+        out += [(t, 'sub') for t in wrap(n['sub'], F['sub'], w - 8, 2, True)]
     return out
 
 
@@ -1526,65 +1695,86 @@ def text_h(lines, F):
 
 
 def layout_compare(S, F, top, bottom):
+    """Columns separated by space only: a header, then rows of text with hairline rules."""
     W, nodes, conts = S.W, {}, []
     sides = compare_sides(S)
-    C, gap = len(sides), 24
+    C, gap = len(sides), 80 if len(sides) == 2 else 56
     if C > 4:
         warn(f'compare: {C} columns (sides {", ".join(sides)}); more than 4 is hard to read')
-    pw = (W - 48 - (C - 1) * gap) / C
+    pw = (W - 48 - 2 * 16 - (C - 1) * gap) / C
     cols = {sd: [n['id'] for n in S.nodes if n['side'] == sd] for sd in sides}
     rows = max(len(m) for m in cols.values())
     for sd, m in cols.items():
         if len(m) > 5:
             warn(f'compare: side {sd} has {len(m)} rows (archetypes.md: up to 5 per side); split or merge rows')
-    hy = top + F['head'] + 40
-    pitch = (bottom - 16 - hy) / max(1, rows)
-    stack = any(row_text(n, F, pw - 48) for n in S.nodes)
-    need = max(text_h(row_text(n, F, pw - 48, stack) or [], F) + 24 for n in S.nodes)
-    h = min(pitch - 12, max(64, need))
-    if need > pitch - 12:
-        warn(f'compare: rows need {need:.0f} px but only {pitch - 12:.0f} fit; shorten text or raise size H')
+    hy = top + F['head'] * 1.25 + 22
+    pitch = (bottom - hy) / max(1, rows)
+    stack = any(row_text(n, F, pw - 16) for n in S.nodes)
+    need = max(text_h(row_text(n, F, pw - 16, stack) or [('x', 'lbl')], F) + 24 for n in S.nodes)
+    h = min(pitch, max(56, need))
+    if need > pitch:
+        warn(f'compare: rows need {need:.0f} px but only {pitch:.0f} fit; shorten text or raise size H')
     lr = C == 2 and sides == ['left', 'right']
     for k, sd in enumerate(sides):
-        px = 24 + k * (pw + gap)
+        px = 24 + 16 + k * (pw + gap)
         members = cols[sd]
         g = container_label(S, members)
         label = g['label'] if g else (('Before', 'After')[k] if lr else sd.replace('-', ' ').capitalize())
         conts.append(dict(key=g['id'] if g else f'c-{sd}', group=g, x=px, y=top, w=pw, h=bottom - top,
                           label=label, style='panel', members=members))
         for r, i in enumerate(members):
-            nodes[i] = dict(x=px + 24, y=hy + r * pitch + (pitch - 12 - h) / 2, w=pw - 48, h=h, row=True,
-                            stack=stack)
-    edges = {e['id']: route(nodes[e['from']], nodes[e['to']]) for e in S.edges}
+            y = hy + r * pitch + (pitch - h) / 2
+            nodes[i] = dict(x=px, y=y, w=pw, h=h, cx=px + pw / 2, cy=y + h / 2, r=0, shape='row',
+                            row=True, stack=stack, last=r == len(members) - 1)
+    edges = {e['id']: ring_route(nodes[e['from']], nodes[e['to']]) for e in S.edges}
     return dict(nodes=nodes, edges=edges, containers=conts)
 
 
 def layout_layers(S, F, top, bottom):
+    """Bands separated by hairlines, layer names in mono caps at the left; nodes are rings with
+    their text hanging right of them, wires run vertically between bands."""
     levels = sorted({n['layer'] for n in S.nodes})
     L = len(levels)
-    bh = (bottom - top - (L - 1) * 12) / L
+    bh = (bottom - top) / L
     nodes, conts = {}, []
-    name_w = 236
-    for li, lv in enumerate(levels):
-        y = bottom - (li + 1) * bh - li * 12
+    names = []
+    for lv in levels:
         members = [n['id'] for n in S.nodes if n['layer'] == lv]
         g = container_label(S, members)
+        names.append((members, g, g['label'] if g else f'Layer {lv}'))
+    name_w = 24 + max(176, max(text_w(t, F['mono'], True) * 1.12 for *_, t in names) + 40)
+    hr = max(mark(F, n, 0, 0)['r'] for n in S.nodes)
+    for li, lv in enumerate(levels):
+        y = bottom - (li + 1) * bh
+        members, g, label = names[li]
         conts.append(dict(key=g['id'] if g else f'c-l{lv}', group=g, x=24, y=y, w=S.W - 48, h=bh,
-                          label=g['label'] if g else f'Layer {lv}', style='band', members=members, order=li))
-        slot = (S.W - 48 - name_w) / len(members)
-        cw, ch = min(220, slot - 20), min(64, bh - 20)
+                          label=label, style='band', members=members, order=li))
+        slot = (S.W - 24 - name_w) / len(members)
+        lw = min(280, slot - 2 * hr - LABEL_GAP - 32)
         for k, i in enumerate(members):
-            nodes[i] = dict(x=name_w + k * slot + (slot - cw) / 2, y=y + (bh - ch) / 2, w=cw, h=ch)
+            lines = label_lines(S.node[i], F, max(lw, 60))
+            blk = 2 * hr + LABEL_GAP + block_w(lines, F)
+            th = text_h(lines, F)
+            cy = y + bh / 2 - max(0, (8 + th) - hr) / 2
+            b = mark(F, S.node[i], name_w + k * slot + max(0, (slot - blk) / 2) + hr, cy)
+            nodes[i] = put_label_low(b, lines, F)
     edges = {}
     for e in S.edges:
         a, b = nodes[e['from']], nodes[e['to']]
-        if abs(centre(a)[1] - centre(b)[1]) < 1:
-            edges[e['id']] = route(a, b)
+        if abs(a['cy'] - b['cy']) < 1:
+            s = 1 if b['cx'] > a['cx'] else -1
+            rev = f'{e["to"]}>{e["from"]}' in S.edge
+            if rev and s < 0:
+                edges[e['id']] = top_arc(a, b, 28)
+            else:
+                edges[e['id']] = straight((ring_port(a, s, 0), a['cy']), (ring_port(b, -s, 0), b['cy']))
             continue
-        down = centre(b)[1] > centre(a)[1]
+        down = b['cy'] > a['cy']
         off = -12 if down else 12
-        p0 = (centre(a)[0] + off, a['y'] + (a['h'] if down else 0))
-        p3 = (centre(b)[0] + off, b['y'] + (0 if down else b['h']))
+        ya = math.sqrt(max(0.0, a['r'] ** 2 - off * off)) + WIRE_GAP
+        yb = math.sqrt(max(0.0, b['r'] ** 2 - off * off)) + WIRE_GAP
+        p0 = (a['cx'] + off, a['cy'] + (ya if down else -ya))
+        p3 = (b['cx'] + off, b['cy'] - (yb if down else -yb))
         ym = (p0[1] + p3[1]) / 2
         edges[e['id']] = cubic(p0, (p0[0], ym), (p3[0], ym), p3)
     return dict(nodes=nodes, edges=edges, containers=conts)
@@ -1764,6 +1954,18 @@ def build_anims(S, T, scene, anim):
     for key in sorted({x for p in S.phases for x in p['active']}):
         if key in rid and key not in {s['id'] for s in S.series + S.events}:
             runs([key in p['active'] for p in S.phases], rid[key] + '-hl')
+    if S.arch in ('pipeline', 'timeline'):        # a step that was lit and moved on settles in --anim-ok
+        scene['ok'] = set()
+        for n in S.nodes:
+            on = [n['id'] in p['active'] for p in S.phases]
+            if True not in on:
+                continue
+            j = on.index(True)
+            while j + 1 < T.n and on[j + 1]:
+                j += 1
+            if j + 1 < T.n:
+                anim.add(rid[n['id']] + '-ok', 'opacity', T.act[j + 1], 0.3, 0, 1)
+                scene['ok'].add(n['id'])
     notes = [i for i, p in enumerate(S.phases) if p['note']]
     if notes and not S.phases[-1]['note']:
         warn(f'the last phase ({S.phases[-1]["label"]}) has no note, so the resting frame (PDF export) '
@@ -1919,93 +2121,71 @@ def gsap_script(S, T, anim):
     return '\n'.join(L)
 
 
-def text_lines(cx, y, h, lines, anchor='middle'):
+def text_lines(x, y, h, lines, anchor='middle'):
+    """Stacked <text> lines (text, class, size) centred vertically in y .. y + h."""
     total = sum(fs * 1.25 for _, _, fs in lines) - lines[-1][2] * 0.25
     yt, out = y + (h - total) / 2, []
     for txt, cls, fs in lines:
-        out.append(f'<text class="{cls}" x="{f1(cx)}" y="{f1(yt + fs * 0.8)}" '
+        out.append(f'<text class="{cls}" x="{f1(x)}" y="{f1(yt + fs * 0.8)}" '
                    f'text-anchor="{anchor}">{escape(txt)}</text>')
         yt += fs * 1.25
     return ''.join(out), total
 
 
-def shape(kind, b, cls, rx=8, el_id='', style=''):
-    x, y, w, h = b['x'], b['y'], b['w'], b['h']
-    a = f' class="{cls}"' + (f' id="{el_id}"' if el_id else '') + style
-    if b.get('pill'):
-        rx = h / 2
-    if b.get('diamond'):
-        return (f'<path{a} d="M {pt((x, y + h / 2))} L {pt((x + w / 2, y))} L {pt((x + w, y + h / 2))} '
-                f'L {pt((x + w / 2, y + h))} Z"/>')
-    if kind == 'store':
-        e = min(12, h / 6)
-        return (f'<path{a} d="M {pt((x, y + e))} A {f1(w / 2)},{f1(e)} 0 0 1 {pt((x + w, y + e))} '
-                f'V {f1(y + h - e)} A {f1(w / 2)},{f1(e)} 0 0 1 {pt((x, y + h - e))} Z"/>')
-    if kind == 'data':
-        f = 18
-        return f'<path{a} d="M {pt((x, y))} H {f1(x + w - f)} L {pt((x + w, y + f))} V {f1(y + h)} H {f1(x)} Z"/>'
-    return f'<rect{a} x="{f1(x)}" y="{f1(y)}" width="{f1(w)}" height="{f1(h)}" rx="{f1(rx)}"/>'
+def text_block(N, lab, F, only=None, extra=''):
+    """A node's text lines at the place put_label chose: label in --anim-font, sub in mono muted."""
+    out, yt = [], lab['y']
+    for t, r in lab['lines']:
+        if only is None or r == only:
+            cls = f'{N}-t {N}-lbl' if r == 'lbl' else f'{N}-t {N}-sub'
+            out.append(f'<text class="{cls}{extra}" x="{f1(lab["x"])}" y="{f1(yt + F[r] * 0.8)}" '
+                       f'text-anchor="{lab["anchor"]}">{escape(t)}</text>')
+        yt += F[r] * 1.25
+    return ''.join(out)
 
 
-def glyph(N, kind, b):
-    x, y, w, h = b['x'], b['y'], b['w'], b['h']
-    c = f'{N}-glyph'
-    if kind == 'actor':
-        return (f'<circle class="{c}" cx="{f1(x + 22)}" cy="{f1(y + 18)}" r="6"/>'
-                f'<path class="{c}" d="M {pt((x + 12, y + 36))} Q {pt((x + 22, y + 22))} {pt((x + 32, y + 36))}"/>')
-    if kind == 'decision' and not b.get('diamond'):
-        return f'<path class="{c}" d="M {pt((x + 22, y + 10))} l 10,10 l -10,10 l -10,-10 Z"/>'
-    if kind == 'store':
-        e = min(12, h / 6)
-        return f'<path class="{c}" d="M {pt((x, y + e))} A {f1(w / 2)},{f1(e)} 0 0 0 {pt((x + w, y + e))}"/>'
-    if kind == 'data':
-        return f'<path class="{c}" d="M {pt((x + w - 18, y))} V {f1(y + 18)} H {f1(x + w)}"/>'
-    if kind == 'milestone' and 'marker' not in b:
-        return f'<path class="{c}" d="M {pt((x + 16, y + 34))} V {f1(y + 10)} l 14,6 l -14,6"/>'
-    return ''
+def mark_svg(b, cls, el_id=''):
+    a = f' class="{cls}"' + (f' id="{el_id}"' if el_id else '')
+    if b['shape'] == 'diamond':
+        x, y, r = b['cx'], b['cy'], b['r']
+        return f'<path{a} d="M {pt((x - r, y))} L {pt((x, y - r))} L {pt((x + r, y))} L {pt((x, y + r))} Z"/>'
+    return f'<circle{a} cx="{f1(b["cx"])}" cy="{f1(b["cy"])}" r="{f1(b["r"])}"/>'
 
 
-def timeline_brackets(S, F, scene, anim, rid, active_ids, top):
-    """Timeline groups: a bracket over the axis span of the members, label centred above it,
-    raised a level where two spans overlap."""
-    N, nodes, out = S.name, scene['nodes'], []
-    xs = sorted(b['marker'][0] for b in nodes.values())
-    half = min(40, (xs[1] - xs[0]) * 0.4) if len(xs) > 1 else 40
-    base = min([b['y'] for b in nodes.values() if not b['below']] + [nodes[S.nodes[0]['id']]['marker'][1] - 40]) - 14
-    lh = F['sub'] * 1.25 + 14
-    spans, levels = [], []
-    for g in S.groups:
-        mx = [nodes[n['id']]['marker'][0] for n in S.nodes if n.get('group') == g['id']]
-        x0, x1 = min(mx) - half, max(mx) + half
-        lv = 0
-        while any(l == lv and a < x1 + 8 and x0 < b + 8 for a, b, l in levels):
-            lv += 1
-        levels.append((x0, x1, lv))
-        spans.append((g, x0, x1, lv))
-    for g, x0, x1, lv in spans:
-        y = base - lv * lh
-        el = rid[g['id']]
-        d = f'M {f1(x0)},{f1(y + 10)} V {f1(y)} H {f1(x1)} V {f1(y + 10)}'
-        hl = (f'<path id="{el}-hl" class="{N}-wire-hl" d="{d}"{anim.style(el + "-hl")}/>'
-              if g['id'] in active_ids else '')
-        ty = y - 10
-        if ty - F['sub'] < top - 8 or text_w(g['label'], F['sub']) > x1 - x0 + 2 * half:
-            warn(f'group {g["id"]}: bracket label does not fit (above the top or wider than its span); '
-                 'shorten it or raise size H')
-        out.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}><path class="{N}-bracket" d="{d}"/>{hl}'
-                   f'<text class="{N}-t {N}-sub" x="{f1((x0 + x1) / 2)}" y="{f1(ty)}" text-anchor="middle">'
-                   f'{escape(g["label"])}</text></g>')
-    return out
+GLYPHS = {   # line glyphs inside a ring, drawn round (0, 0) for r 34
+    'actor': 'M -5,-7 a 5,5 0 1 0 10,0 a 5,5 0 1 0 -10,0 M -11,12 Q 0,-2 11,12',
+    'store': 'M -11,-8 A 11,4 0 0 0 11,-8 A 11,4 0 0 0 -11,-8 V 8 A 11,4 0 0 0 11,8 V -8 M -11,0 A 11,4 0 0 0 11,0',
+    'data': 'M -9,-12 H 4 L 10,-6 V 12 H -9 Z M 4,-12 V -6 H 10',
+    'external': 'M -12,0 a 12,12 0 1 0 24,0 a 12,12 0 1 0 -24,0 M -12,0 H 12 M 0,-12 a 5,12 0 0 0 0,24 a 5,12 0 0 0 0,-24',
+    'milestone': 'M -7,12 V -12 L 9,-6 L -7,0',
+}
+
+
+def inner(S, F, n, b, k, variant=''):
+    """What sits inside a ring: the step number (pipeline) or a line glyph per kind."""
+    N = S.name
+    v = f' {N}-in-{variant}' if variant else ''
+    if b['shape'] != 'ring':
+        return ''
+    if S.arch == 'pipeline':
+        return (f'<text class="{N}-t {N}-num{v}" x="{f1(b["cx"])}" y="{f1(b["cy"] + F["num"] * 0.36)}" '
+                f'text-anchor="middle">{k + 1}</text>')
+    d = GLYPHS.get(n['kind'])
+    if not d:
+        return ''
+    sc = b['r'] / 34
+    tr = f'translate({f1(b["cx"])} {f1(b["cy"])})' + (f' scale({sc:.3g})' if abs(sc - 1) > 0.01 else '')
+    return f'<path class="{N}-glyph{v}" transform="{tr}" d="{d}"/>'
 
 
 def label_box(S, F, scene, e):
     """Box of an edge label: centred where the layout put it, else on the wire's middle (lifted
-    10 px above a straight horizontal wire)."""
+    above a straight horizontal wire)."""
     if e['id'] in scene.get('labels', {}):
         return edge_label_box(S, F, e, scene['labels'][e['id']])
     c = scene['edges'][e['id']]
     m, c0 = bez_mid(c), segs(c)[0]
-    ly = m[1] - 10 if abs(c0[3][1] - c0[0][1]) < 4 and abs(c0[1][1] - c0[0][1]) < 4 else m[1] + F['edge'] * 0.35
+    ly = m[1] - 12 if abs(c0[3][1] - c0[0][1]) < 4 and abs(c0[1][1] - c0[0][1]) < 4 else m[1] + F['edge'] * 0.35
     tw = text_w(e['label'], F['edge'], True) + 12
     return dict(x=m[0] - tw / 2, y=ly - F['edge'] * 0.9, w=tw, h=F['edge'] * 1.25)
 
@@ -2021,14 +2201,23 @@ def drawn_groups(S, scene):
     return [g for g in S.groups if g['id'] not in used]
 
 
+def illus_box(S, F, top):
+    tw = text_w('illustrative', F['mono'], True) + 24
+    h = F['mono'] + 14
+    y = (top - 22 - F['mono'] - 4) if S.title else 24
+    return dict(x=S.W - 24 - tw, y=y, w=tw, h=h)
+
+
 def outside(S, F, scene, frame_info):
-    """Everything drawn that leaves the viewBox (or runs into the caption strip): [(what, x0, y0, x1, y1)]."""
+    """Everything drawn that leaves the viewBox (or runs into the caption row): [(what, x0, y0, x1, y1)]."""
     top, bottom, strip, has_note = frame_info
     ylim = S.H - strip - 8 if has_note else S.H
-    items = [(f'node {i}', b) for i, b in scene['nodes'].items()]
+    items = [(f'node {i}', foot(b)) for i, b in scene['nodes'].items()]
     items += [(f'{c["style"]} {c["key"]}', c) for c in scene.get('containers', [])]
     items += [(f'group {g["id"]}', scene_group_box(S, F, scene, g['id'])) for g in drawn_groups(S, scene)
               if any(n.get('group') == g['id'] for n in S.nodes)]
+    for g, x0, x1, y in scene.get('brackets', []):
+        items.append((f'era {g["id"]}', dict(x=x0, y=y - 14, w=x1 - x0, h=14 + F['sub'] * 1.25 + 6)))
     items += [(f'label of {e["id"]}', label_box(S, F, scene, e)) for e in S.edges if e['label']]
     for e in S.edges:
         pts = sample(scene['edges'][e['id']], 12)
@@ -2042,6 +2231,15 @@ def outside(S, F, scene, frame_info):
     return out
 
 
+def bracket_d(x0, x1, y, gap0, gap1, tick):
+    """Hairline bracket from x0 to x1 at y with ticks of length `tick` (negative: up), open
+    between gap0 and gap1 where its label sits."""
+    if gap1 <= gap0:
+        return f'M {f1(x0)},{f1(y + tick)} V {f1(y)} H {f1(x1)} V {f1(y + tick)}'
+    return (f'M {f1(x0)},{f1(y + tick)} V {f1(y)} H {f1(gap0)} '
+            f'M {f1(gap1)},{f1(y)} H {f1(x1)} V {f1(y + tick)}')
+
+
 def emit(S, args, F, scene, T, anim, rid, frame_info):
     N = S.name
     top, bottom, strip, has_note = frame_info
@@ -2050,120 +2248,158 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
     svg = []
     if S.title:
         svg.append(f'<text class="{N}-t {N}-title" x="24" y="{f1(top - 22)}">{escape(S.title)}</text>')
+    if S.illustrative:
+        b = illus_box(S, F, top)
+        svg.append(f'<g class="{N}-illus"><rect class="{N}-tag" x="{f1(b["x"])}" y="{f1(b["y"])}" '
+                   f'width="{f1(b["w"])}" height="{f1(b["h"])}" rx="4"/><text class="{N}-t {N}-mono" '
+                   f'x="{f1(b["x"] + b["w"] / 2)}" y="{f1(b["y"] + b["h"] / 2 + F["mono"] * 0.35)}" '
+                   f'text-anchor="middle">illustrative</text></g>')
     svg += scene.get('back', [])
 
+    def hl_group(el, body):
+        return f'<g id="{el}-hl" class="{N}-hlg"{anim.style(el + "-hl")}>{body}</g>'
+
+    # ---- containers: compare columns, layer bands, lanes (no panels: hairlines and names)
     for c in scene.get('containers', []):
         el = rid[c['key']]
-        hl = (f'<rect id="{el}-hl" class="{N}-hl" x="{f1(c["x"])}" y="{f1(c["y"])}" width="{f1(c["w"])}" '
-              f'height="{f1(c["h"])}" rx="8"{anim.style(el + "-hl")}/>' if c['key'] in active_ids else '')
+        on = c['key'] in active_ids
         if c['style'] == 'lane':
+            rule = (f'<path class="{N}-rule" d="M {f1(c["x"])},{f1(c["y"])} H {f1(c["x"] + c["w"])}"/>'
+                    if c['order'] else '')
             if c['side']:
-                lines = wrap(c['label'], F['lbl'], c['name_w'] - 32, 3)
-                lab, _ = text_lines(c['x'] + 16, c['y'], c['h'], [(t, f'{N}-t {N}-lane', F['lbl']) for t in lines], 'start')
-                lab += (f'<path class="{N}-tick" d="M {f1(c["x"] + c["name_w"] - 8)},{f1(c["y"] + 10)} '
-                        f'V {f1(c["y"] + c["h"] - 10)}"/>')
+                lines = wrap(c['label'], F['mono'], c['name_w'] - 32, 3, True)
+                mk = lambda extra: text_lines(c['x'], c['y'], c['h'],    # noqa: E731
+                                              [(t, f'{N}-t {N}-lane{extra}', F['mono']) for t in lines], 'start')[0]
             else:
-                lines = wrap(c['label'], F['lbl'], c['w'] - 32, 1)
-                lab = (f'<text class="{N}-t {N}-lane" x="{f1(c["x"] + 16)}" y="{f1(c["y"] + 10 + F["lbl"])}">'
-                       f'{escape(lines[0])}</text>')
-            if any(text_w(t, F['lbl']) > (c['name_w'] - 24 if c['side'] else c['w'] - 32) for t in lines):
+                lines = wrap(c['label'], F['mono'], c['w'] - 32, 1, True)
+                mk = lambda extra: (f'<text class="{N}-t {N}-lane{extra}" x="{f1(c["x"] + 8)}" '   # noqa: E731
+                                    f'y="{f1(c["y"] + 8 + F["mono"])}">{escape(lines[0])}</text>')
+            if any(text_w(t, F['mono'], True) > (c['name_w'] - 24 if c['side'] else c['w'] - 32) for t in lines):
                 warn(f'lane label {c["label"][:30]!r} is wider than its lane header; shorten it')
+            body = rule + (mk('') if c['label'] else '')
+            hl = hl_group(el, mk(f' {N}-acc')) if on and c['label'] else ''
         elif c['style'] == 'panel':
-            lab = (f'<text class="{N}-t {N}-head" x="{f1(c["x"] + c["w"] / 2)}" y="{f1(c["y"] + F["head"] + 14)}" '
-                   f'text-anchor="middle">{escape(c["label"])}</text>')
+            hy = c['y'] + F['head'] * 0.85
+            ry = c['y'] + F['head'] * 1.25 + 6
+            head = (f'<text class="{N}-t {N}-head" x="{f1(c["x"])}" y="{f1(hy)}">{escape(c["label"])}</text>')
+            rule = f'M {f1(c["x"])},{f1(ry)} H {f1(c["x"] + c["w"])}'
+            if text_w(c['label'], F['head']) > c['w']:
+                warn(f'column header {c["label"][:30]!r} is wider than its column; shorten it')
+            body = head + f'<path class="{N}-rule {N}-rule-head" d="{rule}"/>'
+            hl = hl_group(el, f'<path class="{N}-glow" d="{rule}"/><path class="{N}-wire-hl" d="{rule}"/>'
+                          + head.replace(f'{N}-head"', f'{N}-head {N}-acc"')) if on else ''
         else:
-            lab = (f'<text class="{N}-t {N}-sub" x="48" y="{f1(c["y"] + c["h"] / 2 + F["sub"] * 0.35)}">'
-                   f'{escape(c["label"])}</text>')
-        svg.append(f'<g id="{el}" class="{N}-cont"{anim.style(el)}><rect class="{N}-panel" x="{f1(c["x"])}" '
-                   f'y="{f1(c["y"])}" width="{f1(c["w"])}" height="{f1(c["h"])}" rx="8"/>{hl}{lab}</g>')
-    used = {c['group']['id'] for c in scene.get('containers', []) if c['group']}
+            ty = c['y'] + c['h'] / 2 + F['mono'] * 0.35
+            name = (f'<text class="{N}-t {N}-band" x="48" y="{f1(ty)}">{escape(c["label"])}</text>')
+            rule = (f'<path class="{N}-rule" d="M {f1(c["x"])},{f1(c["y"] + c["h"])} H {f1(c["x"] + c["w"])}"/>'
+                    if c['order'] else '')
+            body = rule + name
+            hl = hl_group(el, name.replace(f'{N}-band"', f'{N}-band {N}-acc"')) if on else ''
+        svg.append(f'<g id="{el}" class="{N}-cont"{anim.style(el)}>{body}{hl}</g>')
+
+    # ---- groups: hairline brackets with a small mono label in the gap
     if S.arch == 'timeline':
-        svg += timeline_brackets(S, F, scene, anim, rid, active_ids, top)
-        used |= set(S.group)
-    for g in S.groups:
-        if g['id'] in used:
-            continue
+        for g, x0, x1, y in scene.get('brackets', []):
+            el, mid = rid[g['id']], (x0 + x1) / 2
+            tw = text_w(g['label'], F['sub'], True)
+            inline = tw + 40 <= x1 - x0
+            d = bracket_d(x0, x1, y, mid - tw / 2 - 12, mid + tw / 2 + 12, -12) if inline else bracket_d(x0, x1, y, 0, 0, -12)
+            ty = y + F['sub'] * 0.35 if inline else y + F['sub'] + 8
+            if not inline and tw > x1 - x0 + 40:
+                warn(f'era {g["id"]}: bracket label is wider than its span; shorten it')
+            hl = hl_group(el, f'<path class="{N}-glow" d="{d}"/><path class="{N}-wire-hl" d="{d}"/>') \
+                if g['id'] in active_ids else ''
+            svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}><path class="{N}-bracket" d="{d}"/>{hl}'
+                       f'<text class="{N}-t {N}-glbl" x="{f1(mid)}" y="{f1(ty)}" text-anchor="middle">'
+                       f'{escape(g["label"])}</text></g>')
+    for g in drawn_groups(S, scene):
         box = scene_group_box(S, F, scene, g['id'])
-        x, y = box['x'], box['y']
+        x0, x1, y = box['x'], box['x'] + box['w'], box['y'] + F['sub'] * 0.5
         glines = group_label_lines(g, F, box['w'])
-        if any(text_w(t, F['sub']) > box['w'] - 24 for t in glines):
-            warn(f'group {g["id"]}: label is wider than its box; shorten the label')
+        tw = max(text_w(t, F['sub'], True) for t in glines)
+        if tw > box['w'] - 40:
+            warn(f'group {g["id"]}: label is wider than its bracket; shorten the label')
         for n in S.nodes:
-            if n.get('group') != g['id'] and overlaps(scene['nodes'][n['id']], box):
-                warn(f'group {g["id"]} box overlaps node {n["id"]}; move it by hand')
+            if n.get('group') != g['id'] and overlaps(foot(scene['nodes'][n['id']]), box):
+                warn(f'group {g["id"]} bracket overlaps node {n["id"]}; move it by hand')
         el = rid[g['id']]
-        hl = shape('process', box, f'{N}-hl', el_id=el + '-hl', style=anim.style(el + '-hl')) \
+        d = bracket_d(x0, x1, y, x0 + 8, x0 + 20 + tw + 10, 16)
+        hl = hl_group(el, f'<path class="{N}-glow" d="{d}"/><path class="{N}-wire-hl" d="{d}"/>') \
             if g['id'] in active_ids else ''
-        svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}>{shape("process", box, N + "-grp")}{hl}'
-                   + ''.join(f'<text class="{N}-t {N}-sub" x="{f1(x + 16)}" y="{f1(y + 18 + F["sub"] * (0.5 + 1.25 * k))}">'
+        svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}><path class="{N}-bracket" d="{d}"/>{hl}'
+                   + ''.join(f'<text class="{N}-t {N}-glbl" x="{f1(x0 + 20)}" y="{f1(y + F["sub"] * (0.35 + 1.25 * k))}">'
                              f'{escape(t)}</text>' for k, t in enumerate(glines)) + '</g>')
 
+    # ---- wires
+    plain = S.arch == 'pipeline'                    # a chain needs no arrowheads between neighbours
     for e in S.edges:
         c, el = scene['edges'][e['id']], rid[e['id']]
         draw = e['kind'] in ('flow', 'data')
         wire = (f'<path id="{el}-w" class="{N}-wire{" " + N + "-draw" if draw else ""}" d="{path_d(c)}"'
                 f'{" pathLength=" + chr(34) + "100" + chr(34) if draw else ""}{anim.style(el + "-w")}/>')
-        hl = (f'<path id="{el}-hl" class="{N}-wire-hl" d="{path_d(c)}"{anim.style(el + "-hl")}/>'
-              if e['id'] in active_ids else '')
+        hl = hl_group(el, f'<path class="{N}-glow" d="{path_d(c)}"/><path class="{N}-wire-hl" d="{path_d(c)}"/>') \
+            if e['id'] in active_ids else ''
+        chain = plain and len(segs(c)) == 1 and abs(c[0][1] - c[3][1]) < 1 and abs(c[1][1] - c[0][1]) < 1
+        arrow = '' if chain else f'<path class="{N}-arrow" d="{arrow_d(c)}"/>'
         lab = ''
         if e['label']:
             lb = label_box(S, F, scene, e)
-            lab = (f'<rect class="{N}-lbg" x="{f1(lb["x"])}" y="{f1(lb["y"])}" width="{f1(lb["w"])}" '
-                   f'height="{f1(lb["h"])}" rx="4"/><text class="{N}-t {N}-mono" x="{f1(lb["x"] + lb["w"] / 2)}" '
+            lab = (f'<text class="{N}-t {N}-mono {N}-elbl" x="{f1(lb["x"] + lb["w"] / 2)}" '
                    f'y="{f1(lb["y"] + F["edge"] * 0.9)}" text-anchor="middle">{escape(e["label"])}</text>')
-        svg.append(f'<g id="{el}" class="{N}-edge {N}-ek-{e["kind"]}"{anim.style(el)}>{wire}{hl}'
-                   f'<path class="{N}-arrow" d="{arrow_d(c)}"/>{lab}</g>')
+        svg.append(f'<g id="{el}" class="{N}-edge {N}-ek-{e["kind"]}"{anim.style(el)}>{wire}{hl}{arrow}{lab}</g>')
 
-    for n in S.nodes:
+    # ---- nodes
+    for k, n in enumerate(S.nodes):
         b, el, kind = scene['nodes'][n['id']], rid[n['id']], n['kind']
+        on = n['id'] in active_ids
         parts = []
-        if 'marker' in b:
-            mx, my = b['marker']
-            ty = b['y'] if b['below'] else b['y'] + b['h']
-            t0 = my + 30 + F['mono'] + 4 if b['below'] else my - 16    # below: start under the at label
-            parts.append(f'<path class="{N}-tick" d="M {pt((mx, t0))} V {f1(ty)}"/>'
-                         f'<circle class="{N}-mkfill" cx="{f1(mx)}" cy="{f1(my)}" r="9"/>')
-            kind = 'process'
-        parts.append(shape(kind, b, f'{N}-box'))
-        if n['id'] in active_ids:
-            parts.append(shape(kind, b, f'{N}-hl', el_id=el + '-hl', style=anim.style(el + '-hl')))
-        g = glyph(N, kind, b)
-        parts.append(g)
-        mono = ' ' + N + '-monolbl' if n['kind'] == 'data' else ''
-        rt = row_text(n, F, b['w'], b.get('stack')) if b.get('row') else None
-        if rt:
-            cls = {'lbl': f'{N}-t {N}-lbl{mono}', 'sub': f'{N}-t {N}-sub'}
-            txt, total = text_lines(b['x'] + 20, b['y'], b['h'], [(t, cls[r], F[r]) for t, r in rt], 'start')
+        if b['shape'] == 'row':
+            x = b['x'] + 16
+            rt = row_text(n, F, b['w'] - 16, b.get('stack'))
+            if rt:
+                cls = {'lbl': f'{N}-t {N}-lbl', 'sub': f'{N}-t {N}-sub'}
+                txt, total = text_lines(x, b['y'], b['h'], [(t, cls[r], F[r]) for t, r in rt], 'start')
+                acc = text_lines(x, b['y'], b['h'], [(t, cls[r] + (f' {N}-acc' if r == 'lbl' else ' ' + N + '-ghost'), F[r])
+                                                     for t, r in rt], 'start')[0]
+                if total > b['h'] - 6 or any(line_w(t, r, F) > b['w'] - 24 for t, r in rt):
+                    over.append(n['id'])
+            else:
+                ty = b['y'] + b['h'] / 2 + F['lbl'] * 0.35
+                txt = f'<text class="{N}-t {N}-lbl" x="{f1(x)}" y="{f1(ty)}">{escape(n["label"])}</text>'
+                acc = txt.replace(f'{N}-lbl"', f'{N}-lbl {N}-acc"')
+                if n['sub']:
+                    txt += (f'<text class="{N}-t {N}-sub" x="{f1(b["x"] + b["w"])}" y="{f1(ty)}" '
+                            f'text-anchor="end">{escape(n["sub"])}</text>')
             parts.append(txt)
-            if total > b['h'] - 6 or any(text_w(t, F[r]) > b['w'] - 32 for t, r in rt):
-                over.append(n['id'])
-        elif b.get('row'):
-            ty = b['y'] + b['h'] / 2 + F['lbl'] * 0.35
-            parts.append(f'<text class="{N}-t {N}-lbl{mono}" x="{f1(b["x"] + 20)}" y="{f1(ty)}">{escape(n["label"])}</text>')
-            used_w = text_w(n['label'], F['lbl']) + 40
-            if n['sub']:
-                parts.append(f'<text class="{N}-t {N}-sub" x="{f1(b["x"] + b["w"] - 20)}" y="{f1(ty)}" '
-                             f'text-anchor="end">{escape(n["sub"])}</text>')
-                used_w += text_w(n['sub'], F['sub']) + 24
-            if used_w > b['w']:
-                over.append(n['id'])
-        else:
-            maxw = b['w'] - (64 if g else 24)
-            lines = [(t, f'{N}-t {N}-lbl{mono}', F['lbl']) for t in wrap(n['label'], F['lbl'], maxw)]
-            if n['sub']:
-                lines.append((n['sub'], f'{N}-t {N}-sub', F['sub']))
-            dl = diamond_lines(n, F, b['w'], b['h']) if b.get('diamond') else None
-            if dl:
-                lines = [(t, f'{N}-t {N}-{r}{mono if r == "lbl" else ""}', F[r]) for t, r in dl]
-            txt, total = text_lines(b['x'] + b['w'] / 2, b['y'], b['h'], lines)
-            parts.append(txt)
-            if not dl and (total > b['h'] - 6 or any(text_w(t, fs) > b['w'] - 12 for t, _, fs in lines)):
-                over.append(n['id'])
-        svg.append(f'<g id="{el}" class="{N}-node {N}-k-{n["kind"]}"{anim.style(el)}>{"".join(parts)}</g>')
+            if not b.get('last'):
+                parts.append(f'<path class="{N}-rule" d="M {f1(b["x"])},{f1(b["y"] + b["h"])} H {f1(b["x"] + b["w"])}"/>')
+            if on:
+                tick = f'M {f1(b["x"] + 2)},{f1(b["y"] + 12)} V {f1(b["y"] + b["h"] - 12)}'
+                parts.append(hl_group(el, f'<path class="{N}-glow" d="{tick}"/><path class="{N}-wire-hl" d="{tick}"/>{acc}'))
+            svg.append(f'<g id="{el}" class="{N}-node {N}-k-{kind}"{anim.style(el)}>{"".join(parts)}</g>')
+            continue
+        dot = b['shape'] == 'dot'
+        if 'leader' in b:
+            lx, l0, l1 = b['leader']
+            parts.append(f'<path class="{N}-leader" d="M {f1(lx)},{f1(l0)} V {f1(l1)}"/>')
+            parts.append(f'<text class="{N}-t {N}-at" x="{f1(b["at"][0])}" y="{f1(b["at"][1])}" '
+                         f'text-anchor="middle">{escape(str(n["at"]))}</text>')
+        base = f'{N}-dot' if dot else f'{N}-ring' + (f' {N}-ext' if kind == 'external' else '')
+        parts.append(mark_svg(b, base))
+        parts.append(inner(S, F, n, b, k))
+        if n['id'] in scene.get('ok', ()):
+            parts.append(f'<g id="{el}-ok" class="{N}-okg"{anim.style(el + "-ok")}>'
+                         + mark_svg(b, f'{base} {N}-is-ok') + inner(S, F, n, b, k, 'ok') + '</g>')
+        if on:
+            parts.append(hl_group(el, mark_svg(b, f'{N}-glow') + mark_svg(b, f'{base} {N}-is-hl')
+                                  + inner(S, F, n, b, k, 'hl')))
+        parts.append(text_block(N, b['lab'], F))
+        svg.append(f'<g id="{el}" class="{N}-node {N}-k-{kind}"{anim.style(el)}>{"".join(parts)}</g>')
     if over:
-        warn(f'text may overflow its box in node(s) {", ".join(over)}: shorten the label, '
+        warn(f'text may overflow its row in node(s) {", ".join(over)}: shorten the label, '
              'use sub, or pick a larger --viewbox / --rendered-width')
 
+    # ---- chart
     ch = scene.get('chart')
     if ch:
         L, R, Tp, B = ch['L'], ch['R'], ch['T'], ch['B']
@@ -2174,36 +2410,37 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
             tw = text_w(ev['e']['label'], F['mono'], True) + 20
             tx = min(max(x, L + tw / 2), R - tw / 2)
             svg.append(f'<g id="{el}" class="{N}-event"{anim.style(el)}><path class="{N}-evl" '
-                       f'd="M {f1(x)},{f1(Tp)} V {f1(B)}"/><rect class="{N}-chip" x="{f1(tx - tw / 2)}" '
-                       f'y="{f1(Tp - F["mono"] - 26)}" width="{f1(tw)}" height="{f1(F["mono"] + 16)}" rx="6"/>'
+                       f'd="M {f1(x)},{f1(Tp)} V {f1(B)}"/><rect class="{N}-tag" x="{f1(tx - tw / 2)}" '
+                       f'y="{f1(Tp - F["mono"] - 26)}" width="{f1(tw)}" height="{f1(F["mono"] + 16)}" rx="4"/>'
                        f'<text class="{N}-t {N}-mono" x="{f1(tx)}" y="{f1(Tp - 18 - F["mono"] * 0.15)}" '
                        f'text-anchor="middle">{escape(ev["e"]["label"])}</text></g>')
         for s in ch['series']:
             el, k = rid[s['s']['id']], s['k']
             clip = f' clip-path="url(#{N}-clip)"' if s['drawn'] else ''
             ex, ey = s['pts'][-1]
-            dot = (f'<circle id="{el}-dot" class="{N}-dot {N}-f{k}" cx="0" cy="0" r="7"'
+            dot = (f'<circle id="{el}-dot" class="{N}-tip {N}-f{k}" cx="0" cy="0" r="7"'
                    f'{anim.style(el + "-dot") or " style=" + chr(34) + f"transform:translate({f1(ex)}px,{f1(ey)}px)" + chr(34)}/>'
                    if s['drawn'] else '')
             if dot and 'transform' not in anim.rest(el + '-dot'):
-                dot = dot.replace(f'cx="0" cy="0"', f'cx="{f1(ex)}" cy="{f1(ey)}"')
-            svg.append(f'<g id="{el}" class="{N}-series"{anim.style(el)}><path class="{N}-ser {N}-c{k}" '
+                dot = dot.replace('cx="0" cy="0"', f'cx="{f1(ex)}" cy="{f1(ey)}"')
+            glow = f'<path class="{N}-glow" d="{s["d"]}"{clip}/>' if k == 0 else ''
+            svg.append(f'<g id="{el}" class="{N}-series"{anim.style(el)}>{glow}<path class="{N}-ser {N}-c{k}" '
                        f'd="{s["d"]}"{clip}/>{dot}<text id="{el}-end" class="{N}-t {N}-lbl {N}-f{k}" '
-                       f'x="{f1(ex + 12)}" y="{f1(s["ly"])}"{anim.style(el + "-end")}>{escape(s["s"]["label"])}</text></g>')
+                       f'x="{f1(ex + 14)}" y="{f1(s["ly"])}"{anim.style(el + "-end")}>{escape(s["s"]["label"])}</text></g>')
 
+    # ---- packets: glowing dots riding the wires
     for el, eid in scene.get('packets', []):
         e = S.edge[eid]
-        r = 12 if S.arch == 'states' else 8
+        r = 10 if S.arch == 'states' else 8
         svg.append(f'<circle id="{el}" class="{N}-pkt{" " + N + "-pkt-event" if e["kind"] == "event" else ""}" '
                    f'r="{r}"{anim.style(el, f"offset-path:var(--{rid[eid]})")}/>')
 
+    # ---- caption: plain centred text, cross-faded per phase
     if has_note:
         notes = [p['note'] for p in S.phases if p['note']]
-        svg.append(f'<rect class="{N}-strip" x="24" y="{f1(S.H - strip - 8)}" width="{f1(S.W - 48)}" '
-                   f'height="{f1(strip)}" rx="8"/>')
         for k, t in enumerate(notes):
             if text_w(t, F['note']) > S.W - 80:
-                warn(f'note {t[:30]!r}... is wider than the caption strip')
+                warn(f'note {t[:30]!r}... is wider than the caption row')
             svg.append(f'<text id="{N}-note{k}" class="{N}-t {N}-note" x="{f1(S.W / 2)}" '
                        f'y="{f1(S.H - 8 - strip / 2 + F["note"] * 0.35)}" text-anchor="middle"'
                        f'{anim.style(f"{N}-note{k}")}>{escape(t)}</text>')
@@ -2212,67 +2449,78 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
 
 def css(S, F, T, anim, scene, rid):
     N, A = S.name, f'.anim-{S.name}'
+    ink = 'color-mix(in srgb, var(--anim-muted) 55%, var(--anim-bg))'      # rings and wires at rest
     rules = f"""{A} {{
-  --anim-bg:       var(--anim-theme-bg,       #0f1218);
-  --anim-panel:    var(--anim-theme-panel,    #1a2030);
-  --anim-line:     var(--anim-theme-line,     #3a4660);
-  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
-  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
-  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
-  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
-  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
-  --anim-warn:     var(--anim-theme-warn,     #ffb454);
-  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
   --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
   --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
   display: block; width: 100%; height: 100%;
 }}
 {A} svg {{ display: block; width: 100%; height: 100%; max-width: none; overflow: visible; }}
+/* type: labels in --anim-font 600, everything secondary in mono muted */
 {A} .{N}-t {{ font-family: var(--anim-font); fill: var(--anim-fg); }}
 {A} .{N}-title {{ font-size: {F['title']}px; font-weight: 700; }}
-{A} .{N}-head {{ font-size: {F['head']}px; font-weight: 700; }}
+{A} .{N}-head {{ font-size: {F['head']}px; font-weight: 600; }}
 {A} .{N}-lbl {{ font-size: {F['lbl']}px; font-weight: 600; }}
-{A} .{N}-monolbl {{ font-family: var(--anim-mono); }}
-{A} .{N}-sub {{ font-size: {F['sub']}px; fill: var(--anim-muted); }}
-{A} .{N}-lane {{ font-size: {F['lbl']}px; font-weight: 700; fill: var(--anim-muted); }}
-{A} .{N}-mono {{ font-family: var(--anim-mono); font-size: {F['mono']}px; fill: var(--anim-muted); }}
-{A} .{N}-note {{ font-size: {F['note']}px; }}
-{A} .{N}-box {{ fill: var(--anim-panel); stroke: var(--anim-line); stroke-width: 2; }}
-{A} .{N}-k-actor .{N}-box {{ stroke: var(--anim-fg); }}
-{A} .{N}-k-decision .{N}-box {{ stroke: var(--anim-accent-2); }}
-{A} .{N}-k-external .{N}-box {{ stroke: var(--anim-muted); stroke-dasharray: 8 6; }}
-{A} .{N}-glyph {{ fill: none; stroke: var(--anim-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
-{A} .{N}-hl {{ fill: color-mix(in srgb, var(--anim-accent) 14%, var(--anim-panel)); stroke: var(--anim-accent); stroke-width: 3; }}
-{A} .{N}-cont .{N}-hl, {A} .{N}-group .{N}-hl {{ fill: none; }}
-{A} .{N}-grp {{ fill: color-mix(in srgb, var(--anim-accent) 6%, transparent); stroke: var(--anim-line); stroke-width: 1.5; }}
-{A} .{N}-panel {{ fill: var(--anim-panel); stroke: var(--anim-line); stroke-width: 1.5; }}
-{A} .{N}-wire {{ fill: none; stroke: var(--anim-line); stroke-width: 2.5; stroke-linecap: round; }}
+{A} .{N}-sub, {A} .{N}-mono, {A} .{N}-at, {A} .{N}-glbl, {A} .{N}-lane, {A} .{N}-band {{ font-family: var(--anim-mono); font-weight: 400; fill: var(--anim-muted); }}
+{A} .{N}-sub {{ font-size: {F['sub']}px; }}
+{A} .{N}-mono, {A} .{N}-at, {A} .{N}-lane {{ font-size: {F['mono']}px; }}
+{A} .{N}-glbl {{ font-size: {F['sub']}px; letter-spacing: .04em; }}
+{A} .{N}-band {{ font-size: {F['mono']}px; letter-spacing: .1em; text-transform: uppercase; }}
+{A} .{N}-num {{ font-family: var(--anim-mono); font-size: {F['num']}px; fill: var(--anim-muted); }}
+{A} .{N}-elbl {{ paint-order: stroke; stroke: var(--anim-bg); stroke-width: 6px; stroke-linejoin: round; }}
+{A} .{N}-note {{ font-size: {F['note']}px; font-weight: 400; }}
+{A} .{N}-acc {{ fill: var(--anim-accent); }}
+{A} .{N}-ghost {{ fill: none; }}
+/* marks: rings, thin diamonds, dots; no filled boxes */
+{A} .{N}-ring {{ fill: var(--anim-bg); stroke: {ink}; stroke-width: 2.5; }}
+{A} .{N}-ext {{ stroke-dasharray: 6 6; }}
+{A} .{N}-dot {{ fill: var(--anim-bg); stroke: {ink}; stroke-width: 2.5; }}
+{A} .{N}-glyph {{ fill: none; stroke: var(--anim-muted); stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }}
+{A} .{N}-is-ok {{ fill: none; stroke: var(--anim-ok); }}
+{A} .{N}-dot.{N}-is-ok {{ fill: var(--anim-ok); }}
+{A} .{N}-is-hl {{ fill: none; stroke: var(--anim-accent); stroke-width: 4; }}
+{A} .{N}-dot.{N}-is-hl {{ fill: var(--anim-accent); stroke-width: 2.5; }}
+{A} .{N}-in-ok {{ fill: var(--anim-ok); }}
+{A} .{N}-in-hl {{ fill: var(--anim-accent); }}
+{A} path.{N}-in-ok {{ fill: none; stroke: var(--anim-ok); }}
+{A} path.{N}-in-hl {{ fill: none; stroke: var(--anim-accent); }}
+{A} .{N}-glow {{ fill: none; stroke: var(--anim-accent); stroke-width: 10; stroke-linecap: round; opacity: 0.3; filter: blur(6px); }}
+/* wires: 2.5 px at rest, the active path 4 px accent with a glow */
+{A} .{N}-wire {{ fill: none; stroke: {ink}; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
 {A} .{N}-draw {{ stroke-dasharray: 100 120; stroke-dashoffset: 0; }}
 {A} .{N}-ek-depends .{N}-wire {{ stroke-dasharray: 10 8; }}
-{A} .{N}-ek-event .{N}-wire {{ stroke-dasharray: 2 8; }}
-{A} .{N}-ek-data .{N}-wire {{ stroke-width: 1.5; }}
-{A} .{N}-wire-hl {{ fill: none; stroke: var(--anim-accent); stroke-width: 3.5; stroke-linecap: round; }}
-{A} .{N}-arrow {{ fill: var(--anim-line); }}
-{A} .{N}-lbg {{ fill: var(--anim-bg); }}
-{A} .{N}-pkt {{ fill: var(--anim-accent); }}
-{A} .{N}-pkt-event {{ fill: var(--anim-warn); }}
-{A} .{N}-strip {{ fill: var(--anim-panel); }}
-{A} .{N}-axis {{ fill: none; stroke: var(--anim-line); stroke-width: 3; stroke-linecap: round; }}
-{A} .{N}-prog {{ fill: none; stroke: var(--anim-accent); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 100 120; stroke-dashoffset: 0; }}
-{A} .{N}-mk {{ fill: var(--anim-bg); stroke: var(--anim-line); stroke-width: 3; }}
-{A} .{N}-mkfill {{ fill: var(--anim-accent); }}
-{A} .{N}-tick {{ fill: none; stroke: var(--anim-line); stroke-width: 1.5; }}
-{A} .{N}-bracket {{ fill: none; stroke: var(--anim-muted); stroke-width: 2; stroke-linejoin: round; }}
-{A} .{N}-grid {{ fill: none; stroke: var(--anim-line); stroke-width: 1.5; opacity: 0.6; }}
+{A} .{N}-ek-event .{N}-wire {{ stroke-dasharray: 3 9; }}
+{A} .{N}-ek-data .{N}-wire {{ stroke-width: 2; }}
+{A} .{N}-wire-hl {{ fill: none; stroke: var(--anim-accent); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }}
+{A} .{N}-arrow {{ fill: none; stroke: {ink}; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
+{A} .{N}-pkt {{ fill: var(--anim-accent); stroke: var(--anim-accent); stroke-width: 12; stroke-opacity: 0.3; }}
+{A} .{N}-pkt-event {{ fill: var(--anim-warn); stroke: var(--anim-warn); }}
+/* structure: hairlines, brackets, axes */
+{A} .{N}-rule {{ fill: none; stroke: var(--anim-line); stroke-width: 2; }}
+{A} .{N}-bracket {{ fill: none; stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
+{A} .{N}-leader {{ fill: none; stroke: var(--anim-line); stroke-width: 2; }}
+{A} .{N}-tag {{ fill: none; stroke: var(--anim-line); stroke-width: 2; }}
+{A} .{N}-axis {{ fill: none; stroke: var(--anim-line); stroke-width: {3 if S.arch == 'timeline' else 2}; stroke-linecap: round; }}
+{A} .{N}-prog {{ fill: none; stroke: var(--anim-accent); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100 120; stroke-dashoffset: 0; }}
+{A} .{N}-grid {{ fill: none; stroke: var(--anim-muted); stroke-width: 1.5; stroke-dasharray: 2 7; stroke-linecap: round; opacity: 0.4; }}
 {A} .{N}-ser {{ fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }}
 {A} .{N}-c0 {{ stroke: var(--anim-accent); }}
-{A} .{N}-c1 {{ stroke: var(--anim-accent-2); }}
-{A} .{N}-c2 {{ stroke: var(--anim-ok); }}
+{A} .{N}-c1 {{ stroke: var(--anim-muted); stroke-width: 2.5; stroke-dasharray: 10 8; }}
+{A} .{N}-c2 {{ stroke: var(--anim-muted); stroke-dasharray: 8 7; }}
 {A} .{N}-f0 {{ fill: var(--anim-accent); }}
-{A} .{N}-f1 {{ fill: var(--anim-accent-2); }}
-{A} .{N}-f2 {{ fill: var(--anim-ok); }}
-{A} .{N}-evl {{ fill: none; stroke: var(--anim-muted); stroke-width: 2; stroke-dasharray: 6 6; }}
-{A} .{N}-chip {{ fill: var(--anim-panel); stroke: var(--anim-line); stroke-width: 1.5; }}
+{A} .{N}-f1, {A} .{N}-f2 {{ fill: var(--anim-muted); }}
+{A} .{N}-tip.{N}-f0 {{ stroke: var(--anim-accent); stroke-width: 12; stroke-opacity: 0.3; }}
+{A} .{N}-evl {{ fill: none; stroke: var(--anim-muted); stroke-width: 2; stroke-dasharray: 6 7; }}
 """
     out = [rules]
     if S.edges:
@@ -2296,32 +2544,39 @@ def css(S, F, T, anim, scene, rid):
 
 
 REFINE = {
-    'pipeline': 'status chips above boxes; settle finished boxes to --anim-ok; feedback arc colour',
-    'graph': 'dim non-active nodes to 60 %; check the crossing report and edge-label spots',
-    'timeline': 'past milestones to --anim-ok, only "now" accent; alternate labels if crowded',
+    'pipeline': 'step numbers sit in the rings; a feedback arc in --anim-danger or --anim-warn only if the slide says why',
+    'graph': 'dim non-active nodes to 60 %; check the crossing report and edge-label spots; glyphs per kind',
+    'timeline': 'past milestones settle to --anim-ok, only "now" stays accent; check leaders and era brackets',
     'states': 'single current-state token; error transitions in --anim-danger; label offsets',
-    'compare': 'panel headers (taken from a one-side group, else Before/After); left dims as right appears',
+    'compare': 'column headers (taken from a one-side group, else Before/After); left dims as right appears',
     'layers': 'layer names (from a one-layer group, else "Layer N"); bands rise 12 px bottom-up; response packet in --anim-ok',
-    'chart': 'thresholds, readouts, axis titles, a baseline that does not exaggerate; downsample long series',
+    'chart': 'thresholds as dashed lines, an inline readout, axis titles, a baseline that does not exaggerate',
 }
 
 
 def fonts(S, args):
     rw = args.rendered_width or S.W
     k = max(1.0, args.min_text * S.W / (18 * rw))
-    return {key: math.ceil(v * k * 2) / 2 for key, v in
-            dict(title=26, head=26, lbl=22, note=22, sub=18, mono=18, edge=18).items()}, k
+    F = {key: math.ceil(v * k * 2) / 2 for key, v in
+         dict(title=26, head=24, lbl=24, note=26, sub=18, mono=18, edge=18, num=20).items()}
+    F['ring'], F['dot'] = round(34 * k), round(10 * k)      # ring r 34 and timeline dot r 10 at the stage
+    return F, k
 
 
 def try_layout(S, F):
     """Loosest layout that keeps everything inside the viewBox: (frame, scene, overflow list)."""
     fr = frame(S, F)
-    levels = range(len(GRAPH_FIT)) if S.arch == 'graph' and not S.lanes else [None]
+    levels = ([(lv, md) for md in ('below', 'side', 'small') for lv in range(len(GRAPH_FIT))]
+              if S.arch == 'graph' and not S.lanes else [None])
     for lv in levels:
-        scene = LAYOUTS[S.arch](S, F, fr[0], fr[1]) if lv is None else layout_graph(S, F, fr[0], fr[1], lv)
+        scene = LAYOUTS[S.arch](S, F, fr[0], fr[1]) if lv is None else layout_graph(S, F, fr[0], fr[1], *lv)
+        if S.arch in ('states', 'layers', 'timeline') and 'labels' not in scene:
+            scene['labels'] = place_edge_labels(S, F, scene)
         out = outside(S, F, scene, fr)
         if not out:
             break
+    if not out and scene.get('mode') == 'small':
+        warn('graph: rings shrunk to fit the height; raise size H for full-size rings')
     return fr, scene, out
 
 
@@ -2394,7 +2649,7 @@ def main():
               f'  generated by scripts/scaffold_from_spec.py from {os.path.basename(args.spec)} '
               f'({S.arch}, {S.control}, {S.W}x{S.H}, rendered {rw:g}px)\n'
               f'  - {REFINE[S.arch]}\n'
-              '  - node glyphs per kind are placeholders; check label fit, edge routing and overlaps\n'
+              '  - lean style (references/style.md): rings, hairlines, one accent; glyphs per kind are placeholders\n'
               '  - aria-label: rewrite as one sentence that tells the story\n'
               '  - motion audit (references/motion-rules.md); render-phases.sh and LOOK at every PNG\n'
               f'  - edge paths: each wire keeps its d attribute (SVG d cannot read a CSS variable in every\n'
