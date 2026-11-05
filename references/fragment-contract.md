@@ -136,8 +136,8 @@ start `from` the empty state.
   `window.animSlides` itself. On Right/Space/PageDown and Left/PageUp the host tweens the
   timeline of the fragment inside the gate to the next or previous label (`tl.tweenTo`), `p`
   pauses or resumes, and at the last or first phase the key passes to the deck. GSAP is loaded once in the
-  deck head (a local copy or a pinned CDN URL, as in `scripts/snippets/step-host.html`), never
-  inside the fragment.
+  deck head as an inline copy (the delivered page must stay self-contained and open offline;
+  a CDN URL only when the user's deck already uses one), never inside the fragment.
   `loop` with a caption strip is the default up to about 6 narrated phases (every pool entry is
   one). Choose `step` only when the brief says so, the presenter must drive the phases, and the
   host can load GSAP.

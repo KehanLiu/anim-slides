@@ -85,16 +85,38 @@ has them; integration always stays in the main thread.
    checks the host page's resting frame. Open every PNG with your image
    viewing tool. Fix clipping, overlaps, unreadable text, empty panels. Iterate at least once.
 3. The resting frame must read as a complete still (PDF export shows only that).
+4. `python3 <skill-dir>/scripts/verify_facts.py anim/<name>/<name>.html --source anim/outline.json --slide <N>`
+   (or `--source doc.md`) must pass: every number in the fragment comes from the source or is
+   marked illustrative; read each WARN and replace untraceable wording with the source's own
+   words or remove it. Rules in `references/accuracy.md`. A figure is not done until this passes.
 Never trust `--virtual-time-budget`, and never trust reading the source instead of the PNG.
 
 ### 5. Integrate
 `python3 <skill-dir>/scripts/integrate_fragment.py deck.html anim/<name>/<name>.html --name <name> --anchor '<unique string in the slide>' [--replace-until '<string>'] [--gate 'section.present'] --backup`
+(the anchor and the until-string are kept; what lies between them is replaced; reveal.js gates on
+`section.present`, plain pages on `.visible` with `scripts/snippets/observer.html`). It also adds a
+print guard so PDF export (reveal's `?print-pdf` marks every slide present) shows resting frames.
 hoists the style into the head, inserts the fragment between `<!-- anim:<name>:start -->` and `<!-- anim:<name>:end -->`
 markers (the style between `anim-style` markers; re-running replaces both copies), rewrites the gate for the host deck, and prefixes any
 class that slipped through. For plain pages copy `<skill-dir>/scripts/snippets/observer.html` into the page; for
 step mode copy `scripts/snippets/step-host.html` into the head after a single GSAP script tag.
+Keep the working deck **lean**: fragments are small SVG text and go in by markers, but do not
+inline fonts, images, libraries or stylesheets while you work, and never read the whole deck
+into context; read slices around the anchor (`grep -n`, `sed -n`) and let the scripts edit it.
 Then open the deck in a real browser and watch the slide once. Headless frames never prove
-smoothness.
+smoothness. For a headless check of one slide:
+`chrome --headless=new --hide-scrollbars --window-size=1920,1080 --timeout=3000 --screenshot=s4.png 'file:///abs/deck.html#/4'`
+(never pass `--user-data-dir`, Chrome then hangs; export PDFs from the browser's print dialog,
+the CLI `--print-to-pdf` on `?print-pdf` is unreliable).
+
+### 5b. Hand-over
+Ask the user whether the deck will be shared or presented from another machine. If yes, bundle
+it last: `python3 <skill-dir>/scripts/bundle_deck.py deck.html -o deck.bundled.html --fetch` inlines
+every local stylesheet, script, font and image as data: URIs (GSAP for `step` mode included) so
+one file opens offline; then `python3 <skill-dir>/scripts/check_page.py deck.bundled.html --gate section.present`
+confirms no external loads, paired markers and gated fragments. Do not read the bundled file;
+verify it with the checker and one headless screenshot. Never add a CDN `<script>` or `<link>`
+yourself; keep ones the user's deck already had and say so.
 
 ### 6. Audit
 Run the checklist at the end of `references/motion-rules.md` before shipping.
@@ -114,6 +136,8 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - No `<script>`, `<link>`, `<image>`, `@import`, `@font-face` inside a fragment (step mode adds
   exactly one module script).
 - Text at or above 18 px at rendered size, titles 22 px and up.
+- Never add CDN or network loads. Work on a lean deck; bundle to one self-contained file only
+  at hand-over when the user wants to share (`bundle_deck.py`, then `check_page.py`).
 - At most three things moving at once, cycle 8 to 15 s with a hold, `linear` only for
   continuous loops, exits about 65 % of entrance length, reduced-motion block present.
 
@@ -129,7 +153,11 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions
 - `scripts/scaffold_from_spec.py` — spec validation and spec to skeleton fragment (loop or step); YAML or JSON, PyYAML optional
 - `scripts/check_fragment.py` — static contract checks
+- `scripts/verify_facts.py` — provenance gate: fragment text and numbers against the source slide
+- `references/accuracy.md` — accuracy rules: numbers from the source, labels in its words, figures redrawn at scale
 - `scripts/render-phases.sh` — phase PNGs and contact sheet with headless Chrome
+- `scripts/check_page.py` — page-level checks: no external loads, paired markers, gated fragments, print guard
+- `scripts/bundle_deck.py` — inline local (and with `--fetch`, remote) assets into one self-contained file
 - `scripts/integrate_fragment.py` — idempotent inlining into a deck, gate rewrite, prefix safety net
 - `scripts/snippets/observer.html`, `scripts/snippets/step-host.html` — host-side helpers
 - `pool/` — finished, checked fragments, at least one per archetype, with thumbnails and specs; `pool/index.yaml` lists them (step 1b)

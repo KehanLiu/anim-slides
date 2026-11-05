@@ -65,6 +65,8 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
   the finished state, so PDF export and reduced-motion users get a complete still.
 - **Two control modes.** `loop` (default, CSS only) for self-running stories; `step` (GSAP
   timeline with labels) when the presenter wants to advance phases with a key.
+- **Shareable.** The skill adds no CDN or network loads, and `bundle_deck.py` turns the deck
+  into one self-contained HTML file for sharing, verified by `check_page.py`.
 - **Verified by looking.** The skill renders phases of the cycle to PNG and inspects them before
   it calls anything done.
 
@@ -124,7 +126,8 @@ claude plugin install anim-slides@anim-slides-marketplace
 ```
 
 or `/plugin marketplace add KehanLiu/anim-slides` then `/plugin install anim-slides@anim-slides-marketplace`
-inside a session. Update with `claude plugin marketplace update anim-slides-marketplace` and
+inside a session. Installed this way the skill is invoked as `/anim-slides:anim-slides`.
+Update with `claude plugin marketplace update anim-slides-marketplace` and
 `claude plugin update anim-slides@anim-slides-marketplace` (auto-update is off for third-party
 marketplaces). For a one-off trial from a local clone: `claude --plugin-dir ./anim-slides`.
 

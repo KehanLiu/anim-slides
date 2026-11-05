@@ -4,7 +4,7 @@
 Usage:
   integrate_fragment.py DECK.html FRAGMENT.html --name NAME
         [--anchor STR] [--replace-until STR] [--wrap TAG] [--gate SELECTOR|none]
-        [--dry-run] [--backup]
+        [--no-print-guard] [--dry-run] [--backup]
 
 The fragment file is the source of truth; the deck holds a generated copy between markers:
 
@@ -12,13 +12,17 @@ The fragment file is the source of truth; the deck holds a generated copy betwee
   <body> ... <!-- anim:NAME:start --> <div class="anim anim-NAME">...</div> <!-- anim:NAME:end -->
 
   - If the deck already has the markers, both blocks are replaced in place (--anchor not needed).
-  - Otherwise the markup goes right after --anchor (a unique string in the slide); with
-    --replace-until the text between the end of the anchor and the start of that string
-    (e.g. a placeholder image) is replaced. The style block goes before </head>.
+  - Otherwise the markup goes right after --anchor (a unique string in the slide). With
+    --replace-until, the anchor and the until-string themselves are kept; everything between
+    them (e.g. a placeholder image) is replaced. The style block goes before </head>.
   - --wrap wraps the markup in an element: a tag name ("div") or a full opening tag
     ('<div class="figure">'); the closing tag is derived. Default: no wrap.
   - --gate rewrites the authored ".visible " gate prefix in the CSS (e.g. 'section.present'
     for reveal.js); "none" removes it so the animation always runs. Default: keep .visible.
+  - Print guard: the style block ends with rules that switch the fragment's animations off in
+    print and in known print-layout modes (reveal.js ?print-pdf marks EVERY slide .present), so a
+    PDF export shows the resting frame, not a mid-cycle frame. --no-print-guard leaves it out.
+  - HTML comments starting with "scaffold" or "refine" (scaffold_from_spec.py notes) are dropped.
   - Safety net: any class or id not prefixed NAME- (except anim, anim-NAME) is prefixed in
     markup and CSS, with a note per rename. Fix the fragment itself when you see one.
   - --backup writes DECK.html.bak first; --dry-run prints the summary without writing.
@@ -35,6 +39,8 @@ def die(msg):
 
 def load_fragment(path, name, gate):
     src = open(path, encoding='utf-8').read()
+    # authoring notes (scaffold_from_spec.py header, "refine by hand" notes) stay out of the deck
+    src = re.sub(r'[ \t]*<!--\s*(?:scaffold|refine)\b.*?-->[ \t]*\n?', '', src, flags=re.S | re.I)
     styles = re.findall(r'<style[^>]*>(.*?)</style>', src, flags=re.S | re.I)
     if len(styles) != 1:
         die(f'fragment must contain exactly one <style>, found {len(styles)}')
@@ -81,6 +87,18 @@ def load_fragment(path, name, gate):
     return css, body, notes, n_gate, len(classes) + len(ids)
 
 
+PRINT_MODES = ('html.print-pdf', 'html.reveal-print')   # reveal.js print layout classes
+
+
+def print_guard(name):
+    """CSS that shows the resting frame in print / PDF export, whatever the gate says."""
+    root = f'.anim-{name}'
+    sels = ', '.join(f'{m} {root}, {m} {root} *' for m in PRINT_MODES)
+    return (f'/* anim-slides print guard: PDF export shows the resting frame */\n'
+            f'@media print {{ {root}, {root} * {{ animation: none !important; transition: none !important; }} }}\n'
+            f'{sels} {{ animation: none !important; transition: none !important; }}')
+
+
 def wrap_markup(body, wrap):
     if not wrap:
         return body
@@ -107,20 +125,25 @@ def replace_block(s, start, end, new):
 
 
 def main():
-    ap = argparse.ArgumentParser(description='Inline an anim-slides fragment into a deck (idempotent).')
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('deck')
     ap.add_argument('fragment')
     ap.add_argument('--name', required=True)
     ap.add_argument('--anchor', help='unique string; needed only on first insertion')
-    ap.add_argument('--replace-until', help='replace from the end of --anchor up to this string')
+    ap.add_argument('--replace-until', help='replace the text between --anchor and this string; '
+                    'the anchor and the until-string themselves are kept')
     ap.add_argument('--wrap', default='', help='tag name or opening tag wrapped around the markup')
     ap.add_argument('--gate', default=None, help="gate selector for the host, or 'none' (default: keep .visible)")
+    ap.add_argument('--no-print-guard', action='store_true',
+                    help='do not add the rules that freeze the fragment on its resting frame in print/PDF')
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--backup', action='store_true')
     a = ap.parse_args()
     n = a.name
 
     css, body, notes, n_gate, renamed = load_fragment(a.fragment, n, a.gate)
+    if not a.no_print_guard:
+        css = css.rstrip() + '\n' + print_guard(n)
     for m in notes:
         print(m, file=sys.stderr)
     s = open(a.deck, encoding='utf-8').read()

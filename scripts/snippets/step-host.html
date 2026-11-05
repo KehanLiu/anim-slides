@@ -1,11 +1,22 @@
 <!--
   anim-slides step host: lets the presenter step through `data-anim-control="step"` fragments.
   Put it in <head>, AFTER GSAP and BEFORE any fragment, as a classic (non-module) script.
-  Load GSAP once, from a local copy for offline decks or from a pinned CDN URL:
+  Load GSAP exactly once. Keep the working deck lean: reference a local copy next to the deck
+  (download the pinned file once); use the pinned CDN URL only if the deck already loads its
+  libraries from a CDN. The hand-over file is self-contained: bundle_deck.py inlines the local
+  copy (and, with --fetch, a CDN one), so the delivered deck opens offline.
 
-    <script src="vendor/gsap.min.js"></script>   <!-- or https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js -->
+    <script src="vendor/gsap.min.js"></script>
     <script> ...this file's script... </script>
-    <script>animSlides.gate = 'section.present';</script>  <!-- reveal.js; default '.visible' -->
+    <script>animSlides.gate = 'section.present';</script>
+
+  vendor/gsap.min.js is the pinned gsap 3.12.5 from
+  https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js ; the gate line is for
+  reveal.js (default '.visible'). This header is one HTML comment: never nest comment markers
+  in it, or the rest of the header shows up as text on the slide.
+
+  Print / PDF export (window print, reveal.js ?print-pdf): every registered timeline is jumped to
+  its end, the resting frame, so the PDF never shows phase 0.
 
   Set the gate AFTER this script (or anytime later; it is read on every key). Do not assign
   window.animSlides = {...} yourself: that would break fragments' early-registration queue.
@@ -43,7 +54,15 @@
     }
     return null;
   }
+  function printing() {                             // reveal ?print-pdf marks every slide .present
+    var c = document.documentElement.classList;
+    return A.printing || c.contains('print-pdf') || c.contains('reveal-print');
+  }
+  function rest() {                                 // resting frame = end of every timeline
+    for (var n in frags) { var f = frags[n]; if (f.tw) f.tw.kill(); f.tw = null; f.tl.pause(f.tl.duration()); }
+  }
   function check() {                                // slide changed? reset the new one to phase 0
+    if (printing()) { current = null; rest(); return; }
     var n = findCurrent();
     if (n === current) return;
     current = n;
@@ -75,6 +94,8 @@
     go(f, target);
   }, true);
 
+  window.addEventListener('beforeprint', function () { A.printing = true; rest(); });
+  window.addEventListener('afterprint', function () { A.printing = false; current = null; check(); });
   new MutationObserver(check).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ['class'] });
   q.splice(0).forEach(function (r) { A.register(r[0], r[1]); });   // drain the early queue
 })();
