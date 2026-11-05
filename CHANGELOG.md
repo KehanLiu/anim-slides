@@ -2,6 +2,12 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.6.1 - 2026-11-05
+
+- `scripts/render_deck.py`: contact sheets of the source deck (12 numbered slides per sheet,
+  no ImageMagick needed) so triage reads a few images instead of one per slide; full-size
+  pages only for the candidates. Intake step and hard rule updated.
+
 ## 0.6.0 - 2026-11-05
 
 - **Lean style.** New `references/style.md`: rings and thin lines, no cards or chips, one

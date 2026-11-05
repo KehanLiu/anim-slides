@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.6.0"
+  version: "0.6.1"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
@@ -33,7 +33,9 @@ the user's deck.
 
 ### 0. Intake
 Decide which of the three entry points applies:
-- **Existing deck**: run `python3 <skill-dir>/scripts/extract_slides.py deck.pptx|deck.html|doc.md -o anim/outline.json`, then
+- **Existing deck**: run `python3 <skill-dir>/scripts/extract_slides.py deck.pptx|deck.html|doc.md -o anim/outline.json`
+  and `python3 <skill-dir>/scripts/render_deck.py deck -o anim/render`, then look at the
+  `sheet-NN.png` contact sheets (12 numbered slides each), not page by page; then
   triage with `references/input-stage.md` (3 to 8 illustrations per 30 slides is normal).
 - **Markdown or remark deck with no HTML yet**: `python3 <skill-dir>/scripts/md_to_deck.py deck.md -o deck.html`
   makes a self-contained HTML deck (one `<section>` per slide, `.visible` gating, print layout,
@@ -145,8 +147,9 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
   embedding the source image in the host slide next to the fragment when the licence allows, or
   by redrawing it as a simple SVG glyph in the same colours inside the fragment. Only a slide
   background, a logo or a photo unrelated to the content may be left out; when unsure, keep it
-  and say so. Render the source slide (`soffice --convert-to pdf`, then `pdftoppm`) and
-  look at it before writing the spec; `extract_slides.py` cannot see inside pictures.
+  and say so. Render the source slides with `render_deck.py`, look at the contact sheets, and before
+  writing a spec re-run with `--pages N,...` and open `full/p-NN.png` for each candidate;
+  `extract_slides.py` cannot see inside pictures.
 - Prefix every class, id and keyframe with `<name>-`. Host CSS has global `.bar .card .node
   .flow` rules and Chrome applies CSS width/height to SVG rects.
 - No hard-coded colours or fonts: use `var(--anim-*)` tokens with the fallback block from the
@@ -174,6 +177,7 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `references/motion-rules.md` — timing, easing, choreography, audit checklist
 - `references/lessons.md` — gotchas collected while building fragments
 - `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions
+- `scripts/render_deck.py` — source deck to contact sheets (12 slides each) plus full-size pages for candidates
 - `scripts/md_to_deck.py` — Markdown or remark deck to a self-contained HTML deck to integrate into
 - `scripts/scaffold_from_spec.py` — spec validation and spec to skeleton fragment (loop or step); YAML or JSON, PyYAML optional
 - `scripts/check_fragment.py` — static contract checks
