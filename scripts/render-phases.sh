@@ -3,12 +3,29 @@
 #
 # Usage:
 #   render-phases.sh [--out DIR] <fragment-dir | fragment.html> <W> <H> <seconds...> [rest]
-#   render-phases.sh [--out DIR] --page <page.html> <W> <H> <seconds...> [rest]
+#   render-phases.sh [--out DIR] --page <page.html> [--slide N|#hash|selector] [--no-script] <W> <H> <seconds...> [rest]
 #
 #   Fragment mode: a directory means <dir>/<basename of dir>.html (or the only .html in it);
 #   a file path is used as is. The fragment is wrapped in <section class="$GATE"> of W x H.
 #   Page mode (--page): a whole host page, shot in a W x H window. Its own gate class
 #   (<section class="visible">) is kept for the seconds and removed from every element for "rest".
+#
+#   --slide S  (page mode) shoot one slide of a multi-slide page. S is
+#                N         the Nth slide (Nth .slide element, else Nth <section>); the URL also
+#                          gets #N, which decks with hash routing (md_to_deck.py: #N / #sN) follow
+#                #hash     open the page at that URL fragment (#s26, #/25, ...) and nothing else
+#                selector  any CSS selector (e.g. 'section#s26'); quote it in the shell
+#              For N and selector, a script injected before </body> hides the other slides
+#              (same tag, display:none), brings that one into view and, for the seconds, puts the
+#              gate class on it and removes it from every other element; for "rest" it removes the
+#              gate class from every element. Prefer N or a selector over #hash: headless
+#              --screenshot paints content reached by scrolling a long page black.
+#   --no-script  strip the page's own <script> elements (inline and src) from the preview copies.
+#              Use it whenever the page's own script toggles the gate class (deck navigation,
+#              an observer): with scripts running, "rest" is re-gated by the page and does not
+#              show the resting frame that print/PDF shows. md_to_deck.py decks without script
+#              stack every slide at stage size, so --slide N still lands on slide N.
+#              The --slide helper script is injected after stripping and still runs.
 #
 #   Each <seconds> value renders phase-<s>.png paused at that point of the cycle;
 #   "rest" renders the ungated resting frame (what PDF export sees).
@@ -31,15 +48,18 @@
 # No GIF output: that needs an encoder (ffmpeg, ImageMagick) this script does not depend on.
 set -euo pipefail
 USAGE="usage: $0 [--out DIR] <fragment-dir|fragment.html> <W> <H> <seconds...> [rest]
-       $0 [--out DIR] --page <page.html> <W> <H> <seconds...> [rest]"
+       $0 [--out DIR] --page <page.html> [--slide N|#hash|selector] [--no-script] <W> <H> <seconds...> [rest]"
 
-OUT=""; PAGE=""; ARGS=()
+OUT=""; PAGE=""; SLIDE=""; NOSCRIPT=""; ARGS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --out) [ $# -ge 2 ] || { echo "$USAGE" >&2; exit 2; }; OUT="$2"; shift 2 ;;
     --out=*) OUT="${1#--out=}"; shift ;;
     --page) [ $# -ge 2 ] || { echo "$USAGE" >&2; exit 2; }; PAGE="$2"; shift 2 ;;
     --page=*) PAGE="${1#--page=}"; shift ;;
+    --slide) [ $# -ge 2 ] || { echo "$USAGE" >&2; exit 2; }; SLIDE="$2"; shift 2 ;;
+    --slide=*) SLIDE="${1#--slide=}"; shift ;;
+    --no-script) NOSCRIPT=1; shift ;;
     -h|--help) echo "$USAGE"; exit 0 ;;
     --) shift; ARGS+=("$@"); break ;;
     -*) echo "unknown option $1" >&2; echo "$USAGE" >&2; exit 2 ;;
@@ -47,6 +67,17 @@ while [ $# -gt 0 ]; do
   esac
 done
 set -- "${ARGS[@]+"${ARGS[@]}"}"
+
+if [ -z "$PAGE" ] && { [ -n "$SLIDE" ] || [ -n "$NOSCRIPT" ]; }; then
+  echo "--slide and --no-script need --page" >&2; exit 2
+fi
+HASH=""
+case "$SLIDE" in
+  "") ;;
+  \#*) HASH="$SLIDE" ;;
+  *) [[ "$SLIDE" =~ ^[0-9]+$ ]] && { [ "$SLIDE" -ge 1 ] || { echo "--slide N starts at 1" >&2; exit 2; }; HASH="#$SLIDE"; } ;;
+esac
+[ -z "$HASH" ] || [[ "$HASH" =~ ^#[A-Za-z0-9/_.:-]*$ ]] || { echo "--slide #hash: letters, digits and / _ . : - only" >&2; exit 2; }
 
 abspath() { (cd "$(dirname "$1")" && echo "$(pwd)/$(basename "$1")"); }
 
@@ -116,9 +147,9 @@ if [ -n "${THEME_CSS:-}" ]; then
 fi
 BASE="<base href=\"file://$SRCDIR/\">"  # previews live in OUT; relative assets still resolve
 
-shoot() {  # $1 = png, $2 = html, $3 = width, $4 = height
+shoot() {  # $1 = png, $2 = html, $3 = width, $4 = height, $5 = optional #fragment
   "$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
-    --window-size="$3,$4" --screenshot="$1" "file://$2" >/dev/null 2>&1
+    --window-size="$3,$4" --screenshot="$1" "file://$2${5:-}" >/dev/null 2>&1
 }
 
 pause_css() { echo ".$GATE *{animation-delay:-${1}s !important;animation-play-state:paused !important}"; }
@@ -132,10 +163,30 @@ make_fragment_preview() {  # $1 = output file, $2 = section class, $3 = extra st
 }
 
 make_page_preview() {  # $1 = output file, $2 = "rest" or "", $3 = extra style
-  HEAD="$BASE$FONTS_CSS$THEME" EXTRA="$3" STRIP="$2" GATE="$GATE" python3 -I - "$SRC" "$1" <<'PY'
-import os, re, sys
+  HEAD="$BASE$FONTS_CSS$THEME" EXTRA="$3" STRIP="$2" GATE="$GATE" SLIDE="$SLIDE" NOSCRIPT="$NOSCRIPT" \
+    python3 -I - "$SRC" "$1" <<'PY'
+import json, os, re, sys
 src, out = sys.argv[1], sys.argv[2]
 html = open(src, encoding="utf-8", errors="replace").read()
+if os.environ["NOSCRIPT"]:  # the page's own scripts must not re-add the gate
+    html = re.sub(r"<script\b[^>]*>.*?</script\s*>", "", html, flags=re.I | re.S)
+    html = re.sub(r"<script\b[^>]*/>", "", html, flags=re.I)
+slide = os.environ["SLIDE"]
+if slide and not slide.startswith("#"):
+    nth = int(slide) if slide.isdigit() else 0
+    js = """<script>(function(){var g=%s,rest=%s,n=%d,sel=%s,el=null;
+if(n){var l=document.querySelectorAll('.slide');if(!l.length)l=document.querySelectorAll('section');el=l[n-1]||null;}
+else{try{el=document.querySelector(sel);}catch(e){}}
+if(!el){document.title='render-phases: no slide '+(n||sel);return;}
+document.querySelectorAll('.'+g).forEach(function(x){if(rest||x!==el)x.classList.remove(g);});
+if(!rest)el.classList.add(g);
+var sib=n?l:el.parentElement.children;
+Array.prototype.forEach.call(sib,function(x){if(x!==el&&x.tagName===el.tagName)x.style.setProperty('display','none','important');});
+window.scrollTo(0,0);el.scrollIntoView({block:'start',inline:'start'});})();</script>""" % (
+        json.dumps(os.environ["GATE"]), "true" if os.environ["STRIP"] else "false", nth,
+        json.dumps(slide).replace("</", "<\\/"))
+    end = list(re.finditer(r"</body\s*>", html, re.I))
+    html = html[:end[-1].start()] + js + html[end[-1].start():] if end else html + js
 if os.environ["STRIP"]:  # drop the gate class token from every class attribute
     gate = re.compile(r"(?<![\w-])%s(?![\w-])" % re.escape(os.environ["GATE"]))
     html = re.sub(r"""(\bclass\s*=\s*)(["'])(.*?)\2""",
@@ -163,7 +214,7 @@ for s in "$@"; do
     if [ "$s" = "rest" ]; then make_fragment_preview "$P" "" ""; else make_fragment_preview "$P" "$GATE" "$(pause_css "$s")"; fi
   fi
   rm -f "$OUT/phase-$s.png"
-  shoot "$OUT/phase-$s.png" "$P" "$W" "$H"
+  shoot "$OUT/phase-$s.png" "$P" "$W" "$H" "$HASH"
   [ -f "$OUT/phase-$s.png" ] || { echo "screenshot failed for phase $s" >&2; exit 1; }
   SHOTS+=("$s")
   echo "rendered $OUT/phase-$s.png"

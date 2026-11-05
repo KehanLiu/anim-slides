@@ -379,88 +379,284 @@ def read_html(path):
 
 # ------------------------------------------------------------------ md ----
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*([\w-]*)")
+# remark slide properties: only recognised in the leading lines of a slide
+REMARK_PROP = re.compile(r"^\s*(class|name|layout|template|count|exclude|seq|background-image"
+                         r"|background-size|background-position|background-color|background-repeat"
+                         r"|background)\s*:\s*(.*)$", re.I)
+WRAPPER_OPEN = re.compile(r"(?<![\w\])`.\\])\.([A-Za-z][\w-]*)\[")
+COMMENT = re.compile(r"<!--(.*?)-->", re.S)
+HEADING = re.compile(r"^\s{0,3}(#{1,6})\s+(.*?)\s*#*\s*$")
+LIST_ITEM = re.compile(r"^(\s*)([-*+]|\d+[.)])\s+(.*)$")
+TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
+QUOTE = re.compile(r"^\s{0,3}>\s?(.*)$")
 
 
-def read_md(path):
-    with open(path, encoding="utf-8", errors="replace") as f:
-        lines = f.read().splitlines()
-    if lines and lines[0].strip() == "---":  # YAML front matter
-        end = next((i for i in range(1, len(lines)) if lines[i].strip() in ("---", "...")), None)
-        if end is not None:
-            lines = lines[end + 1:]
-    # tag each line with whether it is inside a fence
-    fenced, fence = [], None
+def strip_wrappers(s):
+    """remark `.class[content]` -> `content`, nested and multi-line, brackets balanced."""
+    pos = 0
+    while True:
+        m = WRAPPER_OPEN.search(s, pos)
+        if not m:
+            return s
+        depth, j = 1, m.end()
+        while j < len(s) and depth:
+            depth += {"[": 1, "]": -1}.get(s[j], 0)
+            j += 1
+        if depth:  # unbalanced: keep it, look further
+            pos = m.end()
+            continue
+        s = s[:m.start()] + s[m.end():j - 1] + s[j:]
+        pos = m.start()  # rescan: the content may start with another wrapper
+
+
+def md_inline_text(s):
+    """Markdown inline markup -> plain text (images dropped, links to their text)."""
+    s = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", s)
+    s = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s)
+    s = re.sub(r"`([^`]*)`", r"\1", s)
+    s = re.sub(r"</?[A-Za-z][^>]*>", " ", s)
+    s = re.sub(r"(\*\*\*|\*\*|___|__|~~)(?=\S)(.+?)(?<=\S)\1", r"\2", s)
+    s = re.sub(r"(?<![\w*])\*(?=\S)(.+?)(?<=\S)\*(?![\w*])", r"\1", s)
+    s = re.sub(r"(?<![\w])_(?=\S)(.+?)(?<=\S)_(?![\w])", r"\1", s)
+    s = re.sub(r"\\([\\`*_{}\[\]()#+\-.!>~|])", r"\1", s)
+    return collapse(s)
+
+
+def _tag_fences(lines):
+    """Per line: None (prose), ('open', lang), 'code' or 'close'."""
+    tags, fence = [], None
     for ln in lines:
         m = FENCE.match(ln)
         if fence is None and m:
             fence = m.group(1)[0] * 3
-            fenced.append(True)
-        elif fence and ln.strip().startswith(fence):
+            tags.append(("open", m.group(2).lower()))
+        elif fence and ln.strip().startswith(fence) and not ln.strip().strip(fence[0]):
             fence = None
-            fenced.append(True)
+            tags.append("close")
         else:
-            fenced.append(fence is not None)
-    chunks, cur = [], []
-    use_rule = any(ln.strip() == "---" and not fz for ln, fz in zip(lines, fenced))
-    for ln, fz in zip(lines, fenced):
-        if not fz and use_rule and ln.strip() == "---":
-            chunks.append(cur)
+            tags.append(None if fence is None else "code")
+    return tags
+
+
+def _clean_runs(pairs, comments):
+    """Strip remark wrappers and HTML comments from each run of prose lines, keeping the line
+    count (a multi-line wrapper or comment leaves blank lines); comments are collected."""
+    out, run = [], []
+
+    def flush():
+        if run:
+            joined = "\n".join(run)
+            comments.extend(COMMENT.findall(joined))
+            joined = COMMENT.sub(lambda m: "\n" * m.group(0).count("\n"), joined)
+            joined = strip_wrappers(joined)
+            out.extend((ln, None) for ln in joined.split("\n"))
+            run.clear()
+    for ln, tag in pairs:
+        if tag is None:
+            run.append(ln)
+        else:
+            flush()
+            out.append((ln, tag))
+    flush()
+    return out
+
+
+def md_chunks(text):
+    """Split a Markdown (or remark) deck into slides.
+
+    Returns a list of {"body": [(line, tag)], "notes": [(line, tag)], "props": {}}; tag is None
+    for prose, ("open", lang) / "code" / "close" for fenced lines. Slides are `---`-separated
+    when the file has such rules, otherwise #/## sections. remark extras: leading `class:`,
+    `layout:`, `background-image:` ... property lines go to props, `???` starts the speaker
+    notes, a lone `--` (incremental reveal) is dropped, `.class[...]` wrappers are unwrapped,
+    and `layout: true` (template) and `exclude: true` slides are skipped like remark does.
+    HTML comments are moved to the notes.
+    """
+    lines = text.splitlines()
+    if lines and lines[0].strip() == "---":  # YAML front matter
+        end = next((i for i in range(1, len(lines)) if lines[i].strip() in ("---", "...")), None)
+        if end is not None:
+            lines = lines[end + 1:]
+    tags = _tag_fences(lines)
+    use_rule = any(ln.strip() == "---" and t is None for ln, t in zip(lines, tags))
+    raw, cur = [], []
+    for ln, t in zip(lines, tags):
+        if t is None and use_rule and ln.strip() == "---":
+            raw.append(cur)
             cur = []
             continue
-        if not fz and not use_rule and re.match(r"#{1,2}\s", ln) and cur:
-            chunks.append(cur)
+        if t is None and not use_rule and re.match(r"#{1,2}\s", ln) and any(x.strip() for x, _ in cur):
+            raw.append(cur)
             cur = []
-        cur.append((ln, fz))
-    chunks.append(cur)
-    return [s for s in (md_slide(c) for c in chunks) if s]
+        if t is None and ln.strip() == "--":
+            continue
+        cur.append((ln, t))
+    raw.append(cur)
+    chunks = []
+    for pairs in raw:
+        props, i = {}, 0
+        while i < len(pairs):
+            ln, t = pairs[i]
+            m = REMARK_PROP.match(ln) if t is None else None
+            if m:
+                props[m.group(1).lower()] = m.group(2).strip()
+            elif t is not None or ln.strip():
+                break
+            i += 1
+        pairs = pairs[i:]
+        if props.get("layout", "").lower() == "true" or props.get("exclude", "").lower() == "true":
+            continue
+        cut = next((k for k, (ln, t) in enumerate(pairs) if t is None and ln.strip() == "???"), None)
+        body, notes = (pairs, []) if cut is None else (pairs[:cut], pairs[cut + 1:])
+        comments = []
+        body = _clean_runs(body, comments)
+        notes = _clean_runs(notes, [])
+        notes += [(c.strip(), None) for c in comments if c.strip()]
+        if not any(ln.strip() for ln, _ in body) and not any(ln.strip() for ln, _ in notes):
+            continue
+        chunks.append({"body": body, "notes": notes, "props": props})
+    return chunks
+
+
+def md_blocks(pairs):
+    """Block structure of one slide body: a list of
+    ("heading", level, text) | ("para", [lines]) | ("quote", [lines]) |
+    ("list", [{"indent", "ordered", "lines": [(kind, text)]}]) with kind "t" or "q" |
+    ("table", [[cells]]) | ("code", lang, [lines])."""
+    blocks, i, n = [], 0, len(pairs)
+
+    def kind(k):
+        ln, t = pairs[k]
+        if t is not None:
+            return "code"
+        if not ln.strip():
+            return "blank"
+        if HEADING.match(ln):
+            return "heading"
+        if TABLE_ROW.match(ln):
+            return "table"
+        if LIST_ITEM.match(ln):
+            return "item"
+        if QUOTE.match(ln):
+            return "quote"
+        return "text"
+    while i < n:
+        ln, t = pairs[i]
+        k = kind(i)
+        if k == "code":
+            lang = t[1] if isinstance(t, tuple) else ""
+            code, i = [], i + (1 if isinstance(t, tuple) else 0)
+            while i < n and pairs[i][1] == "code":
+                code.append(pairs[i][0])
+                i += 1
+            if i < n and pairs[i][1] == "close":
+                i += 1
+            blocks.append(("code", lang, code))
+        elif k == "blank":
+            i += 1
+        elif k == "heading":
+            m = HEADING.match(ln)
+            blocks.append(("heading", len(m.group(1)), m.group(2)))
+            i += 1
+        elif k == "table":
+            rows = []
+            while i < n and kind(i) == "table":
+                row = pairs[i][0]
+                if not re.fullmatch(r"[\s|:-]+", row):
+                    rows.append([c.strip() for c in row.strip().strip("|").split("|")])
+                i += 1
+            blocks.append(("table", rows))
+        elif k == "quote":
+            q = []
+            while i < n and kind(i) in ("quote", "text"):
+                q.append(QUOTE.match(pairs[i][0]).group(1) if kind(i) == "quote" else pairs[i][0].strip())
+                i += 1
+            blocks.append(("quote", q))
+        elif k == "item":
+            items = []
+            while i < n:
+                kk = kind(i)
+                if kk == "item":
+                    m = LIST_ITEM.match(pairs[i][0])
+                    items.append({"indent": len(m.group(1).expandtabs(4)),
+                                  "ordered": m.group(2)[0].isdigit(),
+                                  "start": int(re.match(r"\d*", m.group(2)).group(0) or 1),
+                                  "lines": [("t", m.group(3))]})
+                    i += 1
+                elif kk in ("text", "quote"):  # lazy or indented continuation of the item
+                    ln2 = pairs[i][0]
+                    q = QUOTE.match(ln2.strip()) if kk == "quote" or ln2.strip().startswith(">") else None
+                    items[-1]["lines"].append(("q", q.group(1)) if q else ("t", ln2.strip()))
+                    i += 1
+                elif kk == "blank":
+                    j = i
+                    while j < n and kind(j) == "blank":
+                        j += 1
+                    if j < n and (kind(j) == "item" or (kind(j) in ("text", "quote")
+                                                        and re.match(r"\s{2,}\S", pairs[j][0]))):
+                        i = j
+                    else:
+                        break
+                else:
+                    break
+            blocks.append(("list", items))
+        else:
+            para = []
+            while i < n and kind(i) == "text":
+                para.append(pairs[i][0])
+                i += 1
+            blocks.append(("para", para))
+    return blocks
+
+
+def read_md(path):
+    with open(path, encoding="utf-8", errors="replace") as f:
+        return [md_slide(c) for c in md_chunks(f.read())]
 
 
 def md_slide(chunk):
-    if not any(ln.strip() for ln, _ in chunk):
-        return None
-    title, bullets, text, mermaid, block, lang = "", [], [], [], None, ""
-    for ln, fz in chunk:
-        m = FENCE.match(ln)
-        if fz and m and block is None:
-            block, lang = [], m.group(2).lower()
-            continue
-        if fz and block is not None and FENCE.match(ln) and not m.group(2):
-            if lang == "mermaid":
-                mermaid.append("\n".join(block))
+    blocks = md_blocks(chunk["body"])
+    title, bullets, text, tables, mermaid = "", [], [], [], []
+    for b in blocks:
+        if b[0] == "heading":
+            t = md_inline_text(b[2])
+            if not title and t:
+                title = t
             else:
-                text.extend(block)
-            block = None
-            continue
-        if block is not None:
-            block.append(ln)
-            continue
-        h = re.match(r"\s*#{1,6}\s+(.*?)\s*#*\s*$", ln)
-        if h and not title:
-            title = h.group(1)
-        b = re.match(r"\s*(?:[-*+]|\d+\.)\s+(.*)", ln)
-        if b:
-            bullets.append(b.group(1))
-        text.append(ln)
-    if block is not None:  # unterminated fence
-        (mermaid if lang == "mermaid" else text).append("\n".join(block))
-    raw = "\n".join(text)
-    notes = " ".join(re.findall(r"<!--(.*?)-->", raw, re.S))
-    raw = re.sub(r"<!--.*?-->", " ", raw, flags=re.S)
-    images = len(re.findall(r"!\[[^\]]*\]\([^)]*\)", raw)) + len(re.findall(r"<img\b", raw, re.I))
-    tables, cur = [], None
-    for ln in raw.splitlines():
-        if re.match(r"\s*\|.*\|\s*$", ln):
-            if re.fullmatch(r"[\s|:-]+", ln):
-                continue
-            cur = [] if cur is None else cur
-            cur.append([c.strip() for c in ln.strip().strip("|").split("|")])
-        elif cur is not None:
-            tables.append(cur)
-            cur = None
-    if cur:
-        tables.append(cur)
-    slide = make_slide(title, bullets, notes, re.sub(r"^\s*#{1,6}\s+", "", raw, flags=re.M), images,
-                       tables, segments=[title] + raw.splitlines() + [notes])
+                bullets.append(t)
+        elif b[0] == "para" or b[0] == "quote":
+            bullets.append(md_inline_text(" ".join(b[1])))
+        elif b[0] == "list":
+            bullets.extend(md_inline_text(" ".join(x for _, x in it["lines"])) for it in b[1])
+        elif b[0] == "table":
+            tables.append([[md_inline_text(c) for c in r] for r in b[1]])
+            text.extend(md_inline_text(c) for r in b[1] for c in r)
+        elif b[0] == "code":
+            if b[1] == "mermaid":
+                mermaid.append("\n".join(b[2]))
+            else:
+                text.extend(b[2])
+    bullets = [x for x in bullets if x]
+    notes_blocks = md_blocks(chunk["notes"])
+    notes = []
+    for b in notes_blocks:
+        if b[0] == "heading":
+            notes.append(b[2])
+        elif b[0] in ("para", "quote"):
+            notes.append(" ".join(b[1]))
+        elif b[0] == "list":
+            notes.extend(" ".join(x for _, x in it["lines"]) for it in b[1])
+        elif b[0] == "table":
+            notes.extend(" ".join(r) for r in b[1])
+        elif b[0] == "code":
+            notes.extend(b[2])
+    notes = md_inline_text(" ".join(notes))
+    raw_body = [ln for ln, t in chunk["body"] if t is None]
+    images = sum(len(re.findall(r"!\[[^\]]*\]\([^)]*\)", ln)) + len(re.findall(r"<img\b", ln, re.I))
+                 for ln in raw_body)
+    visible = " ".join([title] + bullets + text)
+    slide = make_slide(title, bullets, notes, visible, images, tables,
+                       segments=[title] + raw_body + text + [notes])
     if mermaid:
         slide["mermaid"] = mermaid
     return slide

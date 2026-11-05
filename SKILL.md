@@ -35,6 +35,9 @@ the user's deck.
 Decide which of the three entry points applies:
 - **Existing deck**: run `python3 <skill-dir>/scripts/extract_slides.py deck.pptx|deck.html|doc.md -o anim/outline.json`, then
   triage with `references/input-stage.md` (3 to 8 illustrations per 30 slides is normal).
+- **Markdown or remark deck with no HTML yet**: `python3 <skill-dir>/scripts/md_to_deck.py deck.md -o deck.html`
+  makes a self-contained HTML deck (one `<section>` per slide, `.visible` gating, print layout,
+  a `id="sN-slot"` box per slide); then extract from either file.
 - **Documentation**: read the source, pick the archetype with the table in
   `references/archetypes.md`, extract a spec (step 1).
 - **Single slide request**: go straight to step 1 for that slide.
@@ -82,7 +85,8 @@ has them; integration always stays in the main thread.
 2. `<skill-dir>/scripts/render-phases.sh anim/<name> <W> <H> 1.5 4 7 10 rest` renders phase PNGs and a
    contact sheet with the paused plus negative-delay method, into a temp folder it prints (pass
    `--out DIR` to choose). After integration, `render-phases.sh --page deck.html 1920 1080 rest`
-   checks the host page's resting frame. Open every PNG with your image
+   checks the host page's resting frame; on a multi-slide page add `--slide N` (or `#hash`, or a
+   CSS selector), and `--no-script` when the page's own script toggles the gate class. Open every PNG with your image
    viewing tool. Fix clipping, overlaps, unreadable text, empty panels. Iterate at least once.
 3. The resting frame must read as a complete still (PDF export shows only that).
 4. `python3 <skill-dir>/scripts/verify_facts.py anim/<name>/<name>.html --source anim/outline.json --slide <N>`
@@ -94,7 +98,9 @@ Never trust `--virtual-time-budget`, and never trust reading the source instead 
 ### 5. Integrate
 `python3 <skill-dir>/scripts/integrate_fragment.py deck.html anim/<name>/<name>.html --name <name> --anchor '<unique string in the slide>' [--replace-until '<string>'] [--gate 'section.present'] --backup`
 (the anchor and the until-string are kept; what lies between them is replaced; reveal.js gates on
-`section.present`, plain pages on `.visible` with `scripts/snippets/observer.html`). It also adds a
+`section.present`, plain pages on `.visible` with `scripts/snippets/observer.html`; decks from
+`md_to_deck.py` take `--anchor 'id="sN-slot">'`, with `--replace-until` to replace the bullets
+the fragment stands in for). It also adds a
 print guard so PDF export (reveal's `?print-pdf` marks every slide present) shows resting frames.
 hoists the style into the head, inserts the fragment between `<!-- anim:<name>:start -->` and `<!-- anim:<name>:end -->`
 markers (the style between `anim-style` markers; re-running replaces both copies), rewrites the gate for the host deck, and prefixes any
@@ -151,6 +157,7 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `references/motion-rules.md` — timing, easing, choreography, audit checklist
 - `references/lessons.md` — gotchas collected while building fragments
 - `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions
+- `scripts/md_to_deck.py` — Markdown or remark deck to a self-contained HTML deck to integrate into
 - `scripts/scaffold_from_spec.py` — spec validation and spec to skeleton fragment (loop or step); YAML or JSON, PyYAML optional
 - `scripts/check_fragment.py` — static contract checks
 - `scripts/verify_facts.py` — provenance gate: fragment text and numbers against the source slide
