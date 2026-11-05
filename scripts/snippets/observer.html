@@ -1,0 +1,23 @@
+<!--
+  anim-slides observer: gate for plain scrolling pages.
+  Paste once before </body>. Adds class "visible" to each fragment's closest <section>
+  (or, without a section, the wrapper's parent) while it is on screen, so the fragment's
+  `.visible .anim-<name>` rules run only then. Without IntersectionObserver it stays on.
+-->
+<script>
+(function () {
+  var hosts = [];
+  document.querySelectorAll('.anim').forEach(function (w) {
+    var h = w.closest('section') || w.parentElement;
+    if (h && hosts.indexOf(h) < 0) hosts.push(h);
+  });
+  if (!('IntersectionObserver' in window)) {
+    hosts.forEach(function (h) { h.classList.add('visible'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { e.target.classList.toggle('visible', e.isIntersecting); });
+  }, { threshold: 0.35 });
+  hosts.forEach(function (h) { io.observe(h); });
+})();
+</script>

@@ -1,0 +1,7 @@
+# Optional Codex metadata (https://learn.chatgpt.com/docs/build-skills). Other harnesses ignore it.
+interface:
+  display_name: "anim-slides"
+  short_description: "Animated SVG illustrations for HTML slide decks, from slides or docs"
+  default_prompt: "Use $anim-slides to turn the process, pipeline, dependency, timeline or comparison slides in this deck into animated SVG illustrations."
+policy:
+  allow_implicit_invocation: true

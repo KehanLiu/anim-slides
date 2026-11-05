@@ -1,0 +1,30 @@
+{
+  "name": "anim-slides-marketplace",
+  "owner": {
+    "name": "Kehan Liu",
+    "url": "https://github.com/KehanLiu"
+  },
+  "description": "Animated SVG illustrations for HTML slide decks, from existing slides or from documentation.",
+  "plugins": [
+    {
+      "name": "anim-slides",
+      "source": "./",
+      "description": "Turn boring slides into animation-rich HTML; build animated process, dependency, timeline and comparison illustrations from docs.",
+      "version": "0.3.0",
+      "author": {
+        "name": "Kehan Liu"
+      },
+      "license": "MIT",
+      "keywords": [
+        "slides",
+        "animation",
+        "svg",
+        "presentation",
+        "diagram",
+        "reveal.js"
+      ],
+      "homepage": "https://github.com/KehanLiu/anim-slides",
+      "repository": "https://github.com/KehanLiu/anim-slides"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# CI/CD pipeline with a rollback edge. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py examples/specs/pipeline.yaml -o anim/deploy-pipeline/deploy-pipeline.html
+name: deploy-pipeline
+archetype: pipeline
+size: [1680, 440]
+control: loop
+cycle: 12
+nodes:
+  - { id: commit,  label: Commit,     sub: "git push",    kind: actor }
+  - { id: build,   label: Build,      sub: "~3 min",      kind: process }
+  - { id: test,    label: Test,       sub: "unit + e2e",  kind: process }
+  - { id: staging, label: Staging,    sub: "smoke test",  kind: process }
+  - { id: prod,    label: Production, sub: "canary 5 %",  kind: process }
+edges:
+  - { from: commit,  to: build,   kind: flow }
+  - { from: build,   to: test,    kind: flow, label: artifact }
+  - { from: test,    to: staging, kind: flow }
+  - { from: staging, to: prod,    kind: flow }
+  - { from: prod,    to: staging, kind: event, label: rollback }
+phases:
+  - { t: 0,    label: setup }
+  - { t: 1,    label: push,    active: [commit],  flow: ["commit>build"],   note: "A commit is pushed" }
+  - { t: 2.5,  label: build,   active: [build],   flow: ["build>test"],     note: "Build produces one artifact" }
+  - { t: 4,    label: test,    active: [test],    flow: ["test>staging"],   note: "Unit and end-to-end tests gate the artifact" }
+  - { t: 5.5,  label: staging, active: [staging], flow: ["staging>prod"],   note: "Smoke test on staging" }
+  - { t: 7,    label: release, active: [prod],                              note: "Canary release to 5 % of traffic" }
+  - { t: 8.5,  label: rollback, show: ["prod>staging"], active: ["prod>staging"], flow: ["prod>staging"], note: "Rollback path if the canary fails" }
+  - { t: 10.5, label: hold }

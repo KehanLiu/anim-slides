@@ -1,0 +1,81 @@
+<!--
+  anim-slides step host: lets the presenter step through `data-anim-control="step"` fragments.
+  Put it in <head>, AFTER GSAP and BEFORE any fragment, as a classic (non-module) script.
+  Load GSAP once, from a local copy for offline decks or from a pinned CDN URL:
+
+    <script src="vendor/gsap.min.js"></script>   <!-- or https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js -->
+    <script> ...this file's script... </script>
+    <script>animSlides.gate = 'section.present';</script>  <!-- reveal.js; default '.visible' -->
+
+  Set the gate AFTER this script (or anytime later; it is read on every key). Do not assign
+  window.animSlides = {...} yourself: that would break fragments' early-registration queue.
+
+  Fragments register a paused timeline with one label per phase, the first at 0, and must work
+  whether or not this script has run yet:
+
+    var A = window.animSlides = window.animSlides || {};
+    if (A.register) A.register(name, tl); else (A.q = A.q || []).push([name, tl]);
+
+  Keys on the active fragment: Right/Space/PageDown = next phase,
+  Left/PageUp = previous phase, p = pause/resume. At the last/first phase the key passes to the deck.
+-->
+<script>
+(function () {
+  var A = window.animSlides = window.animSlides || {};
+  var q = Array.isArray(A.q) ? A.q : (A.q = []);   // fragments that ran before us queue here
+  if (!window.gsap) {                               // keep register harmless so fragments do not throw
+    if (!A.register) A.register = function (n, t) { q.push([n, t]); };
+    console.warn('anim-slides step-host: window.gsap missing, step control off'); return;
+  }
+  var frags = {}, current = null, EPS = 1e-3;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  A.register = function (name, tl) { frags[name] = { tl: tl, tw: null }; check(); };
+
+  function labels(tl) {                             // label times, ascending
+    return Object.keys(tl.labels).map(function (k) { return tl.labels[k]; }).sort(function (a, b) { return a - b; });
+  }
+  function findCurrent() {                          // first registered fragment inside the gate
+    var gate = A.gate || '.visible';
+    for (var n in frags) {
+      var w = document.querySelector('[data-anim="' + n + '"]');
+      if (w && w.closest(gate)) return n;
+    }
+    return null;
+  }
+  function check() {                                // slide changed? reset the new one to phase 0
+    var n = findCurrent();
+    if (n === current) return;
+    current = n;
+    if (n) { var f = frags[n]; if (f.tw) f.tw.kill(); f.tw = null; f.tl.pause(labels(f.tl)[0] || 0); }
+  }
+  function go(f, t) {
+    if (f.tw) f.tw.kill();
+    f.tw = reduce ? (f.tl.seek(t), null) : f.tl.tweenTo(t);
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    var el = document.activeElement;
+    if (el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable)) return;
+    check();
+    if (!current) return;
+    var f = frags[current], t = f.tl.time(), ls = labels(f.tl), target = null, i;
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      for (i = 0; i < ls.length; i++) if (ls[i] > t + EPS) { target = ls[i]; break; }
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      for (i = ls.length - 1; i >= 0; i--) if (ls[i] < t - EPS) { target = ls[i]; break; }
+    } else if (e.key === 'p') {
+      if (!f.tw || f.tw.progress() >= 1) return;    // nothing in flight: leave p to the deck
+      if (f.tw.paused()) f.tw.resume(); else f.tw.pause();
+      e.preventDefault(); e.stopImmediatePropagation(); return;
+    } else return;
+    if (target === null) return;                    // no phase left: let the deck move
+    e.preventDefault(); e.stopImmediatePropagation();
+    go(f, target);
+  }, true);
+
+  new MutationObserver(check).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  q.splice(0).forEach(function (r) { A.register(r[0], r[1]); });   // drain the early queue
+})();
+</script>

@@ -1,0 +1,21 @@
+# Product roadmap with five milestones. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py examples/specs/timeline.yaml -o anim/roadmap/roadmap.html
+name: roadmap
+archetype: timeline
+size: [1680, 440]
+control: loop
+cycle: 12
+nodes:
+  - { id: alpha,  label: Private alpha,  sub: "20 design partners", kind: milestone, at: "Q1" }
+  - { id: beta,   label: Public beta,    sub: "self-serve signup",  kind: milestone, at: "Q2" }
+  - { id: ga,     label: General availability, sub: "SLA 99.9 %",   kind: milestone, at: "Q3" }
+  - { id: mobile, label: Mobile apps,    sub: "iOS and Android",    kind: milestone, at: "Q4" }
+  - { id: v2,     label: Platform v2,    sub: "plugin API",         kind: milestone, at: "Q1 next" }
+phases:
+  - { t: 0,   label: setup }
+  - { t: 1,   label: alpha,  show: [alpha],  active: [alpha],  note: "Alpha with design partners" }
+  - { t: 2.8, label: beta,   show: [beta],   active: [beta],   note: "Open beta, self-serve" }
+  - { t: 4.6, label: ga,     show: [ga],     active: [ga],     note: "General availability with an SLA" }
+  - { t: 6.4, label: mobile, show: [mobile], active: [mobile], note: "Native mobile apps" }
+  - { t: 8.2, label: v2,     show: [v2],     active: [v2],     note: "Platform v2 opens a plugin API" }
+  - { t: 10.5, label: hold }
