@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.5.0"
+  version: "0.5.1"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
@@ -65,7 +65,9 @@ that variable is set, and look for an entry with the same archetype and a simila
 Never copy a pool fragment unchanged into a deck: its story is an example, not the user's.
 
 ### 2. Slot and brief
-Measure the free box on the slide (`references/layouts.md`), pick a viewBox with the same aspect
+Measure the free box on the slide: `python3 <skill-dir>/scripts/measure_slot.py deck.html --slide N [--selector SEL] [--ignore .body]`
+prints the box in stage pixels, a matching viewBox and the checker flags (`references/layouts.md`
+explains the manual way). Pick a viewBox with the same aspect
 ratio, and fill `anim/<name>/brief.md` from `references/brief-template.md`. The brief fixes
 viewBox and rendered size, composition, phases, resting frame, theme tokens and min text size.
 The quality of the fragment tracks the quality of the brief.
@@ -125,8 +127,8 @@ Ask the user whether the deck will be shared or presented from another machine. 
 it last: `python3 <skill-dir>/scripts/bundle_deck.py deck.html -o deck.bundled.html --fetch` inlines
 every local stylesheet, script, font and image as data: URIs (GSAP for `step` mode included) so
 one file opens offline; then `python3 <skill-dir>/scripts/check_page.py deck.bundled.html --gate section.present`
-confirms no external loads, paired markers and gated fragments (`--gate` is the host's marker,
-`section.present` or `.visible`). Do not read the bundled file; verify it with the checker and
+confirms no external loads, paired markers, gated fragments and the print guard per fragment
+(it detects the host's gate, `section.present` or `.visible`; `--gate` overrides). Do not read the bundled file; verify it with the checker and
 one `render-phases.sh --page deck.bundled.html --slide N 1920 1080 rest` render. Never add a CDN `<script>` or `<link>`
 yourself; keep ones the user's deck already had and say so.
 
@@ -169,6 +171,7 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `scripts/verify_facts.py` — provenance gate: fragment text and numbers against the source slide
 - `references/accuracy.md` — accuracy rules: numbers from the source, labels in its words, figures redrawn at scale
 - `scripts/render-phases.sh` — phase PNGs and contact sheet with headless Chrome
+- `scripts/measure_slot.py` — free box of a slide in stage pixels, with viewBox and checker flags
 - `scripts/check_page.py` — page-level checks: no external loads, paired markers, gated fragments, print guard
 - `scripts/bundle_deck.py` — inline local (and with `--fetch`, remote) assets into one self-contained file
 - `scripts/integrate_fragment.py` — idempotent inlining into a deck, gate rewrite, prefix safety net

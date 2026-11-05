@@ -14,7 +14,8 @@ Relative paths resolve against the deck's folder (inside inlined CSS: against th
 Remote URLs (http(s)://, //host) are left alone and listed unless --fetch is given, which
 downloads and inlines them (pinned CDN libraries such as reveal.js or GSAP). Assets over
 --max-asset-mb are skipped with a warning. HTML comments (the anim: / anim-style: markers) and
-inline script bodies are never touched. Prints a summary; then run check_page.py on the output.
+inline script bodies are never touched. Prints a summary (inlined, missing local files, md_to_deck.py image placeholders, external
+references left); then run check_page.py on the output.
 """
 import argparse
 import base64
@@ -251,16 +252,25 @@ def main():
         sys.exit(f'bundle_deck: anim markers changed ({markers} -> {kept}); nothing written')
     open(a.output, 'w', encoding='utf-8').write(out)
     n_in, n_out = len(src.encode()), len(out.encode())
-    inl = ', '.join(f'{v} {k}' for k, v in sorted(b.inlined.items())) or 'nothing'
+    inl = ', '.join(f'{v} {k}' for k, v in sorted(b.inlined.items())) or 'nothing (no local or fetched asset references)'
+    left = list(dict.fromkeys(b.remaining))
+    missing = [u for u, why in left if why == 'local file not found']
+    left = [(u, why) for u, why in left if why != 'local file not found']
     print(f'bundled {a.deck} -> {a.output}: {n_in:,} -> {n_out:,} bytes; inlined {inl}; '
           f'{kept} anim markers kept')
-    seen = set()
-    for u, why in b.remaining:
-        if (u, why) in seen:
-            continue
-        seen.add((u, why))
+    if missing:
+        rel = [os.path.relpath(u, b.base) for u in missing]
+        print(f'missing: {len(rel)} local file(s) referenced by the deck but not found (left as they are): '
+              + ', '.join(rel) + '; put them at those paths next to the deck and re-run')
+    ph = list(dict.fromkeys(re.findall(r'<span class="img-missing">\[image: ([^\]<]*)\]</span>', src)))
+    if ph:
+        print(f'missing: {len(ph)} image placeholder(s) from md_to_deck.py (the images were not next to the .md '
+              f'when the deck was built): {", ".join(ph)}; download them next to the .md '
+              '(same relative paths), re-run md_to_deck.py, re-integrate, then bundle')
+    for u, why in left:
         print(f'WARN external left: {u}: {why}', file=sys.stderr)
-    print(f'{len(seen)} external reference(s) left' + ('' if seen else ': the file is self-contained')
+    print(f'{len(left)} external reference(s) left, {len(missing) + len(ph)} missing'
+          + ('' if left or missing or ph else ': the file is self-contained')
           + f'. Next: python3 {os.path.join(os.path.dirname(os.path.abspath(__file__)), "check_page.py")} {a.output}')
 
 

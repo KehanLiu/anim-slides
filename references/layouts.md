@@ -49,6 +49,9 @@ title-less slide gains about 200 px of height.
 - **reveal.js default 960x700** is not 16:9 and has a 4 % margin. Halve the widths of the table
   (content width about 880) and re-derive heights from the measured box; typical values:
   title + body 880 x 460, two columns 420 x 420, 60/40 split 520 x 440.
+- `scripts/measure_slot.py deck.html --slide N [--selector SEL] [--ignore .body]` does the
+  measuring headless, in stage pixels; pass `--ignore .body` when the fragment replaces the
+  bullet block of an `md_to_deck.py` deck.
 - The 18 px floor in the contract is in stage pixels on a 1920-wide stage. When a deck scales a
   smaller stage up to the same screen, the equivalent floor is `18 * stage_width / 1920`
   (12 px at 1280, 15 px at 1600, 10 px at 960, since the floor never goes below 10). Pass the stage with

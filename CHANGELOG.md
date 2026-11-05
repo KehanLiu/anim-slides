@@ -2,6 +2,33 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.5.1 - 2026-11-05
+
+Accuracy and hand-over, from two fresh-user runs and independent audits of every pool entry
+and demo slide.
+
+- **Provenance gate:** `scripts/verify_facts.py` checks a fragment's text and numbers against
+  the source slide (invented numbers fail; untraceable wording and cross-slide facts are
+  listed); `references/accuracy.md` holds the rules; both are part of "done" in SKILL.md and
+  the contract.
+- **Pool:** 22 entries across 16 fields (new: er-patient-flow, loan-decision, water-cycle,
+  hiring-lanes, court-case, photosynth-respiration, funding-options, canal-lock, parcel-route,
+  sales-funnel, comms-timeline, bloom-taxonomy, phase-changes); every entry fact-checked and
+  rendered in the light theme.
+- **Hand-over:** the working deck stays lean; `scripts/bundle_deck.py` makes one self-contained
+  file when the deck is shared and `scripts/check_page.py` verifies it (no external loads, paired
+  markers, gated fragments, print guard). `integrate_fragment.py` adds a print guard so
+  reveal.js PDF export shows resting frames, and strips scaffold comments.
+- **Markdown decks:** `scripts/md_to_deck.py` turns a Markdown or remark deck into a
+  self-contained HTML deck to integrate into; `extract_slides.py` understands remark notes and
+  directives; `render-phases.sh --page` takes `--slide` and `--no-script`.
+- **Scaffold:** nothing is written outside the viewBox (it stops with the size needed),
+  barycenter ordering with spec-order tie-break, edges routed around nodes, one path definition
+  per edge, hold phase keeps the final highlights.
+- **Slot measuring:** `scripts/measure_slot.py` prints a slide's free box, viewBox and checker
+  flags, so no devtools step is needed.
+- **Project:** `plugin.json`, CI matrix fixed (3.9 on ubuntu-22.04), README accuracy section.
+
 ## 0.5.0 - 2026-11-05
 
 Tested on six real, openly licensed decks (civics, public health, research publishing,

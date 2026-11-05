@@ -14,8 +14,12 @@ Output: <section class="slide" id="sN" data-slide="N"> per slide on a W x H stag
 PageUp/PageDown, Home/End) and #N / #sN hash routing; the current slide gets the
 class `visible`, which is the gate anim-slides fragments use. Speaker notes go to
 <aside class="notes"> (hidden). Each slide ends with an empty flex box
-<div class="slot" id="sN-slot"></div> that takes the free height: use
-`--anchor 'id="sN-slot">'` with integrate_fragment.py to put a fragment there.
+<div class="slot" id="sN-slot"></div> that takes the free height. The body (bullets,
+paragraphs, code) sits between <!-- sN-body --> and <!-- /sN-body --> comments inside
+<div class="body">, the title stays outside. With integrate_fragment.py:
+  replace the text:   --anchor '<!-- sN-body -->' --replace-until '<!-- /sN-body -->'
+  keep it, add below: --anchor 'id="sN-slot">'
+A fragment in the body takes the free height and the empty slot collapses.
 Without JavaScript (or with scripts stripped) all slides are stacked one per
 stage height with no gate class, so `file://deck.html#sN` shows slide N at rest.
 Printing gives one slide per page with the resting frames (the gate class is
@@ -45,6 +49,7 @@ class Ctx:
     def __init__(self, base):
         self.base = os.path.realpath(base)
         self.warnings = []
+        self.missing = []   # relative image paths that are not next to the .md
 
     def image(self, alt, src):
         src = html.unescape(src).strip().split()[0] if src.strip() else ""
@@ -54,6 +59,9 @@ class Ctx:
             return '<span class="img-missing">[image: %s]</span>' % label
         path = os.path.realpath(os.path.join(self.base, src.split("#")[0].split("?")[0]))
         ext = os.path.splitext(path)[1].lower()
+        if path.startswith(self.base + os.sep) and ext in MIME and not os.path.exists(path):
+            self.missing.append(src)
+            return '<span class="img-missing">[image: %s]</span>' % label
         if (not path.startswith(self.base + os.sep) or ext not in MIME or not os.path.isfile(path)
                 or os.path.getsize(path) > MAX_IMG):
             self.warnings.append("image not inlined (missing, outside the deck folder, not an image "
@@ -157,7 +165,11 @@ def slide_html(n, chunk, ctx):
     parts = ['<section class="%s" id="s%d" data-slide="%d">' % (" ".join(cls), n, n)]
     if title:  # the title is always an <h1>, so HTML extraction picks the same title
         parts.append('<h1 class="slide-title lvl-%d">%s</h1>' % (level, inline(title, ctx)))
-    parts.append('<div class="body">%s</div>' % blocks_html(blocks, ctx))
+    # the body markers let integrate_fragment.py replace the text with a fragment:
+    # --anchor '<!-- sN-body -->' --replace-until '<!-- /sN-body -->' (Markdown HTML is escaped,
+    # so no slide text can contain these comments)
+    parts.append('<div class="body"><!-- s%d-body -->\n%s\n<!-- /s%d-body --></div>'
+                 % (n, blocks_html(blocks, ctx), n))
     parts.append('<div class="slot" id="s%d-slot"></div>' % n)
     notes = blocks_html(md_blocks(chunk["notes"]), ctx)
     if notes:
@@ -205,6 +217,9 @@ display:flex;flex-direction:column;padding:%(padY)dpx %(padX)dpx;font-size:%(fs)
 .body strong{color:var(--accent)}.body del{color:var(--muted)}
 .body a{color:var(--accent);text-decoration:underline}
 .img-missing{display:inline-block;color:var(--muted);border:1px dashed var(--line);padding:.1em .5em;font-size:.7em}
+.body:has(.anim){flex:1 1 0;display:flex;align-items:center;justify-content:center}
+.body:has(.anim)>*{width:100%%;height:100%%;margin:0}
+.body:has(.anim)~.slot:empty{display:none}
 .slot{flex:1 1 0;min-height:0;position:relative;display:flex;align-items:center;justify-content:center}
 .slot>*{width:100%%;height:100%%}
 .slide.cover{justify-content:center;text-align:center}
@@ -313,6 +328,11 @@ def build(path, title=None, stage=(1920, 1080), theme="dark"):
             "<title>%s</title>\n<style>%s</style>\n</head>\n<body>\n<main class=\"deck\">\n%s\n</main>\n"
             "<script>%s</script>\n</body>\n</html>\n") % (
         html.escape(title), CSS % vals, "\n".join(sections), JS % dict(W=W, H=H, fs=fs))
+    if ctx.missing:
+        miss = list(dict.fromkeys(ctx.missing))
+        ctx.warnings.append("%d image(s) referenced by the .md are missing, shown as placeholders: %s\n"
+                            "  hint: download them next to the .md (same relative paths) and re-run"
+                            % (len(miss), ", ".join(miss)))
     return page, total, ctx.warnings
 
 
@@ -332,7 +352,8 @@ def main(argv=None):
         f.write(page)
     for w in dict.fromkeys(warnings):
         print("warning: " + w, file=sys.stderr)
-    print("wrote %s: %d slides, stage %dx%d, theme %s; fragment slot anchor: 'id=\"sN-slot\">'"
+    print("wrote %s: %d slides, stage %dx%d, theme %s; body markers '<!-- sN-body -->' ... '<!-- /sN-body -->', "
+          "slot anchor 'id=\"sN-slot\">'"
           % (out, total, a.stage[0], a.stage[1], a.theme), file=sys.stderr)
     return 0
 

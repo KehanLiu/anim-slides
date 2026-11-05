@@ -5,8 +5,10 @@ Usage:
   check_page.py PAGE.html [--gate SELECTOR|none] [--allow-external]
 
   --gate            gate selector every embedded fragment must use (e.g. 'section.present');
-                    default: detect it per fragment and require one (warn if fragments differ);
-                    'none' accepts ungated (always-on) animations
+                    default: detect it from the page (reveal.js -> 'section.present'; a script
+                    that adds class "visible", as md_to_deck.py decks and the observer snippet
+                    do -> '.visible') and say which; when neither is found, require some gate
+                    per fragment; 'none' accepts ungated (always-on) animations
   --allow-external  report external resources as WARN instead of FAIL
 
 Checks:
@@ -19,6 +21,9 @@ Checks:
              anim-style:NAME pair; no name is used twice (markers or data-anim).
   gate       inside each anim-style block, every rule that sets an animation (outside
              @keyframes, reduced-motion and print blocks) is prefixed by the gate.
+  print      each fragment has a print guard: an @media print rule (or an html.print-pdf /
+             html.reveal-print rule) that sets animation: none on .anim-NAME, so a PDF export
+             shows the resting frame. OK or WARN per fragment.
   leftovers  preview / render artefacts: --virtual-time-budget, the render-phases pause style
              (animation-play-state:paused !important), <base href="file://...">, preview- names,
              scaffold "refine by hand" notes.
@@ -114,6 +119,67 @@ def animated_rules(nodes, skip=False):
             continue
         for sel in prelude.split(','):
             yield ' '.join(sel.split()), pos
+
+
+def style_chunk(raw, nm):
+    """(offset, css text) of fragment nm's style: its anim-style block, else a <style> naming it."""
+    blk = re.search(r'<!--\s*anim-style:' + re.escape(nm) + r':start\s*-->(.*?)<!--\s*anim-style:'
+                    + re.escape(nm) + r':end\s*-->', raw, re.S)
+    if blk:
+        return blk.start(1), blk.group(1)
+    for m in re.finditer(r'<style\b[^>]*>(.*?)</style\s*>', raw, re.S | re.I):
+        if f'.anim-{nm}' in m.group(1):
+            return m.start(1), m.group(1)
+    return 0, ''
+
+
+def css_nodes(off, chunk):
+    """Parsed CSS of a style chunk (which may hold several <style> elements)."""
+    parts = [(off + m.start(1), m.group(1)) for m in re.finditer(r'<style\b[^>]*>(.*?)</style\s*>', chunk, re.S | re.I)] \
+        if '<style' in chunk.lower() else [(off, chunk)]
+    nodes = []
+    for o, c in parts:
+        nodes += parse_css(strip_css_comments(c), o)
+    return nodes
+
+
+def print_guard(raw, nm):
+    """(position, found) of a rule that stops nm's animations in print / print-layout modes."""
+    off, chunk = style_chunk(raw, nm)
+    root = f'.anim-{nm}'
+    stop = re.compile(r'(?:^|;)\s*animation(?:-name)?\s*:\s*none\b', re.I)
+
+    def walk(nodes, in_print):
+        for prelude, pos, body, is_block in nodes:
+            if is_block:
+                low = prelude.lower()
+                if low.startswith(('@keyframes', '@-webkit-keyframes')):
+                    continue
+                if walk(body, in_print or re.search(r'@media[^{]*\bprint\b', low) is not None):
+                    return True
+            elif root in prelude and stop.search(body) and (
+                    in_print or re.search(r'html\.(?:print-pdf|reveal-print)\b', prelude)):
+                return True
+        return False
+    return off, walk(css_nodes(off, chunk), False)
+
+
+def detect_gate(raw, names):
+    """(gate, reason) for the host page, or (None, '')."""
+    reveal = re.search(r'Reveal\.initialize|class\s*=\s*["\'][^"\']*\breveal\b|reveal(?:\.min)?\.js', raw)
+    visible = re.search(r'classList\.(?:add|toggle)\(\s*[\'"]visible[\'"]', raw)
+    cands = []
+    if reveal:
+        cands.append(('section.present', 'reveal.js page: the current slide is section.present'))
+    if visible:
+        cands.append(('.visible', 'a page script adds class "visible" to the current slide or section'))
+    if len(cands) < 2:
+        return cands[0] if cands else (None, '')
+    used = ' '.join(css for _, css in (style_chunk(raw, nm) for nm in names))
+    for g, why in cands:   # both found: take the one the fragments use
+        if re.search(re.escape(g) + r'\s+\.anim-', used):
+            return g, why + '; the fragments use it'
+    return cands[0]
 
 
 # ----------------------------------------------------------------------------- main
@@ -234,6 +300,13 @@ def main():
 
     # ---- gate
     want = None if a.gate is None else a.gate.strip()
+    if want is None and names:
+        want, why = detect_gate(raw, names)
+        if want:
+            R.ok('gate', f'--gate not given: using "{want}" ({why}); pass --gate to override')
+        else:
+            R.warn('gate', '--gate not given and no host gate found in the page (no reveal.js, no script '
+                   'adding "visible"): only checking that each fragment is gated')
     gates_seen = {}
     for nm in names:
         blk = re.search(r'<!--\s*anim-style:' + re.escape(nm) + r':start\s*-->(.*?)<!--\s*anim-style:'
@@ -278,12 +351,18 @@ def main():
             g = ', '.join(sorted(p or '(none)' for p in prefixes))
             R.ok('gate', f'{nm}: {len(rules)} animated rule(s) gated by {g}')
             gates_seen[nm] = g
-        if '@media print' not in chunk and 'print-pdf' not in chunk:
-            R.warn('gate', f'{nm}: no print guard; a PDF export may show a mid-cycle frame '
-                   '(re-run integrate_fragment.py)', line_of(off))
     if want is None and len(set(gates_seen.values())) > 1:
         R.warn('gate', 'fragments use different gates: ' +
                '; '.join(f'{k}={v}' for k, v in sorted(gates_seen.items())))
+
+    # ---- print guard
+    for nm in names:
+        pos, ok = print_guard(raw, nm)
+        if ok:
+            R.ok('print', f'{nm}: print guard sets animation: none (a PDF export shows the resting frame)')
+        else:
+            R.warn('print', f'{nm}: no print guard (@media print or html.print-pdf rule with animation: none); '
+                   'a PDF export may show a mid-cycle frame: re-run integrate_fragment.py', line_of(pos))
 
     # ---- leftovers
     leftovers = [

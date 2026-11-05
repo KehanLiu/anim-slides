@@ -1,7 +1,7 @@
 {
   "name": "anim-slides",
   "description": "Turn boring slides into animation-rich HTML; build animated process, dependency, timeline and comparison illustrations from docs.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": { "name": "Kehan Liu", "url": "https://github.com/KehanLiu" },
   "homepage": "https://kehanliu.github.io/anim-slides/",
   "repository": "https://github.com/KehanLiu/anim-slides",
