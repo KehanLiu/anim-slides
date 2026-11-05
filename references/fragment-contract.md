@@ -144,12 +144,14 @@ start `from` the empty state.
 
 ## 8. Verification
 
-A fragment is done when all three hold:
+A fragment is done when all four hold:
 
 1. `scripts/check_fragment.py <name>.html --name <name> --rendered-width <px> --stage-width <W>` passes.
 2. `scripts/render-phases.sh <dir> <W> <H> <t1> <t2> ... rest` produced PNGs (in the temp folder it prints) and every PNG was
    **looked at** (image viewing tool), not inferred from the source. Fix clipping, overlap, unreadable
    text, empty panels. Iterate at least once.
 3. The resting frame PNG reads as a complete still.
+4. `scripts/verify_facts.py <name>.html --source <outline.json> --slide <N>` passes and every WARN
+   was reviewed ([accuracy.md](accuracy.md)).
 
 Headless screenshots never prove smoothness; check once in a real browser before shipping a deck.

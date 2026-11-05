@@ -37,7 +37,9 @@ Decide which of the three entry points applies:
   triage with `references/input-stage.md` (3 to 8 illustrations per 30 slides is normal).
 - **Markdown or remark deck with no HTML yet**: `python3 <skill-dir>/scripts/md_to_deck.py deck.md -o deck.html`
   makes a self-contained HTML deck (one `<section>` per slide, `.visible` gating, print layout,
-  a `id="sN-slot"` box per slide); then extract from either file.
+  `<!-- sN-body -->` markers round each slide's body); fetch the images the Markdown references
+  (relative paths) into the same folder first, or the deck shows placeholders; then extract from
+  either file.
 - **Documentation**: read the source, pick the archetype with the table in
   `references/archetypes.md`, extract a spec (step 1).
 - **Single slide request**: go straight to step 1 for that slide.
@@ -97,21 +99,24 @@ Never trust `--virtual-time-budget`, and never trust reading the source instead 
 
 ### 5. Integrate
 `python3 <skill-dir>/scripts/integrate_fragment.py deck.html anim/<name>/<name>.html --name <name> --anchor '<unique string in the slide>' [--replace-until '<string>'] [--gate 'section.present'] --backup`
-(the anchor and the until-string are kept; what lies between them is replaced; reveal.js gates on
-`section.present`, plain pages on `.visible` with `scripts/snippets/observer.html`; decks from
-`md_to_deck.py` take `--anchor 'id="sN-slot">'`, with `--replace-until` to replace the bullets
-the fragment stands in for). It also adds a
-print guard so PDF export (reveal's `?print-pdf` marks every slide present) shows resting frames.
 hoists the style into the head, inserts the fragment between `<!-- anim:<name>:start -->` and `<!-- anim:<name>:end -->`
 markers (the style between `anim-style` markers; re-running replaces both copies), rewrites the gate for the host deck, and prefixes any
 class that slipped through. For plain pages copy `<skill-dir>/scripts/snippets/observer.html` into the page; for
 step mode copy `scripts/snippets/step-host.html` into the head after a single GSAP script tag.
+The anchor and the until-string are kept; what lies between them is replaced. The gate is the
+host's "current slide" marker: `section.present` for reveal.js, `.visible` for plain pages
+(`scripts/snippets/observer.html`) and for decks from `md_to_deck.py`. In `md_to_deck.py` decks
+the fragment replaces the bullet block: `--anchor '<!-- sN-body -->' --replace-until '<!-- /sN-body -->'`.
+It also adds a print guard so PDF export (reveal's `?print-pdf` marks every slide present) shows
+resting frames.
 Keep the working deck **lean**: fragments are small SVG text and go in by markers, but do not
 inline fonts, images, libraries or stylesheets while you work, and never read the whole deck
 into context; read slices around the anchor (`grep -n`, `sed -n`) and let the scripts edit it.
 Then open the deck in a real browser and watch the slide once. Headless frames never prove
 smoothness. For a headless check of one slide:
 `chrome --headless=new --hide-scrollbars --window-size=1920,1080 --timeout=3000 --screenshot=s4.png 'file:///abs/deck.html#/4'`
+(`#/4` is reveal.js; `md_to_deck.py` decks use `#4`; for the resting frame use
+`render-phases.sh --page deck.html --slide 4 1920 1080 rest`, a raw screenshot shows t = 0)
 (never pass `--user-data-dir`, Chrome then hangs; export PDFs from the browser's print dialog,
 the CLI `--print-to-pdf` on `?print-pdf` is unreliable).
 
@@ -120,8 +125,9 @@ Ask the user whether the deck will be shared or presented from another machine. 
 it last: `python3 <skill-dir>/scripts/bundle_deck.py deck.html -o deck.bundled.html --fetch` inlines
 every local stylesheet, script, font and image as data: URIs (GSAP for `step` mode included) so
 one file opens offline; then `python3 <skill-dir>/scripts/check_page.py deck.bundled.html --gate section.present`
-confirms no external loads, paired markers and gated fragments. Do not read the bundled file;
-verify it with the checker and one headless screenshot. Never add a CDN `<script>` or `<link>`
+confirms no external loads, paired markers and gated fragments (`--gate` is the host's marker,
+`section.present` or `.visible`). Do not read the bundled file; verify it with the checker and
+one `render-phases.sh --page deck.bundled.html --slide N 1920 1080 rest` render. Never add a CDN `<script>` or `<link>`
 yourself; keep ones the user's deck already had and say so.
 
 ### 6. Audit

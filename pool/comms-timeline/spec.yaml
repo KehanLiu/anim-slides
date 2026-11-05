@@ -1,0 +1,30 @@
+# Milestones in long-distance communication (well-established dates only):
+#   1844 electric telegraph line Washington-Baltimore; 1876 US telephone patent No. 174,465;
+#   1901 first transatlantic radio signal, Cornwall to Newfoundland; 1969 ARPANET's first link,
+#   UCLA to Stanford Research Institute; 1989 World Wide Web proposal, Tim Berners-Lee at CERN.
+# Spaced evenly (real gaps 32, 25, 68, 20 years). Scaffold the milestones with:
+#   python3 scripts/scaffold_from_spec.py pool/comms-timeline/spec.yaml -o /tmp/anim/comms-timeline/comms-timeline.html
+# The shipped HTML is hand-built beyond the scaffold: cards alternate above and below the axis,
+# markers and years take their era colour, and era brackets (wire, radio, computer networks)
+# draw under the axis as each era begins.
+name: comms-timeline
+archetype: timeline
+domain: history
+title: "Milestones in long-distance communication"
+size: [1680, 520]
+control: loop
+cycle: 12
+nodes:
+  - { id: telegraph, label: Electric telegraph,         sub: "Washington to Baltimore line",        kind: milestone, at: "1844" }
+  - { id: telephone, label: Telephone patent,           sub: "US patent No. 174,465 issued",        kind: milestone, at: "1876" }
+  - { id: radio,     label: Transatlantic radio signal, sub: "Cornwall to Newfoundland",            kind: milestone, at: "1901" }
+  - { id: arpanet,   label: "ARPANET's first link",     sub: "UCLA to Stanford Research Institute", kind: milestone, at: "1969" }
+  - { id: web,       label: World Wide Web proposal,    sub: "Tim Berners-Lee, CERN",               kind: milestone, at: "1989" }
+phases:
+  - { t: 0,   label: setup }
+  - { t: 1.0, label: telegraph, show: [telegraph], active: [telegraph] }
+  - { t: 2.6, label: telephone, show: [telephone], active: [telephone] }
+  - { t: 4.4, label: radio,     show: [radio],     active: [radio] }
+  - { t: 6.2, label: arpanet,   show: [arpanet],   active: [arpanet] }
+  - { t: 7.8, label: web,       show: [web],       active: [web] }
+  - { t: 8.8, label: hold,                         active: [web] }

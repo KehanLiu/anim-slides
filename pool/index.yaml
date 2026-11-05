@@ -173,3 +173,22 @@
   story: A side cross-section of a canal lock: the boat enters, the lower gates close, the valve fills the chamber, the upper gates open and the boat leaves higher.
   tags: [canal-lock, transport, water-level, cross-section, physical-process, scene]
   technique: physical scene; water level as scaleY on a rect with transform-box view-box, a dashed ghost of the start level
+
+- name: sales-funnel
+  archetype: pipeline
+  domain: marketing
+  viewbox: [1680, 600]
+  cycle: 13
+  spec: true
+  story: One cohort of 10,000 thins out through awareness, interest, consideration and purchase to retention; every conversion matches the counts and the numbers are marked illustrative.
+  tags: [funnel, conversion, cohort, marketing, sales, illustrative]
+  technique: pipeline drawn as tapering bands with a dot grid at exact scale (1 dot = 50 people)
+
+- name: comms-timeline
+  archetype: timeline
+  domain: history
+  viewbox: [1680, 520]
+  cycle: 12
+  spec: true
+  story: Five milestones in long-distance communication, from the 1844 telegraph line to the 1989 Web proposal, advancing era by era with brackets for wire, radio and computer networks.
+  tags: [history, communication, telegraph, radio, internet, milestones]

@@ -1,0 +1,228 @@
+<!-- bloom-taxonomy (pool, archetype layers, domain education). Hand-built; no spec.yaml (six levels exceed the scaffolder five-layer limit).
+  The revised Bloom's taxonomy (Anderson & Krathwohl, 2001), six levels of the cognitive process
+  dimension, bottom to top; the verbs are cognitive processes A&K list under each level
+  (plan = designing, critique = judging). Example tasks on fractions are illustrative.
+  13 s cycle: levels rise bottom-up 0.15-1.1 s | token climbs, one level per 1.45 s, each level stays lit
+  and its task row lands | 10.3 s full stack, final caption | hold to 12.55 s | reset. -->
+<style>
+.anim-bloom-taxonomy{
+  --anim-bg:       var(--anim-theme-bg,       #0f1218);
+  --anim-panel:    var(--anim-theme-panel,    #1a2030);
+  --anim-line:     var(--anim-theme-line,     #3a4660);
+  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
+  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
+  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
+  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
+  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
+  --anim-warn:     var(--anim-theme-warn,     #ffb454);
+  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-bloom-taxonomy svg{display:block;width:100%;height:100%;max-width:none}
+.anim-bloom-taxonomy .bloom-taxonomy-shape{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
+.anim-bloom-taxonomy .bloom-taxonomy-fill{stroke:none}
+.anim-bloom-taxonomy .bloom-taxonomy-ring{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linejoin:round}
+.anim-bloom-taxonomy .bloom-taxonomy-name{font-family:var(--anim-font);font-size:24px;font-weight:700;fill:var(--anim-fg)}
+.anim-bloom-taxonomy .bloom-taxonomy-verbs{font-family:var(--anim-font);font-size:18px;fill:var(--anim-muted)}
+.anim-bloom-taxonomy .bloom-taxonomy-lead{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-bloom-taxonomy .bloom-taxonomy-card{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:1.5}
+.anim-bloom-taxonomy .bloom-taxonomy-task{font-family:var(--anim-font);font-size:20px;fill:var(--anim-fg)}
+.anim-bloom-taxonomy .bloom-taxonomy-tok{fill:var(--anim-accent);stroke:var(--anim-bg);stroke-width:3;offset-rotate:0deg;offset-distance:100%}
+.anim-bloom-taxonomy .bloom-taxonomy-cap{fill:var(--anim-panel)}
+.anim-bloom-taxonomy .bloom-taxonomy-note{font-family:var(--anim-font);font-size:22px;font-weight:600;fill:var(--anim-fg)}
+.anim-bloom-taxonomy .bloom-taxonomy-band,.anim-bloom-taxonomy .bloom-taxonomy-row{transform-box:view-box;transform-origin:0px 0px}
+/* resting frame = the end: full stack lit, every task row shown, token gone, last caption */
+.anim-bloom-taxonomy .bloom-taxonomy-foc0, .anim-bloom-taxonomy .bloom-taxonomy-foc1, .anim-bloom-taxonomy .bloom-taxonomy-foc2, .anim-bloom-taxonomy .bloom-taxonomy-foc3, .anim-bloom-taxonomy .bloom-taxonomy-foc4, .anim-bloom-taxonomy .bloom-taxonomy-foc5, .anim-bloom-taxonomy .bloom-taxonomy-tok, .anim-bloom-taxonomy .bloom-taxonomy-n0, .anim-bloom-taxonomy .bloom-taxonomy-n1{opacity:0}
+/* reset 12.55-12.85 s */
+@keyframes bloom-taxonomy-scene{0%,96.54%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}98.85%,100%{opacity:0}}
+/* band 0 rises in 0.15-0.60 s */
+@keyframes bloom-taxonomy-b0{0%,1.15%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.62%,100%{opacity:1;transform:translateY(0px)}}
+/* band 0 text lands 0.25 s */
+@keyframes bloom-taxonomy-bt0{0%,1.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.62%,100%{opacity:1}}
+/* level 0 lit from 1.60 s and stays (cumulative) */
+@keyframes bloom-taxonomy-lit0{0%,12.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.23%,100%{opacity:1}}
+/* focus ring 1.60-2.90 s */
+@keyframes bloom-taxonomy-foc0{0%,12.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.85%,22.31%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}23.46%,100%{opacity:0}}
+/* leader draws 1.60-2.10 s */
+@keyframes bloom-taxonomy-ld0{0%,12.31%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.15%,100%{stroke-dashoffset:0}}
+/* task row lands 1.75-2.15 s */
+@keyframes bloom-taxonomy-rw0{0%,13.46%{opacity:0;transform:translateX(-12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.54%,100%{opacity:1;transform:translateX(0px)}}
+/* band 1 rises in 0.24-0.69 s */
+@keyframes bloom-taxonomy-b1{0%,1.85%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.31%,100%{opacity:1;transform:translateY(0px)}}
+/* band 1 text lands 0.34 s */
+@keyframes bloom-taxonomy-bt1{0%,2.62%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.31%,100%{opacity:1}}
+/* level 1 lit from 3.05 s and stays (cumulative) */
+@keyframes bloom-taxonomy-lit1{0%,23.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.38%,100%{opacity:1}}
+/* focus ring 3.05-4.35 s */
+@keyframes bloom-taxonomy-foc1{0%,23.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25%,33.46%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.62%,100%{opacity:0}}
+/* leader draws 3.05-3.55 s */
+@keyframes bloom-taxonomy-ld1{0%,23.46%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.31%,100%{stroke-dashoffset:0}}
+/* task row lands 3.20-3.60 s */
+@keyframes bloom-taxonomy-rw1{0%,24.62%{opacity:0;transform:translateX(-12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.69%,100%{opacity:1;transform:translateX(0px)}}
+/* band 2 rises in 0.33-0.78 s */
+@keyframes bloom-taxonomy-b2{0%,2.54%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6%,100%{opacity:1;transform:translateY(0px)}}
+/* band 2 text lands 0.43 s */
+@keyframes bloom-taxonomy-bt2{0%,3.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6%,100%{opacity:1}}
+/* level 2 lit from 4.50 s and stays (cumulative) */
+@keyframes bloom-taxonomy-lit2{0%,34.62%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.54%,100%{opacity:1}}
+/* focus ring 4.50-5.80 s */
+@keyframes bloom-taxonomy-foc2{0%,34.62%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.15%,44.62%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}45.77%,100%{opacity:0}}
+/* leader draws 4.50-5.00 s */
+@keyframes bloom-taxonomy-ld2{0%,34.62%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.46%,100%{stroke-dashoffset:0}}
+/* task row lands 4.65-5.05 s */
+@keyframes bloom-taxonomy-rw2{0%,35.77%{opacity:0;transform:translateX(-12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.85%,100%{opacity:1;transform:translateX(0px)}}
+/* band 3 rises in 0.42-0.87 s */
+@keyframes bloom-taxonomy-b3{0%,3.23%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.69%,100%{opacity:1;transform:translateY(0px)}}
+/* band 3 text lands 0.52 s */
+@keyframes bloom-taxonomy-bt3{0%,4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.69%,100%{opacity:1}}
+/* level 3 lit from 5.95 s and stays (cumulative) */
+@keyframes bloom-taxonomy-lit3{0%,45.77%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.69%,100%{opacity:1}}
+/* focus ring 5.95-7.25 s */
+@keyframes bloom-taxonomy-foc3{0%,45.77%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.31%,55.77%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}56.92%,100%{opacity:0}}
+/* leader draws 5.95-6.45 s */
+@keyframes bloom-taxonomy-ld3{0%,45.77%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}49.62%,100%{stroke-dashoffset:0}}
+/* task row lands 6.10-6.50 s */
+@keyframes bloom-taxonomy-rw3{0%,46.92%{opacity:0;transform:translateX(-12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50%,100%{opacity:1;transform:translateX(0px)}}
+/* band 4 rises in 0.51-0.96 s */
+@keyframes bloom-taxonomy-b4{0%,3.92%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.38%,100%{opacity:1;transform:translateY(0px)}}
+/* band 4 text lands 0.61 s */
+@keyframes bloom-taxonomy-bt4{0%,4.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.38%,100%{opacity:1}}
+/* level 4 lit from 7.40 s and stays (cumulative) */
+@keyframes bloom-taxonomy-lit4{0%,56.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.85%,100%{opacity:1}}
+/* focus ring 7.40-8.70 s */
+@keyframes bloom-taxonomy-foc4{0%,56.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.46%,66.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}68.08%,100%{opacity:0}}
+/* leader draws 7.40-7.90 s */
+@keyframes bloom-taxonomy-ld4{0%,56.92%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.77%,100%{stroke-dashoffset:0}}
+/* task row lands 7.55-7.95 s */
+@keyframes bloom-taxonomy-rw4{0%,58.08%{opacity:0;transform:translateX(-12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.15%,100%{opacity:1;transform:translateX(0px)}}
+/* band 5 rises in 0.60-1.05 s */
+@keyframes bloom-taxonomy-b5{0%,4.62%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.08%,100%{opacity:1;transform:translateY(0px)}}
+/* band 5 text lands 0.70 s */
+@keyframes bloom-taxonomy-bt5{0%,5.38%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.08%,100%{opacity:1}}
+/* level 5 lit from 8.85 s and stays (cumulative) */
+@keyframes bloom-taxonomy-lit5{0%,68.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70%,100%{opacity:1}}
+/* focus ring 8.85-10.30 s */
+@keyframes bloom-taxonomy-foc5{0%,68.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.62%,79.23%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80.38%,100%{opacity:0}}
+/* leader draws 8.85-9.35 s */
+@keyframes bloom-taxonomy-ld5{0%,68.08%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.92%,100%{stroke-dashoffset:0}}
+/* task row lands 9.00-9.40 s */
+@keyframes bloom-taxonomy-rw5{0%,69.23%{opacity:0;transform:translateX(-12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.31%,100%{opacity:1;transform:translateX(0px)}}
+/* token climbs 1.5-8.85 s, 0.7 s per hop */
+@keyframes bloom-taxonomy-tok{0%,9.23%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.54%,18.08%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}23.46%,29.23%{opacity:1;offset-distance:20%;animation-timing-function:ease-in-out}34.62%,40.38%{opacity:1;offset-distance:40%;animation-timing-function:ease-in-out}45.77%,51.54%{opacity:1;offset-distance:60%;animation-timing-function:ease-in-out}56.92%,62.69%{opacity:1;offset-distance:80%;animation-timing-function:ease-in-out}68.08%,79.23%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}81.15%,100%{opacity:0;offset-distance:100%}}
+/* caption 0-1.4 s */
+@keyframes bloom-taxonomy-n0{0%,10%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}11.54%,100%{opacity:0}}
+/* caption 1.6-10.2 s */
+@keyframes bloom-taxonomy-n1{0%,12.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.62%,77.69%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}79.23%,100%{opacity:0}}
+/* final caption from 10.3 s */
+@keyframes bloom-taxonomy-n2{0%,79.23%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.54%,100%{opacity:1}}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-scene{animation:bloom-taxonomy-scene 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-b0{animation:bloom-taxonomy-b0 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-bt0{animation:bloom-taxonomy-bt0 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-lit0{animation:bloom-taxonomy-lit0 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-foc0{animation:bloom-taxonomy-foc0 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-ld0{animation:bloom-taxonomy-ld0 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-rw0{animation:bloom-taxonomy-rw0 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-b1{animation:bloom-taxonomy-b1 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-bt1{animation:bloom-taxonomy-bt1 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-lit1{animation:bloom-taxonomy-lit1 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-foc1{animation:bloom-taxonomy-foc1 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-ld1{animation:bloom-taxonomy-ld1 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-rw1{animation:bloom-taxonomy-rw1 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-b2{animation:bloom-taxonomy-b2 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-bt2{animation:bloom-taxonomy-bt2 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-lit2{animation:bloom-taxonomy-lit2 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-foc2{animation:bloom-taxonomy-foc2 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-ld2{animation:bloom-taxonomy-ld2 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-rw2{animation:bloom-taxonomy-rw2 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-b3{animation:bloom-taxonomy-b3 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-bt3{animation:bloom-taxonomy-bt3 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-lit3{animation:bloom-taxonomy-lit3 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-foc3{animation:bloom-taxonomy-foc3 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-ld3{animation:bloom-taxonomy-ld3 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-rw3{animation:bloom-taxonomy-rw3 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-b4{animation:bloom-taxonomy-b4 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-bt4{animation:bloom-taxonomy-bt4 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-lit4{animation:bloom-taxonomy-lit4 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-foc4{animation:bloom-taxonomy-foc4 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-ld4{animation:bloom-taxonomy-ld4 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-rw4{animation:bloom-taxonomy-rw4 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-b5{animation:bloom-taxonomy-b5 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-bt5{animation:bloom-taxonomy-bt5 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-lit5{animation:bloom-taxonomy-lit5 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-foc5{animation:bloom-taxonomy-foc5 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-ld5{animation:bloom-taxonomy-ld5 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-rw5{animation:bloom-taxonomy-rw5 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-tok{animation:bloom-taxonomy-tok 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-n0{animation:bloom-taxonomy-n0 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-n1{animation:bloom-taxonomy-n1 13s linear infinite}
+.visible .anim-bloom-taxonomy .bloom-taxonomy-n2{animation:bloom-taxonomy-n2 13s linear infinite}
+
+@media (prefers-reduced-motion: reduce) { .anim-bloom-taxonomy * { animation: none !important; } }
+</style>
+<div class="anim anim-bloom-taxonomy" data-anim="bloom-taxonomy" data-anim-cycle="13" data-anim-control="loop">
+<svg viewBox="0 0 1200 640" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Revised Bloom's taxonomy as six stacked levels, from Remember at the bottom through Understand, Apply, Analyze and Evaluate to Create at the top, each with its cognitive-process verbs; one example topic, fractions, climbs the levels with one task per level.">
+<g class="bloom-taxonomy-scene">
+<g class="bloom-taxonomy-band bloom-taxonomy-b0">
+  <path class="bloom-taxonomy-shape" d="M50.0 552.0 L81.8 472.0 H658.2 L690.0 552.0 Z"/>
+  <path class="bloom-taxonomy-fill bloom-taxonomy-lit0" d="M50.0 552.0 L81.8 472.0 H658.2 L690.0 552.0 Z" style="fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-panel))"/>
+  <path class="bloom-taxonomy-ring bloom-taxonomy-foc0" d="M50.0 552.0 L81.8 472.0 H658.2 L690.0 552.0 Z"/>
+  <g class="bloom-taxonomy-bt0"><text class="bloom-taxonomy-name" x="370" y="507.0" text-anchor="middle">Remember</text>
+  <text class="bloom-taxonomy-verbs" x="370" y="535.0" text-anchor="middle">recognize, recall</text></g>
+</g>
+<g class="bloom-taxonomy-band bloom-taxonomy-b1">
+  <path class="bloom-taxonomy-shape" d="M85.6 462.4 L117.5 382.4 H622.5 L654.4 462.4 Z"/>
+  <path class="bloom-taxonomy-fill bloom-taxonomy-lit1" d="M85.6 462.4 L117.5 382.4 H622.5 L654.4 462.4 Z" style="fill:color-mix(in srgb,var(--anim-accent) 19%,var(--anim-panel))"/>
+  <path class="bloom-taxonomy-ring bloom-taxonomy-foc1" d="M85.6 462.4 L117.5 382.4 H622.5 L654.4 462.4 Z"/>
+  <g class="bloom-taxonomy-bt1"><text class="bloom-taxonomy-name" x="370" y="417.4" text-anchor="middle">Understand</text>
+  <text class="bloom-taxonomy-verbs" x="370" y="445.4" text-anchor="middle">explain, summarize, classify</text></g>
+</g>
+<g class="bloom-taxonomy-band bloom-taxonomy-b2">
+  <path class="bloom-taxonomy-shape" d="M121.3 372.8 L153.1 292.8 H586.9 L618.7 372.8 Z"/>
+  <path class="bloom-taxonomy-fill bloom-taxonomy-lit2" d="M121.3 372.8 L153.1 292.8 H586.9 L618.7 372.8 Z" style="fill:color-mix(in srgb,var(--anim-accent) 24%,var(--anim-panel))"/>
+  <path class="bloom-taxonomy-ring bloom-taxonomy-foc2" d="M121.3 372.8 L153.1 292.8 H586.9 L618.7 372.8 Z"/>
+  <g class="bloom-taxonomy-bt2"><text class="bloom-taxonomy-name" x="370" y="327.8" text-anchor="middle">Apply</text>
+  <text class="bloom-taxonomy-verbs" x="370" y="355.8" text-anchor="middle">execute, implement</text></g>
+</g>
+<g class="bloom-taxonomy-band bloom-taxonomy-b3">
+  <path class="bloom-taxonomy-shape" d="M156.9 283.2 L188.7 203.2 H551.3 L583.1 283.2 Z"/>
+  <path class="bloom-taxonomy-fill bloom-taxonomy-lit3" d="M156.9 283.2 L188.7 203.2 H551.3 L583.1 283.2 Z" style="fill:color-mix(in srgb,var(--anim-accent) 29%,var(--anim-panel))"/>
+  <path class="bloom-taxonomy-ring bloom-taxonomy-foc3" d="M156.9 283.2 L188.7 203.2 H551.3 L583.1 283.2 Z"/>
+  <g class="bloom-taxonomy-bt3"><text class="bloom-taxonomy-name" x="370" y="238.2" text-anchor="middle">Analyze</text>
+  <text class="bloom-taxonomy-verbs" x="370" y="266.2" text-anchor="middle">differentiate, organize, attribute</text></g>
+</g>
+<g class="bloom-taxonomy-band bloom-taxonomy-b4">
+  <path class="bloom-taxonomy-shape" d="M192.5 193.6 L224.4 113.6 H515.6 L547.5 193.6 Z"/>
+  <path class="bloom-taxonomy-fill bloom-taxonomy-lit4" d="M192.5 193.6 L224.4 113.6 H515.6 L547.5 193.6 Z" style="fill:color-mix(in srgb,var(--anim-accent) 34%,var(--anim-panel))"/>
+  <path class="bloom-taxonomy-ring bloom-taxonomy-foc4" d="M192.5 193.6 L224.4 113.6 H515.6 L547.5 193.6 Z"/>
+  <g class="bloom-taxonomy-bt4"><text class="bloom-taxonomy-name" x="370" y="148.6" text-anchor="middle">Evaluate</text>
+  <text class="bloom-taxonomy-verbs" x="370" y="176.6" text-anchor="middle">check, critique</text></g>
+</g>
+<g class="bloom-taxonomy-band bloom-taxonomy-b5">
+  <path class="bloom-taxonomy-shape" d="M228.2 104.0 L260.0 24.0 H480.0 L511.8 104.0 Z"/>
+  <path class="bloom-taxonomy-fill bloom-taxonomy-lit5" d="M228.2 104.0 L260.0 24.0 H480.0 L511.8 104.0 Z" style="fill:color-mix(in srgb,var(--anim-accent) 39%,var(--anim-panel))"/>
+  <path class="bloom-taxonomy-ring bloom-taxonomy-foc5" d="M228.2 104.0 L260.0 24.0 H480.0 L511.8 104.0 Z"/>
+  <g class="bloom-taxonomy-bt5"><text class="bloom-taxonomy-name" x="370" y="59.0" text-anchor="middle">Create</text>
+  <text class="bloom-taxonomy-verbs" x="370" y="87.0" text-anchor="middle">generate, plan, produce</text></g>
+</g>
+<path class="bloom-taxonomy-lead bloom-taxonomy-ld0" pathLength="100" d="M710.1 512.0 H752"/>
+<g class="bloom-taxonomy-row bloom-taxonomy-rw0"><rect class="bloom-taxonomy-card" x="760" y="484.0" width="416" height="56" rx="8"/><text class="bloom-taxonomy-task" x="780" y="519.0">Recall what a denominator is</text></g>
+<path class="bloom-taxonomy-lead bloom-taxonomy-ld1" pathLength="100" d="M674.5 422.4 H752"/>
+<g class="bloom-taxonomy-row bloom-taxonomy-rw1"><rect class="bloom-taxonomy-card" x="760" y="394.4" width="416" height="56" rx="8"/><text class="bloom-taxonomy-task" x="780" y="429.4">Explain why 2/4 equals 1/2</text></g>
+<path class="bloom-taxonomy-lead bloom-taxonomy-ld2" pathLength="100" d="M638.8 332.8 H752"/>
+<g class="bloom-taxonomy-row bloom-taxonomy-rw2"><rect class="bloom-taxonomy-card" x="760" y="304.8" width="416" height="56" rx="8"/><text class="bloom-taxonomy-task" x="780" y="339.8">Add 1/3 + 1/4 step by step</text></g>
+<path class="bloom-taxonomy-lead bloom-taxonomy-ld3" pathLength="100" d="M603.2 243.2 H752"/>
+<g class="bloom-taxonomy-row bloom-taxonomy-rw3"><rect class="bloom-taxonomy-card" x="760" y="215.2" width="416" height="56" rx="8"/><text class="bloom-taxonomy-task" x="780" y="250.2">Spot the error in a worked sum</text></g>
+<path class="bloom-taxonomy-lead bloom-taxonomy-ld4" pathLength="100" d="M567.5 153.6 H752"/>
+<g class="bloom-taxonomy-row bloom-taxonomy-rw4"><rect class="bloom-taxonomy-card" x="760" y="125.6" width="416" height="56" rx="8"/><text class="bloom-taxonomy-task" x="780" y="160.6">Judge which of two methods works</text></g>
+<path class="bloom-taxonomy-lead bloom-taxonomy-ld5" pathLength="100" d="M531.9 64.0 H752"/>
+<g class="bloom-taxonomy-row bloom-taxonomy-rw5"><rect class="bloom-taxonomy-card" x="760" y="36.0" width="416" height="56" rx="8"/><text class="bloom-taxonomy-task" x="780" y="71.0">Design a fraction word problem</text></g>
+<circle class="bloom-taxonomy-tok" r="11" style="offset-path:path('M694.1 512.0 L515.9 64.0')"/>
+<rect class="bloom-taxonomy-cap" x="24" y="580" width="1152" height="52" rx="8"/>
+<text class="bloom-taxonomy-note bloom-taxonomy-n0" x="600" y="614" text-anchor="middle">Revised Bloom's taxonomy (Anderson &amp; Krathwohl, 2001): six levels</text>
+<text class="bloom-taxonomy-note bloom-taxonomy-n1" x="600" y="614" text-anchor="middle">One topic, fractions, taken up through every level</text>
+<text class="bloom-taxonomy-note bloom-taxonomy-n2" x="600" y="614" text-anchor="middle">Each level builds on the ones below it</text>
+</g>
+</svg>
+</div>

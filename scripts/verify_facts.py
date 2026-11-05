@@ -319,7 +319,7 @@ def parse_slides(specs):
 
 
 def slide_text(s):
-    parts = [s.get('title') or '', *(s.get('bullets') or []), s.get('notes') or '']
+    parts = [s.get('title') or '', *(s.get('bullets') or []), s.get('notes') or '', s.get('text') or '']
     for t in s.get('tables') or []:
         for row in t:
             parts.extend(c for c in row if c)

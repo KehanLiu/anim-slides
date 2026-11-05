@@ -1,0 +1,33 @@
+# Sales funnel: one cohort thins out stage by stage. ILLUSTRATIVE numbers (the fragment says so):
+#   Awareness 10,000 -> Interest 2,500 (25 %) -> Consideration 800 (32 %) -> Purchase 200 (25 %)
+#   -> Retention 150 (75 %). Share of cohort: 100 %, 25 %, 8 %, 2 %, 1.5 %. One dot = 50 people
+#   (200, 50, 16, 4, 3 dots). Takeaway: 2 % of the cohort buys; 75 % of buyers are retained.
+# Scaffold the stages with:
+#   python3 scripts/scaffold_from_spec.py pool/sales-funnel/spec.yaml -o /tmp/anim/sales-funnel/sales-funnel.html
+# The shipped HTML is hand-built beyond the scaffold: stages are stacked funnel bands (widths taper
+# evenly, not to scale), dot grids at exact scale, a count column and conversion brackets on the right.
+name: sales-funnel
+archetype: pipeline
+domain: marketing
+size: [1680, 600]
+control: loop
+cycle: 13
+nodes:
+  - { id: awareness,     label: Awareness,     sub: "10,000 · 100 %", kind: process }
+  - { id: interest,      label: Interest,      sub: "2,500 · 25 %",   kind: process }
+  - { id: consideration, label: Consideration, sub: "800 · 8 %",      kind: process }
+  - { id: purchase,      label: Purchase,      sub: "200 · 2 %",      kind: process }
+  - { id: retention,     label: Retention,     sub: "150 · 1.5 %",    kind: process }
+edges:
+  - { from: awareness,     to: interest,      kind: flow, label: "25 %" }
+  - { from: interest,      to: consideration, kind: flow, label: "32 %" }
+  - { from: consideration, to: purchase,      kind: flow, label: "25 %" }
+  - { from: purchase,      to: retention,     kind: flow, label: "75 %" }
+phases:
+  - { t: 0,    label: setup,                                                     note: "One cohort of 10,000 people, followed stage by stage" }
+  - { t: 0.8,  label: awareness,     show: [awareness],     active: [awareness] }
+  - { t: 2.8,  label: interest,      show: [interest],      active: [interest],      flow: ["awareness>interest"] }
+  - { t: 4.8,  label: consideration, show: [consideration], active: [consideration], flow: ["interest>consideration"] }
+  - { t: 6.8,  label: purchase,      show: [purchase],      active: [purchase],      flow: ["consideration>purchase"] }
+  - { t: 8.8,  label: retention,     show: [retention],     active: [retention],     flow: ["purchase>retention"] }
+  - { t: 10.2, label: hold,                                 active: [retention],     note: "2 % of the cohort buys; 75 % of buyers are retained" }
