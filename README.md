@@ -27,7 +27,7 @@ into your deck.
 
 ## Pool
 
-The skill ships a pool of 18 finished, checked fragments across a dozen fields, at least one per
+The skill ships a pool of 22 finished, checked fragments across 16 fields, at least one per
 archetype. The agent starts from the closest one before building from scratch. See them all
 animating in the **[live gallery](https://kehanliu.github.io/anim-slides/)**. Resting frames:
 
@@ -44,8 +44,8 @@ animating in the **[live gallery](https://kehanliu.github.io/anim-slides/)**. Re
 </tr>
 <tr>
 <td><img src="pool/funding-options/thumb.png" alt="funding-options"><br><code>funding-options</code></td>
-<td><img src="pool/hiring-lanes/thumb.png" alt="hiring-lanes"><br><code>hiring-lanes</code></td>
-<td><img src="pool/rag-stack/thumb.png" alt="rag-stack"><br><code>rag-stack</code></td>
+<td><img src="pool/bloom-taxonomy/thumb.png" alt="bloom-taxonomy"><br><code>bloom-taxonomy</code></td>
+<td><img src="pool/phase-changes/thumb.png" alt="phase-changes"><br><code>phase-changes</code></td>
 </tr>
 </table>
 

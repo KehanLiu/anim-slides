@@ -30,6 +30,10 @@ after scaffolding, so the spec reproduces the structure and timing, not every de
 | ![](photosynth-respiration/thumb.png) | `photosynth-respiration` | compare | biology | 1680×600 | 12 s | Photosynthesis and cellular respiration side by side; as each respiration row enters, its direction badge flips to the opposite of photosynthesis. |
 | ![](funding-options/thumb.png) | `funding-options` | compare | business | 1680×600 | 11 s | Bootstrapping, angel investors and venture capital built column by column across four criteria, ending on the control-you-keep row. |
 | ![](canal-lock/thumb.png) | `canal-lock` | states | engineering | 1680×600 | 11 s | A side cross-section of a canal lock: the boat enters, the lower gates close, the valve fills the chamber, the upper gates open and the boat leaves higher. |
+| ![](sales-funnel/thumb.png) | `sales-funnel` | pipeline | marketing | 1680×600 | 13 s | One cohort of 10,000 thins out through awareness, interest, consideration and purchase to retention; every conversion matches the counts and the numbers are marked illustrative. |
+| ![](comms-timeline/thumb.png) | `comms-timeline` | timeline | history | 1680×520 | 12 s | Five milestones in long-distance communication, from the 1844 telegraph line to the 1989 Web proposal, advancing era by era with brackets for wire, radio and computer networks. |
+| ![](bloom-taxonomy/thumb.png) | `bloom-taxonomy` | layers | education | 1200×640 | 13 s | The six levels of the revised Bloom's taxonomy build bottom-up, then one topic (fractions) climbs from Remember to Create with an example task per level. |
+| ![](phase-changes/thumb.png) | `phase-changes` | states | chemistry | 1680×600 | 14 s | Solid, liquid and gas with their particles; a token runs all six phase changes, each labelled with whether it absorbs or releases energy, water's 0 °C and 100 °C at 1 atm noted. |
 
 All are `data-anim-control="loop"` (CSS only, no script). Without a `.visible` ancestor, and
 under `prefers-reduced-motion`, each shows its resting frame: the finished state of the story.

@@ -542,6 +542,8 @@ def check_phases(S, phases, err):
             err.append(f'{w}: must be a mapping with keys {", ".join(sorted(KEYS["phase"]))}')
             continue
         p = {k: p.get(k) for k in KEYS['phase']}
+        if p['label'] == 'hold' and p['active'] is None and out:
+            p['active'] = list(out[-1]['active'])    # the hold keeps the final highlights (resting frame)
         for k in ('show', 'active', 'flow'):
             p[k] = [str(x) for x in (p[k] or [])]
         lab = p['label']
@@ -648,15 +650,27 @@ def quad(p0, q, p3):
     return (p0, lerp(p0, q, 2 / 3), lerp(p3, q, 2 / 3), p3)
 
 
+def segs(c):
+    """An edge is one cubic (a 4-tuple of points) or a list of cubics joined end to end."""
+    return c if isinstance(c, list) else [c]
+
+
 def path_d(c):
-    return f'M {pt(c[0])} C {pt(c[1])} {pt(c[2])} {pt(c[3])}'
+    s = segs(c)
+    return f'M {pt(s[0][0])} ' + ' '.join(f'C {pt(q[1])} {pt(q[2])} {pt(q[3])}' for q in s)
 
 
 def bez_mid(c):
+    s = segs(c)
+    if len(s) > 1:
+        pts = sample(c)
+        return pts[len(pts) // 2]
+    c = s[0]
     return tuple((c[0][k] + 3 * c[1][k] + 3 * c[2][k] + c[3][k]) / 8 for k in (0, 1))
 
 
 def arrow_d(c, size=12):
+    c = segs(c)[-1]
     tip, back = c[3], c[2] if c[2] != c[3] else c[0]
     dx, dy = tip[0] - back[0], tip[1] - back[1]
     ln = math.hypot(dx, dy) or 1
@@ -709,14 +723,14 @@ def frame(S, F):
     return top, bottom, strip, has_note
 
 
-def min_box_w(S, F):
-    """Narrowest box in which every label wraps to at most two lines and every sub fits."""
-    need = 150
+def min_box_w(S, F, subs=True):
+    """Narrowest box in which every label wraps to at most two lines and (subs) every sub fits."""
+    need = 150 if subs else 120
     for nd in S.nodes:
         pad = 64 if nd['kind'] in ('actor', 'decision', 'milestone') else 28
         words = max((text_w(x, F['lbl']) for x in nd['label'].split()), default=0)
         need = max(need, words + pad, text_w(nd['label'], F['lbl']) * 0.55 + pad,
-                   text_w(nd['sub'], F['sub']) + 28 if nd['sub'] else 0)
+                   text_w(nd['sub'], F['sub']) + 28 if nd['sub'] and subs else 0)
     return need
 
 
@@ -803,16 +817,18 @@ def col_of(i, m):
     return c if r == 0 else m - 1 - c
 
 
-def ranks(S):
+def ranks(S, backs=None, pull=False):
+    """Longest-path rank of every node over the edges that are not back edges (DFS in list order).
+    pull: a source moves right to sit one rank before its nearest successor."""
     order = [n['id'] for n in S.nodes]
     out = {i: [e['to'] for e in S.edges if e['from'] == i] for i in order}
-    state, backs = {}, set()
+    state, bk = {}, set() if backs is None else backs
 
     def dfs(u):
         state[u] = 1
         for v in out[u]:
             if state.get(v) == 1:
-                backs.add(f'{u}>{v}')
+                bk.add(f'{u}>{v}')
             elif v not in state:
                 dfs(v)
         state[u] = 2
@@ -822,59 +838,444 @@ def ranks(S):
     rank = {i: 0 for i in order}
     for _ in order:
         for e in S.edges:
-            if e['id'] not in backs:
+            if e['id'] not in bk:
                 rank[e['to']] = max(rank[e['to']], rank[e['from']] + 1)
+    if pull:
+        fwd = [e for e in S.edges if e['id'] not in bk]
+        for u in order:
+            succ = [rank[e['to']] for e in fwd if e['from'] == u]
+            if succ and not any(e['to'] == u for e in fwd):
+                rank[u] = max(rank[u], min(succ) - 1)
     return rank
 
 
-def layout_graph(S, F, top, bottom):
+# graph squeeze levels, loosest first: spacing and box sizes shrink, fonts never do
+GRAPH_FIT = (dict(margin=40, gap=60, vgap=36, gpad=20, ghead=52, clear=22, nh=84, nw=220),
+             dict(margin=32, gap=44, vgap=26, gpad=16, ghead=46, clear=18, nh=80, nw=200),
+             dict(margin=24, gap=32, vgap=18, gpad=12, ghead=40, clear=14, nh=76, nw=180))
+
+
+def layer_crossings(layers, ladj):
+    total = 0
+    for r in range(len(layers) - 1):
+        p = {it: i for i, it in enumerate(layers[r])}
+        q = {it: i for i, it in enumerate(layers[r + 1])}
+        es = [(p[a], q[b]) for a, b in ladj if a in p and b in q]
+        total += sum(1 for i in range(len(es)) for j in range(i + 1, len(es))
+                     if (es[i][0] - es[j][0]) * (es[i][1] - es[j][1]) < 0)
+    return total
+
+
+def node_text_h(n, F, w):
+    """Height of a node's label (wrapped as emit wraps it) plus its sub."""
+    maxw = w - (64 if n['kind'] in ('actor', 'decision', 'milestone', 'store', 'data') else 24)
+    lines = [(t, 'lbl') for t in wrap(n['label'], F['lbl'], maxw)] + ([(n['sub'], 'sub')] if n['sub'] else [])
+    return text_h(lines, F)
+
+
+def diamond_fit(n, F, w0, h0, maxw, maxh):
+    for k in (1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9):
+        w, h = min(w0 * k, maxw), min(h0 * k, maxh)
+        if w < w0 or h < h0:
+            break
+        if diamond_lines(n, F, w, h):
+            return w, h
+    return None
+
+
+def layout_graph(S, F, top, bottom, level=0):
+    """Layered left to right (Sugiyama): ranks by longest path, edges that skip ranks get a
+    waypoint in every column they pass, columns ordered by barycenter sweeps (spec order breaks
+    ties, group members kept together), rows placed by a constrained relaxation that keeps nodes
+    out of foreign group boxes. Back edges: a reverse pair runs as a twin wire, longer ones arc
+    below (or above) everything they span."""
     if S.lanes:
         return layout_lanes(S, F, top, bottom)
-    rank = ranks(S)
+    P = GRAPH_FIT[level]
+    backs = set()
+    rank = ranks(S, backs, pull=True)
     R = max(rank.values()) + 1
-    cols = [[n['id'] for n in S.nodes if rank[n['id']] == r] for r in range(R)]
-    nw = 220
-    pitch_x = (S.W - 80 - nw) / (R - 1) if R > 1 else 0
-    if R > 1 and pitch_x < nw + 60:
-        nw = (S.W - 80 - 60 * (R - 1)) / R
-        pitch_x = nw + 60
-    gtop, gbot = (52, 20) if S.groups else (0, 0)
-    lo, hi = top + gtop, bottom - gbot
-    rows = max(len(c) + 0.5 * len({S.node[i].get('group') for i in c}) - 0.5 for c in cols)
-    pitch_y = min(120, (hi - lo) / rows)
-    nh = min(84, pitch_y - 24)
-    gidx = {g['id']: i for i, g in enumerate(S.groups)}
-    order = [n['id'] for n in S.nodes]
-    nodes, mid = {}, (lo + hi) / 2
-    x0 = (S.W - (nw + (R - 1) * pitch_x)) / 2
-    for r, col in enumerate(cols):
-        def key(i):
-            parents = [centre(nodes[e['from']])[1] for e in S.edges if e['to'] == i and e['from'] in nodes]
-            return (gidx.get(S.node[i].get('group'), len(gidx)),
-                    sum(parents) / len(parents) if parents else 0, order.index(i))
-        ordered, ys, y = sorted(col, key=key), [], 0.0
-        for k, i in enumerate(ordered):      # extra gap where the group changes inside a column
-            if k and S.node[i].get('group') != S.node[ordered[k - 1]].get('group'):
-                y += 56 if S.groups else 0
-            ys.append(y)
-            y += pitch_y
-        shift = mid - (ys[-1] / 2 if ys else 0)
-        for i, yy in zip(ordered, ys):
-            nodes[i] = dict(x=x0 + r * pitch_x, y=shift + yy - nh / 2, w=nw, h=nh)
-    diamonds(S, F, nodes, min(nw * 1.5, 2 * pitch_x - nw - 48) if R > 1 else nw * 1.5,
-             min(nh * 1.9, 2 * pitch_y - nh - 16, bottom - top))
-    push_out_of_groups(S, nodes, top, bottom, F)
-    edges = {}
-    for e in S.edges:
-        a, b = nodes[e['from']], nodes[e['to']]
-        if rank[e['to']] > rank[e['from']]:
-            edges[e['id']] = route(a, b, k=80)
+    idx = {n['id']: i for i, n in enumerate(S.nodes)}
+    fwd = [e for e in S.edges if e['id'] not in backs]
+    pair = {e['id'] for e in S.edges if e['id'] in backs and f'{e["to"]}>{e["from"]}' in S.edge
+            and abs(rank[e['from']] - rank[e['to']]) == 1}
+    arcs = [e for e in S.edges if e['id'] in backs and e['id'] not in pair]
+    grp = {n['id']: n.get('group') for n in S.nodes}
+    span = {}
+    for n in S.nodes:
+        if n.get('group'):
+            a, b = span.get(n['group'], (R, -1))
+            span[n['group']] = (min(a, rank[n['id']]), max(b, rank[n['id']]))
+
+    # ---- layered graph: dummies for every rank an edge skips
+    layers = [[] for _ in range(R)]
+    for n in sorted(S.nodes, key=lambda n: idx[n['id']]):
+        layers[rank[n['id']]].append(n['id'])
+    chain, ladj, tie = {}, [], {n['id']: float(idx[n['id']]) for n in S.nodes}
+    for k, e in enumerate(fwd):
+        u, v = e['from'], e['to']
+        seq = [u]
+        for r in range(rank[u] + 1, rank[v]):
+            d = ('~', e['id'], r)
+            g = grp[u] if grp[u] and span[grp[u]][0] <= r <= span[grp[u]][1] else \
+                grp[v] if grp[v] and span[grp[v]][0] <= r <= span[grp[v]][1] else None
+            grp[d] = g
+            tie[d] = (idx[u] + idx[v]) / 2 + k * 1e-3
+            layers[r].append(d)
+            seq.append(d)
+        seq.append(v)
+        chain[e['id']] = seq
+        ladj += list(zip(seq, seq[1:]))
+    nb_l = {it: [] for L in layers for it in L}
+    nb_r = {it: [] for L in layers for it in L}
+    for a, b in ladj:
+        nb_r[a].append(b)
+        nb_l[b].append(a)
+
+    def sort_layer(r, ref):
+        pos = {it: i for i, it in enumerate(layers[ref])} if ref is not None else {}
+        cur = {it: i for i, it in enumerate(layers[r])}
+        nbs = nb_l if ref is not None and ref < r else nb_r
+        bary = {}
+        for it in layers[r]:
+            ps = [pos[x] for x in nbs[it] if x in pos]
+            bary[it] = sum(ps) / len(ps) if ps else cur[it] * max(1, len(pos)) / max(1, len(cur))
+        blocks = {}
+        for it in layers[r]:
+            blocks.setdefault(grp[it] or ('solo', it), []).append(it)
+        ordered = sorted(blocks.values(), key=lambda m: (sum(bary[i] for i in m) / len(m), min(tie[i] for i in m)))
+        layers[r] = [i for m in ordered for i in sorted(m, key=lambda i: (bary[i], tie[i]))]
+
+    for r in range(R):
+        sort_layer(r, None)
+    for r in range(1, R):
+        sort_layer(r, r - 1)
+    best, best_c = [list(L) for L in layers], layer_crossings(layers, ladj)
+    for _ in range(6):
+        for r in range(R - 2, -1, -1):
+            sort_layer(r, r + 1)
+        for r in range(1, R):
+            sort_layer(r, r - 1)
+        c = layer_crossings(layers, ladj)
+        if c < best_c:
+            best, best_c = [list(L) for L in layers], c
+        if best_c == 0:
+            break
+    layers = best
+
+    # ---- sizes and columns (x)
+    need_w = min_box_w(S, F, subs=False)              # floor: labels wrap to two lines; a long sub only warns
+    nw = max(need_w, min(P['nw'], (S.W - 2 * P['margin'] - P['gap'] * (R - 1)) / R))
+    nh = max(P['nh'], max(node_text_h(n, F, nw) for n in S.nodes) + (14 if level == 0 else 10))
+    size = {}
+    for n in S.nodes:
+        size[n['id']] = (nw, nh, False)
+        if n['kind'] == 'decision':
+            d = diamond_fit(n, F, nw, nh, nw * 1.7, min(nh * 1.9, (bottom - top) * 0.6))
+            if d:
+                size[n['id']] = (d[0], d[1], True)
+    cw = [max(size[i][0] for i in L if not isinstance(i, tuple)) for L in layers]
+    avail = S.W - 2 * P['margin']
+    gap = (avail - sum(cw)) / (R - 1) if R > 1 else 0
+    gap = max(P['gap'], min(gap, 2 * nw))
+    total = sum(cw) + gap * (R - 1)
+    xl, x = [], (S.W - total) / 2
+    for r in range(R):
+        xl.append(x)
+        x += cw[r] + gap
+    cx = [xl[r] + cw[r] / 2 for r in range(R)]
+
+    # ---- group headers (label may wrap once the box width is known)
+    head = {}
+    for g in S.groups:
+        ms = [n['id'] for n in S.nodes if n.get('group') == g['id']]
+        if not ms:
             continue
-        x0e, x1e = sorted((centre(a)[0], centre(b)[0]))   # back edge: arc below every node it spans
-        low = max(o['y'] + o['h'] for o in nodes.values() if o['x'] < x1e and o['x'] + o['w'] > x0e)
+        x0 = min(cx[rank[i]] - size[i][0] / 2 for i in ms) - P['gpad']
+        x1 = max(cx[rank[i]] + size[i][0] / 2 for i in ms) + P['gpad']
+        nl = len(group_label_lines(g, F, x1 - x0))
+        head[g['id']] = max(P['ghead'], 18 + F['sub'] * 1.3 + 10) + (nl - 1) * F['sub'] * 1.25
+
+    # ---- rows (y)
+    lo, hi = top, bottom - (40 if arcs else 0)
+    hh = {it: (size[it][1] / 2 if not isinstance(it, tuple) else 0) for L in layers for it in L}
+
+    def gap_of(a, b):
+        da, db = isinstance(a, tuple), isinstance(b, tuple)
+        base = P['clear'] if da and db else P['clear'] + 8 if da or db else P['vgap']
+        ga, gb = grp[a], grp[b]
+        if ga != gb:
+            base = max(base, (P['gpad'] if ga else 0) + (head[gb] if gb else 0) + (12 if not (da or db) else 8))
+        return hh[a] + hh[b] + base
+
+    y = {}
+    for L in layers:                                  # start: each column stacked round the middle
+        gaps = [gap_of(a, b) for a, b in zip(L, L[1:])]
+        yy = (lo + hi) / 2 - sum(gaps) / 2
+        for k, it in enumerate(L):
+            y[it] = yy
+            yy += gaps[k] if k < len(gaps) else 0
+    col = {it: r for r, L in enumerate(layers) for it in L}
+    lb = {it: lo + hh[it] + (head[grp[it]] if grp[it] else 0) for it in y}
+    ub = {it: hi - hh[it] - (P['gpad'] if grp[it] else 0) for it in y}
+    members = {g: [it for it in y if grp[it] == g] for g in head}
+    gix = {g['id']: k for k, g in enumerate(S.groups)}
+    gx = {}                                           # group box x range (fixed by the columns)
+    for g in head:
+        ns = [i for i in members[g] if not isinstance(i, tuple)]
+        gx[g] = (min(cx[rank[i]] - size[i][0] / 2 for i in ns) - P['gpad'],
+                 max(cx[rank[i]] + size[i][0] / 2 for i in ns) + P['gpad'])
+    order_cons = [(a, b, gap_of(a, b)) for L in layers for a, b in zip(L, L[1:])]
+
+    def extent(it):
+        r = col[it]
+        if isinstance(it, tuple):
+            return xl[r], xl[r] + cw[r]
+        return cx[r] - size[it][0] / 2, cx[r] + size[it][0] / 2
+
+    def sides():
+        """(item, group, above): every foreign item whose column crosses a group box."""
+        out = []
+        for r, L in enumerate(layers):
+            for k, it in enumerate(L):
+                ix0, ix1 = extent(it)
+                for g in head:
+                    if g == grp[it] or ix1 <= gx[g][0] or ix0 >= gx[g][1]:
+                        continue
+                    here = [j for j, o in enumerate(L) if grp[o] == g]
+                    if here:
+                        above = k < here[0]
+                    else:
+                        ms = members[g]
+                        c = (min(y[m] - hh[m] for m in ms) + max(y[m] + hh[m] for m in ms)) / 2
+                        above = y[it] < c - 1 if abs(y[it] - c) > 1 else \
+                            (grp[it] is not None and gix[grp[it]] < gix[g])
+                    out.append((it, g, above))
+        return out
+
+    def excl_cons(sd):
+        out = []
+        for it, g, above in sd:
+            o, cl = grp[it], 10 if isinstance(it, tuple) else 12
+            for m in members[g]:
+                if above:
+                    out.append((it, m, hh[it] + cl + (P['gpad'] if o else 0) + head[g] + hh[m]))
+                else:
+                    out.append((m, it, hh[m] + P['gpad'] + cl + (head[o] if o else 0) + hh[it]))
+        return out
+
+    def project(cons):
+        for a, b, g in cons:
+            v = g - (y[b] - y[a])
+            if v > 1e-6:
+                na = max(lb[a], y[a] - v / 2)
+                nb = min(ub[b], y[b] + v - (y[a] - na))
+                if nb - na < g:
+                    na = max(lb[a], nb - g)
+                y[a], y[b] = na, nb
+
+    def solve(cons, iters=120):
+        for _ in range(iters):                        # relax toward neighbours, then re-impose
+            for it in y:
+                ns = nb_l[it] + nb_r[it]
+                if ns:
+                    y[it] = 0.5 * y[it] + 0.5 * sum(y[x] for x in ns) / len(ns)
+                y[it] = min(max(y[it], lb[it]), ub[it])
+            for _ in range(4):
+                project(cons)
+        for _ in range(60):
+            project(cons)
+        return max([g - (y[b] - y[a]) for a, b, g in cons] + [0])
+
+    solve(order_cons, 60)
+    for _ in range(2):
+        cons = order_cons + excl_cons(sides())
+        solve(cons)
+    conflicts = [f'{a if isinstance(a, str) else "wire " + a[1]} / {b if isinstance(b, str) else "wire " + b[1]}'
+                 for a, b, g in cons if g - (y[b] - y[a]) > 1]
+
+    def boxes():
+        out = {}
+        for g, ms in members.items():
+            out[g] = dict(x=gx[g][0], y=min(y[i] - hh[i] for i in ms) - head[g], w=gx[g][1] - gx[g][0])
+            out[g]['h'] = max(y[i] + hh[i] for i in ms) + P['gpad'] - out[g]['y']
+        return out
+
+    gb = boxes()
+
+    # centre the drawing vertically in the band
+    gb = boxes()
+    ys0 = [y[i] - hh[i] for i in y] + [b['y'] for b in gb.values()]
+    ys1 = [y[i] + hh[i] for i in y] + [b['y'] + b['h'] for b in gb.values()]
+    dy = (lo + hi) / 2 - (min(ys0) + max(ys1)) / 2
+    if min(ys0) + dy >= top - 0.5 and max(ys1) + dy <= hi + 0.5:
+        for i in y:
+            y[i] += dy
+        for b in gb.values():
+            b['y'] += dy
+
+    nodes = {}
+    for n in S.nodes:
+        i = n['id']
+        w, h, dm = size[i]
+        nodes[i] = dict(x=cx[rank[i]] - w / 2, y=y[i] - h / 2, w=w, h=h)
+        if dm:
+            nodes[i]['diamond'] = True
+
+    # ---- routing
+    def port_x(i, side, dy_):
+        b = nodes[i]
+        x0 = b['x'] + (b['w'] if side > 0 else 0)
+        if b.get('diamond'):
+            x0 -= side * b['w'] / 2 * abs(dy_) / (b['h'] / 2)
+        return x0
+
+    def spread(i, lst):
+        """lst: [(key y, edge id)] on one side of node i -> {edge id: dy}"""
+        lst.sort()
+        b = nodes[i]
+        n_ = len(lst)
+        if n_ < 2:
+            return {eid: 0.0 for _, eid in lst}
+        sp = min(16 if not b.get('diamond') else 12, (b['h'] * (0.3 if b.get('diamond') else 1) - 28) / (n_ - 1))
+        sp = max(sp, 6)
+        return {eid: (k - (n_ - 1) / 2) * sp for k, (_, eid) in enumerate(lst)}
+
+    outs, ins = {}, {}
+    for e in fwd:
+        seq = chain[e['id']]
+        outs.setdefault(e['from'], []).append((y[seq[1]], tie.get(seq[1], 0), e['id']))
+        ins.setdefault(e['to'], []).append((y[seq[-2]], tie.get(seq[-2], 0), e['id']))
+    po, pi = {}, {}
+    for i, lst in outs.items():
+        po.update(spread(i, [((a, t), eid) for a, t, eid in lst]))
+    for i, lst in ins.items():
+        pi.update(spread(i, [((a, t), eid) for a, t, eid in lst]))
+
+    def s_curve(p, q):
+        k = max(20, (q[0] - p[0]) * 0.5)
+        return cubic(p, (p[0] + k, p[1]), (q[0] - k, q[1]), q)
+
+    edges = {}
+    for e in fwd:
+        seq = chain[e['id']]
+        tw = 7 if f'{e["to"]}>{e["from"]}' in pair else 0
+        p = (port_x(e['from'], 1, po[e['id']] - tw), y[e['from']] + po[e['id']] - tw)
+        segs_ = []
+        for d in seq[1:-1]:
+            r = d[2]
+            a, b = (xl[r], y[d] - tw), (xl[r] + cw[r], y[d] - tw)
+            segs_.append(s_curve(p, a))
+            segs_.append(straight(a, b))
+            p = b
+        q = (port_x(e['to'], -1, pi[e['id']] - tw), y[e['to']] + pi[e['id']] - tw)
+        segs_.append(s_curve(p, q))
+        edges[e['id']] = segs_ if len(segs_) > 1 else segs_[0]
+        if tw:
+            rev = [tuple((pt_[0], pt_[1] + 2 * tw) for pt_ in reversed(c)) for c in reversed(segs(edges[e['id']]))]
+            edges[f'{e["to"]}>{e["from"]}'] = rev if len(rev) > 1 else rev[0]
+    for e in arcs:
+        a, b = nodes[e['from']], nodes[e['to']]
+        x0e, x1e = sorted((centre(a)[0], centre(b)[0]))
+        sp_ = [o for o in nodes.values() if o['x'] < x1e and o['x'] + o['w'] > x0e]
+        sp_ += [bx for gid, bx in gb.items() if gid not in (grp[e['from']], grp[e['to']])
+                and bx['x'] < x1e and bx['x'] + bx['w'] > x0e]
         base = max(a['y'] + a['h'], b['y'] + b['h'])
-        edges[e['id']] = under_arc(a, b, max(60, (low + 36 - base) / 0.75))
-    return dict(nodes=nodes, edges=edges)
+        low = max(o['y'] + o['h'] for o in sp_) + 28
+        if low <= bottom - 4 or not (min(o['y'] for o in sp_) - 28 >= top + 4):
+            edges[e['id']] = under_arc(a, b, max(40, (low - base) / 0.75))
+        else:
+            hi_ = min(o['y'] for o in sp_) - 28
+            edges[e['id']] = over_arc(a, b, max(40, (min(a['y'], b['y']) - hi_) / 0.75))
+    scene = dict(nodes=nodes, edges=edges, gboxes=gb, level=level, conflicts=conflicts)
+    scene['labels'] = place_edge_labels(S, F, scene)
+    return scene
+
+
+def sample(c, n=16):
+    """Points along a cubic or a list of cubics, n per segment."""
+    pts = []
+    for q in segs(c):
+        for k in range(1 if pts else 0, n + 1):
+            t = k / n
+            mt = 1 - t
+            pts.append(tuple(mt ** 3 * q[0][j] + 3 * mt * mt * t * q[1][j] + 3 * mt * t * t * q[2][j]
+                             + t ** 3 * q[3][j] for j in (0, 1)))
+    return pts
+
+
+def seg_cross(p1, p2, p3, p4):
+    def o(a, b, c):
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+    d1, d2, d3, d4 = o(p3, p4, p1), o(p3, p4, p2), o(p1, p2, p3), o(p1, p2, p4)
+    return ((d1 > 0) != (d2 > 0)) and ((d3 > 0) != (d4 > 0)) and 0 not in (d1, d2, d3, d4)
+
+
+def poly_hits_box(pts, b, pad=0):
+    x0, y0, x1, y1 = b['x'] - pad, b['y'] - pad, b['x'] + b['w'] + pad, b['y'] + b['h'] + pad
+    for p, q in zip(pts, pts[1:]):
+        for k in range(5):
+            t = k / 4
+            x, y = p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t
+            if x0 < x < x1 and y0 < y < y1:
+                return True
+    return False
+
+
+def edge_label_box(S, F, e, at):
+    tw = text_w(e['label'], F['edge'], True) + 12
+    return dict(x=at[0] - tw / 2, y=at[1] - F['edge'] * 0.625, w=tw, h=F['edge'] * 1.25)
+
+
+def place_edge_labels(S, F, scene):
+    """Label centre per labelled edge: the first point along the wire (middle first) where the
+    label box touches no other wire, no node and no earlier label."""
+    pts = {e['id']: sample(scene['edges'][e['id']]) for e in S.edges}
+    out, taken, bad = {}, [], []
+    for e in S.edges:
+        if not e['label']:
+            continue
+        P_ = pts[e['id']]
+        best = None
+        for f in (0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.18, 0.82):
+            at = P_[round(f * (len(P_) - 1))]
+            box = edge_label_box(S, F, e, at)
+            hits = sum(1 for o in S.edges if o['id'] != e['id'] and poly_hits_box(pts[o['id']], box, 2))
+            hits += sum(1 for b in scene['nodes'].values() if overlaps(box, b, 4))
+            hits += sum(1 for b in taken if overlaps(box, b, 4))
+            if best is None or hits < best[0]:
+                best = (hits, at, box)
+            if not hits:
+                break
+        out[e['id']] = best[1]
+        taken.append(best[2])
+        if best[0]:
+            bad.append(e['id'])
+    scene['label_bad'] = bad
+    return out
+
+
+def edge_report(S, scene):
+    """(crossings, edges through nodes) of the drawn wires."""
+    pts = {e['id']: sample(scene['edges'][e['id']], 24) for e in S.edges}
+    cross = []
+    es = S.edges
+    for i in range(len(es)):
+        for j in range(i + 1, len(es)):
+            a, b = es[i], es[j]
+            if {a['from'], a['to']} & {b['from'], b['to']}:
+                continue
+            A, B = pts[a['id']], pts[b['id']]
+            if any(seg_cross(A[k], A[k + 1], B[m], B[m + 1]) for k in range(len(A) - 1) for m in range(len(B) - 1)):
+                cross.append(f'{a["id"]} x {b["id"]}')
+    through = []
+    for e in es:
+        for nid, b in scene['nodes'].items():
+            if nid in (e['from'], e['to']):
+                continue
+            if poly_hits_box(pts[e['id']], b, -2):
+                through.append(f'{e["id"]} through {nid}')
+    return cross, through
 
 
 def group_label_lines(g, F, w):
@@ -896,20 +1297,6 @@ def group_box(S, nodes, gid, F=None):
 def overlaps(a, b, pad=0):
     return (a['x'] < b['x'] + b['w'] + pad and a['x'] + a['w'] + pad > b['x']
             and a['y'] < b['y'] + b['h'] + pad and a['y'] + a['h'] + pad > b['y'])
-
-
-def push_out_of_groups(S, nodes, top, bottom, F=None):
-    """Move a node that sits inside another group's box just below (or above) that box."""
-    for g in S.groups:
-        box = group_box(S, nodes, g['id'], F)
-        for n in S.nodes:
-            b = nodes[n['id']]
-            if n.get('group') == g['id'] or not overlaps(b, box, 12):
-                continue
-            if box['y'] + box['h'] + 16 + b['h'] <= bottom:
-                b['y'] = box['y'] + box['h'] + 16
-            elif box['y'] - 16 - b['h'] >= top:
-                b['y'] = box['y'] - 16 - b['h']
 
 
 def diamond_lines(n, F, w, h):
@@ -1611,6 +1998,50 @@ def timeline_brackets(S, F, scene, anim, rid, active_ids, top):
     return out
 
 
+def label_box(S, F, scene, e):
+    """Box of an edge label: centred where the layout put it, else on the wire's middle (lifted
+    10 px above a straight horizontal wire)."""
+    if e['id'] in scene.get('labels', {}):
+        return edge_label_box(S, F, e, scene['labels'][e['id']])
+    c = scene['edges'][e['id']]
+    m, c0 = bez_mid(c), segs(c)[0]
+    ly = m[1] - 10 if abs(c0[3][1] - c0[0][1]) < 4 and abs(c0[1][1] - c0[0][1]) < 4 else m[1] + F['edge'] * 0.35
+    tw = text_w(e['label'], F['edge'], True) + 12
+    return dict(x=m[0] - tw / 2, y=ly - F['edge'] * 0.9, w=tw, h=F['edge'] * 1.25)
+
+
+def scene_group_box(S, F, scene, gid):
+    return dict(scene['gboxes'][gid]) if gid in scene.get('gboxes', {}) else group_box(S, scene['nodes'], gid, F)
+
+
+def drawn_groups(S, scene):
+    used = {c['group']['id'] for c in scene.get('containers', []) if c['group']}
+    if S.arch == 'timeline':
+        used |= set(S.group)
+    return [g for g in S.groups if g['id'] not in used]
+
+
+def outside(S, F, scene, frame_info):
+    """Everything drawn that leaves the viewBox (or runs into the caption strip): [(what, x0, y0, x1, y1)]."""
+    top, bottom, strip, has_note = frame_info
+    ylim = S.H - strip - 8 if has_note else S.H
+    items = [(f'node {i}', b) for i, b in scene['nodes'].items()]
+    items += [(f'{c["style"]} {c["key"]}', c) for c in scene.get('containers', [])]
+    items += [(f'group {g["id"]}', scene_group_box(S, F, scene, g['id'])) for g in drawn_groups(S, scene)
+              if any(n.get('group') == g['id'] for n in S.nodes)]
+    items += [(f'label of {e["id"]}', label_box(S, F, scene, e)) for e in S.edges if e['label']]
+    for e in S.edges:
+        pts = sample(scene['edges'][e['id']], 12)
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        items.append((f'edge {e["id"]}', dict(x=min(xs) - 2, y=min(ys) - 2, w=max(xs) - min(xs) + 4, h=max(ys) - min(ys) + 4)))
+    out = [(f'{c} overlap (no room between rows)', 0, 0, 0, S.H * 2) for c in scene.get('conflicts', [])]
+    for what, b in items:
+        x0, y0, x1, y1 = b['x'], b['y'], b['x'] + b['w'], b['y'] + b['h']
+        if x0 < -0.5 or y0 < -0.5 or x1 > S.W + 0.5 or y1 > ylim + 0.5:
+            out.append((what, x0, y0, x1, y1))
+    return out
+
+
 def emit(S, args, F, scene, T, anim, rid, frame_info):
     N = S.name
     top, bottom, strip, has_note = frame_info
@@ -1652,12 +2083,11 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
     for g in S.groups:
         if g['id'] in used:
             continue
-        box = group_box(S, scene['nodes'], g['id'], F)
+        box = scene_group_box(S, F, scene, g['id'])
         x, y = box['x'], box['y']
         glines = group_label_lines(g, F, box['w'])
-        if any(text_w(t, F['sub']) > box['w'] - 24 for t in glines) or x < 0 or x + box['w'] > S.W \
-                or y < 0 or y + box['h'] > S.H:
-            warn(f'group {g["id"]}: box or label runs past the viewBox or the box; shorten the label or move it by hand')
+        if any(text_w(t, F['sub']) > box['w'] - 24 for t in glines):
+            warn(f'group {g["id"]}: label is wider than its box; shorten the label')
         for n in S.nodes:
             if n.get('group') != g['id'] and overlaps(scene['nodes'][n['id']], box):
                 warn(f'group {g["id"]} box overlaps node {n["id"]}; move it by hand')
@@ -1677,12 +2107,10 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
               if e['id'] in active_ids else '')
         lab = ''
         if e['label']:
-            m = bez_mid(c)
-            ly = m[1] - 10 if abs(c[3][1] - c[0][1]) < 4 and abs(c[1][1] - c[0][1]) < 4 else m[1] + F['edge'] * 0.35
-            tw = text_w(e['label'], F['edge'], True) + 12
-            lab = (f'<rect class="{N}-lbg" x="{f1(m[0] - tw / 2)}" y="{f1(ly - F["edge"] * 0.9)}" width="{f1(tw)}" '
-                   f'height="{f1(F["edge"] * 1.25)}" rx="4"/><text class="{N}-t {N}-mono" x="{f1(m[0])}" '
-                   f'y="{f1(ly)}" text-anchor="middle">{escape(e["label"])}</text>')
+            lb = label_box(S, F, scene, e)
+            lab = (f'<rect class="{N}-lbg" x="{f1(lb["x"])}" y="{f1(lb["y"])}" width="{f1(lb["w"])}" '
+                   f'height="{f1(lb["h"])}" rx="4"/><text class="{N}-t {N}-mono" x="{f1(lb["x"] + lb["w"] / 2)}" '
+                   f'y="{f1(lb["y"] + F["edge"] * 0.9)}" text-anchor="middle">{escape(e["label"])}</text>')
         svg.append(f'<g id="{el}" class="{N}-edge {N}-ek-{e["kind"]}"{anim.style(el)}>{wire}{hl}'
                    f'<path class="{N}-arrow" d="{arrow_d(c)}"/>{lab}</g>')
 
@@ -1767,7 +2195,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         e = S.edge[eid]
         r = 12 if S.arch == 'states' else 8
         svg.append(f'<circle id="{el}" class="{N}-pkt{" " + N + "-pkt-event" if e["kind"] == "event" else ""}" '
-                   f'r="{r}"{anim.style(el, "offset-path:path(" + chr(39) + path_d(scene["edges"][eid]) + chr(39) + ")")}/>')
+                   f'r="{r}"{anim.style(el, f"offset-path:var(--{rid[eid]})")}/>')
 
     if has_note:
         notes = [p['note'] for p in S.phases if p['note']]
@@ -1782,7 +2210,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
     return svg
 
 
-def css(S, F, T, anim):
+def css(S, F, T, anim, scene, rid):
     N, A = S.name, f'.anim-{S.name}'
     rules = f"""{A} {{
   --anim-bg:       var(--anim-theme-bg,       #0f1218);
@@ -1847,6 +2275,10 @@ def css(S, F, T, anim):
 {A} .{N}-chip {{ fill: var(--anim-panel); stroke: var(--anim-line); stroke-width: 1.5; }}
 """
     out = [rules]
+    if S.edges:
+        out.append(f'/* ---- edge paths: the one copy packets read (offset-path: var(--...)); keep in step with each wire d ---- */')
+        out.append(f'{A} {{\n' + '\n'.join(f'  --{rid[e["id"]]}: path("{path_d(scene["edges"][e["id"]])}");'
+                                             for e in S.edges) + '\n}')
     if T.loop:
         marks = {}
         for i, p in enumerate(S.phases):
@@ -1865,13 +2297,59 @@ def css(S, F, T, anim):
 
 REFINE = {
     'pipeline': 'status chips above boxes; settle finished boxes to --anim-ok; feedback arc colour',
-    'graph': 'dim non-active nodes to 60 %; reroute edges that cross nodes or skip columns',
+    'graph': 'dim non-active nodes to 60 %; check the crossing report and edge-label spots',
     'timeline': 'past milestones to --anim-ok, only "now" accent; alternate labels if crowded',
     'states': 'single current-state token; error transitions in --anim-danger; label offsets',
     'compare': 'panel headers (taken from a one-side group, else Before/After); left dims as right appears',
     'layers': 'layer names (from a one-layer group, else "Layer N"); bands rise 12 px bottom-up; response packet in --anim-ok',
     'chart': 'thresholds, readouts, axis titles, a baseline that does not exaggerate; downsample long series',
 }
+
+
+def fonts(S, args):
+    rw = args.rendered_width or S.W
+    k = max(1.0, args.min_text * S.W / (18 * rw))
+    return {key: math.ceil(v * k * 2) / 2 for key, v in
+            dict(title=26, head=26, lbl=22, note=22, sub=18, mono=18, edge=18).items()}, k
+
+
+def try_layout(S, F):
+    """Loosest layout that keeps everything inside the viewBox: (frame, scene, overflow list)."""
+    fr = frame(S, F)
+    levels = range(len(GRAPH_FIT)) if S.arch == 'graph' and not S.lanes else [None]
+    for lv in levels:
+        scene = LAYOUTS[S.arch](S, F, fr[0], fr[1]) if lv is None else layout_graph(S, F, fr[0], fr[1], lv)
+        out = outside(S, F, scene, fr)
+        if not out:
+            break
+    return fr, scene, out
+
+
+def fit_layout(S, F, args):
+    """Lay out; if something still leaves the viewBox at the tightest spacing, find the smallest
+    viewBox (20 px steps) that fits and stop with that size instead of writing a broken file."""
+    fr, scene, out = try_layout(S, F)
+    if not out:
+        return fr, scene
+    quiet = globals()['warn']
+    globals()['warn'] = lambda msg: None              # trial layouts: no repeated warnings
+    try:
+        T = Spec()
+        T.__dict__.update(S.__dict__)
+        while out and T.W <= 6000 and T.H <= 4000:
+            ylim = T.H - frame(T, F)[2] - 8 if frame(T, F)[3] else T.H
+            wide = any(x0 < 0 or x1 > T.W for _, x0, _, x1, _ in out)
+            tall = any(y0 < 0 or y1 > ylim for _, _, y0, _, y1 in out)
+            T.W += 20 if wide else 0
+            T.H += 20 if tall or not wide else 0
+            Ft = fonts(T, argparse.Namespace(**{**vars(args), 'rendered_width': args.rendered_width}))[0]
+            out = try_layout(T, Ft)[2]
+    finally:
+        globals()['warn'] = quiet
+    what = '; '.join(f'{w} spans x {x0:.0f}..{x1:.0f}, y {y0:.0f}..{y1:.0f}'
+                     for w, x0, y0, x1, y1 in try_layout(S, F)[2][:4])
+    die(f'{S.arch} needs at least {T.W}x{T.H} at this label length; pass --viewbox {T.W} {T.H} or shorten labels '
+        f'(at {S.W}x{S.H}: {what})')
 
 
 def main():
@@ -1890,13 +2368,20 @@ def main():
 
     S = validate(load_spec(args.spec), args)
     rw = args.rendered_width or S.W
-    k = max(1.0, args.min_text * S.W / (18 * rw))
-    F = {key: math.ceil(v * k * 2) / 2 for key, v in
-         dict(title=26, head=26, lbl=22, note=22, sub=18, mono=18, edge=18).items()}
+    F, k = fonts(S, args)
     if k > 1:
         warn(f'fonts scaled x{k:.2f} to stay >= {args.min_text:g}px at {rw:g}px wide; boxes may need resizing')
-    fr = frame(S, F)
-    scene = LAYOUTS[S.arch](S, F, fr[0], fr[1])
+    fr, scene = fit_layout(S, F, args)
+    if S.arch == 'graph' or S.edges:
+        cross, through = edge_report(S, scene)
+        if cross or through:
+            warn(f'{S.arch}: {len(cross)} edge crossing(s), {len(through)} edge(s) through a node remain '
+                 f'({"; ".join(cross + through)}); reorder nodes in the spec (it breaks ordering ties) or reroute by hand')
+        else:
+            print(f'{S.arch} layout: 0 edge crossings, no edge through a node')
+    if scene.get('label_bad'):
+        warn(f'edge label(s) on {", ".join(scene["label_bad"])} touch another wire, node or label wherever they '
+             'go; move by hand')
     T = Timing(S)
     anim = Anim()
     rid = build_anims(S, T, scene, anim)
@@ -1911,8 +2396,12 @@ def main():
               f'  - {REFINE[S.arch]}\n'
               '  - node glyphs per kind are placeholders; check label fit, edge routing and overlaps\n'
               '  - aria-label: rewrite as one sentence that tells the story\n'
-              '  - motion audit (references/motion-rules.md); render-phases.sh and LOOK at every PNG\n-->')
-    html = [refine, '<style>', css(S, F, T, anim), '</style>',
+              '  - motion audit (references/motion-rules.md); render-phases.sh and LOOK at every PNG\n'
+              f'  - edge paths: each wire keeps its d attribute (SVG d cannot read a CSS variable in every\n'
+              f'    browser), and the same path is written ONCE more in <style> as --{S.name}-e-<from>-<to>;\n'
+              f'    every packet on that edge uses offset-path: var(--{S.name}-e-<from>-<to>). To reroute an\n'
+              f'    edge change its d (and its -hl copy, if any) and that one --{S.name}-e-... line\n-->')
+    html = [refine, '<style>', css(S, F, T, anim, scene, rid), '</style>',
             f'<div class="anim anim-{S.name}" data-anim="{S.name}" data-anim-cycle="{cyc}" '
             f'data-anim-control="{S.control}">',
             f'<svg viewBox="0 0 {S.W} {S.H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" '

@@ -412,7 +412,14 @@ Layout notes the scaffolder applies on its own:
 - **pipeline** wraps into a two-row snake (wrap wire round the right end) when one row would
   make the boxes narrower than their labels; otherwise it warns with a suggested width.
 - **compare** spreads rows over the full height and stacks `sub` under the label when a row is long.
-- **graph** draws `kind: decision` as a real diamond when the text fits, and wraps group labels.
+- **graph** orders each rank by the barycenter of its neighbours (spec order breaks ties, so
+  swapping two nodes in the spec swaps them in the output), routes rank-skipping and back edges
+  around nodes, draws `kind: decision` as a real diamond when the text fits, and wraps group
+  labels. Crossings that remain are reported as a warning.
+- **Nothing is written outside the viewBox.** When a layout cannot fit at the legibility floor
+  the scaffold stops and names the smallest size that works (`pass --viewbox 2600 600`).
+- A hold phase without its own `active`/`show` keeps the previous phase's state, so the resting
+  frame shows the story's end.
 - **timeline** draws `groups` as brackets under the axis, stacked where spans overlap.
 - The resting frame keeps the last phase's `note` as its caption: give the hold phase a note
   that summarises the story (the scaffold warns when it has none).

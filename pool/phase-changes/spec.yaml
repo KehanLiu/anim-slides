@@ -1,0 +1,35 @@
+# Phase changes between the three states of matter, with the six transitions named and whether
+# each absorbs or releases energy (textbook: changes toward gas absorb, changes toward solid
+# release). The only temperatures are for water at 1 atm (melts at 0 °C, boils at 100 °C).
+# Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/phase-changes/spec.yaml -o pool/phase-changes/phase-changes.html
+# The shipped phase-changes.html is hand-built: the states sit in one row with particle drawings
+# (lattice, loose cluster, far-apart fast particles), absorbing transitions run left to right on top
+# (sublimation as an arc above), releasing ones right to left below (deposition as an arc below),
+# one token per transition coloured by energy, a legend and a caption strip from the phase notes.
+name: phase-changes
+archetype: states
+domain: chemistry
+size: [1680, 600]
+control: loop
+cycle: 14
+nodes:
+  - { id: solid,  label: Solid,  sub: "ordered, fixed in place" }
+  - { id: liquid, label: Liquid, sub: "close, slide past each other" }
+  - { id: gas,    label: Gas,    sub: "far apart, move freely" }
+edges:
+  - { from: solid,  to: liquid, label: melting }
+  - { from: liquid, to: gas,    label: vaporization }
+  - { from: gas,    to: liquid, label: condensation, kind: event }
+  - { from: liquid, to: solid,  label: freezing,     kind: event }
+  - { from: solid,  to: gas,    label: sublimation }
+  - { from: gas,    to: solid,  label: deposition,   kind: event }
+phases:
+  - { t: 0,   label: states,       active: [solid],                          note: "Three states of matter and the six named changes between them" }
+  - { t: 1.0, label: melting,      active: [liquid], flow: ["solid>liquid"], note: "Melting: particles leave their fixed positions as the solid absorbs energy" }
+  - { t: 2.7, label: vaporization, active: [gas],    flow: ["liquid>gas"],   note: "Vaporization: particles absorb energy and escape into the gas" }
+  - { t: 4.4, label: condensation, active: [liquid], flow: ["gas>liquid"],   note: "Condensation: gas particles release energy and gather into a liquid" }
+  - { t: 6.1, label: freezing,     active: [solid],  flow: ["liquid>solid"], note: "Freezing: the liquid releases energy and particles lock into a lattice" }
+  - { t: 7.8, label: sublimation,  active: [gas],    flow: ["solid>gas"],    note: "Sublimation: a solid absorbs energy and becomes a gas directly" }
+  - { t: 9.5, label: deposition,   active: [solid],  flow: ["gas>solid"],    note: "Deposition: a gas releases energy and becomes a solid directly" }
+  - { t: 11.1, label: hold, note: "Changes toward gas absorb energy; changes toward solid release it" }

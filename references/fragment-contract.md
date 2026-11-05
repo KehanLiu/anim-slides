@@ -142,6 +142,13 @@ start `from` the empty state.
   one). Choose `step` only when the brief says so, the presenter must drive the phases, and the
   host can load GSAP.
 
+## 7b. Edge paths (scaffolded fragments)
+
+The scaffold writes each wire's path once, as a CSS custom property on the fragment
+(`--<name>-e-<from>-<to>: path("...")`), and packets ride it with `offset-path: var(...)`.
+The wire itself still needs its `d` attribute (Safari cannot read `d` from a variable), so a
+hand reroute changes `d`, its `-hl` highlight copy and that one variable.
+
 ## 8. Verification
 
 A fragment is done when all four hold:

@@ -192,3 +192,22 @@
   spec: true
   story: Five milestones in long-distance communication, from the 1844 telegraph line to the 1989 Web proposal, advancing era by era with brackets for wire, radio and computer networks.
   tags: [history, communication, telegraph, radio, internet, milestones]
+
+- name: bloom-taxonomy
+  archetype: layers
+  domain: education
+  viewbox: [1200, 640]
+  cycle: 13
+  spec: false
+  story: The six levels of the revised Bloom's taxonomy build bottom-up, then one topic (fractions) climbs from Remember to Create with an example task per level.
+  tags: [education, bloom, learning-objectives, pyramid, hierarchy, cognition]
+  technique: six stacked trapezoid layers with a climbing token and a task card per layer
+
+- name: phase-changes
+  archetype: states
+  domain: chemistry
+  viewbox: [1680, 600]
+  cycle: 14
+  spec: true
+  story: Solid, liquid and gas with their particles; a token runs all six phase changes, each labelled with whether it absorbs or releases energy, water's 0 °C and 100 °C at 1 atm noted.
+  tags: [chemistry, states-of-matter, phase-change, energy, particles, physics]
