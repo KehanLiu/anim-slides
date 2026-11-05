@@ -56,6 +56,7 @@ marks, and anything not verified.
 1. `python3 scripts/check_fragment.py <dir>/<name>.html --name <name> --rendered-width <w> --stage-width <stage>`
 2. `scripts/render-phases.sh <dir> <W> <H> <seconds from the plan> rest`
 3. Open every PNG with your image viewing tool. Fix clipping, overlap, unreadable text, empty panels.
+4. `python3 scripts/verify_facts.py <dir>/<name>.html --source <outline.json> --slide <N>` passes; every WARN reviewed.
    Re-render. Iterate at least once.
 
 Contract section 8 is the definition of done.
