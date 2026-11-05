@@ -28,6 +28,8 @@ jobs:
         run: python3 scripts/build_gallery.py -o _site
 
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true   # creates the Pages site on first run if the token is allowed to
 
       - uses: actions/upload-pages-artifact@v3
         with:
