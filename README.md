@@ -196,6 +196,24 @@ deck.pptx / deck.html / docs.md / mermaid
   deck.html    integrate_fragment.py, gate rewritten for the host
 ```
 
+## Accuracy
+
+A fragment adds motion, not facts. The skill is built to keep it that way:
+
+- **Figures are redrawn, never dropped.** A chart, graph, table or scientific figure on the
+  source slide is rebuilt from its data at exact scale and animated; only photos and decoration
+  may go.
+- **Every number is traced.** `scripts/verify_facts.py` compares a fragment's visible text and
+  numbers with the source slide (title, bullets, notes, tables): an invented number, date or
+  ratio fails the build, untraceable wording is listed for review, and facts pulled from a
+  neighbouring slide are reported separately. Illustrative values must say so on the slide.
+- **Source wording wins.** Labels use the slide's own words; "approved" stays "approved" and
+  does not become "signed into law".
+- **Checked on real decks.** The rules come from converting six openly licensed decks (CDC,
+  NOAA, Lumen Learning, Sorbonne, SNAP) and auditing every rebuilt slide against its original.
+
+`references/accuracy.md` has the full rules and a checklist for briefs.
+
 ## Theming
 
 ```css
@@ -216,8 +234,8 @@ These values equal the built-in fallbacks, so a host only overrides what differs
 SKILL.md                 workflow and rules the agent follows (Agent Skills format)
 agents/openai.yaml       optional Codex metadata; other harnesses ignore it
 .claude-plugin/          marketplace manifest for the Claude Code plugin install
-references/              contract, spec format, archetypes, input stage, brief, layouts, motion rules, lessons
-scripts/                 extract, scaffold, check, render, integrate; host snippets
+references/              contract, accuracy, spec format, archetypes, input stage, brief, layouts, motion rules, lessons
+scripts/                 extract, scaffold, check, verify facts, render, integrate, check page, bundle, gallery; host snippets
 pool/                    finished fragments, one or more per archetype, with thumbnails, specs and index.yaml
 docs/                    design notes and history
 ```
