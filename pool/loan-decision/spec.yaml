@@ -1,0 +1,42 @@
+# Loan application: two alternative inputs, a real decision diamond, a parallel group. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/loan-decision/spec.yaml -o /tmp/anim/loan-decision/loan-decision.html
+# The shipped HTML is hand-built beyond the scaffold: an OR junction pill where the inputs merge,
+# a diamond with a score readout above it (cross-faded text), labelled yes/no branches, parallel
+# progress bars of different length inside the group, a join into the offer, an envelope on the
+# reason letter, and the idle path dimmed while the other application is told. Scores are illustrative.
+name: loan-decision
+domain: finance
+archetype: graph
+size: [1680, 600]
+control: loop
+cycle: 13
+nodes:
+  - { id: online,     label: Apply online,         sub: "web or mobile app", kind: actor }
+  - { id: branch,     label: Apply in branch,      sub: "with an advisor",   kind: actor }
+  - { id: credit,     label: "Credit check passed?",                         kind: decision }
+  - { id: income,     label: Income verification,  sub: "payslips, bank data", group: parallel }
+  - { id: collateral, label: Collateral appraisal, sub: "property valuation",  group: parallel }
+  - { id: offer,      label: Loan offer,           sub: "terms sent" }
+  - { id: decline,    label: Decline,              sub: "application closed" }
+  - { id: letter,     label: Reason letter,        sub: "why, and what next", kind: data }
+edges:
+  - { from: online,     to: credit }
+  - { from: branch,     to: credit }
+  - { from: credit,     to: income,     label: "yes" }
+  - { from: credit,     to: collateral, label: "yes" }
+  - { from: income,     to: offer }
+  - { from: collateral, to: offer }
+  - { from: credit,     to: decline,    label: "no" }
+  - { from: decline,    to: letter }
+groups:
+  - { id: parallel, label: In parallel }
+phases:
+  - { t: 0,    label: setup,    note: "Two ways in: apply online or in a branch" }
+  - { t: 1.0,  label: online,   active: [online],             flow: ["online>credit"],  note: "Application 1 arrives online" }
+  - { t: 2.2,  label: check-1,  active: [credit],                                       note: "Credit check: the score clears the minimum" }
+  - { t: 3.0,  label: verify,   active: [income, collateral], flow: ["credit>income", "credit>collateral"], note: "Income and collateral are verified in parallel" }
+  - { t: 5.2,  label: offer,    active: [offer],              flow: ["income>offer", "collateral>offer"],   note: "Both confirmed: a loan offer is sent" }
+  - { t: 7.0,  label: branch,   active: [branch],             flow: ["branch>credit"],  note: "Application 2 arrives in a branch" }
+  - { t: 8.2,  label: check-2,  active: [credit],                                       note: "Credit check: the score falls short" }
+  - { t: 9.0,  label: decline,  active: [decline],            flow: ["credit>decline"], note: "Declined, with a letter that explains why" }
+  - { t: 10.2, label: letter,   active: [letter],             flow: ["decline>letter"], note: "Every application ends in an offer or a reasoned decline" }

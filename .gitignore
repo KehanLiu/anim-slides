@@ -6,3 +6,5 @@ anim/*/contact.html
 anim/*/phase-*.png
 anim/*/contact.png
 *.bak
+_site/
+gallery/

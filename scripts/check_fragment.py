@@ -3,10 +3,13 @@
 
 Usage:
   check_fragment.py FRAGMENT.html --name NAME --rendered-width PX
-                    [--min-text 18] [--gate .visible|none] [--control loop|step]
+                    [--stage-width 1920] [--min-text PX] [--gate .visible|none]
+                    [--control loop|step]
 
   --rendered-width  width in CSS px at which the SVG is shown on the stage
-  --min-text        minimum rendered text size in px (18 on a 1920 stage, scale for others)
+  --stage-width     width of the slide stage in CSS px (default 1920); sets the text floor
+                    to 18 * stage_width / 1920, never below 10 (12 at 1280, 10 at 960)
+  --min-text        explicit text floor in px; overrides the one derived from --stage-width
   --gate            ancestor selector that gates the animations (default .visible)
   --control         loop | step (default: the wrapper's data-anim-control, else loop)
 
@@ -110,7 +113,7 @@ class Markup(HTMLParser):
         a = {k.lower(): (v if v is not None else '') for k, v in attrs}
         if tag == 'svg':
             self.svg_depth += 1
-        el = dict(tag=tag, attrs=a, line=line, anc=list(self.stack), in_svg=self.svg_depth > 0)
+        el = dict(tag=tag, attrs=a, line=line, anc=list(self.stack), in_svg=self.svg_depth > 0, text='')
         self.elems.append(el)
         idx = len(self.elems) - 1
         if tag == 'style':
@@ -151,6 +154,8 @@ class Markup(HTMLParser):
             return
         if self.svg_depth == 0:
             self.outside_text.append((data.strip(), self.getpos()[0]))
+        elif self.stack:
+            self.elems[self.stack[-1]]['text'] += data.strip()
 
 
 # ----------------------------------------------------------------------------- css
@@ -220,16 +225,92 @@ def last_compound_classes(sel):
     return set(re.findall(r'\.([\w-]+)', parts[-1])) if parts else set()
 
 
+# ----------------------------------------------------------------------------- selector matching
+# A small matcher for the selectors fragments use: compounds of tag, #id and .class joined by
+# descendant or child combinators. Anything else (pseudo-classes, attribute selectors, + and ~)
+# makes the result None ("cannot tell"), so callers can stay conservative.
+NO_RENDER = {'defs', 'clippath', 'mask', 'marker', 'symbol', 'pattern', 'lineargradient',
+             'radialgradient', 'filter', 'style', 'script', 'title', 'desc', 'metadata'}
+
+
+def parse_selector(sel):
+    """Return ([(combinator, compound)], specificity) or (None, spec) when unsupported."""
+    toks = re.findall(r'\s*([>+~])\s*|(\s+)|([^\s>+~]+)', sel.strip())
+    out, comb = [], ' '
+    ids = cls = tags = 0
+    supported = True
+    for c, ws, comp in toks:
+        if c:
+            comb = c
+            continue
+        if ws:
+            continue
+        m = re.fullmatch(r'(\*|[A-Za-z][\w-]*)?((?:[#.][\w-]+)*)(.*)', comp)
+        tag, rest, tail = m.group(1), m.group(2), m.group(3)
+        idl = re.findall(r'#([\w-]+)', rest)
+        cll = re.findall(r'\.([\w-]+)', rest)
+        ids += len(idl)
+        cls += len(cll) + len(re.findall(r'[:\[]', tail))
+        tags += 1 if tag and tag != '*' else 0
+        if tail or comb in '+~':
+            supported = False
+        out.append((comb, dict(tag=None if tag in (None, '*') else tag.lower(), ids=idl, cls=set(cll))))
+        comb = ' '
+    return (out if supported else None), (ids, cls, tags)
+
+
+def compound_matches(cp, el):
+    if cp['tag'] and el['tag'] != cp['tag']:
+        return False
+    if cp['ids'] and el['attrs'].get('id') not in cp['ids']:
+        return False
+    return cp['cls'] <= set(el['attrs'].get('class', '').split())
+
+
+def selector_matches(parsed, idx, E):
+    """True / False for a parsed selector against element index idx."""
+    def rec(k, i):
+        comb, cp = parsed[k]
+        if not compound_matches(cp, E[i]):
+            return False
+        if k == 0:
+            return True
+        anc = E[i]['anc']
+        if comb == '>':
+            return bool(anc) and rec(k - 1, anc[-1])
+        return any(rec(k - 1, a) for a in reversed(anc))
+    return rec(len(parsed) - 1, idx)
+
+
+def css_number(v):
+    v = v.replace('!important', '').strip()
+    m = re.fullmatch(r'(-?\d*\.?\d+)(%?)', v)
+    if not m:
+        return None
+    return float(m.group(1)) / (100 if m.group(2) else 1)
+
+
+def time_s(v):
+    m = re.search(r'(?<![\w.-])(\d*\.?\d+)(ms|s)\b', v)
+    return None if not m else float(m.group(1)) / (1000 if m.group(2) == 'ms' else 1)
+
+
 # ----------------------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('fragment')
     ap.add_argument('--name', required=True)
     ap.add_argument('--rendered-width', type=float, required=True)
-    ap.add_argument('--min-text', type=float, default=18)
+    ap.add_argument('--stage-width', type=float, default=1920)
+    ap.add_argument('--min-text', type=float, default=None)
     ap.add_argument('--gate', default='.visible', help='gate selector, or "none"')
     ap.add_argument('--control', choices=['loop', 'step'], default=None)
     a = ap.parse_args()
+    if a.min_text is None:
+        a.min_text = round(max(10.0, 18 * a.stage_width / 1920), 2)
+        floor_src = f'18 px x {a.stage_width:g}/1920 stage' + (', clamped to 10' if a.min_text == 10 else '')
+    else:
+        floor_src = '--min-text'
 
     src = open(a.fragment, encoding='utf-8').read()
     name, pref = a.name, a.name + '-'
@@ -529,64 +610,250 @@ def main():
                     R.warn('text-size', '<text> without any font-size inherits the host size', e['line'])
         title_min = a.min_text * 22 / 18
         if sizes and max(sizes) < title_min - 0.01:
-            R.warn('text-size', f'largest text renders at {max(sizes):.1f}px < {title_min:g}px: fine without a '
+            R.warn('text-size', f'largest text renders at {max(sizes):.1f}px < {title_min:.3g}px: fine without a '
                    'title, otherwise titles must reach the title floor (contract section 6)')
-        if len(R.items) == nf0:
+        R.ok('text-size', f'floor {a.min_text:g}px ({floor_src}), title floor {title_min:.3g}px')
+        if len(R.items) == nf0 + 1:
             R.ok('text-size', f'{len(sizes)} sizes, smallest {min(sizes):.1f}px at {a.rendered_width:g}px wide'
                  f' (min {a.min_text:g})' if sizes else 'no explicit font sizes')
 
-    # ------------------------------------------------------------------ resting frame heuristic
+    # ------------------------------------------------------------------ resting frame
+    # The resting frame is the ungated state (contract section 5). An element with no base
+    # opacity rule rests at opacity 1, so keyframes that end at 0 to reset the loop are fine.
+    # Warn only when the base state explicitly hides an element (opacity 0, visibility hidden,
+    # display none) that the story shows at its end, or a label that nothing ever reveals.
     nf0 = len(R.items)
-    ends_hidden = set()
+    cycle = None
+    if wrapper and re.fullmatch(r'\d+(\.\d+)?', (wrapper['attrs'].get('data-anim-cycle') or '').strip()):
+        cycle = float(wrapper['attrs']['data-anim-cycle'])
 
-    def kf_ends_hidden(nodes):
+    keyframes = {}   # name -> [(pct, {prop: value})]
+
+    def collect_kf(nodes):
         for nd in nodes:
             if nd[0] == 'keyframes':
+                stops = []
                 for k in nd[2]:
-                    if k[0] == 'rule' and {x.strip() for x in k[1].split(',')} & {'to', '100%'}:
-                        if any(p == 'opacity' and re.fullmatch(r'0*\.?0*', v.strip()) for p, v in decls(k[2])):
-                            ends_hidden.add(nd[1])
+                    if k[0] != 'rule':
+                        continue
+                    dd = dict(decls(k[2]))
+                    for x in k[1].split(','):
+                        x = x.strip().lower()
+                        pct = 0.0 if x == 'from' else 100.0 if x == 'to' else \
+                            float(x[:-1]) if re.fullmatch(r'\d*\.?\d+%', x) else None
+                        if pct is not None:
+                            stops.append((pct, dd))
+                keyframes[nd[1]] = sorted(stops, key=lambda t: t[0])
             elif nd[0] == 'at':
-                kf_ends_hidden(nd[2])
-    kf_ends_hidden(tree)
+                collect_kf(nd[2])
+    collect_kf(tree)
 
-    base_opacity = []   # class sets of ungated rules that set opacity
+    def strip_gate(s):
+        return re.sub('^' + gate_re, '', s) if gate_re and re.match(gate_re, s) else s
+
+    # base (ungated, outside @media) declarations of the three hiding properties
+    HIDE_PROPS = ('opacity', 'visibility', 'display')
+    base_rules = []   # (parsed, spec, order, {prop: (value, important)})
+    order = 0
     for sel, body, pos, ctx in walk_rules(tree):
-        if ctx:
+        order += 1
+        dd = {p: (v.replace('!important', '').strip(), '!important' in v)
+              for p, v in decls(body) if p in HIDE_PROPS}
+        if ctx or not dd:
             continue
-        if any(p == 'opacity' for p, _ in decls(body)):
-            for s in split_selectors(sel):
-                if not (gate_re and re.match(gate_re, s)):
-                    base_opacity.append(last_compound_classes(s))
-    flagged = {}   # keyframes names -> [(element, line)]
-    for s, v, ln, g, ctx in anim_rules:
-        if ctx:
-            continue
-        names = set(re.findall(r'(?<![\w-])([A-Za-z_][\w-]*)', v)) & ends_hidden
-        if not names:
-            continue
-        finite = not re.search(r'\binfinite\b', v) or re.search(r'\b(forwards|both)\b', v)
-        want = last_compound_classes(s)
-        for e in E:
-            ec = set(e['attrs'].get('class', '').split())
-            if not want or not want <= ec:
+        for s in split_selectors(sel):
+            if gate_re and re.match(gate_re, s):
                 continue
-            has = ('opacity' in e['attrs'] or 'opacity' in e['attrs'].get('style', '')
-                   or any(bo and bo <= ec for bo in base_opacity))
-            if not has:
-                key = (', '.join(sorted(names)), bool(finite))
-                flagged.setdefault(key, []).append(e)
-    for (names, finite), els in sorted(flagged.items()):
-        first = els[0]
-        what = ' '.join(sorted(first['attrs'].get('class', '').split()))
-        R.warn('resting-frame', f'keyframes {names} end at opacity 0 and <{first["tag"]} class="{what}">'
-               + (f' (+{len(els) - 1} more)' if len(els) > 1 else '')
-               + ' has no base opacity rule'
-               + (': a finite/forwards animation leaves it invisible' if finite else
-                  ': fine if it should rest visible, otherwise set the end state in the base rule'),
-               first['line'])
+            parsed, spec = parse_selector(s)
+            if parsed:
+                base_rules.append((parsed, spec, order, dd))
+
+    def resolved(i, prop):
+        el = E[i]
+        best = None   # key, value
+        if prop in el['attrs']:
+            best = ((0, 0, (-1, 0, 0), 0), el['attrs'][prop].strip())
+        for parsed, spec, o, dd in base_rules:
+            if prop in dd and selector_matches(parsed, i, E):
+                v, imp = dd[prop]
+                key = (int(imp), 1, spec, o)
+                if best is None or key > best[0]:
+                    best = (key, v)
+        for p, v in decls(el['attrs'].get('style', '')):
+            if p == prop:
+                key = (int('!important' in v), 2, (0, 0, 0), 0)
+                if best is None or key > best[0]:
+                    best = (key, v.replace('!important', '').strip())
+        return best[1] if best else None
+
+    def hidden_at_rest(i):
+        op = resolved(i, 'opacity')
+        opn = css_number(op) if op else None
+        if opn is not None and opn <= 0.01:
+            return f'opacity: {op}'
+        if (resolved(i, 'visibility') or '').lower() in ('hidden', 'collapse'):
+            return 'visibility: hidden'
+        if (resolved(i, 'display') or '').lower() == 'none':
+            return 'display: none'
+        return None
+
+    # animations per element: idx -> [(keyframe names, duration s)]; unsure = matched only loosely
+    anims, unsure = {}, set()
+    for sel, body, pos, ctx in walk_rules(tree):
+        dd = decls(body)
+        vals = [v for p, v in dd if p in ('animation', 'animation-name')]
+        if ctx or not vals:
+            continue
+        dur = next((time_s(v) for p, v in dd if p == 'animation-duration'), None)
+        for v in vals:
+            names = set(re.findall(r'(?<![\w-])([A-Za-z_][\w-]*)', v)) & set(keyframes)
+            if not names:
+                continue
+            d = time_s(v) if time_s(v) is not None else dur
+            for s in split_selectors(sel):
+                s2 = strip_gate(s)
+                parsed, _ = parse_selector(s2)
+                want = last_compound_classes(s2)
+                for i, e in enumerate(E):
+                    if parsed is None:
+                        if want and want <= set(e['attrs'].get('class', '').split()):
+                            unsure.add(i)
+                    elif selector_matches(parsed, i, E):
+                        anims.setdefault(i, []).append((names, d))
+
+    def visible_at(stops, prop, p, base_hidden_value):
+        """Opacity (float) or visibility (bool) of a keyframe track at p percent."""
+        pts = [(pct, dd[prop]) for pct, dd in stops if prop in dd]
+        if not pts:
+            return None
+        if prop == 'visibility':
+            cur = None
+            for pct, v in pts:
+                if pct <= p:
+                    cur = v.replace('!important', '').strip().lower()
+            return None if cur is None else cur == 'visible'
+        pts = [(pct, css_number(v)) for pct, v in pts]
+        if any(v is None for _, v in pts):
+            return None
+        if pts[0][0] > 0:
+            pts.insert(0, (0.0, base_hidden_value))
+        if pts[-1][0] < 100:
+            pts.append((100.0, base_hidden_value))
+        for (p0, v0), (p1, v1) in zip(pts, pts[1:]):
+            if p0 <= p <= p1:
+                return max(v0, v1) if p1 == p0 else v0 + (v1 - v0) * (p - p0) / (p1 - p0)
+        return None
+
+    def has_text(i):
+        if E[i]['tag'] in ('text', 'tspan', 'textpath'):
+            return True
+        return any(e['tag'] in ('text', 'tspan', 'textpath') and i in e['anc'] for e in E)
+
+    # A hidden element with a visible sibling of the same shape and text is a highlight overlay
+    # (the lit copy of a step, a wire, a label): the resting frame still shows the content.
+    GEOM = ('d', 'x', 'y', 'cx', 'cy', 'r', 'rx', 'ry', 'width', 'height', 'points',
+            'x1', 'y1', 'x2', 'y2', 'transform', 'href', 'xlink:href')
+    kids = {}
+    for i, e in enumerate(E):
+        if e['anc']:
+            kids.setdefault(e['anc'][-1], []).append(i)
+
+    def shape(i):
+        e = E[i]
+        return (e['tag'], tuple(e['attrs'].get(k) for k in GEOM), e['text'],
+                tuple(shape(c) for c in kids.get(i, [])))
+
+    def has_visible_twin(i):
+        par = E[i]['anc'][-1] if E[i]['anc'] else None
+        sib = kids.get(par, []) if par is not None else []
+        me = shape(i)
+        return any(j != i and shape(j) == me and not hidden_at_rest(j) for j in sib)
+
+    shown_late, never_shown = [], []
+    for i, e in enumerate(E):
+        if not e['in_svg'] or e['tag'] in NO_RENDER or any(E[a]['tag'] in NO_RENDER for a in e['anc']):
+            continue
+        why = hidden_at_rest(i)
+        if not why or has_visible_twin(i):
+            continue
+        tracks = anims.get(i, [])
+        late = None
+        for names, d in tracks:
+            d = d or cycle
+            if not d or (cycle and d < 0.75 * cycle):
+                continue   # short decorative loop (pulse, spinner), not the story track
+            p = max(50.0, 100 * (1 - 1 / d))   # one second before the loop restarts: the hold
+            for nm in names:
+                prop = 'visibility' if why.startswith('visibility') else 'opacity'
+                v = visible_at(keyframes[nm], prop, p, 0.0)
+                if (v is True) or (isinstance(v, float) and v > 0.01):
+                    late = (nm, p)
+        if late:
+            shown_late.append((e, why, late))
+        elif not tracks and i not in unsure and control == 'loop' and has_text(i):
+            never_shown.append((e, why))
+
+    def describe(e):
+        c = e['attrs'].get('class', '').strip()
+        return f'<{e["tag"]}' + (f' class="{c}"' if c else '') + (f' id="{e["attrs"]["id"]}"' if 'id' in e['attrs'] else '') + '>'
+    for e, why, (nm, p) in shown_late:
+        R.warn('resting-frame', f'{describe(e)} rests hidden ({why}) but keyframes {nm} show it at the '
+               f'end of the story ({p:.0f}%): PDF and reduced-motion show it missing; put the end state '
+               'in the base rule and start the keyframes from hidden', e['line'])
+    for e, why in never_shown:
+        R.warn('resting-frame', f'{describe(e)} contains text, rests hidden ({why}) and no animation '
+               'reveals it', e['line'])
+    # a finite animation with fill forwards/both that ends at opacity 0 leaves the element
+    # invisible for as long as the slide is shown
+    for s, v, ln, g, ctx in anim_rules:
+        if ctx or re.search(r'\binfinite\b', v) or not re.search(r'\b(forwards|both)\b', v):
+            continue
+        for nm in set(re.findall(r'(?<![\w-])([A-Za-z_][\w-]*)', v)) & set(keyframes):
+            end = [dd for pct, dd in keyframes[nm] if pct == 100.0 and 'opacity' in dd]
+            if end and (css_number(end[-1]['opacity']) or 0) <= 0.01:
+                R.warn('resting-frame', f'finite animation {nm} with fill forwards ends at opacity 0: '
+                       f'{s[:60]} stays invisible once played', ln)
     if len(R.items) == nf0:
-        R.ok('resting-frame', 'no element ends a cycle invisible without a base opacity')
+        R.ok('resting-frame', 'no element that the story shows at its end is hidden in the resting frame')
+
+    # ------------------------------------------------------------------ index-class collisions
+    # Per-index classes (<name>-mk0, -mk1, ...) are usually generated in a loop. A hand-written
+    # class that happens to read <name>-mk0 picks up index 0's rules. Signature: the elements
+    # with that one index lack the classes every other index of the series shares.
+    nf0 = len(R.items)
+    series = {}   # stem -> {index: [element]}
+    for e in E:
+        for c in e['attrs'].get('class', '').split():
+            m = re.fullmatch(re.escape(pref) + r'(.*?[A-Za-z_-])(\d+)', c)
+            if m:
+                series.setdefault(m.group(1), {}).setdefault(int(m.group(2)), []).append(e)
+    # an index is "generated" when some selector shape is written for it and two other indices
+    templates = {}   # (stem, selector with the index blanked) -> {index}
+    for sel, body, pos, ctx in walk_rules(tree):
+        for s in split_selectors(sel):
+            for m in re.finditer(r'\.' + re.escape(pref) + r'([\w-]*?[A-Za-z_-])(\d+)(?![\w-])', s):
+                t = s[:m.start()] + '.' + pref + m.group(1) + '#' + s[m.end():]
+                templates.setdefault((m.group(1), t), set()).add(int(m.group(2)))
+    for stem, idxs in sorted(series.items()):
+        if len(idxs) < 4:
+            continue
+        stem_cls = {f'{pref}{stem}{k}' for k in idxs}
+        generated = set().union(*([v for (st, t), v in templates.items() if st == stem and len(v) >= 3] or [set()]))
+        for k, els in sorted(idxs.items()):
+            if k not in generated:
+                continue
+            others = [x for j, xs in idxs.items() if j != k for x in xs]
+            core = set.intersection(*[set(x['attrs'].get('class', '').split()) for x in others]) - stem_cls
+            if not core:
+                continue
+            odd = [x for x in els if not core <= set(x['attrs'].get('class', '').split())]
+            if len(odd) >= 2 and len(odd) * 2 >= len(els):
+                R.warn('index-collision', f'class "{pref}{stem}{k}" is on {len(odd)} element(s) without '
+                       f'{", ".join(sorted(core))}, which every other {pref}{stem}<i> element has: a '
+                       f'hand-written class may collide with the per-index series; rename it '
+                       f'(e.g. {pref}{stem}-o)', odd[0]['line'])
+    if len(R.items) == nf0:
+        R.ok('index-collision', f'{len(series)} per-index class series, no collisions')
 
     sys.exit(1 if R.print() else 0)
 

@@ -1,0 +1,34 @@
+name: Show your deck
+description: Share something you made with anim-slides.
+labels: [showcase]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What you made
+      description: The deck or page, what the illustrations show, and a link if it is public.
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshot or GIF
+      description: Drag images here. A phase contact sheet from render-phases.sh works well.
+    validations:
+      required: true
+  - type: input
+    id: harness
+    attributes:
+      label: Harness and model
+      placeholder: Codex, Cursor, Claude Code, ...
+  - type: textarea
+    id: notes
+    attributes:
+      label: What worked, what did not
+      description: Where the agent needed help, and anything the skill should do by default.
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Sharing
+      options:
+        - label: The maintainers may feature these images in the README or gallery, with credit.

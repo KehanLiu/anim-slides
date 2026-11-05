@@ -22,7 +22,7 @@ nodes:
     kind: process              # process | data | actor | decision | external | store | milestone
     group: ci                  # optional group id
     at: "2024-Q1"              # timeline only: position label
-    side: left                 # compare only: left | right
+    side: left                 # compare only: one column per distinct value
     layer: 2                   # layers only: 0 = bottom
 edges:
   - from: build
@@ -58,6 +58,8 @@ events:                        # chart archetype only
 | `size` | no | per archetype (below) | `[W, H]`, positive integers, viewBox units. Match the slot's aspect ratio ([layouts.md](layouts.md)). |
 | `control` | no | `loop` | `loop` = CSS keyframes; `step` = paused GSAP timeline, one label per phase. |
 | `cycle` | loop: no | `12` | Seconds, 8 to 15 inclusive (contract section 6). Ignored in `step`. |
+| `domain` | no | none | Metadata only (e.g. `biology`, `finance`), used by `pool/index.yaml`; no effect on layout. |
+| `lanes` | no | `false` | Graph only. `true` draws `groups` as full-width horizontal swimlanes (lane name in a left column) with nodes placed by rank inside their lane; ungrouped nodes go in an unlabelled last lane. Ignored with a warning when there are no groups. |
 | `nodes` | yes* | - | 1 to 20 entries; warn above 12. *`chart` may have none; chart nodes are ignored by the scaffold with a warning. |
 | `edges` | no | `[]` | See edges. |
 | `groups` | no | `[]` | See groups. |
@@ -85,7 +87,7 @@ Unknown top-level keys are an error (catches typos like `phase:`).
 | `kind` | no | `process` | Styling tag, see below. |
 | `group` | no | none | Must be an id in `groups`. One group per node, no nesting. |
 | `at` | timeline | - | Required for `timeline`, forbidden elsewhere. A label (`"Q3"`, `"v2.0"`, `"Day 30"`), not parsed. Position = list order, spaced evenly. |
-| `side` | compare | - | Required for `compare` (`left` or `right`), forbidden elsewhere. |
+| `side` | compare | - | Required for `compare`, forbidden elsewhere. Any kebab-case value; each distinct value is one column, in order of first appearance (`left`/`right` for the classic pair; e.g. `green`/`gold`/`diamond` for three). More than 5 rows per side or 4 columns warns. |
 | `layer` | layers | - | Required for `layers`, integer >= 0, 0 = bottom; forbidden elsewhere. Max 5 distinct layers. |
 
 `kind` values and their default drawing:
@@ -405,5 +407,14 @@ phases:
   - {t: 7.5, label: log, show: [incident-log], active: [incident-log], flow: ["page-on-call>incident-log", "queue-triage>incident-log"], note: "Both end in the incident log"}
   - {t: 10, label: hold, active: [incident-log]}
 ```
+
+Layout notes the scaffolder applies on its own:
+- **pipeline** wraps into a two-row snake (wrap wire round the right end) when one row would
+  make the boxes narrower than their labels; otherwise it warns with a suggested width.
+- **compare** spreads rows over the full height and stacks `sub` under the label when a row is long.
+- **graph** draws `kind: decision` as a real diamond when the text fits, and wraps group labels.
+- **timeline** draws `groups` as brackets under the axis, stacked where spans overlap.
+- The resting frame keeps the last phase's `note` as its caption: give the hold phase a note
+  that summarises the story (the scaffold warns when it has none).
 
 More examples: the `spec.yaml` files in [`pool/`](../pool/), listed in `pool/index.yaml`.

@@ -1,6 +1,6 @@
 # Pool
 
-Finished fragments that satisfy `references/fragment-contract.md`, at least one per archetype.
+Finished fragments that satisfy `references/fragment-contract.md`, at least one per archetype, across a dozen fields (health, finance, biology, law, earth science, logistics, software and more).
 The agent checks here before building from scratch (SKILL.md, step 1b): a close match is
 adapted (relabel, re-time, retheme), anything else still serves as the quality bar for density,
 timing and legibility. `index.yaml` lists every entry with its archetype, size, cycle, story and
@@ -10,28 +10,36 @@ Each folder is `pool/<name>/`: the fragment `<name>.html`, `thumb.png` (its rest
 where the fragment came from the scaffolder, `spec.yaml`. Most fragments were polished by hand
 after scaffolding, so the spec reproduces the structure and timing, not every detail.
 
-| | Name | Archetype | viewBox | Cycle | Story |
-|---|---|---|---|---|---|
-| ![](deploy-pipeline/thumb.png) | `deploy-pipeline` | pipeline | 1680×440 | 12 s | A commit becomes a canary that earns 100 % of traffic, with auto-rollback watching |
-| ![](service-deps/thumb.png) | `service-deps` | graph | 1680×600 | 14 s | A provider outage stays contained to Payments |
-| ![](db-failover/thumb.png) | `db-failover` | graph | 1000×560 | 14 s | The primary database fails, the replica is promoted, on-call approves, traffic is rerouted |
-| ![](roadmap/thumb.png) | `roadmap` | timeline | 1680×440 | 12 s | Three milestones shipped, mobile in progress, v2 next |
-| ![](job-states/thumb.png) | `job-states` | states | 1200×600 | 12 s | A job fails, retries after a backoff and succeeds on the second attempt |
-| ![](cache-compare/thumb.png) | `cache-compare` | compare | 1680×600 | 12 s | A cache turns repeated 180 ms reads into 8 ms hits |
-| ![](rag-stack/thumb.png) | `rag-stack` | layers | 1200×640 | 13 s | One question goes down a RAG stack and returns as a cited answer |
-| ![](cloud-spend/thumb.png) | `cloud-spend` | chart | 1680×600 | 12 s | Spend climbs past budget until autoscaling brings it back under |
-| ![](latency-trace/thumb.png) | `latency-trace` | chart | 800×500 | 14 s | A deploy spikes p99 latency over the SLO, a rollback brings it back (seamless scrolling strip chart) |
+| | Name | Archetype | Domain | viewBox | Cycle | Story |
+|---|---|---|---|---|---|---|
+| ![](deploy-pipeline/thumb.png) | `deploy-pipeline` | pipeline | software | 1680×440 | 12 s | A commit moves through build, test and staging, then a 5 % canary earns 100 % of traffic while an auto-rollback edge stands by. |
+| ![](service-deps/thumb.png) | `service-deps` | graph | software | 1680×600 | 14 s | A service graph builds rank by rank, one request is traced through it, then a third-party outage stays contained to Payments. |
+| ![](db-failover/thumb.png) | `db-failover` | graph | software | 1000×560 | 14 s | Requests reach the primary database, it fails, health checks propose promoting the replica, on-call approves and traffic is rerouted. |
+| ![](roadmap/thumb.png) | `roadmap` | timeline | product | 1680×440 | 12 s | Three milestones ship one after another, mobile apps are in progress and platform v2 is planned. |
+| ![](job-states/thumb.png) | `job-states` | states | software | 1200×600 | 12 s | A job is picked, fails with a timeout, retries after a backoff and succeeds on the second attempt, with an event log filling in. |
+| ![](cache-compare/thumb.png) | `cache-compare` | compare | software | 1680×600 | 12 s | The same four reads without and with a cache; repeated 180 ms database reads become 8 ms hits and database load drops. |
+| ![](rag-stack/thumb.png) | `rag-stack` | layers | ai | 1200×640 | 13 s | One question travels down a four-layer RAG stack, matching chunks come back up, the LLM drafts an answer and it returns with citations. |
+| ![](cloud-spend/thumb.png) | `cloud-spend` | chart | finance | 1680×600 | 12 s | A line chart draws on as monthly spend climbs past a budget line, then bends back under it after an autoscaling event. |
+| ![](latency-trace/thumb.png) | `latency-trace` | chart | software | 800×500 | 14 s | A scrolling strip chart of p99 latency; a deploy spikes it over the SLO line, an alert fires and a rollback brings it back. |
+| ![](er-patient-flow/thumb.png) | `er-patient-flow` | pipeline | health | 1680×560 | 13 s | An emergency department visit in eight numbered steps wrapped into two rows, from arrival and triage to the decision and discharge. |
+| ![](parcel-route/thumb.png) | `parcel-route` | pipeline | logistics | 1600×520 | 8 s | A parcel hops through five stations from order to doorstep, each turning green when passed, ending on the 28-hour lead time. |
+| ![](water-cycle/thumb.png) | `water-cycle` | pipeline | earth-science | 1680×600 | 12 s | Over a sea-and-mountain landscape the sun evaporates water, wind carries the cloud inland, rain falls and a river returns it to the sea. |
+| ![](loan-decision/thumb.png) | `loan-decision` | graph | finance | 1680×600 | 13 s | Online OR branch applications meet a credit-check diamond; yes runs two checks in parallel to an offer, no ends in a decline with a reason letter. |
+| ![](hiring-lanes/thumb.png) | `hiring-lanes` | graph | hr | 1680×600 | 14 s | Swimlanes for candidate, recruiter and hiring manager; one token is handed between lanes, a revise-offer loop runs once and the offer is accepted. |
+| ![](court-case/thumb.png) | `court-case` | timeline | law | 1680×600 | 13 s | A generic criminal case from investigation to sentencing; the progress line changes colour at each hand-off between prosecution, court and jury. |
+| ![](photosynth-respiration/thumb.png) | `photosynth-respiration` | compare | biology | 1680×600 | 12 s | Photosynthesis and cellular respiration side by side; as each respiration row enters, its direction badge flips to the opposite of photosynthesis. |
+| ![](funding-options/thumb.png) | `funding-options` | compare | business | 1680×600 | 11 s | Bootstrapping, angel investors and venture capital built column by column across four criteria, ending on the control-you-keep row. |
+| ![](canal-lock/thumb.png) | `canal-lock` | states | engineering | 1680×600 | 11 s | A side cross-section of a canal lock: the boat enters, the lower gates close, the valve fills the chamber, the upper gates open and the boat leaves higher. |
 
 All are `data-anim-control="loop"` (CSS only, no script). Without a `.visible` ancestor, and
 under `prefers-reduced-motion`, each shows its resting frame: the finished state of the story.
 
 ## Preview
 
-`render-phases.sh` expects a folder named after the fragment, which every pool entry already is:
+`render-phases.sh` takes a fragment folder or file and writes PNGs to a temp folder it prints:
 
 ```sh
-cp -R pool/db-failover /tmp/anim/
-scripts/render-phases.sh /tmp/anim/db-failover 1000 560 1.5 4 7 10 rest
+scripts/render-phases.sh pool/db-failover 1000 560 1.5 4 7 10 rest
 ```
 
 Then open every `phase-*.png` and look at it. The generated `preview-*.html` files are paused

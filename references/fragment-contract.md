@@ -102,8 +102,8 @@ start `from` the empty state.
 - Text at or above 18 px **at rendered size on a 1920-wide stage**:
   `viewBox_text_px * rendered_width / viewBox_width >= 18`. Titles 22 px and up.
   On other stage sizes scale the floor by `stage_width / 1920` (12 px at 1280, 15 px at 1600,
-  10 px at reveal.js 960, since the floor never goes below 10) and pass it as
-  `check_fragment.py --min-text`. `check_fragment.py --rendered-width` computes the rendered size.
+  10 px at reveal.js 960, since the floor never goes below 10) and pass the stage as
+  `check_fragment.py --stage-width W` (or the floor itself as `--min-text`). `check_fragment.py --rendered-width` computes the rendered size.
   The checker enforces the 18 px body floor, warns on titles under 22 px, and checks that
   `data-anim-cycle` lies in the 8 to 15 s range.
 - Strokes 2 to 3 px at rendered size, round caps and joins, corner radius 4 to 8.
@@ -138,15 +138,16 @@ start `from` the empty state.
   pauses or resumes, and at the last or first phase the key passes to the deck. GSAP is loaded once in the
   deck head (a local copy or a pinned CDN URL, as in `scripts/snippets/step-host.html`), never
   inside the fragment.
-  Choose `step` only when the brief says so or when the story has four or more phases that each
-  need narration.
+  `loop` with a caption strip is the default up to about 6 narrated phases (every pool entry is
+  one). Choose `step` only when the brief says so, the presenter must drive the phases, and the
+  host can load GSAP.
 
 ## 8. Verification
 
 A fragment is done when all three hold:
 
-1. `scripts/check_fragment.py <name>.html --name <name> --rendered-width <px>` passes.
-2. `scripts/render-phases.sh <dir> <W> <H> <t1> <t2> ... rest` produced PNGs and every PNG was
+1. `scripts/check_fragment.py <name>.html --name <name> --rendered-width <px> --stage-width <W>` passes.
+2. `scripts/render-phases.sh <dir> <W> <H> <t1> <t2> ... rest` produced PNGs (in the temp folder it prints) and every PNG was
    **looked at** (image viewing tool), not inferred from the source. Fix clipping, overlap, unreadable
    text, empty panels. Iterate at least once.
 3. The resting frame PNG reads as a complete still.

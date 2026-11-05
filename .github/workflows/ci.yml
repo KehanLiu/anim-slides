@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Checks (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      # check_fragment.py on every pool fragment at its viewBox width,
+      # scaffold_from_spec.py on every pool/*/spec.yaml, build_gallery.py, py_compile
+      - name: Pool and script checks
+        run: .github/scripts/check-pool.sh

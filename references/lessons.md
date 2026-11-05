@@ -67,7 +67,20 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
 - Long single-line strings in monospace run out of room fast: at 21 px mono expect about
   105 characters across a 1680 px line.
 
+- Transforms on SVG groups (translate a curve, rotate a clipped layer, scale a lens) need
+  `transform-box: view-box` (or `fill-box`) plus a `transform-origin` in px; the CSS default
+  resolves against the wrong box. Avoid CSS `d` path morphing: Safari does not animate it.
+- Index suffixes collide with semantic ones: `<name>-mk0` written by hand and `<name>-mk{i}`
+  generated for i = 0 select the same element. Use separators such as `<name>-mk-n0`.
+  `check_fragment.py` warns (`index-collision`).
+- Fragments start at t = 0 in a host that just revealed them; a gallery of many loops looks
+  empty at first glance unless each starts at a negative offset.
+
 ## Content
+
+- A chart, graph, table or scientific figure on the source slide is the slide. Redraw it from
+  its data (exact scale, so points land on gridlines) and animate that; never swap it for a
+  text summary.
 
 - Numbers in illustrations are usually illustrative; say so on the slide or in the speaker notes.
 - Keep the story plausible to a domain expert in the audience; put the explanation in the notes.

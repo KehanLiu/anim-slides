@@ -1,28 +1,91 @@
 #!/usr/bin/env bash
-# Render phase frames of a CSS-animated fragment with headless Chrome, plus a contact sheet.
+# Render phase frames of a CSS-animated fragment or host page with headless Chrome, plus a contact sheet.
 #
-# Usage: render-phases.sh <fragment-dir> <W> <H> <seconds...> [rest]
-#   fragment-dir must contain <name>.html where <name> = basename of the dir.
-#   Each <seconds> value renders phase-<s>.png at that point of the cycle;
+# Usage:
+#   render-phases.sh [--out DIR] <fragment-dir | fragment.html> <W> <H> <seconds...> [rest]
+#   render-phases.sh [--out DIR] --page <page.html> <W> <H> <seconds...> [rest]
+#
+#   Fragment mode: a directory means <dir>/<basename of dir>.html (or the only .html in it);
+#   a file path is used as is. The fragment is wrapped in <section class="$GATE"> of W x H.
+#   Page mode (--page): a whole host page, shot in a W x H window. Its own gate class
+#   (<section class="visible">) is kept for the seconds and removed from every element for "rest".
+#
+#   Each <seconds> value renders phase-<s>.png paused at that point of the cycle;
 #   "rest" renders the ungated resting frame (what PDF export sees).
 #   contact.png puts all rendered phases side by side with their labels.
 #
+#   --out DIR  where preview-*.html, phase-*.png and contact.* go (created if missing).
+#              Default: a new temp directory, printed at the start and the end. The source
+#              folder is never written to unless you pass it as --out.
+#
 # Environment (all optional):
 #   CHROME     path to a Chrome/Chromium/Edge binary (auto-detected otherwise)
-#   BG         page background behind the fragment (default #0f1218 = --anim-bg fallback)
-#   GATE       class put on the wrapping <section> for animated frames (default visible)
+#   BG         fragment mode: page background behind the fragment (default #0f1218 = --anim-bg fallback)
+#   GATE       gate class (default visible): put on the wrapper in fragment mode, stripped for rest in page mode
 #   FONTS_CSS  a <link> or <style> string injected into the preview head (host fonts)
 #   THEME_CSS  path to a CSS file injected into the preview (e.g. :root{--anim-theme-*:...})
 #
 # Method: a preview copy with negative animation-delay + animation-play-state: paused,
 # which freezes every CSS animation exactly at second N of its cycle.
 # Do NOT use --virtual-time-budget: it desyncs compositor and main-thread animations.
+# No GIF output: that needs an encoder (ffmpeg, ImageMagick) this script does not depend on.
 set -euo pipefail
-[ $# -ge 4 ] || { echo "usage: $0 <fragment-dir> <W> <H> <seconds...> [rest]" >&2; exit 2; }
-DIR="$(cd "$1" && pwd)"; W="$2"; H="$3"; shift 3
-NAME="$(basename "$DIR")"
-FRAG="$DIR/$NAME.html"
-[ -f "$FRAG" ] || { echo "missing $FRAG (the file must be named after its directory)" >&2; exit 1; }
+USAGE="usage: $0 [--out DIR] <fragment-dir|fragment.html> <W> <H> <seconds...> [rest]
+       $0 [--out DIR] --page <page.html> <W> <H> <seconds...> [rest]"
+
+OUT=""; PAGE=""; ARGS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --out) [ $# -ge 2 ] || { echo "$USAGE" >&2; exit 2; }; OUT="$2"; shift 2 ;;
+    --out=*) OUT="${1#--out=}"; shift ;;
+    --page) [ $# -ge 2 ] || { echo "$USAGE" >&2; exit 2; }; PAGE="$2"; shift 2 ;;
+    --page=*) PAGE="${1#--page=}"; shift ;;
+    -h|--help) echo "$USAGE"; exit 0 ;;
+    --) shift; ARGS+=("$@"); break ;;
+    -*) echo "unknown option $1" >&2; echo "$USAGE" >&2; exit 2 ;;
+    *) ARGS+=("$1"); shift ;;
+  esac
+done
+set -- "${ARGS[@]+"${ARGS[@]}"}"
+
+abspath() { (cd "$(dirname "$1")" && echo "$(pwd)/$(basename "$1")"); }
+
+if [ -n "$PAGE" ]; then
+  [ $# -ge 3 ] || { echo "$USAGE" >&2; exit 2; }
+  [ -f "$PAGE" ] || { echo "missing page $PAGE" >&2; exit 1; }
+  SRC="$(abspath "$PAGE")"; W="$1"; H="$2"; shift 2
+else
+  [ $# -ge 4 ] || { echo "$USAGE" >&2; exit 2; }
+  if [ -d "$1" ]; then
+    D="$(cd "$1" && pwd)"; SRC="$D/$(basename "$D").html"
+    if [ ! -f "$SRC" ]; then
+      cands=()
+      for f in "$D"/*.html; do
+        case "$(basename "$f")" in preview-*.html|contact.html) ;; *) [ -f "$f" ] && cands+=("$f") ;; esac
+      done
+      [ ${#cands[@]} -eq 1 ] || { echo "missing $SRC (name it after the directory, or pass the .html file)" >&2; exit 1; }
+      SRC="${cands[0]}"
+    fi
+  else
+    [ -f "$1" ] || { echo "missing fragment $1" >&2; exit 1; }
+    SRC="$(abspath "$1")"
+  fi
+  W="$2"; H="$3"; shift 3
+fi
+NAME="$(basename "$SRC" .html)"
+SRCDIR="$(dirname "$SRC")"
+for v in "$W" "$H"; do [[ "$v" =~ ^[0-9]+$ ]] || { echo "W and H must be integers, got $v" >&2; exit 2; }; done
+for s in "$@"; do
+  [ "$s" = "rest" ] || [[ "$s" =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "phase must be seconds or rest, got $s" >&2; exit 2; }
+done
+
+if [ -z "$OUT" ]; then
+  OUT="$(mktemp -d "${TMPDIR:-/tmp}/render-phases.$NAME.XXXXXX")"
+else
+  mkdir -p "$OUT"
+fi
+OUT="$(cd "$OUT" && pwd)"
+echo "output: $OUT"
 
 find_chrome() {
   local c
@@ -44,38 +107,66 @@ fi
 
 BG="${BG:-#0f1218}"
 GATE="${GATE:-visible}"
+[[ "$GATE" =~ ^[A-Za-z_][A-Za-z0-9_-]*$ ]] || { echo "GATE must be a single class name" >&2; exit 2; }
 FONTS_CSS="${FONTS_CSS:-}"
 THEME=""
 if [ -n "${THEME_CSS:-}" ]; then
   [ -f "$THEME_CSS" ] || { echo "THEME_CSS file not found: $THEME_CSS" >&2; exit 1; }
   THEME="<style>$(cat "$THEME_CSS")</style>"
 fi
+BASE="<base href=\"file://$SRCDIR/\">"  # previews live in OUT; relative assets still resolve
 
 shoot() {  # $1 = png, $2 = html, $3 = width, $4 = height
   "$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
     --window-size="$3,$4" --screenshot="$1" "file://$2" >/dev/null 2>&1
 }
 
-make_preview() {  # $1 = output file, $2 = section class, $3 = extra style
+pause_css() { echo ".$GATE *{animation-delay:-${1}s !important;animation-play-state:paused !important}"; }
+
+make_fragment_preview() {  # $1 = output file, $2 = section class, $3 = extra style
   {
-    echo "<!doctype html><meta charset=utf-8>$FONTS_CSS$THEME"
+    echo "<!doctype html><meta charset=utf-8>$BASE$FONTS_CSS$THEME"
     echo "<style>html,body{margin:0;background:$BG}section{width:${W}px;height:${H}px}$3</style>"
-    echo "<section class=\"$2\">"; cat "$FRAG"; echo "</section>"
+    echo "<section class=\"$2\">"; cat "$SRC"; echo "</section>"
   } > "$1"
+}
+
+make_page_preview() {  # $1 = output file, $2 = "rest" or "", $3 = extra style
+  HEAD="$BASE$FONTS_CSS$THEME" EXTRA="$3" STRIP="$2" GATE="$GATE" python3 -I - "$SRC" "$1" <<'PY'
+import os, re, sys
+src, out = sys.argv[1], sys.argv[2]
+html = open(src, encoding="utf-8", errors="replace").read()
+if os.environ["STRIP"]:  # drop the gate class token from every class attribute
+    gate = re.compile(r"(?<![\w-])%s(?![\w-])" % re.escape(os.environ["GATE"]))
+    html = re.sub(r"""(\bclass\s*=\s*)(["'])(.*?)\2""",
+                  lambda m: m.group(1) + m.group(2) + " ".join(gate.sub("", m.group(3)).split()) + m.group(2),
+                  html, flags=re.I | re.S)
+extra = "<style>%s</style>" % os.environ["EXTRA"] if os.environ["EXTRA"] else ""
+m = re.search(r"<head\b[^>]*>", html, re.I)
+if m:  # <base> first so relative URLs resolve; the pause style last so it wins ties
+    html = html[:m.end()] + os.environ["HEAD"] + html[m.end():]
+    end = re.search(r"</head\s*>", html, re.I)
+    html = html[:end.start()] + extra + html[end.start():] if end else html.replace(
+        os.environ["HEAD"], os.environ["HEAD"] + extra, 1)
+else:
+    html = os.environ["HEAD"] + extra + html
+open(out, "w", encoding="utf-8").write(html)
+PY
 }
 
 SHOTS=()
 for s in "$@"; do
-  if [ "$s" = "rest" ]; then
-    make_preview "$DIR/preview-rest.html" "" ""
+  P="$OUT/preview-$s.html"
+  if [ -n "$PAGE" ]; then
+    if [ "$s" = "rest" ]; then make_page_preview "$P" rest ""; else make_page_preview "$P" "" "$(pause_css "$s")"; fi
   else
-    make_preview "$DIR/preview-$s.html" "$GATE" \
-      ".$GATE *{animation-delay:-${s}s !important;animation-play-state:paused !important}"
+    if [ "$s" = "rest" ]; then make_fragment_preview "$P" "" ""; else make_fragment_preview "$P" "$GATE" "$(pause_css "$s")"; fi
   fi
-  shoot "$DIR/phase-$s.png" "$DIR/preview-$s.html" "$W" "$H"
-  [ -f "$DIR/phase-$s.png" ] || { echo "screenshot failed for phase $s" >&2; exit 1; }
+  rm -f "$OUT/phase-$s.png"
+  shoot "$OUT/phase-$s.png" "$P" "$W" "$H"
+  [ -f "$OUT/phase-$s.png" ] || { echo "screenshot failed for phase $s" >&2; exit 1; }
   SHOTS+=("$s")
-  echo "rendered $DIR/phase-$s.png"
+  echo "rendered $OUT/phase-$s.png"
 done
 
 # contact sheet: phases side by side (wrapping), each scaled to 480 px wide, with its label
@@ -91,7 +182,7 @@ CW=$(( COLS * (TW + 16) + 16 )); CH=$(( ROWS * (TH + 44) + 16 ))
     echo "<figure><img src=\"phase-$s.png\"><figcaption>$NAME &middot; $label</figcaption></figure>"
   done
   echo "</div>"
-} > "$DIR/contact.html"
-shoot "$DIR/contact.png" "$DIR/contact.html" "$CW" "$CH"
-echo "rendered $DIR/contact.png"
-echo "now LOOK at $DIR/phase-*.png and contact.png with your image viewing tool; fix and re-run."
+} > "$OUT/contact.html"
+shoot "$OUT/contact.png" "$OUT/contact.html" "$CW" "$CH"
+echo "rendered $OUT/contact.png"
+echo "now LOOK at $OUT/phase-*.png and contact.png with your image viewing tool; fix and re-run."

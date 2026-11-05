@@ -1,0 +1,48 @@
+name: Bug report
+description: A script fails, a fragment renders wrong, or the agent goes off the workflow.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran or asked for, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: The command or prompt, and the input (spec.yaml, a trimmed fragment or slide). Remove anything confidential.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output or screenshot
+      description: Error text, check_fragment.py output, or a phase render that shows the problem.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - extract_slides.py
+        - scaffold_from_spec.py
+        - check_fragment.py
+        - render-phases.sh
+        - integrate_fragment.py
+        - a pool fragment
+        - SKILL.md workflow / agent behaviour
+        - gallery site
+        - other
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Harness and model, OS, Python version, Chrome version, skill version (SKILL.md metadata).
+      placeholder: Claude Code, macOS 15, Python 3.12, Chrome 142, anim-slides 0.4.0
+    validations:
+      required: true

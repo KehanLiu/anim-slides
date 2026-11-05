@@ -1,5 +1,18 @@
 # anim-slides
 
+[![CI](https://github.com/KehanLiu/anim-slides/actions/workflows/ci.yml/badge.svg)](https://github.com/KehanLiu/anim-slides/actions/workflows/ci.yml)
+[![Live gallery](https://img.shields.io/badge/gallery-live-4cc2ff)](https://kehanliu.github.io/anim-slides/)
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-3ecf8e)](https://agentskills.io)
+[![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+
+**Turn boring bullet slides into animated diagrams, with the coding agent you already use.**
+
+![Before: a bullet slide. After: the same content as an animated diagram, built by anim-slides](docs/media/hero.gif)
+
+```bash
+npx skills add KehanLiu/anim-slides     # then ask your agent: "animate slide 4 of deck.pptx"
+```
+
 An agent skill that turns boring slides into animation-rich HTML, and turns written processes
 and dependencies into animated diagrams. It uses the open
 [Agent Skills](https://agentskills.io) format, so the same folder works in Claude Code, Codex,
@@ -14,29 +27,29 @@ into your deck.
 
 ## Pool
 
-The skill ships a pool of finished, checked fragments, at least one per archetype. The agent
-starts from the closest one before building from scratch. Resting frames (each one is an animated
-loop in the deck):
+The skill ships a pool of 18 finished, checked fragments across a dozen fields, at least one per
+archetype. The agent starts from the closest one before building from scratch. See them all
+animating in the **[live gallery](https://kehanliu.github.io/anim-slides/)**. Resting frames:
 
 <table>
 <tr>
-<td><img src="pool/deploy-pipeline/thumb.png" alt="deploy-pipeline"><br><code>deploy-pipeline</code></td>
-<td><img src="pool/service-deps/thumb.png" alt="service-deps"><br><code>service-deps</code></td>
+<td><img src="pool/er-patient-flow/thumb.png" alt="er-patient-flow"><br><code>er-patient-flow</code></td>
+<td><img src="pool/photosynth-respiration/thumb.png" alt="photosynth-respiration"><br><code>photosynth-respiration</code></td>
+<td><img src="pool/water-cycle/thumb.png" alt="water-cycle"><br><code>water-cycle</code></td>
+</tr>
+<tr>
+<td><img src="pool/loan-decision/thumb.png" alt="loan-decision"><br><code>loan-decision</code></td>
+<td><img src="pool/court-case/thumb.png" alt="court-case"><br><code>court-case</code></td>
+<td><img src="pool/canal-lock/thumb.png" alt="canal-lock"><br><code>canal-lock</code></td>
+</tr>
+<tr>
+<td><img src="pool/funding-options/thumb.png" alt="funding-options"><br><code>funding-options</code></td>
+<td><img src="pool/hiring-lanes/thumb.png" alt="hiring-lanes"><br><code>hiring-lanes</code></td>
 <td><img src="pool/rag-stack/thumb.png" alt="rag-stack"><br><code>rag-stack</code></td>
-</tr>
-<tr>
-<td><img src="pool/cache-compare/thumb.png" alt="cache-compare"><br><code>cache-compare</code></td>
-<td><img src="pool/job-states/thumb.png" alt="job-states"><br><code>job-states</code></td>
-<td><img src="pool/roadmap/thumb.png" alt="roadmap"><br><code>roadmap</code></td>
-</tr>
-<tr>
-<td><img src="pool/cloud-spend/thumb.png" alt="cloud-spend"><br><code>cloud-spend</code></td>
-<td><img src="pool/latency-trace/thumb.png" alt="latency-trace"><br><code>latency-trace</code></td>
-<td><img src="pool/db-failover/thumb.png" alt="db-failover"><br><code>db-failover</code></td>
 </tr>
 </table>
 
-See [`pool/README.md`](pool/README.md) for stories, sizes and how to add your own private pool.
+More in [`pool/README.md`](pool/README.md), including how to keep a private pool of your own.
 
 ## What you get
 
@@ -118,8 +131,9 @@ marketplaces). For a one-off trial from a local clone: `claude --plugin-dir ./an
 ### Requirements for the scripts
 
 Python 3.9+ and a Chrome or Chromium binary (for phase rendering). Optional: `pyyaml` for full
-YAML in specs (a built-in reader covers plain specs like the examples, and JSON always works), and
-`python-pptx` for richer PowerPoint extraction (a zip/XML fallback is built in). The harness must
+YAML in specs (a built-in reader covers plain specs like the pool's, and JSON always works).
+PowerPoint is read with the standard library; legacy `.ppt` needs one `soffice --headless
+--convert-to pptx` first. The harness must
 be able to run shell commands and view PNG files; the scripts are called by their path inside the
 skill folder, which Claude Code exposes as `$CLAUDE_SKILL_DIR` and other harnesses report when
 they load the skill.
@@ -143,16 +157,19 @@ CLI).
 
 ```bash
 # outline a deck with archetype suggestions per slide
-python3 scripts/extract_slides.py deck.pptx -o outline.json
+python3 scripts/extract_slides.py deck.pptx -o anim/outline.json
 
 # spec -> skeleton fragment
 python3 scripts/scaffold_from_spec.py anim/deploy/spec.yaml -o anim/deploy/deploy.html
 
 # contract checks (prefixes, tokens, gating, text size at rendered width)
-python3 scripts/check_fragment.py anim/deploy/deploy.html --name deploy --rendered-width 1200
+python3 scripts/check_fragment.py anim/deploy/deploy.html --name deploy --rendered-width 1200 --stage-width 1920
 
-# phase frames at 1.5 s, 4 s, 7 s, 10 s plus the resting frame, and a contact sheet
+# phase frames at 1.5 s, 4 s, 7 s, 10 s plus the resting frame, and a contact sheet (temp dir)
 scripts/render-phases.sh anim/deploy 1200 600 1.5 4 7 10 rest
+
+# resting frame of the finished host page (what PDF export shows)
+scripts/render-phases.sh --page deck.html 1920 1080 rest
 
 # inline into a deck: markup goes between <!-- anim:NAME:start --> / <!-- anim:NAME:end -->,
 # style into the head between <!-- anim-style:NAME:start --> / <!-- anim-style:NAME:end -->;

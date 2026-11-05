@@ -1,0 +1,38 @@
+# Emergency department visit as an eight-step pipeline. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/er-patient-flow/spec.yaml -o /tmp/anim/er-patient-flow/er-patient-flow.html
+# The shipped HTML is hand-built beyond the scaffold: the row is wrapped into two rows (snake,
+# row 2 runs right to left) joined by a routed wrap wire on the right, numbered step badges,
+# one token hop per wire, and a check mark as each step settles. Illustrative, not clinical guidance.
+name: er-patient-flow
+domain: health
+archetype: pipeline
+size: [1680, 560]
+control: loop
+cycle: 13
+nodes:
+  - { id: arrival,    label: Arrival,      sub: "on foot or ambulance", kind: actor }
+  - { id: triage,     label: Triage,       sub: "urgency level set" }
+  - { id: register,   label: Registration, sub: "visit record opened" }
+  - { id: assess,     label: Assessment,   sub: "clinician examines" }
+  - { id: tests,      label: Tests,        sub: "bloods and imaging" }
+  - { id: treat,      label: Treatment,    sub: "medication and care" }
+  - { id: decide,     label: Decision,     sub: "home or admit?", kind: decision }
+  - { id: discharge,  label: Discharge,    sub: "home, with follow-up" }
+edges:
+  - { from: arrival,  to: triage }
+  - { from: triage,   to: register }
+  - { from: register, to: assess }
+  - { from: assess,   to: tests }
+  - { from: tests,    to: treat }
+  - { from: treat,    to: decide }
+  - { from: decide,   to: discharge }
+phases:
+  - { t: 0,     label: setup,     note: "A patient arrives at the emergency department" }
+  - { t: 1.0,   label: arrival,   active: [arrival] }
+  - { t: 2.25,  label: triage,    active: [triage],    flow: ["arrival>triage"],    note: "Triage sets the urgency, so the sickest are seen first" }
+  - { t: 3.5,   label: register,  active: [register],  flow: ["triage>register"],   note: "Registration opens the record for this visit" }
+  - { t: 4.75,  label: assess,    active: [assess],    flow: ["register>assess"],   note: "A clinician examines the patient" }
+  - { t: 6.3,   label: tests,     active: [tests],     flow: ["assess>tests"],      note: "Tests are ordered and the results come back" }
+  - { t: 7.55,  label: treat,     active: [treat],     flow: ["tests>treat"],       note: "Treatment starts as the results are reviewed" }
+  - { t: 8.8,   label: decide,    active: [decide],    flow: ["treat>decide"],      note: "The team decides: home, or a bed on a ward" }
+  - { t: 10.05, label: discharge, active: [discharge], flow: ["decide>discharge"],  note: "Discharged home with a follow-up plan: visit complete" }

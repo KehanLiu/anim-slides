@@ -1,0 +1,40 @@
+name: Pool request
+description: Ask for an animation pattern the pool does not cover yet.
+labels: [pool]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The pool holds domain-neutral examples, one or more per archetype. Check the
+        [gallery](https://kehanliu.github.io/anim-slides/) first.
+  - type: textarea
+    id: story
+    attributes:
+      label: The story
+      description: What the animation should show, in two or three sentences, as it would play on a slide.
+      placeholder: Messages pile up in a queue during a traffic spike, consumers autoscale and the backlog drains.
+    validations:
+      required: true
+  - type: dropdown
+    id: archetype
+    attributes:
+      label: Closest archetype
+      options: [pipeline, graph, timeline, states, compare, layers, chart, not sure / new]
+    validations:
+      required: true
+  - type: input
+    id: domain
+    attributes:
+      label: Domain
+      placeholder: data engineering, biology, finance, education, ...
+  - type: textarea
+    id: technique
+    attributes:
+      label: Motion or technique you are after
+      description: A specific effect (packets on edges, a bar race, a swimlane handoff, a counter ticking), with links to examples if you have them.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to build this entry myself (see CONTRIBUTING.md)

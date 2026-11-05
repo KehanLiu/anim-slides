@@ -1,0 +1,37 @@
+# Photosynthesis and cellular respiration as opposites: the same five substances in aligned rows,
+# with a badge per row in the gutter whose arrow flips to the opposite direction as each
+# respiration row enters (down = taken in, up = given off). Glucose + O2 travel from the
+# chloroplast to the mitochondrion, CO2 + H2O travel back. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/photosynth-respiration/spec.yaml -o /tmp/anim/photosynth-respiration/photosynth-respiration.html
+# The pool fragment was hand-built (gutter badges with flipping arrows, organelle glyphs,
+# molecule packets on arcs, equation captions); re-scaffolding gives the row skeleton only.
+name: photosynth-respiration
+archetype: compare
+domain: biology
+size: [1680, 600]
+control: loop
+cycle: 12
+nodes:
+  - { id: l-co2,  side: left,  group: photo, label: "CO₂ taken in",      sub: "6 CO₂ from the air" }
+  - { id: l-h2o,  side: left,  group: photo, label: "H₂O taken in",      sub: "6 H₂O, split by light" }
+  - { id: l-nrg,  side: left,  group: photo, label: "Light captured",    sub: "stored in glucose" }
+  - { id: l-glu,  side: left,  group: photo, label: "Glucose made",      sub: "built from CO₂" }
+  - { id: l-o2,   side: left,  group: photo, label: "O₂ given off",      sub: "from the split water" }
+  - { id: r-co2,  side: right, group: resp,  label: "CO₂ given off",     sub: "breathed out" }
+  - { id: r-h2o,  side: right, group: resp,  label: "H₂O given off",     sub: "as a product" }
+  - { id: r-nrg,  side: right, group: resp,  label: "Energy released",   sub: "as ATP, plus heat" }
+  - { id: r-glu,  side: right, group: resp,  label: "Glucose broken down", sub: "the fuel" }
+  - { id: r-o2,   side: right, group: resp,  label: "O₂ taken in",       sub: "from the air" }
+groups:
+  - { id: photo, label: "Photosynthesis" }
+  - { id: resp,  label: "Cellular respiration" }
+phases:
+  - { t: 0,   label: setup, show: [photo, resp] }
+  - { t: 0.8, label: photosynthesis, show: [l-co2, l-h2o, l-nrg, l-glu, l-o2], note: "6 CO₂ + 6 H₂O + light → C₆H₁₂O₆ + 6 O₂" }
+  - { t: 3.2, label: co2,  show: [r-co2], active: [l-co2, r-co2], note: "C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O + energy (ATP)" }
+  - { t: 4.2, label: h2o,  show: [r-h2o], active: [l-h2o, r-h2o] }
+  - { t: 5.2, label: energy, show: [r-nrg], active: [l-nrg, r-nrg] }
+  - { t: 6.2, label: glucose, show: [r-glu], active: [l-glu, r-glu] }
+  - { t: 7.2, label: oxygen, show: [r-o2], active: [l-o2, r-o2] }
+  - { t: 9.6, label: verdict, note: "Same molecules, opposite direction: energy stored as glucose is released as ATP" }
+  - { t: 10.4, label: hold }

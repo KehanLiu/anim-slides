@@ -1,0 +1,36 @@
+# Three ways to fund a company in an option matrix: row headers on the left, one column per
+# option built left to right, ending on the "Control you keep" row highlighted across all
+# columns while the other rows recede. Amounts are illustrative. Scaffold with:
+#   python3 scripts/scaffold_from_spec.py pool/funding-options/spec.yaml -o /tmp/anim/funding-options/funding-options.html
+# The pool fragment was hand-built (row header column, cells with meters, highlight band,
+# caption per column); re-scaffolding gives the column skeleton only.
+name: funding-options
+archetype: compare
+domain: business
+size: [1680, 600]
+control: loop
+cycle: 11
+nodes:
+  - { id: b-amt,  side: boot,  group: boot,  label: "What you earn",    sub: "amount" }
+  - { id: b-spd,  side: boot,  group: boot,  label: "No raise needed",  sub: "grow as cash comes in" }
+  - { id: b-exp,  side: boot,  group: boot,  label: "Nothing",          sub: "you answer to customers" }
+  - { id: b-ctl,  side: boot,  group: boot,  label: "All of it",        sub: "100 %" }
+  - { id: a-amt,  side: angel, group: angel, label: "$25k to $500k",    sub: "amount" }
+  - { id: a-spd,  side: angel, group: angel, label: "Weeks to months",  sub: "a few pitches" }
+  - { id: a-exp,  side: angel, group: angel, label: "A stake, some say", sub: "updates, mentoring" }
+  - { id: a-ctl,  side: angel, group: angel, label: "Most of it",       sub: "~80 %" }
+  - { id: v-amt,  side: vc,    group: vc,    label: "$1M to $50M+",     sub: "amount" }
+  - { id: v-spd,  side: vc,    group: vc,    label: "3 to 6 months",    sub: "per round" }
+  - { id: v-exp,  side: vc,    group: vc,    label: "Fast growth, exit", sub: "board seat" }
+  - { id: v-ctl,  side: vc,    group: vc,    label: "Less each round",  sub: "~50 %" }
+groups:
+  - { id: boot,  label: "Bootstrapping" }
+  - { id: angel, label: "Angel investors" }
+  - { id: vc,    label: "Venture capital" }
+phases:
+  - { t: 0,   label: setup }
+  - { t: 0.9, label: bootstrapping, show: [boot, b-amt, b-spd, b-exp, b-ctl], note: "Bootstrapping: no investors, so you grow at the pace of your revenue" }
+  - { t: 3.2, label: angels, show: [angel, a-amt, a-spd, a-exp, a-ctl], note: "Angels: a first cheque from individuals, in exchange for a stake" }
+  - { t: 5.5, label: venture, show: [vc, v-amt, v-spd, v-exp, v-ctl], note: "Venture capital: the most money, the most diligence, the highest expectations" }
+  - { t: 7.8, label: control, active: [b-ctl, a-ctl, v-ctl], note: "More money, sooner, costs control: pick the row that matters most to you" }
+  - { t: 9.0, label: hold }

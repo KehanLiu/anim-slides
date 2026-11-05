@@ -1,0 +1,48 @@
+# A hiring process as a graph drawn in SWIMLANES: one lane per actor (Candidate, Recruiter,
+# Hiring manager), steps placed in their actor's lane and in time order left to right, so the
+# token visibly hands the work from lane to lane. A dotted return edge carries one revision loop
+# (the candidate asks for more, the recruiter revises the offer), and the last step branches into
+# two outcomes. Hand-built (the scaffolder had no lane layout yet); with `lanes: true` the
+# scaffolder should reproduce the structure. The shipped hiring-lanes.html adds: elbow connectors
+# between lanes, day stamps that cross-fade (offer v1 -> v2, day 13 -> 16), a warn-coloured token
+# and label on the revision loop, an outcome column with the declined branch drawn dashed and never
+# taken, and a caption strip. Resting frame: offer v2 accepted.
+name: hiring-lanes
+archetype: graph
+domain: HR / business process
+size: [1680, 600]
+control: loop
+cycle: 14
+nodes:
+  - { id: apply,    label: Applies,        sub: "day 0",  group: candidate }
+  - { id: screen,   label: Screens CV,     sub: "day 2",  group: recruiter }
+  - { id: iview,    label: Interview,      sub: "day 7",  group: manager }
+  - { id: approve,  label: Approves hire,  sub: "day 9",  group: manager }
+  - { id: offer,    label: Makes offer,    sub: "v2 · day 15", group: recruiter }
+  - { id: review,   label: Reviews offer,  sub: "day 16", group: candidate }
+  - { id: accepted, label: Offer accepted, kind: milestone }
+  - { id: declined, label: Offer declined }
+edges:
+  - { from: apply,   to: screen }
+  - { from: screen,  to: iview }
+  - { from: iview,   to: approve }
+  - { from: approve, to: offer }
+  - { from: offer,   to: review }
+  - { from: review,  to: offer,    label: revise offer, kind: event }
+  - { from: review,  to: accepted }
+  - { from: review,  to: declined, kind: event }
+groups:
+  - { id: candidate, label: Candidate }
+  - { id: recruiter, label: Recruiter }
+  - { id: manager,   label: Hiring manager }
+phases:
+  - { t: 0,    label: apply,    active: [apply],    note: "A candidate applies for the role" }
+  - { t: 0.8,  label: screen,   active: [screen],   flow: ["apply>screen"],    note: "The recruiter screens the CV and books an interview" }
+  - { t: 2.6,  label: interview, active: [iview],   flow: ["screen>iview"],    note: "The hiring manager interviews and approves the hire" }
+  - { t: 4.4,  label: approve,  active: [approve],  flow: ["iview>approve"] }
+  - { t: 5.6,  label: offer,    active: [offer],    flow: ["approve>offer"],   note: "The recruiter sends a first offer" }
+  - { t: 7.0,  label: review,   active: [review],   flow: ["offer>review"] }
+  - { t: 8.4,  label: revise,   active: [offer],    flow: ["review>offer"],    note: "The candidate asks for more: the offer is revised" }
+  - { t: 9.8,  label: review-2, active: [review],   flow: ["offer>review"] }
+  - { t: 11.2, label: accept,   active: [accepted], flow: ["review>accepted"], note: "The revised offer is accepted, 16 days after applying" }
+  - { t: 12.0, label: hold,     active: [accepted] }

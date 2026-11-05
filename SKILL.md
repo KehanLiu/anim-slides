@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.4.0"
+  version: "0.5.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
@@ -33,7 +33,7 @@ the user's deck.
 
 ### 0. Intake
 Decide which of the three entry points applies:
-- **Existing deck**: run `python3 <skill-dir>/scripts/extract_slides.py deck.pptx|deck.html|doc.md -o outline.json`, then
+- **Existing deck**: run `python3 <skill-dir>/scripts/extract_slides.py deck.pptx|deck.html|doc.md -o anim/outline.json`, then
   triage with `references/input-stage.md` (3 to 8 illustrations per 30 slides is normal).
 - **Documentation**: read the source, pick the archetype with the table in
   `references/archetypes.md`, extract a spec (step 1).
@@ -43,8 +43,9 @@ state the assumption in the brief and continue.
 
 ### 1. Spec
 Write `anim/<name>/spec.yaml` following `references/spec-format.md`: name, archetype, nodes,
-edges, groups, phases with second marks, cycle, control (`loop` default, `step` only when the
-presenter must drive phases or the story has four or more narrated phases). Reuse the
+edges, groups, phases with second marks, cycle, control (`loop` default, with a caption strip
+for up to about 6 narrated phases; `step` only when the presenter must drive the phases, the
+story has more, and the host can load GSAP). Reuse the
 source's own words as labels. Keep a spec under about 12 nodes; split otherwise.
 
 ### 1b. Check the pool
@@ -75,10 +76,13 @@ fragment at a time from the shared briefs, or one parallel subagent per fragment
 has them; integration always stays in the main thread.
 
 ### 4. Verify by looking
-1. `python3 <skill-dir>/scripts/check_fragment.py anim/<name>/<name>.html --name <name> --rendered-width <px>`
-   must pass (prefixes, tokens, gating, text size, forbidden content).
+1. `python3 <skill-dir>/scripts/check_fragment.py anim/<name>/<name>.html --name <name> --rendered-width <px> --stage-width <deck stage width>`
+   must pass (prefixes, tokens, gating, text size, forbidden content). `--stage-width` sets the
+   text floor (18 px at 1920, 12 px at 1280); `outline.json` reports the stage.
 2. `<skill-dir>/scripts/render-phases.sh anim/<name> <W> <H> 1.5 4 7 10 rest` renders phase PNGs and a
-   contact sheet with the paused plus negative-delay method. Open every PNG with your image
+   contact sheet with the paused plus negative-delay method, into a temp folder it prints (pass
+   `--out DIR` to choose). After integration, `render-phases.sh --page deck.html 1920 1080 rest`
+   checks the host page's resting frame. Open every PNG with your image
    viewing tool. Fix clipping, overlaps, unreadable text, empty panels. Iterate at least once.
 3. The resting frame must read as a complete still (PDF export shows only that).
 Never trust `--virtual-time-budget`, and never trust reading the source instead of the PNG.
@@ -96,6 +100,11 @@ smoothness.
 Run the checklist at the end of `references/motion-rules.md` before shipping.
 
 ## Hard rules
+- Keep the slide's visuals. A chart, graph, table, map, flowchart or scientific figure on the
+  source slide is its core content: redraw it as SVG from its data (axes, scales, curves, labels)
+  and animate that, never replace it with a text summary. Only photos, logos and decorative clip
+  art may be left out. Render the source slide (`soffice --convert-to pdf`, then `pdftoppm`) and
+  look at it before writing the spec; `extract_slides.py` cannot see inside pictures.
 - Prefix every class, id and keyframe with `<name>-`. Host CSS has global `.bar .card .node
   .flow` rules and Chrome applies CSS width/height to SVG rects.
 - No hard-coded colours or fonts: use `var(--anim-*)` tokens with the fallback block from the

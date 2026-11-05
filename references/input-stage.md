@@ -16,7 +16,7 @@ source (pptx / html / md / mermaid)
 
 | Input | How to read it |
 |---|---|
-| `.pptx` | `python3 scripts/extract_slides.py deck.pptx -o anim/outline.json`. Text, bullets, notes and image counts per slide, plus a suggested archetype. Slide images are not interpreted; if a slide is mostly a screenshot or diagram picture, ask for the source or describe what you see after rendering the slide. |
+| `.pptx` | `python3 scripts/extract_slides.py deck.pptx -o anim/outline.json`. Text, bullets, notes and image counts per slide, plus a suggested archetype. Slide images are not interpreted: render every candidate slide and look at it. A chart, graph or diagram picture is the slide's core content and must be redrawn (from its data, with credit) in the fragment, not dropped; if it cannot be read, ask for the source. |
 | HTML deck | `python3 scripts/extract_slides.py deck.html -o anim/outline.json`. Same JSON; slides are the deck's section elements. The stage is 1920x1080 unless you pass `--stage W H`. Measure slots in the real deck later ([layouts.md](layouts.md)). |
 | Markdown (`.md`, `.markdown`) | `python3 scripts/extract_slides.py doc.md -o anim/outline.json`. Same JSON; a slide is each `---`-separated part when the file uses rules, otherwise each `#` / `##` section. HTML comments become `notes`; mermaid fences go to `mermaid`. Each section that describes a process, a set of dependencies, a sequence of dates or a before/after is a candidate. Numbered lists and tables are strong signals. |
 | Plain docs (other formats) | No extractor. Read the file and apply the same signals. |
@@ -61,6 +61,10 @@ first (or in parallel), then integrate fragments into that HTML.
 | `notes` | Speaker notes, `""` if none. Often states the real point of the slide. |
 | `text` | All visible text concatenated, for searching. |
 | `has_image`, `image_count` | Pictures on the slide (screenshots, diagrams, photos). |
+| `tables` | pptx only, when present: each table as a list of rows (lists of cell strings). A two-column table suggests `compare`. |
+| `connectors` | pptx only: count of connector lines and arrow shapes. Counts as a pipeline cue, or graph when they branch. |
+| `title_guessed` | `true` when there was no title placeholder and the title came from the largest-font box or first short paragraph. |
+| `aspect` | Top level: `"16:9"` or `"4:3"`. |
 | `mermaid` | Markdown only, and only when present: a list of strings, the body of each mermaid fence in the section. A recognised diagram type sets the suggestion with confidence 0.9. |
 | `suggested_archetype` | One of the seven archetypes or `null` (= keep as text). A heuristic. |
 | `confidence` | 0 to 1. Below 0.4 treat as a guess. |
@@ -164,6 +168,13 @@ anim/
   `BRIEF.md`, the contract, and the instruction to run `scaffold_from_spec.py`, refine,
   run `check_fragment.py` and `render-phases.sh`, look at every PNG, and report path, viewBox,
   cycle, phase seconds and anything unverified.
-- Builders write only inside their own folder. They never touch the deck.
+- Builders write only inside their own folder, scratch files included (a shared scratch
+  directory lets one builder overwrite another's helper scripts). They never touch the deck.
+- Builders that run `soffice` in parallel each need their own profile:
+  `soffice -env:UserInstallation=file:///tmp/lo-<name> --headless --convert-to pdf ...`;
+  with a shared profile the second call exits silently without output.
+- Speaker notes can carry structure the slide lacks (who proposes and who decides, which step
+  matters). Use it for groups and emphasis, and cite it in the spec's header comment.
+- A caller's brief that already names the slides counts as approval of the triage table.
 - Integration (`integrate_fragment.py`, one call per fragment) and the final in-browser check
   stay in the main thread, sequentially, because they edit the same deck file.

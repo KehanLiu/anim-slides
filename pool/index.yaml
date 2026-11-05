@@ -1,10 +1,11 @@
 # Pool of finished, checked fragments. One entry per folder: pool/<name>/<name>.html,
 # plus thumb.png (resting frame) and, where it exists, spec.yaml.
-# Agents: match on archetype and tags first, then read the story; open only the fragment you pick.
+# Agents: match on archetype, domain and tags first, then read the story; open only the fragment you pick.
 # All entries: data-anim-control="loop", CSS only, pass check_fragment.py at viewBox width.
 
 - name: deploy-pipeline
   archetype: pipeline
+  domain: software
   viewbox: [1680, 440]
   cycle: 12
   spec: true
@@ -13,6 +14,7 @@
 
 - name: service-deps
   archetype: graph
+  domain: software
   viewbox: [1680, 600]
   cycle: 14
   spec: true
@@ -21,6 +23,7 @@
 
 - name: db-failover
   archetype: graph
+  domain: software
   viewbox: [1000, 560]
   cycle: 14
   spec: false
@@ -30,6 +33,7 @@
 
 - name: roadmap
   archetype: timeline
+  domain: product
   viewbox: [1680, 440]
   cycle: 12
   spec: true
@@ -38,6 +42,7 @@
 
 - name: job-states
   archetype: states
+  domain: software
   viewbox: [1200, 600]
   cycle: 12
   spec: true
@@ -46,6 +51,7 @@
 
 - name: cache-compare
   archetype: compare
+  domain: software
   viewbox: [1680, 600]
   cycle: 12
   spec: true
@@ -54,6 +60,7 @@
 
 - name: rag-stack
   archetype: layers
+  domain: ai
   viewbox: [1200, 640]
   cycle: 13
   spec: true
@@ -62,6 +69,7 @@
 
 - name: cloud-spend
   archetype: chart
+  domain: finance
   viewbox: [1680, 600]
   cycle: 12
   spec: true
@@ -70,9 +78,98 @@
 
 - name: latency-trace
   archetype: chart
+  domain: software
   viewbox: [800, 500]
   cycle: 14
   spec: false
   story: A scrolling strip chart of p99 latency; a deploy spikes it over the SLO line, an alert fires and a rollback brings it back.
   tags: [latency, slo, monitoring, incident, rollback, strip-chart]
   technique: continuous trace drawn twice and translated by one period, events baked into the trace
+
+- name: er-patient-flow
+  archetype: pipeline
+  domain: health
+  viewbox: [1680, 560]
+  cycle: 13
+  spec: true
+  story: An emergency department visit in eight numbered steps wrapped into two rows, from arrival and triage to the decision and discharge.
+  tags: [patient-flow, emergency, healthcare, wrapped-pipeline, snake, numbered-steps]
+  technique: long pipeline as a two-row snake with a routed wrap wire and a hopping token
+
+- name: parcel-route
+  archetype: pipeline
+  domain: logistics
+  viewbox: [1600, 520]
+  cycle: 8
+  spec: false
+  story: A parcel hops through five stations from order to doorstep, each turning green when passed, ending on the 28-hour lead time.
+  tags: [delivery, logistics, e-commerce, stations, lead-time]
+
+- name: water-cycle
+  archetype: pipeline
+  domain: earth-science
+  viewbox: [1680, 600]
+  cycle: 12
+  spec: true
+  story: Over a sea-and-mountain landscape the sun evaporates water, wind carries the cloud inland, rain falls and a river returns it to the sea.
+  tags: [water-cycle, closed-loop, earth-science, landscape, packet-transform, seamless]
+  technique: closed loop without reset; the packet changes type (vapour, droplet, stream) with a legend
+
+- name: loan-decision
+  archetype: graph
+  domain: finance
+  viewbox: [1680, 600]
+  cycle: 13
+  spec: true
+  story: Online OR branch applications meet a credit-check diamond; yes runs two checks in parallel to an offer, no ends in a decline with a reason letter.
+  tags: [loan, credit-decision, decision-diamond, parallel-checks, alternative-inputs, banking]
+
+- name: hiring-lanes
+  archetype: graph
+  domain: hr
+  viewbox: [1680, 600]
+  cycle: 14
+  spec: true
+  story: Swimlanes for candidate, recruiter and hiring manager; one token is handed between lanes, a revise-offer loop runs once and the offer is accepted.
+  tags: [swimlanes, hiring, hr, handoff, revision-loop, branch-outcome]
+  technique: graph as horizontal lanes with elbow connectors and a dotted return edge
+
+- name: court-case
+  archetype: timeline
+  domain: law
+  viewbox: [1680, 600]
+  cycle: 13
+  spec: true
+  story: A generic criminal case from investigation to sentencing; the progress line changes colour at each hand-off between prosecution, court and jury.
+  tags: [legal-process, criminal-justice, hand-off, responsibility, civics, alternating-labels]
+  technique: alternating labels above and below the axis, owner brackets, colour change at hand-offs
+
+- name: photosynth-respiration
+  archetype: compare
+  domain: biology
+  viewbox: [1680, 600]
+  cycle: 12
+  spec: true
+  story: Photosynthesis and cellular respiration side by side; as each respiration row enters, its direction badge flips to the opposite of photosynthesis.
+  tags: [biology, photosynthesis, cellular-respiration, opposites, molecules, textbook]
+  technique: opposites compare with direction badges that flip per row
+
+- name: funding-options
+  archetype: compare
+  domain: business
+  viewbox: [1680, 600]
+  cycle: 11
+  spec: true
+  story: Bootstrapping, angel investors and venture capital built column by column across four criteria, ending on the control-you-keep row.
+  tags: [business, startup-funding, option-matrix, trade-off, investors, decision]
+  technique: three-column option matrix with row headers and one highlighted criterion row
+
+- name: canal-lock
+  archetype: states
+  domain: engineering
+  viewbox: [1680, 600]
+  cycle: 11
+  spec: false
+  story: A side cross-section of a canal lock: the boat enters, the lower gates close, the valve fills the chamber, the upper gates open and the boat leaves higher.
+  tags: [canal-lock, transport, water-level, cross-section, physical-process, scene]
+  technique: physical scene; water level as scaleY on a rect with transform-box view-box, a dashed ghost of the start level

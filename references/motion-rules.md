@@ -50,8 +50,9 @@ Anything slower than 900 ms that is not a hop or a continuous loop reads as lag.
 
 - **Packets along wires:** `offset-path: path('M ...')` plus animated `offset-distance` from 0 %
   to 100 %. The path string reuses the wire's `d`. CSS-only, smooth, no JS.
-- **Draw-on:** give the path `pathLength="100"`, set `stroke-dasharray: 100`, animate
-  `stroke-dashoffset` from 100 to 0 over 500-800 ms. Same maths for every path regardless of
+- **Draw-on:** give the path `pathLength="100"`, set `stroke-dasharray: 100 120`, animate
+  `stroke-dashoffset` from 101 to 0 over 500-800 ms. (A plain `100` dash at offset 100 still
+  paints a dot at the start with `stroke-linecap: round`.) Same maths for every path regardless of
   length. Resting frame: `stroke-dashoffset: 0`.
 - **Changing text:** stack one `<text>` per state at the same position and cross-fade their
   opacity (element duration). Do not animate text content.

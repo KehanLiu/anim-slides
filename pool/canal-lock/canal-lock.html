@@ -1,0 +1,216 @@
+<!-- canal-lock (pool, archetype states as a physical scene, domain engineering/transport). Hand-built.
+  Story: a boat enters a lock chamber at the lower level, the lower gates close, the filling valve
+  opens, water from the upper canal lifts chamber and boat, the upper gates open and the boat leaves
+  one level higher. A dashed ghost keeps the start level. Cycle 11 s, hold 8.8-10.5 s.
+  Technique: transforms on SVG groups use transform-box:view-box with px transform-origin; the level
+  is a scaleY on a rect about the chamber floor (no CSS d morphing, which Safari lacks). -->
+<style>
+.anim-canal-lock{
+  --anim-bg:       var(--anim-theme-bg,       #0f1218);
+  --anim-panel:    var(--anim-theme-panel,    #1a2030);
+  --anim-line:     var(--anim-theme-line,     #3a4660);
+  --anim-fg:       var(--anim-theme-fg,       #eef2f8);
+  --anim-muted:    var(--anim-theme-muted,    #9aa7bd);
+  --anim-accent:   var(--anim-theme-accent,   #4cc2ff);
+  --anim-accent-2: var(--anim-theme-accent-2, #ffb454);
+  --anim-ok:       var(--anim-theme-ok,       #3ecf8e);
+  --anim-warn:     var(--anim-theme-warn,     #ffb454);
+  --anim-danger:   var(--anim-theme-danger,   #ff5d5d);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-canal-lock svg{display:block;width:100%;height:100%}
+.anim-canal-lock .canal-lock-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-canal-lock .canal-lock-lbl{font-size:22px;font-weight:700}
+.anim-canal-lock .canal-lock-note{font-size:22px}
+.anim-canal-lock .canal-lock-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-canal-lock .canal-lock-mono.canal-lock-fgt{fill:var(--anim-fg)}
+.anim-canal-lock .canal-lock-mono.canal-lock-okt{fill:var(--anim-ok)}
+.anim-canal-lock .canal-lock-mono.canal-lock-cyt{fill:var(--anim-accent)}
+.anim-canal-lock .canal-lock-wall{fill:color-mix(in srgb,var(--anim-panel) 55%,transparent)}
+.anim-canal-lock .canal-lock-coping{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
+.anim-canal-lock .canal-lock-hull{fill:var(--anim-accent-2)}
+.anim-canal-lock .canal-lock-deck{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round}
+.anim-canal-lock .canal-lock-cabin{fill:var(--anim-panel);stroke:var(--anim-fg);stroke-width:2}
+.anim-canal-lock .canal-lock-win{fill:color-mix(in srgb,var(--anim-accent) 45%,var(--anim-panel))}
+.anim-canal-lock .canal-lock-wat{fill:color-mix(in srgb,var(--anim-accent) 22%,transparent)}
+.anim-canal-lock .canal-lock-sf{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round}
+.anim-canal-lock .canal-lock-gh{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:8 8}
+.anim-canal-lock .canal-lock-dl{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-canal-lock .canal-lock-gp{fill:var(--anim-line);stroke:var(--anim-muted);stroke-width:2}
+.anim-canal-lock .canal-lock-gx{fill:none;stroke:var(--anim-muted);stroke-width:1.5}
+.anim-canal-lock .canal-lock-ground{fill:var(--anim-panel);stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
+.anim-canal-lock .canal-lock-cv-o{fill:none;stroke:var(--anim-line);stroke-width:22;stroke-linejoin:round}
+.anim-canal-lock .canal-lock-cv-i{fill:none;stroke:var(--anim-bg);stroke-width:16;stroke-linejoin:round}
+.anim-canal-lock .canal-lock-fd{fill:none;stroke:var(--anim-accent);stroke-width:4;stroke-linecap:round;stroke-dasharray:10 14}
+.anim-canal-lock .canal-lock-fa{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-canal-lock .canal-lock-vh{fill:var(--anim-panel);stroke:var(--anim-fg);stroke-width:2.5}
+.anim-canal-lock .canal-lock-vb{fill:var(--anim-fg)}
+.anim-canal-lock .canal-lock-tick{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-dasharray:4 5}
+.anim-canal-lock .canal-lock-chip{stroke-width:1.5}
+.anim-canal-lock .canal-lock-chip-ok{fill:color-mix(in srgb,var(--anim-ok) 14%,transparent);stroke:var(--anim-ok)}
+.anim-canal-lock .canal-lock-chip-q{fill:none;stroke:var(--anim-line)}
+.anim-canal-lock .canal-lock-cap{fill:var(--anim-panel)}
+/* transforms on SVG elements: view-box reference box plus px origins (see lessons.md) */
+.anim-canal-lock .canal-lock-boat,.anim-canal-lock .canal-lock-surf,.anim-canal-lock .canal-lock-gt{transform-box:view-box;transform-origin:0px 0px}
+.anim-canal-lock .canal-lock-water{transform-box:view-box;transform-origin:840px 440px}
+.anim-canal-lock .canal-lock-valve{transform-box:view-box;transform-origin:1250px 482px}
+/* resting frame = the end: boat in the upper canal, chamber full, lower gates closed, upper gates
+   sunk open, valve open, no flow, start level kept as a dashed ghost */
+.anim-canal-lock .canal-lock-gate-up{transform:translateY(270px)}
+.anim-canal-lock .canal-lock-flow,.anim-canal-lock .canal-lock-lo-open,.anim-canal-lock .canal-lock-up-shut,.anim-canal-lock .canal-lock-v-shut,.anim-canal-lock .canal-lock-lv0,.anim-canal-lock .canal-lock-lv1,.anim-canal-lock .canal-lock-n0,.anim-canal-lock .canal-lock-n1,.anim-canal-lock .canal-lock-n2{opacity:0}
+
+/* ---- motion (11 s cycle), only when the slide is visible ---- */
+/* fade in 0-0.3 s, hold to 10.5 s, reset 10.5-10.8 s */
+@keyframes canal-lock-scene{0%{opacity:0}2.73%,95.45%{opacity:1}98.18%,100%{opacity:0}}
+/* boat enters 0.6-1.9 s, rises with the water 3.4-6.4 s, leaves 7.5-8.8 s */
+@keyframes canal-lock-boat{0%,5.45%{transform:translate(-1090px,120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}17.27%,30.91%{transform:translate(-570px,120px);animation-timing-function:ease-in-out}58.18%,68.18%{transform:translate(-570px,0px);animation-timing-function:cubic-bezier(0.2,0,0,1)}80%,100%{transform:translate(0px,0px)}}
+/* chamber fills 3.4-6.4 s (scaleY about the floor, transform-box view-box) */
+@keyframes canal-lock-water{0%,30.91%{transform:scaleY(.5);animation-timing-function:ease-in-out}58.18%,100%{transform:scaleY(1)}}
+/* surface rides the level */
+@keyframes canal-lock-surf{0%,30.91%{transform:translateY(120px);animation-timing-function:ease-in-out}58.18%,100%{transform:translateY(0px)}}
+/* lower gates rise shut 2.1-2.8 s */
+@keyframes canal-lock-gate-lo{0%,19.09%{transform:translateY(270px);animation-timing-function:cubic-bezier(0.2,0,0,1)}25.45%,100%{transform:translateY(0px)}}
+/* upper gates drop open 6.6-7.3 s */
+@keyframes canal-lock-gate-up{0%,60%{transform:translateY(0px);animation-timing-function:cubic-bezier(0.2,0,0,1)}66.36%,100%{transform:translateY(270px)}}
+/* valve disc turns open 3.0-3.3 s */
+@keyframes canal-lock-valve{0%,27.27%{transform:rotate(90deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}30%,100%{transform:rotate(0deg)}}
+/* flow shown while the levels differ */
+@keyframes canal-lock-flow{0%,29.09%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.82%{opacity:1}57.27%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59.05%,100%{opacity:0}}
+/* continuous march, linear */
+@keyframes canal-lock-flow-dash{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-528}}
+/* lower gates: open until 2.5 s */
+@keyframes canal-lock-lo-open{0%{opacity:1}22.73%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}24.2%,100%{opacity:0}}
+/* lower gates: closed from 2.5 s */
+@keyframes canal-lock-lo-shut{0%,24.55%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26.82%,100%{opacity:1}}
+/* upper gates: closed until 7.0 s */
+@keyframes canal-lock-up-shut{0%{opacity:1}63.64%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}65.11%,100%{opacity:0}}
+/* upper gates: open from 7.0 s */
+@keyframes canal-lock-up-open{0%,65.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.73%,100%{opacity:1}}
+/* valve closed until 3.1 s */
+@keyframes canal-lock-v-shut{0%{opacity:1}28.18%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}29.66%,100%{opacity:0}}
+/* valve open from 3.1 s */
+@keyframes canal-lock-v-open{0%,30%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.27%,100%{opacity:1}}
+/* chamber state: lower level */
+@keyframes canal-lock-lv0{0%{opacity:1}30.91%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.68%,100%{opacity:0}}
+/* chamber state: filling */
+@keyframes canal-lock-lv1{0%,32.73%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35.45%{opacity:1}58.18%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59.95%,100%{opacity:0}}
+/* chamber state: upper level */
+@keyframes canal-lock-lv2{0%,60%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.73%,100%{opacity:1}}
+/* ghost of the start level appears as the water leaves it */
+@keyframes canal-lock-ghost{0%,30.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.55%,100%{opacity:1}}
+/* lift dimension once the rise completes */
+@keyframes canal-lock-dim{0%,58.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.82%,100%{opacity:1}}
+/* shown 0.00 s - 3.00 s */
+@keyframes canal-lock-n0{0%{opacity:1}27.27%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}29.34%,100%{opacity:0}}
+/* shown 3.20 s - 6.60 s */
+@keyframes canal-lock-n1{0%,29.09%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.27%{opacity:1}60%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}62.07%,100%{opacity:0}}
+/* shown 6.80 s - 8.60 s */
+@keyframes canal-lock-n2{0%,61.82%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65%{opacity:1}78.18%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80.25%,100%{opacity:0}}
+/* final caption from 8.6 s */
+@keyframes canal-lock-n3{0%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.64%,100%{opacity:1}}
+
+.visible .anim-canal-lock .canal-lock-scene{animation:canal-lock-scene 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-boat{animation:canal-lock-boat 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-water{animation:canal-lock-water 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-surf{animation:canal-lock-surf 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-gate-lo{animation:canal-lock-gate-lo 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-gate-up{animation:canal-lock-gate-up 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-valve{animation:canal-lock-valve 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-flow{animation:canal-lock-flow 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-flow-dash{animation:canal-lock-flow-dash 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-lo-open{animation:canal-lock-lo-open 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-lo-shut{animation:canal-lock-lo-shut 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-up-shut{animation:canal-lock-up-shut 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-up-open{animation:canal-lock-up-open 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-v-shut{animation:canal-lock-v-shut 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-v-open{animation:canal-lock-v-open 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-lv0{animation:canal-lock-lv0 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-lv1{animation:canal-lock-lv1 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-lv2{animation:canal-lock-lv2 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-ghost{animation:canal-lock-ghost 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-dim{animation:canal-lock-dim 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-n0{animation:canal-lock-n0 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-n1{animation:canal-lock-n1 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-n2{animation:canal-lock-n2 11s linear infinite}
+.visible .anim-canal-lock .canal-lock-n3{animation:canal-lock-n3 11s linear infinite}
+
+@media (prefers-reduced-motion: reduce) { .anim-canal-lock * { animation: none !important; } }
+</style>
+<div class="anim anim-canal-lock" data-anim="canal-lock" data-anim-cycle="11" data-anim-control="loop">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cross-section of a canal lock: a boat enters the chamber at the lower level, the lower gates close, a filling valve lets water in from the upper canal, the chamber and boat rise, the upper gates open and the boat leaves one level higher.">
+<defs><clipPath id="canal-lock-clip"><rect x="0" y="0" width="1680" height="520"/></clipPath></defs>
+<g class="canal-lock-scene">
+  <!-- far walls and coping -->
+  <rect class="canal-lock-wall" x="24" y="270" width="484" height="150"/>
+  <rect class="canal-lock-wall" x="508" y="160" width="1148" height="280"/>
+  <path class="canal-lock-coping" d="M24 270 H508 V160 H1656"/>
+  <!-- boat, drawn at its final position in the upper canal; the water tints its hull -->
+  <g class="canal-lock-boat">
+    <path class="canal-lock-hull" d="M1266 182 H1514 L1490 222 H1290 Z"/>
+    <path class="canal-lock-deck" d="M1266 182 H1514"/>
+    <rect class="canal-lock-cabin" x="1296" y="146" width="112" height="36" rx="5"/>
+    <rect class="canal-lock-win" x="1310" y="155" width="22" height="14" rx="2"/>
+    <rect class="canal-lock-win" x="1342" y="155" width="22" height="14" rx="2"/>
+    <rect class="canal-lock-win" x="1374" y="155" width="22" height="14" rx="2"/>
+  </g>
+  <!-- water -->
+  <rect class="canal-lock-wat" x="24" y="320" width="484" height="100"/>
+  <rect class="canal-lock-wat canal-lock-water" x="508" y="200" width="664" height="240"/>
+  <rect class="canal-lock-wat" x="1172" y="200" width="484" height="130"/>
+  <path class="canal-lock-sf" d="M24 320 H508"/>
+  <path class="canal-lock-sf canal-lock-surf" d="M508 200 H1172"/>
+  <path class="canal-lock-sf" d="M1172 200 H1656"/>
+  <text class="canal-lock-mono" x="40" y="346">lower level</text>
+  <text class="canal-lock-mono" x="1640" y="226" text-anchor="end">upper level</text>
+  <!-- ghost of the start level and the lift -->
+  <g class="canal-lock-ghost">
+    <path class="canal-lock-gh" d="M536 320 H1144"/>
+    <text class="canal-lock-mono" x="552" y="346">start level</text>
+  </g>
+  <g class="canal-lock-dim">
+    <path class="canal-lock-dl" d="M1110 208 V312 M1102 216 L1110 206 L1118 216 M1102 304 L1110 314 L1118 304"/>
+    <text class="canal-lock-mono canal-lock-fgt" x="1096" y="267" text-anchor="end">lift</text>
+  </g>
+  <!-- gates: lift out of / sink into the sill; clipped above the caption strip -->
+  <g clip-path="url(#canal-lock-clip)">
+    <g class="canal-lock-gt canal-lock-gate-lo"><rect class="canal-lock-gp" x="508" y="180" width="24" height="260" rx="3"/><path class="canal-lock-gx" d="M508 246 H532 M508 312 H532 M508 378 H532"/></g>
+    <g class="canal-lock-gt canal-lock-gate-up"><rect class="canal-lock-gp" x="1148" y="180" width="24" height="260" rx="3"/><path class="canal-lock-gx" d="M1148 246 H1172 M1148 312 H1172 M1148 378 H1172"/></g>
+  </g>
+  <!-- ground with the filling culvert -->
+  <path class="canal-lock-ground" d="M24 420 H508 V440 H1172 V330 H1656 V520 H24 Z"/>
+  <path class="canal-lock-cv-o" d="M1360 330 V482 H1060 V440"/>
+  <path class="canal-lock-cv-i" d="M1360 330 V482 H1060 V440"/>
+  <g class="canal-lock-flow">
+    <path class="canal-lock-fd canal-lock-flow-dash" d="M1360 330 V482 H1060 V440"/>
+    <path class="canal-lock-fa" d="M1048 416 L1060 402 L1072 416 M1048 392 L1060 378 L1072 392"/>
+  </g>
+  <circle class="canal-lock-vh" cx="1250" cy="482" r="17"/>
+  <rect class="canal-lock-vb canal-lock-valve" x="1234" y="478" width="32" height="8" rx="3"/>
+  <text class="canal-lock-mono canal-lock-v-shut" x="1250" y="452" text-anchor="middle">valve closed</text>
+  <text class="canal-lock-mono canal-lock-cyt canal-lock-v-open" x="1250" y="452" text-anchor="middle">valve open</text>
+  <text class="canal-lock-mono" x="48" y="478">lower canal</text>
+  <text class="canal-lock-mono" x="760" y="490" text-anchor="middle">lock chamber</text>
+  <text class="canal-lock-mono" x="1640" y="380" text-anchor="end">upper canal</text>
+  <!-- gate and chamber status -->
+  <text class="canal-lock-t canal-lock-lbl" x="520" y="58" text-anchor="middle">Lower gates</text>
+  <path class="canal-lock-tick" d="M520 112 V172"/>
+  <g class="canal-lock-lo-open"><rect class="canal-lock-chip canal-lock-chip-ok" x="460" y="76" width="120" height="32" rx="16"/><text class="canal-lock-mono canal-lock-okt" x="520" y="98" text-anchor="middle">open</text></g>
+  <g class="canal-lock-lo-shut"><rect class="canal-lock-chip canal-lock-chip-q" x="460" y="76" width="120" height="32" rx="16"/><text class="canal-lock-mono canal-lock-fgt" x="520" y="98" text-anchor="middle">closed</text></g>
+  <text class="canal-lock-t canal-lock-lbl" x="1160" y="58" text-anchor="middle">Upper gates</text>
+  <path class="canal-lock-tick" d="M1160 112 V172"/>
+  <g class="canal-lock-up-open"><rect class="canal-lock-chip canal-lock-chip-ok" x="1100" y="76" width="120" height="32" rx="16"/><text class="canal-lock-mono canal-lock-okt" x="1160" y="98" text-anchor="middle">open</text></g>
+  <g class="canal-lock-up-shut"><rect class="canal-lock-chip canal-lock-chip-q" x="1100" y="76" width="120" height="32" rx="16"/><text class="canal-lock-mono canal-lock-fgt" x="1160" y="98" text-anchor="middle">closed</text></g>
+  <text class="canal-lock-t canal-lock-lbl" x="840" y="58" text-anchor="middle">Chamber</text>
+  <text class="canal-lock-mono canal-lock-lv0" x="840" y="98" text-anchor="middle">at lower level</text>
+  <text class="canal-lock-mono canal-lock-cyt canal-lock-lv1" x="840" y="98" text-anchor="middle">filling</text>
+  <text class="canal-lock-mono canal-lock-lv2" x="840" y="98" text-anchor="middle">at upper level</text>
+  <rect class="canal-lock-cap" x="24" y="536" width="1632" height="56" rx="8"/>
+  <text class="canal-lock-t canal-lock-note canal-lock-n0" x="840" y="572" text-anchor="middle">The boat enters at the lower level and the lower gates close</text>
+  <text class="canal-lock-t canal-lock-note canal-lock-n1" x="840" y="572" text-anchor="middle">The filling valve opens: water from the upper canal lifts the chamber</text>
+  <text class="canal-lock-t canal-lock-note canal-lock-n2" x="840" y="572" text-anchor="middle">Both levels match, so the upper gates can open</text>
+  <text class="canal-lock-t canal-lock-note canal-lock-n3" x="840" y="572" text-anchor="middle">The boat leaves one level higher; the dashed line marks where it started</text>
+</g>
+</svg>
+</div>

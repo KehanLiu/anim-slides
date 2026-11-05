@@ -53,7 +53,7 @@ marks, and anything not verified.
 
 ## Verify
 
-1. `python3 scripts/check_fragment.py <dir>/<name>.html --name <name> --rendered-width <w>`
+1. `python3 scripts/check_fragment.py <dir>/<name>.html --name <name> --rendered-width <w> --stage-width <stage>`
 2. `scripts/render-phases.sh <dir> <W> <H> <seconds from the plan> rest`
 3. Open every PNG with your image viewing tool. Fix clipping, overlap, unreadable text, empty panels.
    Re-render. Iterate at least once.

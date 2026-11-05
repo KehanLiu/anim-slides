@@ -51,8 +51,10 @@ title-less slide gains about 200 px of height.
   title + body 880 x 460, two columns 420 x 420, 60/40 split 520 x 440.
 - The 18 px floor in the contract is in stage pixels on a 1920-wide stage. When a deck scales a
   smaller stage up to the same screen, the equivalent floor is `18 * stage_width / 1920`
-  (12 px at 1280, 15 px at 1600, 10 px at 960, since the floor never goes below 10). Set it with
-  `check_fragment.py --min-text`.
+  (12 px at 1280, 15 px at 1600, 10 px at 960, since the floor never goes below 10). Pass the stage with
+  `check_fragment.py --stage-width W` (it derives the floor), or the floor with `--min-text`.
+- A 4:3 source (`aspect: "4:3"` in `outline.json`, stage 1920 x 1440) rebuilt on a 16:9 deck
+  gets new slots: measure the target deck's layout, not the source's.
 
 ## Rules of thumb
 
