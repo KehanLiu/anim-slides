@@ -138,8 +138,13 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 ## Hard rules
 - Keep the slide's visuals. A chart, graph, table, map, flowchart or scientific figure on the
   source slide is its core content: redraw it as SVG from its data (axes, scales, curves, labels)
-  and animate that, never replace it with a text summary. Only photos, logos and decorative clip
-  art may be left out. Render the source slide (`soffice --convert-to pdf`, then `pdftoppm`) and
+  and animate that, never replace it with a text summary. Illustrations that carry meaning stay
+  too: an icon or picture that labels a column, a lane, a category or an actor (a mascot per
+  option, a figure per role, an organ or object the slide is about) is content. Keep it by
+  embedding the source image in the host slide next to the fragment when the licence allows, or
+  by redrawing it as a simple SVG glyph in the same colours inside the fragment. Only a slide
+  background, a logo or a photo unrelated to the content may be left out; when unsure, keep it
+  and say so. Render the source slide (`soffice --convert-to pdf`, then `pdftoppm`) and
   look at it before writing the spec; `extract_slides.py` cannot see inside pictures.
 - Prefix every class, id and keyframe with `<name>-`. Host CSS has global `.bar .card .node
   .flow` rules and Chrome applies CSS width/height to SVG rects.

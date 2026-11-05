@@ -5,6 +5,11 @@ document) it illustrates. `scripts/verify_facts.py` checks the mechanical part; 
 the rendered slide check the rest.
 
 ## Rules
+0. **The slide's pictures are content until proven otherwise.** A chart or figure is redrawn
+   from its data. An illustration that distinguishes items (one bird per open-access model,
+   one figure per actor, an organ the slide is about) is kept: embed the source image beside
+   the fragment when the licence allows (credit it), or redraw it as a simple SVG glyph in the
+   same colours. Drop only backgrounds, logos and unrelated photos, and say what you dropped.
 1. **Numbers come from the source.** Every value, date, percentage, unit and axis value is on the
    slide, in its notes or tables, or in a figure you have read. If a value is a placeholder, the
    fragment itself says so in visible text ("illustrative values"); a comment is not enough.
