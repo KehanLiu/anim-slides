@@ -18,6 +18,9 @@ All notable changes to this project. Versions match `metadata.version` in `SKILL
   the fragment replaces and a reason; a skipped slide without a reason is a defect. On short
   decks the 3-to-8-per-30 budget is a floor. Driver: a 10-slide corporate deck came back with
   3 slides animated in place and the user saw "almost no change".
+- `extract_slides.py`: a `.step` inside a `<section>` or `.slide` is a build step, not a slide
+  (a 10-slide deck with stair `.step` divs came out as 16 entries); `.step` is a slide only at
+  impress.js top level.
 
 ## 0.6.1 - 2026-11-05
 

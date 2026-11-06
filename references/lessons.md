@@ -84,3 +84,15 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
 
 - Numbers in illustrations are usually illustrative; say so on the slide or in the speaker notes.
 - Keep the story plausible to a domain expert in the audience; put the explanation in the notes.
+
+## Host decks
+
+- A branded deck full of rounded panels tempts the builder to redraw the panels in SVG and
+  animate the wires between them; the user then sees "almost no change". The host theme gives
+  colours and fonts only; the boxes become rings and labels on lines (style.md, "Under a host
+  theme"), and the brief names what the fragment replaces.
+- `render-phases.sh --page --no-script` shows blank frames on decks whose own script both adds
+  the gate class and fills images; render from a scratch copy that marks every slide current
+  and disables animation (what print mode does), never from an edited deck.
+- `.step` divs inside a `.slide` are build steps (stairs, reveals), not slides;
+  `extract_slides.py` treats `.step` as a slide only at impress.js top level.

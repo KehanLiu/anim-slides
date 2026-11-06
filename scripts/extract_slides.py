@@ -295,10 +295,13 @@ class TreeBuilder(HTMLParser):
 
 
 def container_kind(n):
-    """'strong' for <section>/.slide/.step, 'weak' for other class*="slide"."""
+    """'strong' for <section>/.slide, 'step' for .step (impress.js slides, but
+    build steps inside a slide), 'weak' for other class*="slide"."""
     cls = n.classes
-    if n.tag == "section" or "slide" in cls or "step" in cls:
+    if n.tag == "section" or "slide" in cls:
         return "strong"
+    if "step" in cls:
+        return "step"
     if any("slide" in c for c in cls):
         return "weak"
     return None
@@ -306,7 +309,9 @@ def container_kind(n):
 
 def leaf_containers(node):
     """Innermost slide containers; a strong container whose only nested
-    containers are weak (e.g. .slide > .slide-content) is itself the slide."""
+    containers are weak (e.g. .slide > .slide-content) or steps (a stair of
+    .step divs inside one .slide) is itself the slide. A .step is a slide only
+    when no <section>/.slide encloses it (impress.js); nested steps are sub-steps."""
     out = []
     for child in node.children:
         if not isinstance(child, Node):
