@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.6.1"
+  version: "0.7.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
@@ -36,7 +36,16 @@ Decide which of the three entry points applies:
 - **Existing deck**: run `python3 <skill-dir>/scripts/extract_slides.py deck.pptx|deck.html|doc.md -o anim/outline.json`
   and `python3 <skill-dir>/scripts/render_deck.py deck -o anim/render`, then look at the
   `sheet-NN.png` contact sheets (12 numbered slides each), not page by page; then
-  triage with `references/input-stage.md` (3 to 8 illustrations per 30 slides is normal).
+  triage with `references/input-stage.md` and write the table to `anim/triage.md`: every
+  slide, a decision and a reason, no silent skips (3 to 8 illustrations per 30 slides is
+  normal; on a short deck every process, structure, timeline, comparison or data slide gets one).
+  Then settle the **look** once for the whole deck: **match** (fragments take the host's
+  palette and fonts, the default for branded or corporate decks) or **lean** (fragments keep the
+  lean palette on a dark ground, for talks and pitches). `python3 <skill-dir>/scripts/host_theme.py deck.html --mode match -o anim/host-theme.css`
+  derives the match glue from the deck's CSS (`--mode lean` writes the lean glue); render the
+  first fragment both ways (`render-phases.sh --theme anim/host-theme.css ...`) and show the
+  two stills before building the rest, unless the user already named a look. Only colours and
+  fonts change between the two: the shape rules of `references/style.md` hold in both.
 - **Markdown or remark deck with no HTML yet**: `python3 <skill-dir>/scripts/md_to_deck.py deck.md -o deck.html`
   makes a self-contained HTML deck (one `<section>` per slide, `.visible` gating, print layout,
   `<!-- sN-body -->` markers round each slide's body); fetch the images the Markdown references
@@ -71,7 +80,8 @@ Measure the free box on the slide: `python3 <skill-dir>/scripts/measure_slot.py 
 prints the box in stage pixels, a matching viewBox and the checker flags (`references/layouts.md`
 explains the manual way). Pick a viewBox with the same aspect
 ratio, and fill `anim/<name>/brief.md` from `references/brief-template.md`. The brief fixes
-viewBox and rendered size, composition, phases, resting frame, theme tokens and min text size.
+viewBox and rendered size, composition, phases, resting frame, theme tokens and min text size,
+and names what on the slide the fragment replaces (the pills, the box diagram, the bullet column).
 The quality of the fragment tracks the quality of the brief.
 
 ### 3. Build
@@ -153,7 +163,12 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - Prefix every class, id and keyframe with `<name>-`. Host CSS has global `.bar .card .node
   .flow` rules and Chrome applies CSS width/height to SVG rects.
 - No hard-coded colours or fonts: use `var(--anim-*)` tokens with the fallback block from the
-  contract. Hosts retheme with `--anim-theme-*`.
+  contract. Hosts retheme with `--anim-theme-*` (`scripts/host_theme.py` writes the block).
+  A host theme changes colours and fonts only; it never brings the deck's cards, pills or
+  panels back into the fragment.
+- Make a visible change. A fragment replaces the slide's cards, pills, bullet columns or HTML
+  diagram with an illustration. Motion laid over the slide's existing drawing, with the boxes
+  left in place, is not an illustration; if nothing else is possible, the brief says why.
 - Animate only under the gate (`.visible` when authoring). The ungated state is the finished
   state.
 - No `<script>`, `<link>`, `<image>`, `@import`, `@font-face` inside a fragment (step mode adds
@@ -178,6 +193,7 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `references/lessons.md` — gotchas collected while building fragments
 - `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions
 - `scripts/render_deck.py` — source deck to contact sheets (12 slides each) plus full-size pages for candidates
+- `scripts/host_theme.py` — host glue: `--anim-theme-*` block derived from the deck's CSS (match) or the lean palette (lean)
 - `scripts/md_to_deck.py` — Markdown or remark deck to a self-contained HTML deck to integrate into
 - `scripts/scaffold_from_spec.py` — spec validation and spec to skeleton fragment (loop or step); YAML or JSON, PyYAML optional
 - `scripts/check_fragment.py` — static contract checks

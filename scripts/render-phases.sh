@@ -2,8 +2,8 @@
 # Render phase frames of a CSS-animated fragment or host page with headless Chrome, plus a contact sheet.
 #
 # Usage:
-#   render-phases.sh [--out DIR] <fragment-dir | fragment.html> <W> <H> <seconds...> [rest]
-#   render-phases.sh [--out DIR] --page <page.html> [--slide N|#hash|selector] [--no-script] <W> <H> <seconds...> [rest]
+#   render-phases.sh [--out DIR] [--theme FILE] <fragment-dir | fragment.html> <W> <H> <seconds...> [rest]
+#   render-phases.sh [--out DIR] [--theme FILE] --page <page.html> [--slide N|#hash|selector] [--no-script] <W> <H> <seconds...> [rest]
 #
 #   Fragment mode: a directory means <dir>/<basename of dir>.html (or the only .html in it);
 #   a file path is used as is. The fragment is wrapped in <section class="$GATE"> of W x H.
@@ -31,6 +31,13 @@
 #   "rest" renders the ungated resting frame (what PDF export sees).
 #   contact.png puts all rendered phases side by side with their labels.
 #
+#   --theme FILE  a host theme CSS file (host_theme.py output: match or lean), injected as a
+#              <style> into the preview head, before the fragment's own style (same as THEME_CSS).
+#              Fragment mode: the wrapper <section> also gets class anim-lean, and the page
+#              background becomes var(--anim-theme-bg, BG), so a match theme shows on the host
+#              ground and a lean theme on the lean ground. Render one fragment twice
+#              (--theme match.css, --theme lean.css, separate --out) for the intake sample.
+#
 #   --out DIR  where preview-*.html, phase-*.png and contact.* go (created if missing).
 #              Default: a new temp directory, printed at the start and the end. The source
 #              folder is never written to unless you pass it as --out.
@@ -40,15 +47,16 @@
 #   BG         fragment mode: page background behind the fragment (default #0F1E27 = --anim-bg fallback)
 #   GATE       gate class (default visible): put on the wrapper in fragment mode, stripped for rest in page mode
 #   FONTS_CSS  a <link> or <style> string injected into the preview head (host fonts)
-#   THEME_CSS  path to a CSS file injected into the preview (e.g. :root{--anim-theme-*:...})
+#   THEME_CSS  path to a CSS file injected into the preview (e.g. :root{--anim-theme-*:...});
+#              --theme FILE overrides it
 #
 # Method: a preview copy with negative animation-delay + animation-play-state: paused,
 # which freezes every CSS animation exactly at second N of its cycle.
 # Do NOT use --virtual-time-budget: it desyncs compositor and main-thread animations.
 # No GIF output: that needs an encoder (ffmpeg, ImageMagick) this script does not depend on.
 set -euo pipefail
-USAGE="usage: $0 [--out DIR] <fragment-dir|fragment.html> <W> <H> <seconds...> [rest]
-       $0 [--out DIR] --page <page.html> [--slide N|#hash|selector] [--no-script] <W> <H> <seconds...> [rest]"
+USAGE="usage: $0 [--out DIR] [--theme FILE] <fragment-dir|fragment.html> <W> <H> <seconds...> [rest]
+       $0 [--out DIR] [--theme FILE] --page <page.html> [--slide N|#hash|selector] [--no-script] <W> <H> <seconds...> [rest]"
 
 OUT=""; PAGE=""; SLIDE=""; NOSCRIPT=""; ARGS=()
 while [ $# -gt 0 ]; do
@@ -60,6 +68,8 @@ while [ $# -gt 0 ]; do
     --slide) [ $# -ge 2 ] || { echo "$USAGE" >&2; exit 2; }; SLIDE="$2"; shift 2 ;;
     --slide=*) SLIDE="${1#--slide=}"; shift ;;
     --no-script) NOSCRIPT=1; shift ;;
+    --theme) [ $# -ge 2 ] || { echo "$USAGE" >&2; exit 2; }; THEME_CSS="$2"; shift 2 ;;
+    --theme=*) THEME_CSS="${1#--theme=}"; shift ;;
     -h|--help) echo "$USAGE"; exit 0 ;;
     --) shift; ARGS+=("$@"); break ;;
     -*) echo "unknown option $1" >&2; echo "$USAGE" >&2; exit 2 ;;
@@ -137,6 +147,7 @@ if [ -z "$CHROME" ] || ! { [ -x "$CHROME" ] || command -v "$CHROME" >/dev/null 2
 fi
 
 BG="${BG:-#0F1E27}"
+PAGE_BG="$BG"; WRAP_CLASS=""
 GATE="${GATE:-visible}"
 [[ "$GATE" =~ ^[A-Za-z_][A-Za-z0-9_-]*$ ]] || { echo "GATE must be a single class name" >&2; exit 2; }
 FONTS_CSS="${FONTS_CSS:-}"
@@ -144,6 +155,7 @@ THEME=""
 if [ -n "${THEME_CSS:-}" ]; then
   [ -f "$THEME_CSS" ] || { echo "THEME_CSS file not found: $THEME_CSS" >&2; exit 1; }
   THEME="<style>$(cat "$THEME_CSS")</style>"
+  PAGE_BG="var(--anim-theme-bg,$BG)"; WRAP_CLASS="anim-lean"  # lean themes scope to .anim-lean
 fi
 BASE="<base href=\"file://$SRCDIR/\">"  # previews live in OUT; relative assets still resolve
 
@@ -157,8 +169,8 @@ pause_css() { echo ".$GATE *{animation-delay:-${1}s !important;animation-play-st
 make_fragment_preview() {  # $1 = output file, $2 = section class, $3 = extra style
   {
     echo "<!doctype html><meta charset=utf-8>$BASE$FONTS_CSS$THEME"
-    echo "<style>html,body{margin:0;background:$BG}section{width:${W}px;height:${H}px}$3</style>"
-    echo "<section class=\"$2\">"; cat "$SRC"; echo "</section>"
+    echo "<style>html,body{margin:0;background:$PAGE_BG}section{width:${W}px;height:${H}px}$3</style>"
+    echo "<section class=\"$(echo $2 $WRAP_CLASS)\">"; cat "$SRC"; echo "</section>"
   } > "$1"
 }
 

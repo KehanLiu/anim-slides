@@ -61,6 +61,11 @@ when the host defines the same variables on `:root` or on the slide.
 
 - Inside the SVG use only `var(--anim-*)` for `fill`, `stroke`, `color`, `font-family`.
 - Hosts override by setting `--anim-theme-*` once. A light theme is just different values.
+  `scripts/host_theme.py DECK.html --mode match|lean` writes that block (match: the deck's palette
+  and fonts on `:root`; lean: the lean values plus the lean ground on `.anim-lean` slides) and
+  `--apply` puts it between `<!-- anim-theme:start/end -->` markers in the deck head.
+  `scripts/render-phases.sh --theme FILE` renders a fragment under such a block, so one fragment
+  can be shown in both looks at intake.
 - Opacity variants are made with `opacity` or `color-mix()`, not with extra hex literals.
 - The checker flags any hex literal or named colour inside the fragment except in the token block.
   It does not check `font-family`; authors must still use `var(--anim-font)` / `var(--anim-mono)`.

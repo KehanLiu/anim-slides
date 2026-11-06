@@ -2,6 +2,23 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.7.0 - 2026-11-06
+
+- **One look per deck: match or lean.** Intake now settles whether fragments take the host's
+  palette and fonts (match, the default for branded decks) or keep the lean palette on a dark
+  ground (lean), and shows the first fragment both ways before building the rest. New
+  `scripts/host_theme.py` derives the `--anim-theme-*` block from a deck's CSS (`--mode match`)
+  or writes the lean block (`--mode lean`), with `--apply` into the deck head between markers.
+  `render-phases.sh --theme FILE` renders a fragment under a theme file.
+- **Visible change rule.** A fragment replaces the slide's cards, pills, bullet column or HTML
+  diagram; motion laid over the existing drawing with the boxes left in place is not allowed
+  without a stated reason. A host theme changes colours and fonts only; the shape rules of
+  `references/style.md` hold under any palette ("Under a host theme" section).
+- **Triage is written down.** `anim/triage.md` lists every slide with a decision, the element
+  the fragment replaces and a reason; a skipped slide without a reason is a defect. On short
+  decks the 3-to-8-per-30 budget is a floor. Driver: a 10-slide corporate deck came back with
+  3 slides animated in place and the user saw "almost no change".
+
 ## 0.6.1 - 2026-11-05
 
 - `scripts/render_deck.py`: contact sheets of the source deck (12 numbered slides per sheet,

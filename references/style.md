@@ -46,6 +46,17 @@ background `#0F1E27`, panel `#0D1820` (used only for the rare container), line `
 foreground `#E6EDF0`, muted `#93A7B2`, accent `#34D1BF`, accent-2 `#FF8A3D`, ok `#8ED7AD`,
 warn `#FFD15C`, danger `#FF6B6B`. Hosts retheme through `--anim-theme-*`.
 
+## Under a host theme
+
+When the deck keeps its own look (the **match** look, `scripts/host_theme.py --mode match`),
+the host supplies the twelve token values and nothing else. Every principle above still holds:
+a corporate deck full of rounded panels and coloured pills gets rings, labels on lines and
+hairline brackets drawn in its blue and its font, not its panels redrawn in SVG. The test is
+the before/after pair: if the resting frame looks like the old slide with the same boxes, the
+fragment has copied the host's style instead of adopting its colours. On a white ground the
+glow is the accent copy at about 30 % opacity with blur, lines go darker (`--anim-line` around
+`#C3CFDC` on white), and the one accent is the brand's primary colour.
+
 ## Anatomy by archetype
 
 - **pipeline**: steps are labels on a single horizontal line with small ring markers; the

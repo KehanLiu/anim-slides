@@ -36,9 +36,11 @@ e.g. "box `build` at x 40 y 120 w 220 h 120; wire build->test along y 180".>
 - **Control:** loop | step (step only for 4+ narrated phases)
 
 ## Theme
-- default `--anim-*` tokens, or the host's `--anim-theme-*` values: <list or "host defines them">
+- **Look:** match | lean (one choice per deck; see input-stage.md "Look")
+- default `--anim-*` tokens, or the host's `--anim-theme-*` values: <list, or "anim/host-theme.css">
 - Colour roles: <which token marks what, e.g. `--anim-accent` = active item, `--anim-ok` = passed>
 - **Font hints:** <host font names to set as `--anim-theme-font` / `--anim-theme-mono`, or "system">
+- **Replaces:** <the slide element that goes away: the four cards, the tag pills, the HTML diagram>
 
 ## Verification plan
 - Seconds to render: <t1 t2 t3 ... rest> (one per phase, plus `rest`)

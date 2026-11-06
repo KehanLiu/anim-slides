@@ -94,21 +94,51 @@ Keep as text:
 
 Budget:
 - 3 to 8 illustrations per 30 slides is normal. One per section is a good rhythm.
+- On a short deck (under about 15 slides) the budget is a floor, not a cap: every slide whose
+  content is a process, a structure, a timeline, a comparison or a data series gets one. A
+  10-slide deck with 3 animated slides is the usual reason a user says "I see almost no change".
 - Animating every slide is a mistake: motion stops meaning "look here".
 - Never two animated slides in a row unless they are the same story split in two.
 - Prefer the slides the speaker spends longest on (long notes, many bullets, a diagram image).
 - Rank by: strength of signal x speaker time x how much a still fails to explain it. Take the
   top of the list up to the budget; mark the rest **maybe** and show them to the user.
 
-Present the triage as a table before building:
+Write the triage to `anim/triage.md` before building, every slide on its own row, and keep it
+with the work folder:
 
-| Slide | Title | Decision | Archetype | Why |
-|---|---|---|---|---|
-| 3 | Release process | illustrate | pipeline | 4 ordered steps, speaker stresses QA gate |
-| 7 | Our values | text | - | single statement |
+| Slide | Title | Decision | Archetype | Replaces | Why |
+|---|---|---|---|---|---|
+| 3 | Release process | illustrate | pipeline | the four step cards | 4 ordered steps, speaker stresses QA gate |
+| 7 | Our values | text | - | - | single statement |
+
+A **text** row needs a reason from the "keep as text" list above; a row without one is a
+silent skip and a defect. "Replaces" names the element on the slide that goes away (cards,
+pills, a bullet column, an HTML diagram). A fragment that adds motion over the slide's existing
+drawing and leaves the boxes in place replaces nothing; it is allowed only with a reason in
+this column.
 
 Unless the user asked for silent operation, wait for a yes / edits on this table. It is the
 cheapest point to correct course.
+
+### Look: match or lean
+
+Settle this once per deck, right after triage, before any fragment is built:
+
+- **match** (default for branded, corporate and course decks): fragments take the host's
+  palette and fonts. `python3 scripts/host_theme.py deck.html --mode match -o anim/host-theme.css`
+  reads the deck's CSS variables and most used colours and writes the `--anim-theme-*` block;
+  check its table against a slide, then `--apply` it to the deck head (markers, idempotent).
+- **lean** (talks, pitches, decks with no brand rules): fragments keep the lean palette and the
+  animated slides get a dark ground. `--mode lean` writes a `.anim-lean` block; add that class
+  to each slide that carries a fragment.
+
+Only colours and fonts differ between the two. The shape rules in [style.md](style.md) hold in
+both: rings and labels on lines, hairline brackets, one lit accent, space. A match theme never
+licenses filled cards or pills because the deck has them.
+
+Build the first fragment, render it under both (`render-phases.sh --theme anim/host-theme.css`
+and `--theme anim/lean-theme.css`), and show the two stills to the user with one sentence each.
+If the user named a look already, skip the question and note the choice in `BRIEF.md`.
 
 ## 4. Slide -> spec -> brief
 

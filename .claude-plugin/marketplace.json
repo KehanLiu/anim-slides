@@ -10,7 +10,7 @@
       "name": "anim-slides",
       "source": "./",
       "description": "Turn boring slides into animation-rich HTML; build animated process, dependency, timeline and comparison illustrations from docs.",
-      "version": "0.6.1",
+      "version": "0.7.0",
       "author": {
         "name": "Kehan Liu"
       },

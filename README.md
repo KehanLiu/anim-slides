@@ -62,6 +62,10 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
   emits it.
 - **Themed by variables.** Fragments read `--anim-theme-*` CSS variables and carry neutral
   fallbacks, so one `:root` rule rethemes every illustration to your brand.
+- **Match or lean.** At intake the skill settles one look per deck: *match* keeps your deck's
+  palette and fonts (`scripts/host_theme.py` derives the rule from the deck's CSS), *lean*
+  puts the illustrations on their own dark ground. Shapes stay lean either way: a branded
+  deck gets rings and lines in its own blue, not its cards redrawn.
 - **Safe to paste.** Every class, id and keyframe is prefixed, so nothing collides with the deck's
   own CSS.
 - **Plays only when shown.** Animations are gated on the active slide and the resting frame is
@@ -230,6 +234,10 @@ A fragment adds motion, not facts. The skill is built to keep it that way:
 ```
 
 These values equal the built-in fallbacks, so a host only overrides what differs.
+`python3 scripts/host_theme.py deck.html --mode match` reads a deck's CSS variables and most
+used colours and prints this block filled with the deck's own values (`--apply deck.html`
+inserts it between markers); `--mode lean` writes the lean palette scoped to a `.anim-lean`
+slide class for decks that should keep their own look everywhere else.
 
 ## Repository layout
 
