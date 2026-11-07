@@ -18,8 +18,10 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
 - `pathLength="100"` (or 1000) on a path normalises dasharray maths, so every draw-on uses the
   same numbers.
 - `offset-path: path(...)` plus `offset-distance` moves packets along wires with no JS.
-- Give every element its own full-cycle keyframe track instead of `animation-delay`. Delays break
-  clean loop restarts and make negative-delay phase rendering wrong.
+- Give every element its own full-pass keyframe track instead of `animation-delay`, in every
+  control: `render-phases.sh` overrides delays when it pauses frames, so delayed tracks render
+  at the wrong time, and under `loop` delays also break clean restarts. Many tracks are fine;
+  the checker measures how many things move at the same instant, not how many tracks exist.
 - When lines attach to a shape that later splits or moves in parts (a bar, a group), end each line
   inside the part it belongs to so the split needs no re-attachment.
 
@@ -57,7 +59,7 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
   prints as a blank box.
 - Independent fragments can be built in parallel (one agent per fragment, shared brief);
   integrate them in one pass afterwards.
-- Anything that loops longer than 5 s needs a way for the presenter to pause it.
+- Anything that loops needs a way for the presenter to pause it; the default is a single pass that ends on the resting frame, so nothing moves while the presenter talks.
 
 ## Legibility
 
@@ -96,3 +98,6 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
   and disables animation (what print mode does), never from an edited deck.
 - `.step` divs inside a `.slide` are build steps (stairs, reveals), not slides;
   `extract_slides.py` treats `.step` as a slide only at impress.js top level.
+- A rebuilt figure can be accurate and still wrong: a staircase re-plotted as a glowing line
+  chart with brackets and arrows was rejected as "too much". Keep the slide's figure form and
+  add one movement; the checker measures how many things move and glow at once and catches the rest.

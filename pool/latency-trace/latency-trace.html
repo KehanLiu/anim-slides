@@ -1,6 +1,6 @@
-<!-- latency-trace: chart archetype (scrolling strip), lean restyle (references/style.md).
-  14 s seamless loop, 45 px of trace per second: deploy v2.4 reaches now at 3.0 s, alert 4.6 s,
-  rollback 6.5 s, SLO met again 8.5 s; the strip content repeats every 630 px -->
+<!-- latency-trace: chart archetype (strip chart), lean restyle (references/style.md).
+  Once-play, 10 s pass: the strip rests at its final window and the trace draws left to right up to "now"
+  (70 px/s): deploy v2.4 at 3.84 s, alert 4.87 s, rollback 6.09 s, SLO met again 7.38 s, hold from 9 s -->
 <style>
 .anim-latency-trace {
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -41,51 +41,63 @@
 .anim-latency-trace .latency-trace-alert-dot{fill:var(--anim-danger);stroke:var(--anim-bg);stroke-width:2}
 .anim-latency-trace .latency-trace-tagbox{fill:none;stroke:var(--anim-line);stroke-width:2}
 
-/* resting frame (no .visible): the strip at second 11, whole incident in the window, back on v2.3 */
+/* resting frame (no .visible): the whole incident in the window, back on v2.3 (= end of the pass) */
 .anim-latency-trace .latency-trace-g{transform:translateX(-495px)}
 .anim-latency-trace .latency-trace-head-g{transform:translateY(332.3px)}
 .anim-latency-trace .latency-trace-alt{opacity:0}
 .anim-latency-trace .latency-trace-base{opacity:1}
 
-/* ---- motion, only when the slide is visible (cycle 14 s; 45 px of trace per second) ---- */
-.visible .anim-latency-trace .latency-trace-g{animation:latency-trace-scroll 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-head-g{animation:latency-trace-head 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-v0{animation:latency-trace-v0 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-v1{animation:latency-trace-v1 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-s0{animation:latency-trace-s0 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-s1{animation:latency-trace-s1 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-s2{animation:latency-trace-s2 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-r0{animation:latency-trace-r0 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-r1{animation:latency-trace-r1 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-r2{animation:latency-trace-r2 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-r3{animation:latency-trace-r3 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-r4{animation:latency-trace-r4 14s linear infinite}
-.visible .anim-latency-trace .latency-trace-r5{animation:latency-trace-r5 14s linear infinite}
+/* ---- motion, only when the slide is visible: one 10 s pass, played once ----
+  the trace draws left to right at 70 px/s (clip width 0 -> 630 by 9 s) while the head rides it; leaders and the alert dot draw with the strip, the tags fade in as the head reaches them;
+  deploy v2.4 at 3.84 s, alert 4.87 s, rollback 6.09 s, SLO met again 7.38 s; 9-10 s hold on the resting frame */
+.visible .anim-latency-trace .latency-trace-cliprect{animation:latency-trace-draw 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-head-g{animation:latency-trace-head 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-v0{animation:latency-trace-v0 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-v1{animation:latency-trace-v1 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-s0{animation:latency-trace-s0 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-s1{animation:latency-trace-s1 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-s2{animation:latency-trace-s2 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-r0{animation:latency-trace-r0 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-r1{animation:latency-trace-r1 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-r2{animation:latency-trace-r2 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-r5{animation:latency-trace-r5 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-r4{animation:latency-trace-r4 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-r3{animation:latency-trace-r3 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-tg0{animation:latency-trace-tg0 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-tg1{animation:latency-trace-tg1 10s linear 1 forwards}
+.visible .anim-latency-trace .latency-trace-tg2{animation:latency-trace-tg2 10s linear 1 forwards}
 
-@keyframes latency-trace-scroll{from{transform:translateX(0)}to{transform:translateX(-630px)}}
-/* head dot rides the trace at the "now" edge: one stop per second trace vertex */
-@keyframes latency-trace-head{0.00%{transform:translateY(333.4px)}2.00%{transform:translateY(330.8px)}4.00%{transform:translateY(331.7px)}6.00%{transform:translateY(335.4px)}8.00%{transform:translateY(335.6px)}10.00%{transform:translateY(335.4px)}12.00%{transform:translateY(332.6px)}14.00%{transform:translateY(334.9px)}16.00%{transform:translateY(331.0px)}18.00%{transform:translateY(331.4px)}20.00%{transform:translateY(328.3px)}22.00%{transform:translateY(329.2px)}24.00%{transform:translateY(328.3px)}26.00%{transform:translateY(307.1px)}28.00%{transform:translateY(279.7px)}30.00%{transform:translateY(244.4px)}32.00%{transform:translateY(214.9px)}34.00%{transform:translateY(195.2px)}36.00%{transform:translateY(178.4px)}38.00%{transform:translateY(181.3px)}40.00%{transform:translateY(179.8px)}42.00%{transform:translateY(176.0px)}44.00%{transform:translateY(182.0px)}46.00%{transform:translateY(179.0px)}48.00%{transform:translateY(183.1px)}50.00%{transform:translateY(200.3px)}52.00%{transform:translateY(232.7px)}54.00%{transform:translateY(266.5px)}56.00%{transform:translateY(297.8px)}58.00%{transform:translateY(316.3px)}60.00%{transform:translateY(328.2px)}62.00%{transform:translateY(330.5px)}64.00%{transform:translateY(331.4px)}66.00%{transform:translateY(329.3px)}68.00%{transform:translateY(332.2px)}70.00%{transform:translateY(335.4px)}72.00%{transform:translateY(330.9px)}74.00%{transform:translateY(329.5px)}76.00%{transform:translateY(332.9px)}78.00%{transform:translateY(335.7px)}80.00%{transform:translateY(334.6px)}82.00%{transform:translateY(335.4px)}84.00%{transform:translateY(334.9px)}86.00%{transform:translateY(332.9px)}88.00%{transform:translateY(335.3px)}90.00%{transform:translateY(331.6px)}92.00%{transform:translateY(329.5px)}94.00%{transform:translateY(333.7px)}96.00%{transform:translateY(333.1px)}98.00%{transform:translateY(328.4px)}100.00%{transform:translateY(333.4px)}}
-/* release chip: deploy v2.4 reaches "now" at 3.0 s, rollback at 6.5 s */
-@keyframes latency-trace-v0{0%,21.1%{opacity:1}21.4%,46.1%{opacity:0}46.4%,100%{opacity:1}}
-@keyframes latency-trace-v1{0%,21.1%{opacity:0}21.4%,46.1%{opacity:1}46.4%,100%{opacity:0}}
-/* status chip: alert at 4.6 s, rolling back 6.5 s, SLO met again at 8.5 s */
-@keyframes latency-trace-s0{0%,32.5%{opacity:1}32.9%,60.4%{opacity:0}60.7%,100%{opacity:1}}
-@keyframes latency-trace-s1{0%,32.5%{opacity:0}32.9%,46.1%{opacity:1}46.4%,100%{opacity:0}}
-@keyframes latency-trace-s2{0%,46.1%{opacity:0}46.4%,60.4%{opacity:1}60.7%,100%{opacity:0}}
+
+/* clip grows with the head: 0 s width 0, 9 s full window (= resting frame) */
+@keyframes latency-trace-draw{0%{width:0}90%,100%{width:630px}}
+/* head dot at the drawing edge: one stop per trace vertex; 9 s = resting position at "now" */
+@keyframes latency-trace-head{0.00%{transform:translate(-630.0px,333.8px)}0.39%{transform:translate(-627.3px,332.3px)}1.29%{transform:translate(-621.0px,334.6px)}2.19%{transform:translate(-614.7px,335.0px)}3.09%{transform:translate(-608.4px,335.4px)}3.99%{transform:translate(-602.1px,329.9px)}4.89%{transform:translate(-595.8px,334.9px)}5.79%{transform:translate(-589.5px,334.0px)}6.69%{transform:translate(-583.2px,332.9px)}7.59%{transform:translate(-576.9px,329.1px)}8.49%{transform:translate(-570.6px,335.3px)}9.39%{transform:translate(-564.3px,332.4px)}10.29%{transform:translate(-558.0px,331.6px)}11.19%{transform:translate(-551.7px,329.0px)}12.09%{transform:translate(-545.4px,329.5px)}12.99%{transform:translate(-539.1px,329.2px)}13.89%{transform:translate(-532.8px,333.7px)}14.79%{transform:translate(-526.5px,332.7px)}15.69%{transform:translate(-520.2px,333.1px)}16.59%{transform:translate(-513.9px,329.0px)}17.49%{transform:translate(-507.6px,328.4px)}18.39%{transform:translate(-501.3px,334.7px)}19.29%{transform:translate(-495.0px,333.4px)}20.19%{transform:translate(-488.7px,334.7px)}21.09%{transform:translate(-482.4px,330.8px)}21.99%{transform:translate(-476.1px,335.3px)}22.89%{transform:translate(-469.8px,331.7px)}23.79%{transform:translate(-463.5px,333.0px)}24.69%{transform:translate(-457.2px,335.4px)}25.59%{transform:translate(-450.9px,331.9px)}26.49%{transform:translate(-444.6px,335.6px)}27.39%{transform:translate(-438.3px,332.5px)}28.29%{transform:translate(-432.0px,335.4px)}29.19%{transform:translate(-425.7px,335.2px)}30.09%{transform:translate(-419.4px,332.6px)}30.99%{transform:translate(-413.1px,329.5px)}31.89%{transform:translate(-406.8px,334.9px)}32.79%{transform:translate(-400.5px,334.2px)}33.69%{transform:translate(-394.2px,331.0px)}34.59%{transform:translate(-387.9px,328.5px)}35.49%{transform:translate(-381.6px,331.4px)}36.39%{transform:translate(-375.3px,332.8px)}37.29%{transform:translate(-369.0px,328.3px)}38.19%{transform:translate(-362.7px,335.5px)}39.09%{transform:translate(-356.4px,329.2px)}39.99%{transform:translate(-350.1px,332.3px)}40.89%{transform:translate(-343.8px,328.3px)}41.79%{transform:translate(-337.5px,319.9px)}42.69%{transform:translate(-331.2px,307.1px)}43.59%{transform:translate(-324.9px,289.7px)}44.49%{transform:translate(-318.6px,279.7px)}45.39%{transform:translate(-312.3px,260.8px)}46.29%{transform:translate(-306.0px,244.4px)}47.19%{transform:translate(-299.7px,230.9px)}48.09%{transform:translate(-293.4px,214.9px)}48.99%{transform:translate(-287.1px,205.8px)}49.89%{transform:translate(-280.8px,195.2px)}50.79%{transform:translate(-274.5px,186.3px)}51.69%{transform:translate(-268.2px,178.4px)}52.59%{transform:translate(-261.9px,180.0px)}53.49%{transform:translate(-255.6px,181.3px)}54.39%{transform:translate(-249.3px,178.3px)}55.29%{transform:translate(-243.0px,179.8px)}56.19%{transform:translate(-236.7px,181.4px)}57.09%{transform:translate(-230.4px,176.0px)}57.99%{transform:translate(-224.1px,177.1px)}58.89%{transform:translate(-217.8px,182.0px)}59.79%{transform:translate(-211.5px,178.4px)}60.69%{transform:translate(-205.2px,179.0px)}61.59%{transform:translate(-198.9px,177.2px)}62.49%{transform:translate(-192.6px,183.1px)}63.39%{transform:translate(-186.3px,194.7px)}64.29%{transform:translate(-180.0px,200.3px)}65.19%{transform:translate(-173.7px,220.3px)}66.09%{transform:translate(-167.4px,232.7px)}66.99%{transform:translate(-161.1px,245.7px)}67.89%{transform:translate(-154.8px,266.5px)}68.79%{transform:translate(-148.5px,279.5px)}69.69%{transform:translate(-142.2px,297.8px)}70.59%{transform:translate(-135.9px,306.1px)}71.49%{transform:translate(-129.6px,316.3px)}72.39%{transform:translate(-123.3px,325.9px)}73.29%{transform:translate(-117.0px,328.2px)}74.19%{transform:translate(-110.7px,333.5px)}75.09%{transform:translate(-104.4px,330.5px)}75.99%{transform:translate(-98.1px,331.3px)}76.89%{transform:translate(-91.8px,331.4px)}77.79%{transform:translate(-85.5px,332.3px)}78.69%{transform:translate(-79.2px,329.3px)}79.59%{transform:translate(-72.9px,328.5px)}80.49%{transform:translate(-66.6px,332.2px)}81.39%{transform:translate(-60.3px,330.7px)}82.29%{transform:translate(-54.0px,335.4px)}83.19%{transform:translate(-47.7px,330.4px)}84.09%{transform:translate(-41.4px,330.9px)}84.99%{transform:translate(-35.1px,328.2px)}85.89%{transform:translate(-28.8px,329.5px)}86.79%{transform:translate(-22.5px,333.7px)}87.69%{transform:translate(-16.2px,332.9px)}88.59%{transform:translate(-9.9px,330.7px)}89.49%{transform:translate(-3.6px,335.7px)}90.00%,100%{transform:translate(0px,332.3px)}}
+/* release chip: deploy v2.4 3.84 s, rollback 6.09 s */
+@keyframes latency-trace-v0{0%,38.3%{opacity:1}38.5%,60.8%{opacity:0}61.0%,100%{opacity:1}}
+@keyframes latency-trace-v1{0%,38.3%{opacity:0}38.5%,60.8%{opacity:1}61.0%,100%{opacity:0}}
+/* status chip: alert 4.87 s, rolling back 6.09 s, SLO met again 7.38 s */
+@keyframes latency-trace-s0{0%,48.5%{opacity:1}48.9%,73.6%{opacity:0}73.9%,100%{opacity:1}}
+@keyframes latency-trace-s1{0%,48.5%{opacity:0}48.9%,60.8%{opacity:1}61.0%,100%{opacity:0}}
+@keyframes latency-trace-s2{0%,60.8%{opacity:0}61.0%,73.6%{opacity:1}73.9%,100%{opacity:0}}
 /* p99 readout */
-@keyframes latency-trace-r0{0%,25.4%{opacity:1}25.7%,60.4%{opacity:0}60.7%,100%{opacity:1}}
-@keyframes latency-trace-r1{0%,25.4%{opacity:0}25.7%,29.6%{opacity:1}30.0%,100%{opacity:0}}
-@keyframes latency-trace-r2{0%,29.6%{opacity:0}30.0%,48.2%{opacity:1}48.6%,100%{opacity:0}}
-@keyframes latency-trace-r5{0%,48.2%{opacity:0}48.6%,51.8%{opacity:1}52.1%,100%{opacity:0}}
-@keyframes latency-trace-r4{0%,51.8%{opacity:0}52.1%,56.1%{opacity:1}56.4%,100%{opacity:0}}
-@keyframes latency-trace-r3{0%,56.1%{opacity:0}56.4%,60.4%{opacity:1}60.7%,100%{opacity:0}}
+@keyframes latency-trace-r0{0%,42.1%{opacity:1}42.4%,73.6%{opacity:0}73.9%,100%{opacity:1}}
+@keyframes latency-trace-r1{0%,42.1%{opacity:0}42.4%,45.9%{opacity:1}46.3%,100%{opacity:0}}
+@keyframes latency-trace-r2{0%,45.9%{opacity:0}46.3%,62.7%{opacity:1}63.0%,100%{opacity:0}}
+@keyframes latency-trace-r5{0%,62.7%{opacity:0}63.0%,65.9%{opacity:1}66.2%,100%{opacity:0}}
+@keyframes latency-trace-r4{0%,65.9%{opacity:0}66.2%,69.8%{opacity:1}70.0%,100%{opacity:0}}
+@keyframes latency-trace-r3{0%,69.8%{opacity:0}70.0%,73.6%{opacity:1}73.9%,100%{opacity:0}}
+
+/* event tag fades in when the head reaches its event (x 380, 452, 537 in the window at 70 px/s from x 110) */
+@keyframes latency-trace-tg0{0%,38.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.6%,100%{opacity:1}}
+@keyframes latency-trace-tg1{0%,48.9%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}51.9%,100%{opacity:1}}
+@keyframes latency-trace-tg2{0%,61%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64%,100%{opacity:1}}
 
 @media (prefers-reduced-motion: reduce) { .anim-latency-trace * { animation: none !important; } }
 </style>
-<div class="anim anim-latency-trace" data-anim="latency-trace" data-anim-cycle="14" data-anim-control="loop">
+<div class="anim anim-latency-trace" data-anim="latency-trace" data-anim-cycle="10" data-anim-control="once">
 <svg viewBox="0 0 800 500" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="p99 latency of a web service spikes above its SLO after a deploy, an alert fires, and a rollback brings it back to baseline">
   <defs>
-    <clipPath id="latency-trace-clip"><rect x="110" y="146" width="630" height="268"/></clipPath>
+    <clipPath id="latency-trace-clip"><rect class="latency-trace-cliprect" x="110" y="146" width="630" height="268"/></clipPath>
   </defs>
 
   <!-- header: readouts as plain inline text -->
@@ -151,17 +163,18 @@
       </g>
       <g class="latency-trace-mk">
         <line class="latency-trace-ev" x1="875" y1="340" x2="875" y2="370"/>
-        <rect class="latency-trace-tag" x="807" y="370" width="136" height="28" rx="4"/>
-        <text class="latency-trace-mono latency-trace-fg" x="875" y="390" text-anchor="middle">deploy v2.4</text>
         <line class="latency-trace-ev" x1="947" y1="254" x2="968" y2="270"/>
-        <rect class="latency-trace-tag" x="960" y="266" width="72" height="28" rx="4"/>
         <circle class="latency-trace-alert-dot" cx="947" cy="247.5" r="6"/>
-        <text class="latency-trace-mono latency-trace-danger" x="996" y="286" text-anchor="middle">alert</text>
         <line class="latency-trace-ev" x1="1032" y1="186" x2="1032" y2="370"/>
-        <rect class="latency-trace-tag" x="980" y="370" width="104" height="28" rx="4"/>
-        <text class="latency-trace-mono latency-trace-ok" x="1032" y="390" text-anchor="middle">rollback</text>
       </g>
     </g>
+  </g>
+
+  <!-- event tags in the window: outside the clip, each fades in as the head reaches its event -->
+  <g class="latency-trace-g">
+    <g class="latency-trace-tg latency-trace-tg0"><rect class="latency-trace-tag" x="807" y="370" width="136" height="28" rx="4"/><text class="latency-trace-mono latency-trace-fg" x="875" y="390" text-anchor="middle">deploy v2.4</text></g>
+    <g class="latency-trace-tg latency-trace-tg1"><rect class="latency-trace-tag" x="960" y="266" width="72" height="28" rx="4"/><text class="latency-trace-mono latency-trace-danger" x="996" y="286" text-anchor="middle">alert</text></g>
+    <g class="latency-trace-tg latency-trace-tg2"><rect class="latency-trace-tag" x="980" y="370" width="104" height="28" rx="4"/><text class="latency-trace-mono latency-trace-ok" x="1032" y="390" text-anchor="middle">rollback</text></g>
   </g>
 
   <line class="latency-trace-axis" x1="110" y1="410" x2="740" y2="410"/>

@@ -15,7 +15,7 @@ the brief; only record the choices the contract leaves open.
 # Brief: <name>
 
 - **Name:** <kebab-case, 2-24 chars, unique in the deck>
-- **Subject:** <one sentence: what the viewer should understand after one loop>
+- **Subject:** <one sentence: what the viewer should understand when the pass ends>
 - **Audience / tone:** <who watches, how technical, calm or lively>
 - **Archetype:** pipeline | graph | timeline | states | compare | layers | chart
 - **Slot:** viewBox `0 0 <W> <H>`, rendered at <w> x <h> px on a <stage> stage
@@ -31,9 +31,9 @@ e.g. "box `build` at x 40 y 120 w 220 h 120; wire build->test along y 180".>
 |---|---|---|---|---|---|
 | 0.0 | ... | ... | ... | ... | ... |
 
-- **Cycle:** <seconds> (contract range 8-15 s, including the hold)
+- **Cycle:** <seconds> (the pass length: 4 to 10 s for once, 8 to 15 s for loop, including the hold)
 - **Resting frame:** <what the still shows: final state, which labels, which colours>
-- **Control:** loop | step (step only for 4+ narrated phases)
+- **Control:** once | loop | step (once is the default; loop only on request; step only for 4+ narrated phases)
 
 ## Theme
 - **Look:** match | lean (one choice per deck; see input-stage.md "Look")
@@ -95,9 +95,9 @@ Packet: circle r 10 on the wire path.
 
 The last 0.4 s of the hold fades everything except the boxes back to the empty state.
 
-- **Cycle:** 10 s
+- **Cycle:** 8 s
 - **Resting frame:** all five boxes, all chips "ok"/"live", production outlined in `--anim-ok`.
-- **Control:** loop
+- **Control:** once
 
 ## Theme
 - default tokens; host may override via `--anim-theme-*`.

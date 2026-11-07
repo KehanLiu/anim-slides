@@ -1,11 +1,16 @@
 # Motion rules
 
 A motion identity for slide illustrations and the audit an agent runs before shipping a
-fragment. Hard limits (text size, max moving elements, cycle range, reduced-motion rule) are in
-[fragment-contract.md](fragment-contract.md) section 6; this file explains how to meet them.
+fragment. Hard limits (text size, pass length, motion and glow concurrency,
+reduced-motion rule) are in [fragment-contract.md](fragment-contract.md) section 6; this file
+explains how to meet them.
 
 Personality: calm and precise. No overshoot, no bounce, no elastic. The viewer is listening to a
-speaker; motion points at things, it does not perform.
+speaker; motion points at things, it does not perform. **It plays once:** when the slide becomes
+current the story runs one pass and then rests on its finished state (control `once`, the
+default). Repeating the same animation on one slide is noise, so nothing pulses, marches or
+restarts while the slide is up. A continuous `loop` is only for a kiosk, a gallery or a hero
+when the user asks for one.
 
 ## Durations
 
@@ -15,9 +20,24 @@ speaker; motion points at things, it does not perform.
 | element | 300-500 ms | a box or label entering, a short move, a cross-fade |
 | scene | 600-900 ms | a group rearranging, a long move across the slot, a large draw-on |
 | hop | 600-1200 ms | one packet along one wire |
-| hold | 1-2 s | end of the loop before the reset |
+| hold | 0.8-1.5 s | end of the pass; the held state is the resting frame and stays (loop: 1-2 s before the reset) |
 
-Anything slower than 900 ms that is not a hop or a continuous loop reads as lag.
+Anything slower than 900 ms that is not a hop or a draw-on reads as lag.
+
+## A once pass
+
+One pass of 4 to 10 s (`data-anim-cycle`), shaped as one staggered reveal:
+
+| Part | When | What |
+|---|---|---|
+| enter | 0 to ~1 s | the static frame and the first elements rise in, stagger 60-120 ms, under 500 ms per group |
+| action | ~1 s to pass - hold | one phase per narrated step, about 1 to 2 s each: an entrance, one highlight moving on, at most one packet hop along its path; captions cross-fade per phase |
+| hold | last 0.8-1.5 s | nothing moves; the finished state (= 100 % keyframe = resting frame) is shown and stays, with the last caption |
+
+Phases keep their second marks from the spec; keyframe percentage = seconds / pass * 100.
+At most three things move at any moment, and no element moves twice unless the story needs it:
+a packet that travels one path once is fine, a pulse that repeats is not. A highlight that moves
+from step to step is one focus changing place, not repetition.
 
 ## Easing
 
@@ -40,11 +60,13 @@ Anything slower than 900 ms that is not a hop or a continuous loop reads as lag.
 - **Follow-through:** a card's content lands 50-150 ms after the card itself.
 - **One focus at a time:** the highlighted element changes, the rest dims to `--anim-muted` or
   reduced opacity. At most three things moving at once.
-- **Loop structure:** setup (elements enter) -> action (the story happens) -> resolution (the
-  outcome is shown) -> hold (1-2 s on the final state) -> quick reset. The resting frame equals
-  the end of resolution.
-- **Linear only for continuous motion:** marching dashes on a wire, a scrolling trace in a strip
-  chart, a spinner. Never for a move with a start and an end.
+- **Pass structure (once):** setup (elements enter) -> action (the story happens) -> resolution
+  (the outcome is shown) -> hold (0.8-1.5 s on the final state, which stays). The resting frame
+  equals the end of resolution and the 100 % keyframe of every track. `loop` adds a quick reset
+  after a 1-2 s hold.
+- **Linear only for continuous motion:** a scrolling trace in a strip chart, a draw-on that
+  tracks time. Never for a move with a start and an end. Marching dashes and spinners repeat, so
+  they belong to `loop` only.
 
 ## Techniques
 
@@ -58,25 +80,53 @@ Anything slower than 900 ms that is not a hop or a continuous loop reads as lag.
   opacity (element duration). Do not animate text content.
 - **Reveals inside a box:** animate a cover rect or a clip rect's `width`, not a `transform` on a
   `<clipPath>` child (see [lessons.md](lessons.md)).
-- **Full-cycle tracks:** give every animated element its own keyframe track that spans the whole
-  cycle (`animation: <name>-x 12s infinite`) with the timing expressed as keyframe percentages.
-  Avoid `animation-delay` inside the fragment; it breaks loop restarts and phase rendering.
-- Percent of cycle = seconds / cycle * 100. Write the second mark in a comment next to each
+- **Full-pass tracks:** give every animated element one keyframe track that spans the whole
+  pass (`animation: <name>-x 8s linear 1 both`; `loop`: `12s linear infinite`) with the timing
+  expressed as keyframe percentages, and end each track at 100 % on its resting value. Avoid
+  `animation-delay` inside the fragment; render-phases.sh sets its own delays to freeze a frame.
+- Percent of pass = seconds / pass * 100. Write the second mark in a comment next to each
   keyframe stop.
+
+## Concurrency
+
+The eye sees moving parts, not tracks. One track per element is the normal shape; what makes a
+slide "too much" is many things changing in the same instant. The checker samples the pass
+every 20 ms:
+
+- **Motion:** an element moves while it is between two keyframe stops that differ. A staggered
+  reveal counts as one: every element that is only appearing (opacity up from 0, maybe with a
+  settling rise) counts once together. Every other move is an action and counts on its own;
+  opacity-only swaps inside one group (a node's stacked status copies) count once, and a track
+  on a `<g>` counts once. More than 3 at once warns, more than 6 fails ("N things move at once
+  at t=X s; at most three, or a staggered series"). Typical culprits: a phase change that swaps
+  the highlight, the caption, a status label, a wire draw-on and a packet at the same instant,
+  or a second packet. Fix by staggering (60-120 ms), moving one of the
+  changes 0.3-0.5 s later, or leaving secondary elements static (they are already right in the
+  resting frame).
+- **Glow:** count the glow elements (blur/drop-shadow filter or a `glow` class) whose opacity,
+  including their ancestors', is above 0 at the same instant. More than 1 warns, more than 2
+  fails ("N glows visible at once at t=X s; one glowing element at most"). Keep the glow on the
+  one active or outcome element and fade the previous glow out as the next comes in. Arrows,
+  wires, lines, brackets and chart series never glow; a stroke-only glow element warns.
 
 ## Reduced motion and presenter control
 
 - The contract's `prefers-reduced-motion` rule shows the resting frame; check that the still
   tells the story without motion.
-- Loops longer than 5 s: the host deck should offer a pause key. If it cannot, consider
-  `step` control (contract section 7).
+- A once pass needs no pause key: it ends on its own and rests. A presenter who goes back to the
+  slide sees it once more (the gate is removed and re-added).
+- `loop` longer than 5 s: the host deck should offer a pause key; if it cannot, use `once` or
+  `step` (contract section 7).
 - Ambient motion (glows, slow drifts) stays under 20 % of the visual energy of the primary story.
 
 ## Audit checklist
 
 Run before shipping each fragment. Every "no" is a fix.
 
-1. Does the loop have setup, action, resolution and a 1-2 s hold, within 8-15 s?
+1. Does it play once (no `infinite`, iteration count 1, fill `forwards`/`both`) in a 4-10 s pass
+   with setup, action, resolution and a 0.8-1.5 s hold, and end exactly on the resting frame
+   (render a time past the pass and `rest`: identical)? Are there no repeated pulses, marching
+   dashes or second runs of the same move? (`loop` only when asked: 8-15 s, 1-2 s hold.)
 2. Are at most three things moving at any second, and about a third of the elements active?
 3. Do entrances use the enter curve, exits the exit curve at ~65 % of the entrance time, and
    on-screen moves the move curve?
@@ -87,8 +137,11 @@ Run before shipping each fragment. Every "no" is a fix.
 8. Do draw-on paths use `pathLength` and 0.5-0.8 s per path?
 9. Is changing text done by cross-fading stacked `<text>` elements?
 10. Does nothing overshoot or pulse more than +-5 %?
-11. Does every animated element have a full-cycle track with no `animation-delay`?
+11. Does every animated element have a full-pass track with no `animation-delay`, whose 100 %
+    stop equals its resting value?
 12. Is the resting frame the final state and readable as a still (also under reduced motion)?
 13. Is all text at or above the contract minimum at rendered size, with no overlap at any
     rendered phase?
-14. If the loop is longer than 5 s, does the host offer a pause key (or is `step` used)?
+14. Concurrency: at most three things (or one staggered series) moving at any instant, never
+    more than 8? At most one glow visible at a time, and no glowing arrow, wire, line or series?
+15. `loop` only: if longer than 5 s, does the host offer a pause key (or is `once`/`step` used)?

@@ -4,16 +4,16 @@
 # (sun, sea, a cloud over the sea, a rain cloud over a mountain, a river back to the sea) and one
 # dashed loop guide through every step. The packet changes type on the way: vapour dots rise,
 # a droplet rides the wind and falls as rain, a stream runs down the river into the sea. A small
-# legend names the three packet kinds. The loop is seamless: the cycle ends with the water in the
-# sea where the next evaporation starts, so nothing resets; the step highlight hands from step 4
-# back to step 1 at the seam. The resting frame shows one packet of each kind on the loop and
-# step 4 highlighted.
+# legend names the three packet kinds. Plays once: the pass is one full circuit, each step lights
+# in turn and stays lit, the water ends back in the sea, and one packet of each kind settles on its
+# leg. The resting frame (= end of the pass) shows all four steps and the river lit and one packet
+# of each kind on the loop.
 name: water-cycle
 archetype: pipeline
 domain: earth science
 size: [1680, 600]
-control: loop
-cycle: 12
+control: once
+cycle: 10
 nodes:
   - { id: evap,    label: Evaporation,           sub: "the sun warms the sea surface" }
   - { id: cond,    label: Condensation,          sub: "vapour cools into cloud, wind carries it inland" }
@@ -26,7 +26,7 @@ edges:
   - { from: collect, to: evap,    label: water, kind: flow }
 phases:
   - { t: 0,    label: evaporate, active: [evap],    flow: ["evap>cond"] }
-  - { t: 2.6,  label: condense,  active: [cond],    flow: ["cond>precip"] }
-  - { t: 5.4,  label: rain,      active: [precip],  flow: ["precip>collect"] }
-  - { t: 6.6,  label: runoff,    active: [collect], flow: ["collect>evap"] }
-  - { t: 10.8, label: hold,      active: [collect] }
+  - { t: 2.08,  label: condense,  active: [cond],    flow: ["cond>precip"] }
+  - { t: 4.32,  label: rain,      active: [precip],  flow: ["precip>collect"] }
+  - { t: 5.28,  label: runoff,    active: [collect], flow: ["collect>evap"] }
+  - { t: 8.64, label: hold,      active: [collect] }

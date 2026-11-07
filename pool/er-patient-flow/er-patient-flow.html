@@ -1,7 +1,7 @@
 <!-- er-patient-flow (lean restyle sample, archetype pipeline, domain health). Hand-built.
   Story: an emergency department visit in eight steps on a thin line, wrapped into two rows: a glowing
   token hops ring to ring, the active ring lights in the accent, a passed ring settles in ok; the quiet
-  wrap carries the token from step 4 down to step 5. Cycle 13 s, hold 10.9-12.6 s.
+  wrap carries the token from step 4 down to step 5. Once-play pass 10 s, ends on the resting frame; hold 8.94-10 s.
   Illustrative, not clinical guidance. -->
 <style>
 .anim-er-patient-flow{
@@ -26,7 +26,7 @@
 .anim-er-patient-flow .er-patient-flow-num-run{fill:var(--anim-accent)}
 .anim-er-patient-flow .er-patient-flow-num-ok{fill:var(--anim-ok)}
 .anim-er-patient-flow .er-patient-flow-note{font-family:var(--anim-font);font-size:26px;font-weight:400;fill:var(--anim-fg)}
-.anim-er-patient-flow .er-patient-flow-wire{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-er-patient-flow .er-patient-flow-wire{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120}
 .anim-er-patient-flow .er-patient-flow-done{fill:none;stroke:var(--anim-ok);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .anim-er-patient-flow .er-patient-flow-ring{fill:none;stroke:var(--anim-line);stroke-width:2.5}
 .anim-er-patient-flow .er-patient-flow-ring-run{stroke:var(--anim-accent);stroke-width:4}
@@ -45,171 +45,155 @@
 /* resting frame = visit complete: every ring settled in ok, final caption */
 .anim-er-patient-flow .er-patient-flow-run0,.anim-er-patient-flow .er-patient-flow-run1,.anim-er-patient-flow .er-patient-flow-run2,.anim-er-patient-flow .er-patient-flow-run3,.anim-er-patient-flow .er-patient-flow-run4,.anim-er-patient-flow .er-patient-flow-run5,.anim-er-patient-flow .er-patient-flow-run6,.anim-er-patient-flow .er-patient-flow-run7,.anim-er-patient-flow .er-patient-flow-pkt,.anim-er-patient-flow .er-patient-flow-pkt-glow,.anim-er-patient-flow .er-patient-flow-n0,.anim-er-patient-flow .er-patient-flow-n1,.anim-er-patient-flow .er-patient-flow-n2,.anim-er-patient-flow .er-patient-flow-n3,.anim-er-patient-flow .er-patient-flow-n4,.anim-er-patient-flow .er-patient-flow-n5,.anim-er-patient-flow .er-patient-flow-n6{opacity:0}
 
-/* ---- motion (13 s cycle), only when the slide is visible; step starts at 1, 2.25, 3.5, 4.75, 6.3, 7.55, 8.8 and 10.05 s ---- */
-/* fade in, hold to 12.6 s, reset */
-@keyframes er-patient-flow-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.31%{opacity:1}96.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}99.23%,100%{opacity:0}}
-/* in at 0.05s */
-@keyframes er-patient-flow-row0{0%,0.38%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.85%,100%{opacity:1;transform:translateY(0)}}
-/* in at 0.3s */
-@keyframes er-patient-flow-row1{0%,2.31%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.77%,100%{opacity:1;transform:translateY(0)}}
-/* draw-on at 0.35s */
-@keyframes er-patient-flow-w0{0%,2.69%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.31%,100%{stroke-dashoffset:0}}
-/* in at 2.25s */
-@keyframes er-patient-flow-wd0{0%,17.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.62%,100%{opacity:1}}
-/* hop 1.55s - 2.25s */
-@keyframes er-patient-flow-h0{0%,11.92%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}12.54%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}16.69%{offset-distance:97%;opacity:1}17.31%,100%{offset-distance:100%;opacity:0}}
-/* draw-on at 0.35s */
-@keyframes er-patient-flow-w1{0%,2.69%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.31%,100%{stroke-dashoffset:0}}
-/* in at 3.5s */
-@keyframes er-patient-flow-wd1{0%,26.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.23%,100%{opacity:1}}
-/* hop 2.8s - 3.5s */
-@keyframes er-patient-flow-h1{0%,21.54%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}22.15%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}26.31%{offset-distance:97%;opacity:1}26.92%,100%{offset-distance:100%;opacity:0}}
-/* draw-on at 0.35s */
-@keyframes er-patient-flow-w2{0%,2.69%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.31%,100%{stroke-dashoffset:0}}
-/* in at 4.75s */
-@keyframes er-patient-flow-wd2{0%,36.54%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.85%,100%{opacity:1}}
-/* hop 4.05s - 4.75s */
-@keyframes er-patient-flow-h2{0%,31.15%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}31.77%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}35.92%{offset-distance:97%;opacity:1}36.54%,100%{offset-distance:100%;opacity:0}}
-/* draw-on at 0.47s */
-@keyframes er-patient-flow-w3{0%,3.62%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.23%,100%{stroke-dashoffset:0}}
-/* in at 6.3s */
-@keyframes er-patient-flow-wd3{0%,48.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.77%,100%{opacity:1}}
-/* hop 5.3s - 6.3s */
-@keyframes er-patient-flow-h3{0%,40.77%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}41.38%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}47.85%{offset-distance:97%;opacity:1}48.46%,100%{offset-distance:100%;opacity:0}}
-/* draw-on at 0.6s */
-@keyframes er-patient-flow-w4{0%,4.62%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.23%,100%{stroke-dashoffset:0}}
-/* in at 7.55s */
-@keyframes er-patient-flow-wd4{0%,58.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.38%,100%{opacity:1}}
-/* hop 6.85s - 7.55s */
-@keyframes er-patient-flow-h4{0%,52.69%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}53.31%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}57.46%{offset-distance:97%;opacity:1}58.08%,100%{offset-distance:100%;opacity:0}}
-/* draw-on at 0.6s */
-@keyframes er-patient-flow-w5{0%,4.62%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.23%,100%{stroke-dashoffset:0}}
-/* in at 8.8s */
-@keyframes er-patient-flow-wd5{0%,67.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70%,100%{opacity:1}}
-/* hop 8.1s - 8.8s */
-@keyframes er-patient-flow-h5{0%,62.31%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}62.92%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}67.08%{offset-distance:97%;opacity:1}67.69%,100%{offset-distance:100%;opacity:0}}
-/* draw-on at 0.6s */
-@keyframes er-patient-flow-w6{0%,4.62%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.23%,100%{stroke-dashoffset:0}}
-/* in at 10.05s */
-@keyframes er-patient-flow-wd6{0%,77.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.62%,100%{opacity:1}}
-/* hop 9.35s - 10.05s */
-@keyframes er-patient-flow-h6{0%,71.92%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}72.54%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}76.69%{offset-distance:97%;opacity:1}77.31%,100%{offset-distance:100%;opacity:0}}
-/* 1s - 1.55s */
-@keyframes er-patient-flow-run0{0%,7.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.62%{opacity:1}11.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}13.46%,100%{opacity:0}}
-/* in at 1.55s */
-@keyframes er-patient-flow-ok0{0%,11.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.23%,100%{opacity:1}}
-/* 2.25s - 2.8s */
-@keyframes er-patient-flow-run1{0%,17.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.23%{opacity:1}21.54%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}23.08%,100%{opacity:0}}
-/* in at 2.8s */
-@keyframes er-patient-flow-ok1{0%,21.54%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.85%,100%{opacity:1}}
-/* 3.5s - 4.05s */
-@keyframes er-patient-flow-run2{0%,26.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.85%{opacity:1}31.15%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.69%,100%{opacity:0}}
-/* in at 4.05s */
-@keyframes er-patient-flow-ok2{0%,31.15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.46%,100%{opacity:1}}
-/* 4.75s - 5.3s */
-@keyframes er-patient-flow-run3{0%,36.54%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.46%{opacity:1}40.77%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}42.31%,100%{opacity:0}}
-/* in at 5.3s */
-@keyframes er-patient-flow-ok3{0%,40.77%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.08%,100%{opacity:1}}
-/* 6.3s - 6.85s */
-@keyframes er-patient-flow-run4{0%,48.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.38%{opacity:1}52.69%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}54.23%,100%{opacity:0}}
-/* in at 6.85s */
-@keyframes er-patient-flow-ok4{0%,52.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55%,100%{opacity:1}}
-/* 7.55s - 8.1s */
-@keyframes er-patient-flow-run5{0%,58.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60%{opacity:1}62.31%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.85%,100%{opacity:0}}
-/* in at 8.1s */
-@keyframes er-patient-flow-ok5{0%,62.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.62%,100%{opacity:1}}
-/* 8.8s - 9.35s */
-@keyframes er-patient-flow-run6{0%,67.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.62%{opacity:1}71.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}73.46%,100%{opacity:0}}
-/* in at 9.35s */
-@keyframes er-patient-flow-ok6{0%,71.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.23%,100%{opacity:1}}
-/* 10.05s - 10.6s */
-@keyframes er-patient-flow-run7{0%,77.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.23%{opacity:1}81.54%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}83.08%,100%{opacity:0}}
-/* in at 10.6s */
-@keyframes er-patient-flow-ok7{0%,81.54%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.85%,100%{opacity:1}}
-/* 0s - 2.25s */
-@keyframes er-patient-flow-n0{0%{opacity:1}17.31%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}18.85%,100%{opacity:0}}
-/* 2.25s - 3.5s */
-@keyframes er-patient-flow-n1{0%,17.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.62%{opacity:1}26.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}28.46%,100%{opacity:0}}
-/* 3.5s - 4.75s */
-@keyframes er-patient-flow-n2{0%,26.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.23%{opacity:1}36.54%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.08%,100%{opacity:0}}
-/* 4.75s - 6.3s */
-@keyframes er-patient-flow-n3{0%,36.54%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.85%{opacity:1}48.46%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}50%,100%{opacity:0}}
-/* 6.3s - 7.55s */
-@keyframes er-patient-flow-n4{0%,48.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.77%{opacity:1}58.08%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59.62%,100%{opacity:0}}
-/* 7.55s - 8.8s */
-@keyframes er-patient-flow-n5{0%,58.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.38%{opacity:1}67.69%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}69.23%,100%{opacity:0}}
-/* 8.8s - 10.05s */
-@keyframes er-patient-flow-n6{0%,67.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70%{opacity:1}77.31%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}78.85%,100%{opacity:0}}
-/* in at 10.05s */
-@keyframes er-patient-flow-n7{0%,77.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.62%,100%{opacity:1}}
+/* ---- motion (one 10 s pass, played once), only when the slide is visible; step starts at 0.82, 1.85, 2.87, 3.9, 5.17, 6.19, 7.22 and 8.24 s; hold from 8.94 s ---- */
+/* fade in, then stay */
+@keyframes er-patient-flow-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.46%,100%{opacity:1}}
+/* in at 0.04s */
+@keyframes er-patient-flow-row0{0%,0.41%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.1%,100%{opacity:1;transform:translateY(0)}}
+/* in at 0.25s */
+@keyframes er-patient-flow-row1{0%,2.46%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.15%,100%{opacity:1;transform:translateY(0)}}
+/* all wires draw on together as one group track, 0.62s - 1.17s, after the nodes are in */
+@keyframes er-patient-flow-wires{0%,6.2%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.7%,100%{stroke-dashoffset:0}}
+/* in at 1.84s */
+@keyframes er-patient-flow-wd0{0%,18.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.91%,100%{opacity:1}}
+/* hop 1.27s - 1.84s */
+@keyframes er-patient-flow-h0{0%,12.71%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}13.37%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}17.79%{offset-distance:97%;opacity:1}18.45%,100%{offset-distance:100%;opacity:0}}
+/* in at 2.87s */
+@keyframes er-patient-flow-wd1{0%,28.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.16%,100%{opacity:1}}
+/* hop 2.3s - 2.87s */
+@keyframes er-patient-flow-h1{0%,22.96%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}23.61%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}28.05%{offset-distance:97%;opacity:1}28.7%,100%{offset-distance:100%;opacity:0}}
+/* in at 3.89s */
+@keyframes er-patient-flow-wd2{0%,38.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.41%,100%{opacity:1}}
+/* hop 3.32s - 3.89s */
+@keyframes er-patient-flow-h2{0%,33.21%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}33.87%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}38.29%{offset-distance:97%;opacity:1}38.95%,100%{offset-distance:100%;opacity:0}}
+/* in at 5.17s */
+@keyframes er-patient-flow-wd3{0%,51.66%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.12%,100%{opacity:1}}
+/* hop 4.35s - 5.17s */
+@keyframes er-patient-flow-h3{0%,43.46%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}44.11%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}51.01%{offset-distance:97%;opacity:1}51.66%,100%{offset-distance:100%;opacity:0}}
+/* in at 6.19s */
+@keyframes er-patient-flow-wd4{0%,61.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.37%,100%{opacity:1}}
+/* hop 5.62s - 6.19s */
+@keyframes er-patient-flow-h4{0%,56.17%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}56.83%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}61.25%{offset-distance:97%;opacity:1}61.91%,100%{offset-distance:100%;opacity:0}}
+/* in at 7.22s */
+@keyframes er-patient-flow-wd5{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.62%,100%{opacity:1}}
+/* hop 6.64s - 7.22s */
+@keyframes er-patient-flow-h5{0%,66.42%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}67.07%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}71.51%{offset-distance:97%;opacity:1}72.16%,100%{offset-distance:100%;opacity:0}}
+/* in at 8.24s */
+@keyframes er-patient-flow-wd6{0%,82.41%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.87%,100%{opacity:1}}
+/* hop 7.67s - 8.24s */
+@keyframes er-patient-flow-h6{0%,76.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}77.33%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}81.75%{offset-distance:97%;opacity:1}82.41%,100%{offset-distance:100%;opacity:0}}
+/* 0.82s - 1.27s */
+@keyframes er-patient-flow-run0{0%,8.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.8%{opacity:1}11.07%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}12.71%,100%{opacity:0}}
+/* in at 1.27s */
+@keyframes er-patient-flow-ok0{0%,12.71%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.17%,100%{opacity:1}}
+/* 1.84s - 2.3s */
+@keyframes er-patient-flow-run1{0%,18.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.05%{opacity:1}21.32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}22.96%,100%{opacity:0}}
+/* in at 2.3s */
+@keyframes er-patient-flow-ok1{0%,22.96%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.42%,100%{opacity:1}}
+/* 2.87s - 3.32s */
+@keyframes er-patient-flow-run2{0%,28.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}30.3%{opacity:1}31.57%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.21%,100%{opacity:0}}
+/* in at 3.32s */
+@keyframes er-patient-flow-ok2{0%,33.21%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35.67%,100%{opacity:1}}
+/* 3.89s - 4.35s */
+@keyframes er-patient-flow-run3{0%,38.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.55%{opacity:1}41.82%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.46%,100%{opacity:0}}
+/* in at 4.35s */
+@keyframes er-patient-flow-ok3{0%,43.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}45.92%,100%{opacity:1}}
+/* 5.17s - 5.62s */
+@keyframes er-patient-flow-run4{0%,51.66%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.26%{opacity:1}54.53%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}56.17%,100%{opacity:0}}
+/* in at 5.62s */
+@keyframes er-patient-flow-ok4{0%,56.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.63%,100%{opacity:1}}
+/* 6.19s - 6.64s */
+@keyframes er-patient-flow-run5{0%,61.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.51%{opacity:1}64.78%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.42%,100%{opacity:0}}
+/* in at 6.64s */
+@keyframes er-patient-flow-ok5{0%,66.42%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.88%,100%{opacity:1}}
+/* 7.22s - 7.67s */
+@keyframes er-patient-flow-run6{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.76%{opacity:1}75.03%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}76.67%,100%{opacity:0}}
+/* in at 7.67s */
+@keyframes er-patient-flow-ok6{0%,76.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.13%,100%{opacity:1}}
+/* 8.24s - 8.69s */
+@keyframes er-patient-flow-run7{0%,82.41%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.01%{opacity:1}85.28%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.92%,100%{opacity:0}}
+/* in at 8.69s */
+@keyframes er-patient-flow-ok7{0%,86.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.38%,100%{opacity:1}}
+/* 0s - 1.84s */
+@keyframes er-patient-flow-n0{0%{opacity:1}18.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.09%,100%{opacity:0}}
+/* 1.84s - 2.87s */
+@keyframes er-patient-flow-n1{0%,18.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.91%{opacity:1}28.7%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}30.34%,100%{opacity:0}}
+/* 2.87s - 3.89s */
+@keyframes er-patient-flow-n2{0%,28.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.16%{opacity:1}38.95%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40.59%,100%{opacity:0}}
+/* 3.89s - 5.17s */
+@keyframes er-patient-flow-n3{0%,38.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.41%{opacity:1}51.66%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}53.3%,100%{opacity:0}}
+/* 5.17s - 6.19s */
+@keyframes er-patient-flow-n4{0%,51.66%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.12%{opacity:1}61.91%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.55%,100%{opacity:0}}
+/* 6.19s - 7.22s */
+@keyframes er-patient-flow-n5{0%,61.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.37%{opacity:1}72.16%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}73.8%,100%{opacity:0}}
+/* 7.22s - 8.24s */
+@keyframes er-patient-flow-n6{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.62%{opacity:1}82.41%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}84.05%,100%{opacity:0}}
+/* in at 8.24s */
+@keyframes er-patient-flow-n7{0%,82.41%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.87%,100%{opacity:1}}
 
-.visible .anim-er-patient-flow .er-patient-flow-scene{animation:er-patient-flow-scene 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-row0{animation:er-patient-flow-row0 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-row1{animation:er-patient-flow-row1 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-w0{animation:er-patient-flow-w0 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-wd0{animation:er-patient-flow-wd0 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-h0{animation:er-patient-flow-h0 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-w1{animation:er-patient-flow-w1 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-wd1{animation:er-patient-flow-wd1 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-h1{animation:er-patient-flow-h1 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-w2{animation:er-patient-flow-w2 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-wd2{animation:er-patient-flow-wd2 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-h2{animation:er-patient-flow-h2 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-w3{animation:er-patient-flow-w3 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-wd3{animation:er-patient-flow-wd3 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-h3{animation:er-patient-flow-h3 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-w4{animation:er-patient-flow-w4 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-wd4{animation:er-patient-flow-wd4 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-h4{animation:er-patient-flow-h4 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-w5{animation:er-patient-flow-w5 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-wd5{animation:er-patient-flow-wd5 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-h5{animation:er-patient-flow-h5 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-w6{animation:er-patient-flow-w6 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-wd6{animation:er-patient-flow-wd6 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-h6{animation:er-patient-flow-h6 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-run0{animation:er-patient-flow-run0 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-ok0{animation:er-patient-flow-ok0 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-run1{animation:er-patient-flow-run1 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-ok1{animation:er-patient-flow-ok1 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-run2{animation:er-patient-flow-run2 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-ok2{animation:er-patient-flow-ok2 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-run3{animation:er-patient-flow-run3 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-ok3{animation:er-patient-flow-ok3 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-run4{animation:er-patient-flow-run4 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-ok4{animation:er-patient-flow-ok4 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-run5{animation:er-patient-flow-run5 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-ok5{animation:er-patient-flow-ok5 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-run6{animation:er-patient-flow-run6 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-ok6{animation:er-patient-flow-ok6 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-run7{animation:er-patient-flow-run7 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-ok7{animation:er-patient-flow-ok7 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-n0{animation:er-patient-flow-n0 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-n1{animation:er-patient-flow-n1 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-n2{animation:er-patient-flow-n2 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-n3{animation:er-patient-flow-n3 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-n4{animation:er-patient-flow-n4 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-n5{animation:er-patient-flow-n5 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-n6{animation:er-patient-flow-n6 13s linear infinite}
-.visible .anim-er-patient-flow .er-patient-flow-n7{animation:er-patient-flow-n7 13s linear infinite}
+.visible .anim-er-patient-flow .er-patient-flow-scene{animation:er-patient-flow-scene 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-row0{animation:er-patient-flow-row0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-row1{animation:er-patient-flow-row1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wires{animation:er-patient-flow-wires 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd0{animation:er-patient-flow-wd0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-h0{animation:er-patient-flow-h0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd1{animation:er-patient-flow-wd1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-h1{animation:er-patient-flow-h1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd2{animation:er-patient-flow-wd2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-h2{animation:er-patient-flow-h2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd3{animation:er-patient-flow-wd3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-h3{animation:er-patient-flow-h3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd4{animation:er-patient-flow-wd4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-h4{animation:er-patient-flow-h4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd5{animation:er-patient-flow-wd5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-h5{animation:er-patient-flow-h5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd6{animation:er-patient-flow-wd6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-h6{animation:er-patient-flow-h6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-run0{animation:er-patient-flow-run0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-ok0{animation:er-patient-flow-ok0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-run1{animation:er-patient-flow-run1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-ok1{animation:er-patient-flow-ok1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-run2{animation:er-patient-flow-run2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-ok2{animation:er-patient-flow-ok2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-run3{animation:er-patient-flow-run3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-ok3{animation:er-patient-flow-ok3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-run4{animation:er-patient-flow-run4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-ok4{animation:er-patient-flow-ok4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-run5{animation:er-patient-flow-run5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-ok5{animation:er-patient-flow-ok5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-run6{animation:er-patient-flow-run6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-ok6{animation:er-patient-flow-ok6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-run7{animation:er-patient-flow-run7 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-ok7{animation:er-patient-flow-ok7 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-n0{animation:er-patient-flow-n0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-n1{animation:er-patient-flow-n1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-n2{animation:er-patient-flow-n2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-n3{animation:er-patient-flow-n3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-n4{animation:er-patient-flow-n4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-n5{animation:er-patient-flow-n5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-n6{animation:er-patient-flow-n6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-n7{animation:er-patient-flow-n7 10s linear 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-er-patient-flow * { animation: none !important; } }
 </style>
-<div class="anim anim-er-patient-flow" data-anim="er-patient-flow" data-anim-cycle="13" data-anim-control="loop">
+<div class="anim anim-er-patient-flow" data-anim="er-patient-flow" data-anim-cycle="10" data-anim-control="once">
 <svg viewBox="0 0 1680 560" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Emergency department visit in eight numbered steps over two rows: arrival, triage, registration, assessment, tests, treatment, a decision to send home or admit, and discharge; each step lights up in turn and settles as done.">
 <g class="er-patient-flow-scene">
-  <path class="er-patient-flow-wire er-patient-flow-w0" pathLength="100" d="M394 110 H626"/>
+  <g class="er-patient-flow-wires">
+    <path class="er-patient-flow-wire" pathLength="100" d="M394 110 H626"/>
+    <path class="er-patient-flow-wire" pathLength="100" d="M694 110 H926"/>
+    <path class="er-patient-flow-wire" pathLength="100" d="M994 110 H1226"/>
+    <path class="er-patient-flow-wire" pathLength="100" d="M1294 110 H1370 Q1410 110 1410 150 V280 Q1410 320 1370 320 H1294"/>
+    <path class="er-patient-flow-wire" pathLength="100" d="M1226 320 H994"/>
+    <path class="er-patient-flow-wire" pathLength="100" d="M926 320 H694"/>
+    <path class="er-patient-flow-wire" pathLength="100" d="M626 320 H394"/>
+  </g>
   <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd0" d="M394 110 H626"/></g>
-  <path class="er-patient-flow-wire er-patient-flow-w1" pathLength="100" d="M694 110 H926"/>
   <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd1" d="M694 110 H926"/></g>
-  <path class="er-patient-flow-wire er-patient-flow-w2" pathLength="100" d="M994 110 H1226"/>
   <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd2" d="M994 110 H1226"/></g>
-  <path class="er-patient-flow-wire er-patient-flow-w3" pathLength="100" d="M1294 110 H1370 Q1410 110 1410 150 V280 Q1410 320 1370 320 H1294"/>
   <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd3" d="M1294 110 H1370 Q1410 110 1410 150 V280 Q1410 320 1370 320 H1294"/></g>
-  <path class="er-patient-flow-wire er-patient-flow-w4" pathLength="100" d="M1226 320 H994"/>
   <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd4" d="M1226 320 H994"/></g>
-  <path class="er-patient-flow-wire er-patient-flow-w5" pathLength="100" d="M926 320 H694"/>
   <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd5" d="M926 320 H694"/></g>
-  <path class="er-patient-flow-wire er-patient-flow-w6" pathLength="100" d="M626 320 H394"/>
   <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd6" d="M626 320 H394"/></g>
   <g class="er-patient-flow-row0">
     <circle class="er-patient-flow-ring" cx="360" cy="110" r="34"/>

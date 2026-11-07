@@ -27,7 +27,9 @@
 #              stack every slide at stage size, so --slide N still lands on slide N.
 #              The --slide helper script is injected after stripping and still runs.
 #
-#   Each <seconds> value renders phase-<s>.png paused at that point of the cycle;
+#   Each <seconds> value renders phase-<s>.png paused at that point of the pass (once) or cycle (loop);
+#   for a once fragment (iteration 1, fill forwards/both) any time at or past the pass length shows
+#   the finished state, which must match "rest" pixel for pixel.
 #   "rest" renders the ungated resting frame (what PDF export sees).
 #   contact.png puts all rendered phases side by side with their labels.
 #

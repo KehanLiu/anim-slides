@@ -1,6 +1,6 @@
 <!-- job-states: states archetype, hand-tuned from pool/job-states/spec.yaml (scaffold, then rebuilt for layout and story).
-  12 s cycle: queued > running (attempt 1) > failed > retry > queued > running (attempt 2) > succeeded
-  | one token per hop, event log fills in | 9.4-11.5 s hold | 11.5 s reset
+  Plays once, 9.8 s pass: queued > running (attempt 1) > failed > retry > queued > running (attempt 2) > succeeded
+  | one token per hop, event log fills in | final state from 8.7 s
   Names, numbers and times are illustrative examples. -->
 <style>
 .anim-job-states {
@@ -51,52 +51,52 @@
    Layers that belong only to earlier phases rest at opacity 0. */
 .anim-job-states .job-states-on-exit,.anim-job-states .job-states-hot-done,.anim-job-states .job-states-att2,.anim-job-states .job-states-log0,.anim-job-states .job-states-log1,.anim-job-states .job-states-log2,.anim-job-states .job-states-log3,.anim-job-states .job-states-log4,.anim-job-states .job-states-log5{opacity:1}
 .anim-job-states .job-states-tk-h1,.anim-job-states .job-states-tk-h2,.anim-job-states .job-states-tk-h3,.anim-job-states .job-states-tk-h4,.anim-job-states .job-states-tk-h5,.anim-job-states .job-states-on-picked,.anim-job-states .job-states-on-error,.anim-job-states .job-states-on-retry,.anim-job-states .job-states-hot-queued,.anim-job-states .job-states-hot-running,.anim-job-states .job-states-hot-failed,.anim-job-states .job-states-att1{opacity:0}
-@keyframes job-states-tk-h1{0%,7.08%{opacity:0;offset-distance:0%}8.33%{opacity:1;offset-distance:0%}16.67%{opacity:1;offset-distance:100%}17.92%,100%{opacity:0;offset-distance:100%}}
-@keyframes job-states-tk-h2{0%,27.08%{opacity:0;offset-distance:0%}28.33%{opacity:1;offset-distance:0%}36.67%{opacity:1;offset-distance:100%}37.92%,100%{opacity:0;offset-distance:100%}}
-@keyframes job-states-tk-h3{0%,42.08%{opacity:0;offset-distance:0%}43.33%{opacity:1;offset-distance:0%}51.67%{opacity:1;offset-distance:100%}52.92%,100%{opacity:0;offset-distance:100%}}
-@keyframes job-states-tk-h4{0%,53.75%{opacity:0;offset-distance:0%}55%{opacity:1;offset-distance:0%}63.33%{opacity:1;offset-distance:100%}64.58%,100%{opacity:0;offset-distance:100%}}
-@keyframes job-states-tk-h5{0%,68.75%{opacity:0;offset-distance:0%}70%{opacity:1;offset-distance:0%}78.33%{opacity:1;offset-distance:100%}79.58%,100%{opacity:0;offset-distance:100%}}
-@keyframes job-states-on-picked{0%,8.33%{opacity:0}10.42%,18.33%{opacity:1}19.69%,55%{opacity:0}57.08%,65%{opacity:1}66.35%,100%{opacity:0}}
-@keyframes job-states-on-error{0%,28.33%{opacity:0}30.42%,38.33%{opacity:1}39.68%,100%{opacity:0}}
-@keyframes job-states-on-retry{0%,43.33%{opacity:0}45.42%,53.33%{opacity:1}54.68%,100%{opacity:0}}
-@keyframes job-states-on-exit{0%,70%{opacity:0}72.08%,95.83%{opacity:1}97.18%,100%{opacity:0}}
-@keyframes job-states-hot-queued{0%,8.33%{opacity:1}9.69%,51.67%{opacity:0}53.75%,55%{opacity:1}56.35%,97.5%{opacity:0}100%{opacity:1}}
-@keyframes job-states-hot-running{0%,16.67%{opacity:0}18.75%,28.33%{opacity:1}29.68%,63.33%{opacity:0}65.42%,70%{opacity:1}71.35%,100%{opacity:0}}
-@keyframes job-states-hot-failed{0%,36.67%{opacity:0}38.75%,43.33%{opacity:1}44.68%,100%{opacity:0}}
-@keyframes job-states-hot-done{0%,78.33%{opacity:0}80.42%,95.83%{opacity:1}97.18%,100%{opacity:0}}
-@keyframes job-states-att1{0%,63.33%{opacity:1}65.42%,98.33%{opacity:0}100%{opacity:1}}
-@keyframes job-states-att2{0%,63.33%{opacity:0}65.83%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-@keyframes job-states-log0{0%,1.67%{opacity:0}4.17%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-@keyframes job-states-log1{0%,16.67%{opacity:0}19.17%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-@keyframes job-states-log2{0%,36.67%{opacity:0}39.17%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-@keyframes job-states-log3{0%,51.67%{opacity:0}54.17%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-@keyframes job-states-log4{0%,63.33%{opacity:0}65.83%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-@keyframes job-states-log5{0%,78.33%{opacity:0}80.83%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-.visible .anim-job-states .job-states-tk-h1{animation:job-states-tk-h1 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-tk-h2{animation:job-states-tk-h2 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-tk-h3{animation:job-states-tk-h3 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-tk-h4{animation:job-states-tk-h4 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-tk-h5{animation:job-states-tk-h5 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-on-picked{animation:job-states-on-picked 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-on-error{animation:job-states-on-error 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-on-retry{animation:job-states-on-retry 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-on-exit{animation:job-states-on-exit 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-hot-queued{animation:job-states-hot-queued 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-hot-running{animation:job-states-hot-running 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-hot-failed{animation:job-states-hot-failed 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-hot-done{animation:job-states-hot-done 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-att1{animation:job-states-att1 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-att2{animation:job-states-att2 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-log0{animation:job-states-log0 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-log1{animation:job-states-log1 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-log2{animation:job-states-log2 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-log3{animation:job-states-log3 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-log4{animation:job-states-log4 12s ease-in-out infinite}
-.visible .anim-job-states .job-states-log5{animation:job-states-log5 12s ease-in-out infinite}
+@keyframes job-states-tk-h1{0%,7.8%{opacity:0;offset-distance:0%}9.18%{opacity:1;offset-distance:0%}18.37%{opacity:1;offset-distance:100%}19.75%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h2{0%,29.84%{opacity:0;offset-distance:0%}31.22%{opacity:1;offset-distance:0%}40.41%{opacity:1;offset-distance:100%}41.79%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h3{0%,46.37%{opacity:0;offset-distance:0%}47.75%{opacity:1;offset-distance:0%}56.94%{opacity:1;offset-distance:100%}58.32%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h4{0%,59.23%{opacity:0;offset-distance:0%}60.61%{opacity:1;offset-distance:0%}69.79%{opacity:1;offset-distance:100%}71.17%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h5{0%,75.77%{opacity:0;offset-distance:0%}77.14%{opacity:1;offset-distance:0%}86.32%{opacity:1;offset-distance:100%}87.7%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-on-picked{0%,9.18%{opacity:0}11.48%,20.2%{opacity:1}21.7%,60.61%{opacity:0}62.9%,71.63%{opacity:1}73.12%,100%{opacity:0}}
+@keyframes job-states-on-error{0%,31.22%{opacity:0}33.52%,42.24%{opacity:1}43.73%,100%{opacity:0}}
+@keyframes job-states-on-retry{0%,47.75%{opacity:0}50.05%,58.77%{opacity:1}60.26%,100%{opacity:0}}
+@keyframes job-states-on-exit{0%,77.14%{opacity:0}79.44%,100%{opacity:1}}
+@keyframes job-states-hot-queued{0%,9.18%{opacity:1}10.68%,56.94%{opacity:0}59.23%,60.61%{opacity:1}62.1%,100%{opacity:0}}
+@keyframes job-states-hot-running{0%,18.37%{opacity:0}20.66%,31.22%{opacity:1}32.71%,69.79%{opacity:0}72.1%,77.14%{opacity:1}78.63%,100%{opacity:0}}
+@keyframes job-states-hot-failed{0%,40.41%{opacity:0}42.7%,47.75%{opacity:1}49.24%,100%{opacity:0}}
+@keyframes job-states-hot-done{0%,86.32%{opacity:0}88.63%,100%{opacity:1}}
+@keyframes job-states-att1{0%,69.79%{opacity:1}72.1%,100%{opacity:0}}
+@keyframes job-states-att2{0%,69.79%{opacity:0}72.55%,100%{opacity:1}}
+@keyframes job-states-log0{0%,1.84%{opacity:0}4.6%,100%{opacity:1}}
+@keyframes job-states-log1{0%,18.37%{opacity:0}21.13%,100%{opacity:1}}
+@keyframes job-states-log2{0%,40.41%{opacity:0}43.17%,100%{opacity:1}}
+@keyframes job-states-log3{0%,56.94%{opacity:0}59.7%,100%{opacity:1}}
+@keyframes job-states-log4{0%,69.79%{opacity:0}72.55%,100%{opacity:1}}
+@keyframes job-states-log5{0%,86.32%{opacity:0}89.08%,100%{opacity:1}}
+.visible .anim-job-states .job-states-tk-h1{animation:job-states-tk-h1 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-tk-h2{animation:job-states-tk-h2 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-tk-h3{animation:job-states-tk-h3 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-tk-h4{animation:job-states-tk-h4 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-tk-h5{animation:job-states-tk-h5 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-on-picked{animation:job-states-on-picked 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-on-error{animation:job-states-on-error 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-on-retry{animation:job-states-on-retry 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-on-exit{animation:job-states-on-exit 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-hot-queued{animation:job-states-hot-queued 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-hot-running{animation:job-states-hot-running 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-hot-failed{animation:job-states-hot-failed 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-hot-done{animation:job-states-hot-done 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-att1{animation:job-states-att1 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-att2{animation:job-states-att2 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log0{animation:job-states-log0 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log1{animation:job-states-log1 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log2{animation:job-states-log2 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log3{animation:job-states-log3 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log4{animation:job-states-log4 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log5{animation:job-states-log5 9.8s ease-in-out 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-job-states * { animation: none !important; } }
 </style>
-<div class="anim anim-job-states" data-anim="job-states" data-anim-cycle="12" data-anim-control="loop">
+<div class="anim anim-job-states" data-anim="job-states" data-anim-cycle="9.8" data-anim-control="once">
 <svg viewBox="0 0 1200 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Job lifecycle: a queued job is picked by a worker, fails with a timeout, is retried after a 2 second backoff and succeeds on the second attempt, with each transition written to an event log.">
 <path class="job-states-arc" d="M200 252 Q215 135 560 128"/><path class="job-states-arw" d="M550 121 L560 128 L550 135"/>
 <path class="job-states-arc" d="M640 128 Q985 135 1000 252"/><path class="job-states-arw" d="M991.8 243 L1000 252 L1005.6 241.2"/>

@@ -10,8 +10,8 @@ name: sales-funnel
 archetype: pipeline
 domain: marketing
 size: [1680, 600]
-control: loop
-cycle: 13
+control: once
+cycle: 9.6
 nodes:
   - { id: awareness,     label: Awareness,     sub: "10,000 · 100 %", kind: process }
   - { id: interest,      label: Interest,      sub: "2,500 · 25 %",   kind: process }
@@ -25,9 +25,9 @@ edges:
   - { from: purchase,      to: retention,     kind: flow, label: "75 %" }
 phases:
   - { t: 0,    label: setup,                                                     note: "One cohort of 10,000 people, followed stage by stage" }
-  - { t: 0.8,  label: awareness,     show: [awareness],     active: [awareness] }
-  - { t: 2.8,  label: interest,      show: [interest],      active: [interest],      flow: ["awareness>interest"] }
-  - { t: 4.8,  label: consideration, show: [consideration], active: [consideration], flow: ["interest>consideration"] }
-  - { t: 6.8,  label: purchase,      show: [purchase],      active: [purchase],      flow: ["consideration>purchase"] }
-  - { t: 8.8,  label: retention,     show: [retention],     active: [retention],     flow: ["purchase>retention"] }
-  - { t: 10.2, label: hold,                                 active: [retention],     note: "2 % of the cohort buys; 75 % of buyers are retained" }
+  - { t: 0.6,  label: awareness,     show: [awareness],     active: [awareness] }
+  - { t: 2.3,  label: interest,      show: [interest],      active: [interest],      flow: ["awareness>interest"] }
+  - { t: 3.9,  label: consideration, show: [consideration], active: [consideration], flow: ["interest>consideration"] }
+  - { t: 5.5,  label: purchase,      show: [purchase],      active: [purchase],      flow: ["consideration>purchase"] }
+  - { t: 7.1,  label: retention,     show: [retention],     active: [retention],     flow: ["purchase>retention"] }
+  - { t: 8.3, label: hold,                                 active: [retention],     note: "2 % of the cohort buys; 75 % of buyers are retained" }

@@ -1,6 +1,6 @@
 <!-- roadmap (pool, archetype timeline). Hand-polished from the scaffold of spec.yaml.
   Story: a progress line walks the axis; each milestone pops in and ships, the line stops at "now"
-  (Q4, mobile apps in progress) and the planned v2 appears dashed. Cycle 12 s, hold 9.6-11.5 s.
+  (Q4, mobile apps in progress) and the planned v2 appears dashed. Plays once: 9.9 s pass, final state from 8.9 s.
   Names, numbers and times are illustrative examples. -->
 <style>
 .anim-roadmap{
@@ -20,7 +20,7 @@
 }
 .anim-roadmap svg{display:block;width:100%;height:100%}
 /* lean style (references/style.md): one axis, dots, labels alternate above and below on thin leaders,
-   no cards and no pills; status words are plain coloured mono text, "now" is a glowing accent ring */
+   no cards and no pills; status words are plain coloured mono text, "now" is an accent ring; one glow follows the current milestone and only "now" keeps it at rest */
 .anim-roadmap .roadmap-lbl{font-family:var(--anim-font);font-size:26px;font-weight:600;fill:var(--anim-fg)}
 .anim-roadmap .roadmap-sub{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted)}
 .anim-roadmap .roadmap-note{font-family:var(--anim-font);font-size:26px;fill:var(--anim-fg)}
@@ -44,147 +44,147 @@
 /* resting frame = Q4 today: three milestones shipped (ok), mobile current (accent), v2 planned (dashed) */
 .anim-roadmap .roadmap-n0,.anim-roadmap .roadmap-n1,.anim-roadmap .roadmap-n2,.anim-roadmap .roadmap-n3,.anim-roadmap .roadmap-n4,.anim-roadmap .roadmap-alpha-now,.anim-roadmap .roadmap-alpha-bnow,.anim-roadmap .roadmap-alpha-c1,.anim-roadmap .roadmap-beta-now,.anim-roadmap .roadmap-beta-bnow,.anim-roadmap .roadmap-beta-c1,.anim-roadmap .roadmap-ga-now,.anim-roadmap .roadmap-ga-bnow,.anim-roadmap .roadmap-ga-c1{opacity:0}
 
-/* ---- motion (12 s cycle), only when the slide is visible ---- */
-/* fade in 0-0.3 s, hold until 11.5 s, reset 11.5-11.8 s */
-@keyframes roadmap-scene{0%{opacity:0}2.5%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-/* axis draws on 0.1-0.9 s */
-@keyframes roadmap-axis{0%,0.83%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.5%,100%{stroke-dashoffset:0}}
-/* from 0.6s */
-@keyframes roadmap-axis-plan{0%,5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.33%,100%{opacity:1}}
+/* ---- motion (plays once, 9.9 s pass), only when the slide is visible ---- */
+/* fade in 0-0.27 s, then holds */
+@keyframes roadmap-scene{0%{opacity:0}2.73%,100%{opacity:1}}
+/* axis draws on 0.09-0.81 s */
+@keyframes roadmap-axis{0%,0.91%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.18%,100%{stroke-dashoffset:0}}
+/* from 0.54s */
+@keyframes roadmap-axis-plan{0%,5.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.09%,100%{opacity:1}}
 /* dates fade in with the axis and never move */
-@keyframes roadmap-at{0%,1.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.83%,100%{opacity:1}}
-/* progress line: one move per segment, stops at each milestone (2.8, 4.6, 6.4 s) */
-@keyframes roadmap-prog{0%,16.67%{stroke-dashoffset:101;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}23.33%,31.67%{stroke-dashoffset:66.67;animation-timing-function:cubic-bezier(0.2,0,0,1)}38.33%,46.67%{stroke-dashoffset:33.33;animation-timing-function:cubic-bezier(0.2,0,0,1)}53.33%,100%{stroke-dashoffset:0.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}}
-/* Private alpha card pops at 1.0 s */
-@keyframes roadmap-alpha-card{0%,8.33%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.08%,100%{opacity:1;transform:translateY(0)}}
-/* from 1.1s */
-@keyframes roadmap-alpha-sub{0%,9.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.08%,100%{opacity:1}}
-/* from 0.95s */
-@keyframes roadmap-alpha-in{0%,7.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.42%,100%{opacity:1}}
-/* 1.0s - 2.8s */
-@keyframes roadmap-alpha-now{0%,8.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10%{opacity:1}23.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25%,100%{opacity:0}}
-/* 1.0s - 2.8s */
-@keyframes roadmap-alpha-bnow{0%,8.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10%{opacity:1}23.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25%,100%{opacity:0}}
-/* 1.0s - 2.8s */
-@keyframes roadmap-alpha-c1{0%,8.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.42%{opacity:1}23.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}24.58%,100%{opacity:0}}
-/* from 2.8s */
-@keyframes roadmap-alpha-ok{0%,23.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.42%,100%{opacity:1}}
-/* from 2.8s */
-@keyframes roadmap-alpha-c2{0%,23.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.42%,100%{opacity:1}}
-/* Public beta card pops at 2.8 s */
-@keyframes roadmap-beta-card{0%,23.33%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.08%,100%{opacity:1;transform:translateY(0)}}
-/* from 2.9s */
-@keyframes roadmap-beta-sub{0%,24.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.08%,100%{opacity:1}}
-/* from 2.75s */
-@keyframes roadmap-beta-in{0%,22.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.42%,100%{opacity:1}}
-/* 2.8s - 4.6s */
-@keyframes roadmap-beta-now{0%,23.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25%{opacity:1}38.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40%,100%{opacity:0}}
-/* 2.8s - 4.6s */
-@keyframes roadmap-beta-bnow{0%,23.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25%{opacity:1}38.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40%,100%{opacity:0}}
-/* 2.8s - 4.6s */
-@keyframes roadmap-beta-c1{0%,23.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.42%{opacity:1}38.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}39.58%,100%{opacity:0}}
-/* from 4.6s */
-@keyframes roadmap-beta-ok{0%,38.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.42%,100%{opacity:1}}
-/* from 4.6s */
-@keyframes roadmap-beta-c2{0%,38.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.42%,100%{opacity:1}}
-/* General availability card pops at 4.6 s */
-@keyframes roadmap-ga-card{0%,38.33%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}42.08%,100%{opacity:1;transform:translateY(0)}}
-/* from 4.699999999999999s */
-@keyframes roadmap-ga-sub{0%,39.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}42.08%,100%{opacity:1}}
-/* from 4.55s */
-@keyframes roadmap-ga-in{0%,37.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.42%,100%{opacity:1}}
-/* 4.6s - 6.4s */
-@keyframes roadmap-ga-now{0%,38.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40%{opacity:1}53.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}55%,100%{opacity:0}}
-/* 4.6s - 6.4s */
-@keyframes roadmap-ga-bnow{0%,38.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40%{opacity:1}53.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}55%,100%{opacity:0}}
-/* 4.6s - 6.4s */
-@keyframes roadmap-ga-c1{0%,38.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.42%{opacity:1}53.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}54.58%,100%{opacity:0}}
-/* from 6.4s */
-@keyframes roadmap-ga-ok{0%,53.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.42%,100%{opacity:1}}
-/* from 6.4s */
-@keyframes roadmap-ga-c2{0%,53.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.42%,100%{opacity:1}}
-/* Mobile apps card pops at 6.4 s */
-@keyframes roadmap-mobile-card{0%,53.33%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}57.08%,100%{opacity:1;transform:translateY(0)}}
-/* from 6.5s */
-@keyframes roadmap-mobile-sub{0%,54.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}57.08%,100%{opacity:1}}
-/* from 6.3500000000000005s */
-@keyframes roadmap-mobile-in{0%,52.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.42%,100%{opacity:1}}
-/* from 6.4s */
-@keyframes roadmap-mobile-now{0%,53.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55%,100%{opacity:1}}
-/* from 6.4s */
-@keyframes roadmap-mobile-bnow{0%,53.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55%,100%{opacity:1}}
-/* from 6.4s */
-@keyframes roadmap-mobile-c1{0%,53.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.42%,100%{opacity:1}}
+@keyframes roadmap-at{0%,1.82%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.36%,100%{opacity:1}}
+/* progress line: one move per segment, stops at each milestone (2.52, 4.14, 5.76 s) */
+@keyframes roadmap-prog{0%,18.19%{stroke-dashoffset:101;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}25.45%,34.55%{stroke-dashoffset:66.67;animation-timing-function:cubic-bezier(0.2,0,0,1)}41.81%,50.91%{stroke-dashoffset:33.33;animation-timing-function:cubic-bezier(0.2,0,0,1)}58.18%{stroke-dashoffset:0.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}100%{stroke-dashoffset:0.00}}
+/* Private alpha card pops at 0.9 s */
+@keyframes roadmap-alpha-card{0%,9.09%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.18%,100%{opacity:1;transform:translateY(0)}}
+/* from 0.99s */
+@keyframes roadmap-alpha-sub{0%,10%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.18%,100%{opacity:1}}
+/* from 0.85s */
+@keyframes roadmap-alpha-in{0%,8.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.37%,100%{opacity:1}}
+/* 0.9s - 2.52s */
+@keyframes roadmap-alpha-now{0%,9.09%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.91%{opacity:1}25.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}27.27%,100%{opacity:0}}
+/* 0.9s - 2.52s */
+@keyframes roadmap-alpha-bnow{0%,9.09%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.91%{opacity:1}23.63%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25.45%,100%{opacity:0}}
+/* 0.9s - 2.52s */
+@keyframes roadmap-alpha-c1{0%,9.09%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.37%{opacity:1}25.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}26.81%,100%{opacity:0}}
+/* from 2.52s */
+@keyframes roadmap-alpha-ok{0%,25.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.73%,100%{opacity:1}}
+/* from 2.52s */
+@keyframes roadmap-alpha-c2{0%,25.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.73%,100%{opacity:1}}
+/* Public beta card pops at 2.52 s */
+@keyframes roadmap-beta-card{0%,25.45%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.54%,100%{opacity:1;transform:translateY(0)}}
+/* from 2.61s */
+@keyframes roadmap-beta-sub{0%,26.37%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.54%,100%{opacity:1}}
+/* from 2.48s */
+@keyframes roadmap-beta-in{0%,25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.73%,100%{opacity:1}}
+/* 2.52s - 4.14s */
+@keyframes roadmap-beta-now{0%,25.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.27%{opacity:1}41.81%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.64%,100%{opacity:0}}
+/* 2.52s - 4.14s */
+@keyframes roadmap-beta-bnow{0%,25.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.27%{opacity:1}40%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}41.81%,100%{opacity:0}}
+/* 2.52s - 4.14s */
+@keyframes roadmap-beta-c1{0%,25.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.73%{opacity:1}41.81%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.18%,100%{opacity:0}}
+/* from 4.14s */
+@keyframes roadmap-beta-ok{0%,41.81%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.09%,100%{opacity:1}}
+/* from 4.14s */
+@keyframes roadmap-beta-c2{0%,41.81%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.09%,100%{opacity:1}}
+/* General availability card pops at 4.14 s */
+@keyframes roadmap-ga-card{0%,41.81%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}45.91%,100%{opacity:1;transform:translateY(0)}}
+/* from 4.23s */
+@keyframes roadmap-ga-sub{0%,42.73%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}45.91%,100%{opacity:1}}
+/* from 4.09s */
+@keyframes roadmap-ga-in{0%,41.37%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.09%,100%{opacity:1}}
+/* 4.14s - 5.76s */
+@keyframes roadmap-ga-now{0%,41.81%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.64%{opacity:1}58.18%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60%,100%{opacity:0}}
+/* 4.14s - 5.76s */
+@keyframes roadmap-ga-bnow{0%,41.81%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.64%{opacity:1}56.36%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}58.18%,100%{opacity:0}}
+/* 4.14s - 5.76s */
+@keyframes roadmap-ga-c1{0%,41.81%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.09%{opacity:1}58.18%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59.54%,100%{opacity:0}}
+/* from 5.76s */
+@keyframes roadmap-ga-ok{0%,58.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.46%,100%{opacity:1}}
+/* from 5.76s */
+@keyframes roadmap-ga-c2{0%,58.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.46%,100%{opacity:1}}
+/* Mobile apps card pops at 5.76 s */
+@keyframes roadmap-mobile-card{0%,58.18%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.27%,100%{opacity:1;transform:translateY(0)}}
+/* from 5.85s */
+@keyframes roadmap-mobile-sub{0%,59.09%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.27%,100%{opacity:1}}
+/* from 5.72s */
+@keyframes roadmap-mobile-in{0%,57.73%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.46%,100%{opacity:1}}
+/* from 5.76s */
+@keyframes roadmap-mobile-now{0%,58.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60%,100%{opacity:1}}
+/* from 5.76s */
+@keyframes roadmap-mobile-bnow{0%,58.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60%,100%{opacity:1}}
+/* from 5.76s */
+@keyframes roadmap-mobile-c1{0%,58.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.46%,100%{opacity:1}}
 /* halo marks today */
-@keyframes roadmap-mobile-halo{0%,54.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.33%,100%{opacity:1}}
-/* Platform v2 card pops at 8.0 s */
-@keyframes roadmap-v2-card{0%,66.67%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.42%,100%{opacity:1;transform:translateY(0)}}
-/* from 8.1s */
-@keyframes roadmap-v2-sub{0%,67.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.42%,100%{opacity:1}}
-/* from 8.0s */
-@keyframes roadmap-v2-in{0%,66.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.58%,100%{opacity:1}}
-/* 0s - 2.8s */
-@keyframes roadmap-n0{0%{opacity:1}23.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25%,100%{opacity:0}}
-/* 2.8s - 4.6s */
-@keyframes roadmap-n1{0%,23.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.83%{opacity:1}38.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40%,100%{opacity:0}}
-/* 4.6s - 6.4s */
-@keyframes roadmap-n2{0%,38.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.83%{opacity:1}53.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}55%,100%{opacity:0}}
-/* 6.4s - 8.0s */
-@keyframes roadmap-n3{0%,53.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.83%{opacity:1}66.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}68.33%,100%{opacity:0}}
-/* 8.0s - 9.6s */
-@keyframes roadmap-n4{0%,66.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.17%{opacity:1}80%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}81.67%,100%{opacity:0}}
-/* from 9.6s */
-@keyframes roadmap-n5{0%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.5%,100%{opacity:1}}
+@keyframes roadmap-mobile-halo{0%,59.09%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.63%,100%{opacity:1}}
+/* Platform v2 card pops at 7.2 s */
+@keyframes roadmap-v2-card{0%,72.73%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.82%,100%{opacity:1;transform:translateY(0)}}
+/* from 7.29s */
+@keyframes roadmap-v2-sub{0%,73.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.82%,100%{opacity:1}}
+/* from 7.2s */
+@keyframes roadmap-v2-in{0%,72.73%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.91%,100%{opacity:1}}
+/* 0s - 2.52s */
+@keyframes roadmap-n0{0%{opacity:1}25.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}27.27%,100%{opacity:0}}
+/* 2.52s - 4.14s */
+@keyframes roadmap-n1{0%,25.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.18%{opacity:1}41.81%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.64%,100%{opacity:0}}
+/* 4.14s - 5.76s */
+@keyframes roadmap-n2{0%,41.81%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.54%{opacity:1}58.18%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60%,100%{opacity:0}}
+/* 5.76s - 7.2s */
+@keyframes roadmap-n3{0%,58.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.91%{opacity:1}72.73%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}74.54%,100%{opacity:0}}
+/* 7.2s - 8.64s */
+@keyframes roadmap-n4{0%,72.73%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.46%{opacity:1}87.27%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}89.09%,100%{opacity:0}}
+/* from 8.64s */
+@keyframes roadmap-n5{0%,87.27%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90%,100%{opacity:1}}
 
-.visible .anim-roadmap .roadmap-scene{animation:roadmap-scene 12s linear infinite}
-.visible .anim-roadmap .roadmap-axis{animation:roadmap-axis 12s linear infinite}
-.visible .anim-roadmap .roadmap-axis-plan{animation:roadmap-axis-plan 12s linear infinite}
-.visible .anim-roadmap .roadmap-at{animation:roadmap-at 12s linear infinite}
-.visible .anim-roadmap .roadmap-prog{animation:roadmap-prog 12s linear infinite}
-.visible .anim-roadmap .roadmap-alpha-card{animation:roadmap-alpha-card 12s linear infinite}
-.visible .anim-roadmap .roadmap-alpha-sub{animation:roadmap-alpha-sub 12s linear infinite}
-.visible .anim-roadmap .roadmap-alpha-in{animation:roadmap-alpha-in 12s linear infinite}
-.visible .anim-roadmap .roadmap-alpha-now{animation:roadmap-alpha-now 12s linear infinite}
-.visible .anim-roadmap .roadmap-alpha-bnow{animation:roadmap-alpha-bnow 12s linear infinite}
-.visible .anim-roadmap .roadmap-alpha-c1{animation:roadmap-alpha-c1 12s linear infinite}
-.visible .anim-roadmap .roadmap-alpha-ok{animation:roadmap-alpha-ok 12s linear infinite}
-.visible .anim-roadmap .roadmap-alpha-c2{animation:roadmap-alpha-c2 12s linear infinite}
-.visible .anim-roadmap .roadmap-beta-card{animation:roadmap-beta-card 12s linear infinite}
-.visible .anim-roadmap .roadmap-beta-sub{animation:roadmap-beta-sub 12s linear infinite}
-.visible .anim-roadmap .roadmap-beta-in{animation:roadmap-beta-in 12s linear infinite}
-.visible .anim-roadmap .roadmap-beta-now{animation:roadmap-beta-now 12s linear infinite}
-.visible .anim-roadmap .roadmap-beta-bnow{animation:roadmap-beta-bnow 12s linear infinite}
-.visible .anim-roadmap .roadmap-beta-c1{animation:roadmap-beta-c1 12s linear infinite}
-.visible .anim-roadmap .roadmap-beta-ok{animation:roadmap-beta-ok 12s linear infinite}
-.visible .anim-roadmap .roadmap-beta-c2{animation:roadmap-beta-c2 12s linear infinite}
-.visible .anim-roadmap .roadmap-ga-card{animation:roadmap-ga-card 12s linear infinite}
-.visible .anim-roadmap .roadmap-ga-sub{animation:roadmap-ga-sub 12s linear infinite}
-.visible .anim-roadmap .roadmap-ga-in{animation:roadmap-ga-in 12s linear infinite}
-.visible .anim-roadmap .roadmap-ga-now{animation:roadmap-ga-now 12s linear infinite}
-.visible .anim-roadmap .roadmap-ga-bnow{animation:roadmap-ga-bnow 12s linear infinite}
-.visible .anim-roadmap .roadmap-ga-c1{animation:roadmap-ga-c1 12s linear infinite}
-.visible .anim-roadmap .roadmap-ga-ok{animation:roadmap-ga-ok 12s linear infinite}
-.visible .anim-roadmap .roadmap-ga-c2{animation:roadmap-ga-c2 12s linear infinite}
-.visible .anim-roadmap .roadmap-mobile-card{animation:roadmap-mobile-card 12s linear infinite}
-.visible .anim-roadmap .roadmap-mobile-sub{animation:roadmap-mobile-sub 12s linear infinite}
-.visible .anim-roadmap .roadmap-mobile-in{animation:roadmap-mobile-in 12s linear infinite}
-.visible .anim-roadmap .roadmap-mobile-now{animation:roadmap-mobile-now 12s linear infinite}
-.visible .anim-roadmap .roadmap-mobile-bnow{animation:roadmap-mobile-bnow 12s linear infinite}
-.visible .anim-roadmap .roadmap-mobile-c1{animation:roadmap-mobile-c1 12s linear infinite}
-.visible .anim-roadmap .roadmap-mobile-halo{animation:roadmap-mobile-halo 12s linear infinite}
-.visible .anim-roadmap .roadmap-v2-card{animation:roadmap-v2-card 12s linear infinite}
-.visible .anim-roadmap .roadmap-v2-sub{animation:roadmap-v2-sub 12s linear infinite}
-.visible .anim-roadmap .roadmap-v2-in{animation:roadmap-v2-in 12s linear infinite}
-.visible .anim-roadmap .roadmap-n0{animation:roadmap-n0 12s linear infinite}
-.visible .anim-roadmap .roadmap-n1{animation:roadmap-n1 12s linear infinite}
-.visible .anim-roadmap .roadmap-n2{animation:roadmap-n2 12s linear infinite}
-.visible .anim-roadmap .roadmap-n3{animation:roadmap-n3 12s linear infinite}
-.visible .anim-roadmap .roadmap-n4{animation:roadmap-n4 12s linear infinite}
-.visible .anim-roadmap .roadmap-n5{animation:roadmap-n5 12s linear infinite}
+.visible .anim-roadmap .roadmap-scene{animation:roadmap-scene 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-axis{animation:roadmap-axis 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-axis-plan{animation:roadmap-axis-plan 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-at{animation:roadmap-at 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-prog{animation:roadmap-prog 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-alpha-card{animation:roadmap-alpha-card 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-alpha-sub{animation:roadmap-alpha-sub 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-alpha-in{animation:roadmap-alpha-in 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-alpha-now{animation:roadmap-alpha-now 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-alpha-bnow{animation:roadmap-alpha-bnow 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-alpha-c1{animation:roadmap-alpha-c1 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-alpha-ok{animation:roadmap-alpha-ok 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-alpha-c2{animation:roadmap-alpha-c2 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-beta-card{animation:roadmap-beta-card 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-beta-sub{animation:roadmap-beta-sub 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-beta-in{animation:roadmap-beta-in 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-beta-now{animation:roadmap-beta-now 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-beta-bnow{animation:roadmap-beta-bnow 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-beta-c1{animation:roadmap-beta-c1 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-beta-ok{animation:roadmap-beta-ok 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-beta-c2{animation:roadmap-beta-c2 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-ga-card{animation:roadmap-ga-card 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-ga-sub{animation:roadmap-ga-sub 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-ga-in{animation:roadmap-ga-in 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-ga-now{animation:roadmap-ga-now 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-ga-bnow{animation:roadmap-ga-bnow 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-ga-c1{animation:roadmap-ga-c1 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-ga-ok{animation:roadmap-ga-ok 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-ga-c2{animation:roadmap-ga-c2 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-mobile-card{animation:roadmap-mobile-card 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-mobile-sub{animation:roadmap-mobile-sub 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-mobile-in{animation:roadmap-mobile-in 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-mobile-now{animation:roadmap-mobile-now 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-mobile-bnow{animation:roadmap-mobile-bnow 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-mobile-c1{animation:roadmap-mobile-c1 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-mobile-halo{animation:roadmap-mobile-halo 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-v2-card{animation:roadmap-v2-card 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-v2-sub{animation:roadmap-v2-sub 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-v2-in{animation:roadmap-v2-in 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-n0{animation:roadmap-n0 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-n1{animation:roadmap-n1 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-n2{animation:roadmap-n2 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-n3{animation:roadmap-n3 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-n4{animation:roadmap-n4 9.9s linear 1 forwards}
+.visible .anim-roadmap .roadmap-n5{animation:roadmap-n5 9.9s linear 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-roadmap * { animation: none !important; } }
 </style>
-<div class="anim anim-roadmap" data-anim="roadmap" data-anim-cycle="12" data-anim-control="loop">
+<div class="anim anim-roadmap" data-anim="roadmap" data-anim-cycle="9.9" data-anim-control="once">
 <svg viewBox="0 0 1680 440" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Product roadmap: private alpha, public beta and general availability have shipped in Q1 to Q3, native mobile apps are in progress in Q4, and platform v2 with a plugin API is planned for next Q1.">
 <g class="roadmap-scene">
   <path class="roadmap-axis" pathLength="100" d="M170 200 H1175"/>
@@ -238,7 +238,7 @@
   <!-- Q4 = now: glowing accent ring -->
   <text class="roadmap-mono roadmap-at" x="1175" y="172" text-anchor="middle">Q4</text>
   <circle class="roadmap-mk" cx="1175" cy="200" r="9"/>
-  <g class="roadmap-mobile-halo"><circle class="roadmap-glow" cx="1175" cy="200" r="16"/><circle class="roadmap-halo" cx="1175" cy="200" r="16"/></g>
+  <g class="roadmap-mobile-halo"><circle class="roadmap-halo" cx="1175" cy="200" r="16"/></g>
   <circle class="roadmap-glow roadmap-mobile-bnow" cx="1175" cy="200" r="14"/>
   <circle class="roadmap-dot roadmap-mobile-now" cx="1175" cy="200" r="7"/>
   <g class="roadmap-mobile-in">

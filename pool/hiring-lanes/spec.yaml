@@ -11,8 +11,8 @@ name: hiring-lanes
 archetype: graph
 domain: HR / business process
 size: [1680, 600]
-control: loop
-cycle: 14
+control: once
+cycle: 10
 nodes:
   - { id: apply,    label: Applies,        sub: "day 0",  group: candidate }
   - { id: screen,   label: Screens CV,     sub: "day 2",  group: recruiter }
@@ -37,12 +37,12 @@ groups:
   - { id: manager,   label: Hiring manager }
 phases:
   - { t: 0,    label: apply,    active: [apply],    note: "A candidate applies for the role" }
-  - { t: 0.8,  label: screen,   active: [screen],   flow: ["apply>screen"],    note: "The recruiter screens the CV and books an interview" }
-  - { t: 2.6,  label: interview, active: [iview],   flow: ["screen>iview"],    note: "The hiring manager interviews and approves the hire" }
-  - { t: 4.4,  label: approve,  active: [approve],  flow: ["iview>approve"] }
-  - { t: 5.6,  label: offer,    active: [offer],    flow: ["approve>offer"],   note: "The recruiter sends a first offer" }
-  - { t: 7.0,  label: review,   active: [review],   flow: ["offer>review"] }
-  - { t: 8.4,  label: revise,   active: [offer],    flow: ["review>offer"],    note: "The candidate asks for more: the offer is revised" }
-  - { t: 9.8,  label: review-2, active: [review],   flow: ["offer>review"] }
-  - { t: 11.2, label: accept,   active: [accepted], flow: ["review>accepted"], note: "The revised offer is accepted, 16 days after applying" }
-  - { t: 12.0, label: hold,     active: [accepted] }
+  - { t: 0.6,  label: screen,   active: [screen],   flow: ["apply>screen"],    note: "The recruiter screens the CV and books an interview" }
+  - { t: 1.95,  label: interview, active: [iview],   flow: ["screen>iview"],    note: "The hiring manager interviews and approves the hire" }
+  - { t: 3.3,  label: approve,  active: [approve],  flow: ["iview>approve"] }
+  - { t: 4.2,  label: offer,    active: [offer],    flow: ["approve>offer"],   note: "The recruiter sends a first offer" }
+  - { t: 5.25,  label: review,   active: [review],   flow: ["offer>review"] }
+  - { t: 6.3,  label: revise,   active: [offer],    flow: ["review>offer"],    note: "The candidate asks for more: the offer is revised" }
+  - { t: 7.35,  label: review-2, active: [review],   flow: ["offer>review"] }
+  - { t: 8.4, label: accept,   active: [accepted], flow: ["review>accepted"], note: "The revised offer is accepted, 16 days after applying" }
+  - { t: 9, label: hold,     active: [accepted] }

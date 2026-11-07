@@ -3,7 +3,9 @@
 Seven layouts cover almost every slide illustration. Pick one, write the spec
 ([spec-format.md](spec-format.md)), then use the section below for composition and motion.
 Timing and easing values are in [motion-rules.md](motion-rules.md); hard limits in
-[fragment-contract.md](fragment-contract.md) section 6.
+[fragment-contract.md](fragment-contract.md) section 6. Each **Pass** is for the default `once`
+control: the motion story plays one time when the slide becomes current and its hold is the
+resting frame. A requested `loop` (kiosk, gallery, hero) stretches the same story to 8 to 15 s.
 
 ## Decision table
 
@@ -53,11 +55,11 @@ shrink to 200 x 110.
   receiving box turns active (stroke `--anim-accent`), the previous one settles to `--anim-ok`.
 - Resolution: last box `--anim-ok`, chip shows the outcome; a rollback, if any, sends a packet
   along the dotted arc in `--anim-danger` or `--anim-warn`.
-- Hold 1.5-2 s on all boxes done.
+- Hold 0.8-1.5 s on all boxes done; that end state is the resting frame.
 
 **Techniques:** packets with `offset-path`; wire draw-on with `pathLength="100"`; status chips
 as stacked `<text>` cross-fades; highlight by stroke token change.
-**Cycle:** 10-13 s.
+**Pass:** 7-10 s (once).
 
 **Mistakes.**
 - Packets on every wire at once: only the current hop moves.
@@ -88,7 +90,7 @@ dependency. Groups: rect around members with 20 padding and 32 extra on top for 
 **Techniques:** draw-on per edge (`pathLength`), packets on the edge path, dimming via
 `opacity` on non-active nodes, arrowheads as small `<path>` (no `<marker>` with ids that
 collide; if you use `<marker>`, prefix its id).
-**Cycle:** 12-15 s.
+**Pass:** 8-10 s (once).
 
 **Mistakes.**
 - Edge crossings from list order: sort each column by the mean row of its parents.
@@ -118,11 +120,11 @@ to label box.
 
 **Techniques:** progress line as the axis path with `pathLength="100"` and dashoffset tied to
 the phase times; labels via opacity + scale; `at` labels never move.
-**Cycle:** 10-12 s.
+**Pass:** 6-9 s (once).
 
 **Mistakes.**
 - Spacing by real dates when gaps vary 10x: space evenly, put the date in `at`.
-- Progress line `linear` across the whole cycle: it is a move with stops, use the move curve
+- Progress line `linear` across the whole pass: it is a move with stops, use the move curve
   per segment.
 - Every milestone highlighted at the end: only "now" or the last stays accent.
 
@@ -147,11 +149,11 @@ marks the current state.
 - Hold.
 
 **Techniques:** token with `offset-path` per transition (one element per hop, each with its own
-full-cycle track); highlight by fill/stroke token change; labels as stacked `<text>`.
-**Cycle:** 10-14 s.
+full-pass track); highlight by fill/stroke token change; labels as stacked `<text>`.
+**Pass:** 7-10 s (once).
 
 **Mistakes.**
-- Showing every transition in one loop: show the story path, leave rare ones static.
+- Showing every transition in one pass: show the story path, leave rare ones static.
 - Self-loops drawn as tiny circles that clip the label: use a 60-wide loop above the pill.
 - Two tokens at once: there is exactly one current state.
 
@@ -176,7 +178,7 @@ the caption strip, not in a panel.
 
 **Techniques:** cross-fading `<text>` stacks for changing numbers; highlight by stroke and
 fill token change; side-by-side slide-in (`translateX(30px)` to 0, enter curve).
-**Cycle:** 9-12 s.
+**Pass:** 6-9 s (once).
 
 **Mistakes.**
 - Unequal rows: give both sides the same row count, pad with an empty row.
@@ -206,7 +208,7 @@ down and an up edge do not overlap.
 
 **Techniques:** packets with `offset-path` on vertical paths; band entrance by `translateY` +
 opacity; highlight by stroke token change.
-**Cycle:** 10-13 s.
+**Pass:** 7-10 s (once).
 
 **Mistakes.**
 - Bands entering top-down: stacks build from the bottom.
@@ -227,7 +229,7 @@ Event: vertical dashed line `--anim-muted` from plot top to bottom at the event'
 
 **Motion story.**
 - Setup: axes and gridlines in (element duration).
-- Action: series draw on left to right in step with the cycle (the x range maps to the action
+- Action: series draw on left to right in step with the pass (the x range maps to the action
   window); a dot rides the head of the line; each event's line and tag appear as the trace
   reaches it.
 - Resolution: full trace, events tagged, the key value as a readout.
@@ -236,7 +238,7 @@ Event: vertical dashed line `--anim-muted` from plot top to bottom at the event'
 **Techniques:** draw-on with `pathLength="100"` (the head dot uses `offset-path` with the same
 `d`), cross-fading `<text>` readouts, for live-looking signals a scrolling trace group with
 `translateX` (`linear`, see `pool/latency-trace/latency-trace.html`).
-**Cycle:** 10-14 s.
+**Pass:** 7-10 s (once).
 
 **Mistakes.**
 - Raw data with 1000 points: downsample to <= 200; the path should stay small.

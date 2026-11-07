@@ -3,7 +3,7 @@
   electric telegraph line Washington-Baltimore 1844, US telephone patent 1876, first transatlantic
   radio signal 1901, ARPANET's first link (UCLA-SRI) 1969, World Wide Web proposal (CERN) 1989.
   The progress line stops at each milestone; era brackets (wire, radio, computer networks) draw as
-  each era begins. Sub-lines are strictly factual. Cycle 12 s, hold 8.4-11.5 s. -->
+  each era begins. Sub-lines are strictly factual. Once-play pass 8.6 s, final hold 7.6-8.6 s. -->
 <style>
 .anim-comms-timeline{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -40,85 +40,85 @@
 .anim-comms-timeline .comms-timeline-br{fill:none;stroke:var(--anim-muted);stroke-opacity:.6;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 /* resting frame = the full timeline: every milestone shown, the latest (1989) current */
 .anim-comms-timeline .comms-timeline-now0,.anim-comms-timeline .comms-timeline-now1,.anim-comms-timeline .comms-timeline-now2,.anim-comms-timeline .comms-timeline-now3{opacity:0}
-/* ---- motion (12 s cycle), milestones reached at 1.0, 2.6, 4.4, 6.2, 7.8 s; hold 8.4-11.5 s ---- */
-/* fade in 0-0.3 s, reset 11.5-11.8 s */
-.visible .anim-comms-timeline .comms-timeline-scene{animation:comms-timeline-scene 12s infinite}
-@keyframes comms-timeline-scene{0%{opacity:0}2.50%,95.83%{opacity:1}98.33%,100%{opacity:0}}
-/* axis draws on 0.1-0.9 s */
-.visible .anim-comms-timeline .comms-timeline-axis{animation:comms-timeline-axis 12s infinite}
-@keyframes comms-timeline-axis{0%,0.83%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.50%,100%{stroke-dashoffset:0}}
+/* ---- motion (8.6 s once-play pass), milestones reached at 0.9, 2.35, 3.98, 5.61, 7.06 s; final hold 7.6-8.6 s ---- */
+/* fade in 0-0.27 s, then holds (once-play, no reset) */
+.visible .anim-comms-timeline .comms-timeline-scene{animation:comms-timeline-scene 8.6s 1 both}
+@keyframes comms-timeline-scene{0%{opacity:0}3.16%{opacity:1}100%{opacity:1}}
+/* axis draws on 0.09-0.81 s */
+.visible .anim-comms-timeline .comms-timeline-axis{animation:comms-timeline-axis 8.6s 1 both}
+@keyframes comms-timeline-axis{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}1.05%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.47%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
 /* years fade in with the axis and never move */
-.visible .anim-comms-timeline .comms-timeline-yr{animation:comms-timeline-yr 12s infinite}
-@keyframes comms-timeline-yr{0%,1.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.83%,100%{opacity:1}}
-/* progress line: one move per segment (0.8 s), stops at each milestone */
-.visible .anim-comms-timeline .comms-timeline-prog{animation:comms-timeline-prog 12s infinite}
-@keyframes comms-timeline-prog{0%,15.00%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}21.67%,30.00%{stroke-dashoffset:75;animation-timing-function:cubic-bezier(0.2,0,0,1)}36.67%,45.00%{stroke-dashoffset:50;animation-timing-function:cubic-bezier(0.2,0,0,1)}51.67%,58.33%{stroke-dashoffset:25;animation-timing-function:cubic-bezier(0.2,0,0,1)}65.00%,100%{stroke-dashoffset:0}}
-/* 1844: marker fills at 1.0 s */
-.visible .anim-comms-timeline .comms-timeline-mk0{animation:comms-timeline-mk0 12s infinite}
-@keyframes comms-timeline-mk0{0%,8.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.00%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-card0{animation:comms-timeline-card0 12s infinite}
-@keyframes comms-timeline-card0{0%,8.33%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.08%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-comms-timeline .comms-timeline-sub0{animation:comms-timeline-sub0 12s infinite}
-@keyframes comms-timeline-sub0{0%,9.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.50%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-now0{animation:comms-timeline-now0 12s infinite}
-@keyframes comms-timeline-now0{0%,8.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.42%,21.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}23.00%,100%{opacity:0}}
-/* 1876: marker fills at 2.6 s */
-.visible .anim-comms-timeline .comms-timeline-mk1{animation:comms-timeline-mk1 12s infinite}
-@keyframes comms-timeline-mk1{0%,21.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.33%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-card1{animation:comms-timeline-card1 12s infinite}
-@keyframes comms-timeline-card1{0%,21.67%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.42%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-comms-timeline .comms-timeline-sub1{animation:comms-timeline-sub1 12s infinite}
-@keyframes comms-timeline-sub1{0%,22.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.83%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-now1{animation:comms-timeline-now1 12s infinite}
-@keyframes comms-timeline-now1{0%,21.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.75%,36.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.00%,100%{opacity:0}}
-/* 1901: marker fills at 4.4 s */
-.visible .anim-comms-timeline .comms-timeline-mk2{animation:comms-timeline-mk2 12s infinite}
-@keyframes comms-timeline-mk2{0%,36.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.33%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-card2{animation:comms-timeline-card2 12s infinite}
-@keyframes comms-timeline-card2{0%,36.67%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.42%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-comms-timeline .comms-timeline-sub2{animation:comms-timeline-sub2 12s infinite}
-@keyframes comms-timeline-sub2{0%,37.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.83%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-now2{animation:comms-timeline-now2 12s infinite}
-@keyframes comms-timeline-now2{0%,36.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.75%,51.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}53.00%,100%{opacity:0}}
-/* 1969: marker fills at 6.2 s */
-.visible .anim-comms-timeline .comms-timeline-mk3{animation:comms-timeline-mk3 12s infinite}
-@keyframes comms-timeline-mk3{0%,51.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.33%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-card3{animation:comms-timeline-card3 12s infinite}
-@keyframes comms-timeline-card3{0%,51.67%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.42%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-comms-timeline .comms-timeline-sub3{animation:comms-timeline-sub3 12s infinite}
-@keyframes comms-timeline-sub3{0%,52.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.83%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-now3{animation:comms-timeline-now3 12s infinite}
-@keyframes comms-timeline-now3{0%,51.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.75%,65.00%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.33%,100%{opacity:0}}
-/* 1989: marker fills at 7.8 s */
-.visible .anim-comms-timeline .comms-timeline-mk4{animation:comms-timeline-mk4 12s infinite}
-@keyframes comms-timeline-mk4{0%,65.00%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}66.67%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-card4{animation:comms-timeline-card4 12s infinite}
-@keyframes comms-timeline-card4{0%,65.00%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.75%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-comms-timeline .comms-timeline-sub4{animation:comms-timeline-sub4 12s infinite}
-@keyframes comms-timeline-sub4{0%,65.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.17%,100%{opacity:1}}
-.visible .anim-comms-timeline .comms-timeline-now4{animation:comms-timeline-now4 12s infinite}
-@keyframes comms-timeline-now4{0%,65.00%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.08%,100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-yr{animation:comms-timeline-yr 8.6s 1 both}
+@keyframes comms-timeline-yr{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.36%{opacity:1}100%{opacity:1}}
+/* progress line: one move per segment (0.72 s), stops at each milestone */
+.visible .anim-comms-timeline .comms-timeline-prog{animation:comms-timeline-prog 8.6s 1 both}
+@keyframes comms-timeline-prog{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}18.94%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}27.36%{stroke-dashoffset:75;animation-timing-function:cubic-bezier(0.2,0,0,1)}37.87%{stroke-dashoffset:75;animation-timing-function:cubic-bezier(0.2,0,0,1)}46.29%{stroke-dashoffset:50;animation-timing-function:cubic-bezier(0.2,0,0,1)}56.81%{stroke-dashoffset:50;animation-timing-function:cubic-bezier(0.2,0,0,1)}65.23%{stroke-dashoffset:25;animation-timing-function:cubic-bezier(0.2,0,0,1)}73.64%{stroke-dashoffset:25;animation-timing-function:cubic-bezier(0.2,0,0,1)}82.06%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+/* 1844: marker fills at 0.9 s */
+.visible .anim-comms-timeline .comms-timeline-mk0{animation:comms-timeline-mk0 8.6s 1 both}
+@keyframes comms-timeline-mk0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.52%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.62%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-card0{animation:comms-timeline-card0 8.6s 1 both}
+@keyframes comms-timeline-card0{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.52%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.25%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-comms-timeline .comms-timeline-sub0{animation:comms-timeline-sub0 8.6s 1 both}
+@keyframes comms-timeline-sub0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.58%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.78%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-now0{animation:comms-timeline-now0 8.6s 1 both}
+@keyframes comms-timeline-now0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.52%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.15%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}27.36%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}29.04%{opacity:0}100%{opacity:0}}
+/* 1876: marker fills at 2.35 s */
+.visible .anim-comms-timeline .comms-timeline-mk1{animation:comms-timeline-mk1 8.6s 1 both}
+@keyframes comms-timeline-mk1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.36%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.45%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-card1{animation:comms-timeline-card1 8.6s 1 both}
+@keyframes comms-timeline-card1{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.36%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.09%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-comms-timeline .comms-timeline-sub1{animation:comms-timeline-sub1 8.6s 1 both}
+@keyframes comms-timeline-sub1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.41%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.61%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-now1{animation:comms-timeline-now1 8.6s 1 both}
+@keyframes comms-timeline-now1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.36%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.98%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}46.29%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.97%{opacity:0}100%{opacity:0}}
+/* 1901: marker fills at 3.98 s */
+.visible .anim-comms-timeline .comms-timeline-mk2{animation:comms-timeline-mk2 8.6s 1 both}
+@keyframes comms-timeline-mk2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.29%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.39%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-card2{animation:comms-timeline-card2 8.6s 1 both}
+@keyframes comms-timeline-card2{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.29%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}51.03%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-comms-timeline .comms-timeline-sub2{animation:comms-timeline-sub2 8.6s 1 both}
+@keyframes comms-timeline-sub2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.34%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}51.55%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-now2{animation:comms-timeline-now2 8.6s 1 both}
+@keyframes comms-timeline-now2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.29%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}65.23%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.91%{opacity:0}100%{opacity:0}}
+/* 1969: marker fills at 5.61 s */
+.visible .anim-comms-timeline .comms-timeline-mk3{animation:comms-timeline-mk3 8.6s 1 both}
+@keyframes comms-timeline-mk3{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65.23%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.33%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-card3{animation:comms-timeline-card3 8.6s 1 both}
+@keyframes comms-timeline-card3{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65.23%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.97%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-comms-timeline .comms-timeline-sub3{animation:comms-timeline-sub3 8.6s 1 both}
+@keyframes comms-timeline-sub3{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}66.28%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.48%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-now3{animation:comms-timeline-now3 8.6s 1 both}
+@keyframes comms-timeline-now3{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65.23%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.86%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}82.06%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}83.74%{opacity:0}100%{opacity:0}}
+/* 1989: marker fills at 7.06 s */
+.visible .anim-comms-timeline .comms-timeline-mk4{animation:comms-timeline-mk4 8.6s 1 both}
+@keyframes comms-timeline-mk4{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.06%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.17%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-card4{animation:comms-timeline-card4 8.6s 1 both}
+@keyframes comms-timeline-card4{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.06%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.79%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-comms-timeline .comms-timeline-sub4{animation:comms-timeline-sub4 8.6s 1 both}
+@keyframes comms-timeline-sub4{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.32%{opacity:1}100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-now4{animation:comms-timeline-now4 8.6s 1 both}
+@keyframes comms-timeline-now4{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.06%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.69%{opacity:1}100%{opacity:1}}
 /* halo marks the latest milestone */
-.visible .anim-comms-timeline .comms-timeline-halo{animation:comms-timeline-halo 12s infinite}
-@keyframes comms-timeline-halo{0%,66.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.00%,100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-halo{animation:comms-timeline-halo 8.6s 1 both}
+@keyframes comms-timeline-halo{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.37%{opacity:1}100%{opacity:1}}
 /* era 'wire' bracket draws as its first milestone lands */
-.visible .anim-comms-timeline .comms-timeline-br0{animation:comms-timeline-br0 12s infinite}
-@keyframes comms-timeline-br0{0%,10.83%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.83%,100%{stroke-dashoffset:0}}
-.visible .anim-comms-timeline .comms-timeline-el0{animation:comms-timeline-el0 12s infinite}
-@keyframes comms-timeline-el0{0%,12.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.83%,100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-br0{animation:comms-timeline-br0 8.6s 1 both}
+@keyframes comms-timeline-br0{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.67%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.98%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+.visible .anim-comms-timeline .comms-timeline-el0{animation:comms-timeline-el0 8.6s 1 both}
+@keyframes comms-timeline-el0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.78%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.98%{opacity:1}100%{opacity:1}}
 /* era 'radio' bracket draws as its first milestone lands */
-.visible .anim-comms-timeline .comms-timeline-br1{animation:comms-timeline-br1 12s infinite}
-@keyframes comms-timeline-br1{0%,39.17%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.17%,100%{stroke-dashoffset:0}}
-.visible .anim-comms-timeline .comms-timeline-el1{animation:comms-timeline-el1 12s infinite}
-@keyframes comms-timeline-el1{0%,40.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.17%,100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-br1{animation:comms-timeline-br1 8.6s 1 both}
+@keyframes comms-timeline-br1{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}49.45%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.76%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+.visible .anim-comms-timeline .comms-timeline-el1{animation:comms-timeline-el1 8.6s 1 both}
+@keyframes comms-timeline-el1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}51.55%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.76%{opacity:1}100%{opacity:1}}
 /* era 'computer networks' bracket draws as its first milestone lands */
-.visible .anim-comms-timeline .comms-timeline-br2{animation:comms-timeline-br2 12s infinite}
-@keyframes comms-timeline-br2{0%,54.17%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.17%,100%{stroke-dashoffset:0}}
-.visible .anim-comms-timeline .comms-timeline-el2{animation:comms-timeline-el2 12s infinite}
-@keyframes comms-timeline-el2{0%,55.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.17%,100%{opacity:1}}
+.visible .anim-comms-timeline .comms-timeline-br2{animation:comms-timeline-br2 8.6s 1 both}
+@keyframes comms-timeline-br2{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.39%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.7%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+.visible .anim-comms-timeline .comms-timeline-el2{animation:comms-timeline-el2 8.6s 1 both}
+@keyframes comms-timeline-el2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.48%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.7%{opacity:1}100%{opacity:1}}
 @media (prefers-reduced-motion: reduce) { .anim-comms-timeline * { animation: none !important; } }
 </style>
-<div class="anim anim-comms-timeline" data-anim="comms-timeline" data-anim-cycle="12" data-anim-control="loop">
+<div class="anim anim-comms-timeline" data-anim="comms-timeline" data-anim-cycle="8.6" data-anim-control="once">
 <svg viewBox="0 0 1680 520" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline of milestones in long-distance communication: electric telegraph line Washington to Baltimore 1844, telephone patent 1876, first transatlantic radio signal 1901, ARPANET first link 1969, World Wide Web proposal 1989.">
 <g class="comms-timeline-scene">
   <text class="comms-timeline-title" x="40" y="50">Milestones in long-distance communication</text>

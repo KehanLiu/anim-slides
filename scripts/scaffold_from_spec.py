@@ -4,19 +4,20 @@
 Usage:
   scaffold_from_spec.py SPEC.yaml|SPEC.json -o OUT.html
         [--viewbox W H] [--rendered-width PX] [--stage-width 1920] [--min-text PX]
-        [--control loop|step] [--no-check]
+        [--control once|loop|step] [--no-check]
 
   --viewbox         override the spec's size (viewBox width and height)
   --rendered-width  CSS px the SVG is shown at (default: the viewBox width); font sizes are
                     raised so every text meets --min-text there; the self-check uses it too
   --stage-width     width of the deck stage in CSS px (default 1920); sets the default --min-text
   --min-text        minimum rendered text size in px (default 18 * stage-width / 1920)
-  --control         override the spec's control (loop | step)
+  --control         override the spec's control (once | loop | step); once re-times a loop or step
+                    spec into a single pass of at most 10 s
   --no-check        do not run check_fragment.py on the output
 
 The output is a skeleton that satisfies references/fragment-contract.md: a layout per archetype
-(references/archetypes.md), phase timing from the spec, gated keyframes (loop) or a paused GSAP
-timeline (step). Refine it by hand (see the scaffold comment at the top of the output), then run
+(references/archetypes.md), phase timing from the spec, gated keyframes (once: one pass that
+ends on the resting frame and holds it; loop: an infinite cycle) or a paused GSAP timeline (step). Refine it by hand (see the scaffold comment at the top of the output), then run
 render-phases.sh and look at every PNG.
 Specs are YAML or JSON. PyYAML is used when installed; without it a built-in reader covers the
 plain subset the examples use (block and flow collections, quoted and plain scalars, comments).
@@ -55,6 +56,8 @@ EASE = {'enter': ('cubic-bezier(0.16,1,0.3,1)', 'expo.out'),
         'linear': ('linear', 'none')}
 STEP = 1.2     # step mode: timeline seconds between phase labels
 RESET = 0.4    # loop mode: the last seconds of the cycle fade back to the empty state
+CYCLE = {'once': (4, 10, 8), 'loop': (8, 15, 12)}   # control: (min s, max s, default s)
+HOLD = {'once': 1.2, 'loop': 2.0}                   # seconds the final state is held before the end
 
 
 def die(msg):
@@ -340,12 +343,21 @@ def validate(sp, args):
     if err:                      # everything below depends on name and archetype
         die('; '.join(err))
     check_keys(sp, 'top', 'spec')
-    spec_control = sp.get('control', 'loop')
+    spec_control = sp.get('control', 'once')
+    need(spec_control in ('once', 'loop', 'step'), f'control {spec_control!r} must be once, loop or step')
     S.control = args.control or spec_control
-    need(S.control in ('loop', 'step'), f'control {S.control!r} must be loop or step')
-    S.cycle = sp.get('cycle', 12)
-    if S.control == 'loop':
-        need(isinstance(S.cycle, (int, float)) and 8 <= S.cycle <= 15, 'cycle must be 8-15 s')
+    retime = S.control != spec_control and S.control in CYCLE
+    S.cycle = sp.get('cycle', CYCLE.get(spec_control, CYCLE['once'])[2])
+    if retime:          # --control override: the spec's timing was written for another control
+        S.cycle = min(max(S.cycle if isinstance(S.cycle, (int, float)) else 0, CYCLE[S.control][0]),
+                      CYCLE[S.control][1])
+    if S.control in CYCLE:
+        lo, hi, _ = CYCLE[S.control]
+        need(isinstance(S.cycle, (int, float)) and lo <= S.cycle <= hi,
+             f'cycle must be {lo}-{hi} s for control {S.control}'
+             + (' (control defaults to once: one pass, then hold; write control: loop only for a kiosk, '
+                'gallery or hero loop)' if 'control' not in sp and isinstance(S.cycle, (int, float))
+                and S.cycle > hi else ''))
     size = args.viewbox or sp.get('size') or DEFAULT_SIZE[S.arch]
     need(isinstance(size, (list, tuple)) and len(size) == 2
          and all(isinstance(v, int) and v > 0 for v in size), 'size must be [W, H], positive integers')
@@ -471,18 +483,45 @@ def validate(sp, args):
     phases = sp.get('phases')
     if not phases:
         phases = derive_phases(S)
-    elif S.control == 'loop' and spec_control == 'step':
-        phases = [dict(p) for p in phases]
-        st = math.floor((S.cycle - 2) / len(phases) * 10) / 10
-        for i, p in enumerate(phases):
-            p['t'] = round(i * st, 2)
-        if phases[-1].get('label') != 'hold':
-            phases.append({'t': round(S.cycle - 2, 2), 'label': 'hold'})
-        warn('control overridden to loop: phases re-timed evenly with a hold')
+    elif retime:
+        phases = retime_phases(S, [dict(p) for p in phases], spec_control)
     S.phases = check_phases(S, phases, err)
     if err:
         die('\n  '.join(['invalid phases:'] + err))
     return S
+
+
+def retime_phases(S, phases, spec_control):
+    """--control override to once or loop: fit the spec's phases into the new pass, ending with a
+    hold phase. Seconds from a timed spec keep their proportions; step ordinals are spread evenly."""
+    lo, hi, _ = CYCLE[S.control]
+    hold = HOLD[S.control]
+    has_hold = phases[-1].get('label') == 'hold'
+    body = phases[:-1] if has_hold and len(phases) > 1 else phases
+    n = len(body)
+    ts = [float(p.get('t') or 0) for p in body]
+    h0 = float(phases[-1].get('t') or 0) if has_hold and len(phases) > 1 else (ts[-1] + hold if ts else hold)
+    new = None
+    if spec_control in CYCLE and h0 > 0:
+        k = (S.cycle - hold) / h0
+        if S.control == 'once':
+            k = min(k, (hi - hold) / h0)
+        new = [round(t * k, 2) for t in ts]
+        if any(b - a < 0.8 - 1e-6 for a, b in zip(new, new[1:])):
+            new = None
+        else:
+            h_t = round(h0 * k, 2)
+    if new is None:
+        st = max(0.8, math.floor((S.cycle - hold) / max(n, 1) * 10) / 10)
+        new = [round(i * st, 2) for i in range(n)]
+        h_t = round(n * st, 2)
+    for p, t in zip(body, new):
+        p['t'] = t
+    end = dict(phases[-1]) if has_hold and len(phases) > 1 else {'label': 'hold'}
+    end['t'] = h_t
+    S.cycle = round(min(hi, max(lo, h_t + hold)), 1) if S.control == 'once' else S.cycle
+    warn(f'control overridden to {S.control}: phases re-timed into a {f1(S.cycle)} s pass with a hold')
+    return body + [end]
 
 
 def topo_order(S):
@@ -506,29 +545,31 @@ def topo_order(S):
 def derive_phases(S):
     order = topo_order(S) if S.arch in ('graph', 'states') else [n['id'] for n in S.nodes]
     if not order:
-        return ([{'t': 0, 'label': 'setup'}, {'t': S.cycle - 2, 'label': 'hold'}]
-                if S.control == 'loop' else [{'t': 0, 'label': 'start'}, {'t': 1, 'label': 'end'}])
-    n, hold, cyc = len(order), 2.0, S.cycle
+        return ([{'t': 0, 'label': 'setup'}, {'t': S.cycle - HOLD[S.control], 'label': 'hold'}]
+                if S.control in CYCLE else [{'t': 0, 'label': 'start'}, {'t': 1, 'label': 'end'}])
+    timed = S.control in CYCLE
+    n, hold, cyc = len(order), HOLD.get(S.control, 2.0), S.cycle
+    top = CYCLE.get(S.control, (0, 15))[1]
     st = 0
-    while S.control == 'loop':
+    while timed:
         st = round((cyc - hold) / n * 2) / 2
         if (n - 1) * st > cyc - hold - 0.8:
             st = math.floor((cyc - hold) / n * 10) / 10
-        if st >= 0.8 or cyc >= 15:
+        if st >= 0.8 or cyc >= top:
             break
         cyc += 1
-    if S.control == 'loop' and st < 0.8:
-        die(f'{n} nodes do not fit a 15 s loop at 0.8 s per phase; split the spec or write phases')
+    if timed and st < 0.8:
+        die(f'{n} nodes do not fit a {top} s {S.control} pass at 0.8 s per phase; split the spec or write phases')
     if cyc != S.cycle:
         warn(f'derived phases need cycle {cyc} s (was {S.cycle})')
         S.cycle = cyc
     phases, seen = [], set()
     for i, nid in enumerate(order):
         flow = [e['id'] for e in S.edges if e['to'] == nid and e['from'] in seen][:3]
-        phases.append({'t': round(i * st, 2) if S.control == 'loop' else i, 'label': nid,
+        phases.append({'t': round(i * st, 2) if timed else i, 'label': nid,
                        'show': [nid], 'active': [nid], 'flow': flow})
         seen.add(nid)
-    if S.control == 'loop':
+    if timed:
         sinks = [x for x in order if not any(e['from'] == x for e in S.edges)]
         label = 'hold' if 'hold' not in order else 'hold-end'
         phases.append({'t': cyc - hold, 'label': label, 'active': sinks[-1:]})
@@ -567,22 +608,30 @@ def check_phases(S, phases, err):
     if err:
         return out
     err += twice
-    if S.control == 'loop':
+    if S.control in CYCLE:
         ts = [p['t'] for p in out]
         if ts[0] != 0:
             err.append('the first phase must have t: 0')
         for a, b in zip(ts, ts[1:]):
             gap = round(b - a, 3)            # 11.2 - 10.4 is 0.7999... in floats
-            if gap < 0.8:
-                err.append(f'phase gap {a} -> {b} is under 0.8 s (or not increasing)')
+            least = 0.5 if S.control == 'once' else 0.8   # a once pass is short: a 0.5 s beat still reads
+            if gap < least:
+                err.append(f'phase gap {a} -> {b} is under {least} s (or not increasing)')
             elif gap < 1:
                 warn(f'phase gap {a} -> {b} is under 1 s')
-        if ts[-1] > S.cycle - 1:
-            err.append(f'phase t {ts[-1]} is after cycle - 1 ({S.cycle - 1})')
+        last_ok = S.cycle - (0.8 if S.control == 'once' else 1)
+        if ts[-1] > last_ok + 1e-6:
+            err.append(f'phase t {ts[-1]} is after cycle - {f1(S.cycle - last_ok)} ({f1(last_ok)}): '
+                       + ('the pass needs a final hold of 0.8 to 1.5 s' if S.control == 'once' else
+                          'the loop needs a hold before it restarts'))
         if out[-1]['label'] != 'hold':
-            warn('the last phase is not labelled hold; the loop has no explicit hold')
+            warn(f'the last phase is not labelled hold; the {"pass" if S.control == "once" else "loop"} '
+                 'has no explicit hold')
         elif out[-1]['show'] or out[-1]['flow']:
             warn('the hold phase should have no show and no flow')
+        if S.control == 'once' and S.cycle - ts[-1] > 1.5 + 1e-6:
+            warn(f'the final hold lasts {f1(S.cycle - ts[-1])} s (aim 0.8 to 1.5 s); shorten cycle to '
+                 f'{f1(ts[-1] + 1.2)}')
     elif any(p['t'] != i for i, p in enumerate(out)):
         warn('step control: phase t values are taken as 0, 1, 2 ... in list order')
     if len(out) > 8:
@@ -1838,15 +1887,18 @@ LAYOUTS = {'pipeline': layout_pipeline, 'graph': layout_graph, 'timeline': layou
 
 # ============================================================================ timing
 class Timing:
-    """Phase times for both controls. loop: seconds from the spec; step: one label per STEP s,
-    with each phase's tweens placed in the STEP before its label so tweenTo(label) plays them."""
+    """Phase times for all controls. once/loop (timed): seconds from the spec; once ends on the
+    final state (no reset), loop fades back to empty in the last RESET s. step: one label per
+    STEP s, with each phase's tweens placed in the STEP before its label so tweenTo(label) plays them."""
 
     def __init__(self, S):
-        self.loop = S.control == 'loop'
+        self.timed = S.control in CYCLE
+        self.once = S.control == 'once'
         n = len(S.phases)
-        if self.loop:
+        if self.timed:
             self.t = [float(p['t']) for p in S.phases]
-            self.end, self.rst = float(S.cycle), S.cycle - RESET
+            self.end = float(S.cycle)
+            self.rst = self.end if self.once else S.cycle - RESET
             self.act = list(self.t)
             self.win = [(self.t[i + 1] if i + 1 < n else self.rst) - self.t[i] for i in range(n)]
             self.draw_end = self.t[-1] if n > 1 else self.rst
@@ -1859,7 +1911,7 @@ class Timing:
         self.n = n
 
     def xtime(self, frac):
-        if self.loop:
+        if self.timed:
             return frac * self.draw_end
         if self.n < 2:
             return 0.0
@@ -1898,7 +1950,7 @@ def build_anims(S, T, scene, anim):
     entry = {}
 
     def stagger(k, m):
-        return 0 if m < 2 else k * min(0.08, (0.45 if T.loop else 0.25) / (m - 1))
+        return 0 if m < 2 else k * min(0.08, (0.45 if T.timed else 0.25) / (m - 1))
 
     for i, p in enumerate(S.phases):
         for k, x in enumerate(p['show']):
@@ -1916,7 +1968,7 @@ def build_anims(S, T, scene, anim):
     for e in S.edges:
         if e['id'] not in entry:
             a, b = max(entry[e['from']], entry[e['to']])
-            entry[e['id']] = (a + (0.3 if T.loop else 0.15), b)
+            entry[e['id']] = (a + (0.3 if T.timed else 0.15), b)
     ch = scene.get('chart')
     if ch:
         for s in ch['series']:
@@ -1927,9 +1979,12 @@ def build_anims(S, T, scene, anim):
                 t = T.xtime(ev['frac'])
                 entry[ev['e']['id']] = (t, T.phase_at(t))
 
+    named = {x for p in S.phases for x in p['show']}
     for key, (t, i) in entry.items():
-        if key not in rid or (not T.loop and i == 0):
+        if key not in rid or (not T.timed and i == 0):
             continue
+        if T.once and i == 0 and key not in named and t < 0.8:
+            continue    # once: the static frame is simply there; only the story enters (concurrency)
         anim.add(rid[key], 'opacity', t, 0.4, 0, 1)
         if key in S.edge and S.edge[key]['kind'] in ('flow', 'data'):
             # dash 100 + gap 120 at offset 101: no zero-length dash, so round caps paint no dot
@@ -1945,8 +2000,8 @@ def build_anims(S, T, scene, anim):
             j = i
             while j + 1 < T.n and on[j + 1]:
                 j += 1
-            if T.loop or i > 0:
-                anim.add(el, 'opacity', T.act[i], 0.25 if T.loop else 0.2, 0, 1)
+            if T.timed or i > 0:
+                anim.add(el, 'opacity', T.act[i], 0.25 if T.timed else 0.2, 0, 1)
             if j + 1 < T.n:
                 anim.add(el, 'opacity', T.act[j + 1], 0.2, 1, 0, 'exit')
             i = j + 1
@@ -1981,7 +2036,9 @@ def build_anims(S, T, scene, anim):
         for eid in p['flow']:
             pos[eid] = max([pos[f] + 1 for f in pos if S.edge[f]['to'] == S.edge[eid]['from']], default=0)
         depth = max(pos.values(), default=0) + 1
-        lo, hi = (0.6, 1.0) if T.loop else (0.3, 0.8)
+        lo, hi = (0.6, 1.0) if T.timed else (0.3, 0.8)
+        if T.once:
+            lo = min(lo, max(0.3, T.win[i] / depth - 0.15))   # short once phases: the hop fits its phase
         hop = max(lo, min(hi, T.win[i] / depth - 0.3))
         for eid in p['flow']:
             el, t0 = f'{N}-p{pk}', T.act[i] + 0.05 + pos[eid] * (hop + 0.3)
@@ -1996,7 +2053,7 @@ def build_anims(S, T, scene, anim):
         for i, nd in sorted(enumerate(S.nodes), key=lambda x: entry[x[1]['id']][0]):
             v = 100 - 100 * i / max(1, n - 1)
             t, ph = entry[nd['id']]
-            if v < cur and (T.loop or ph > 0):
+            if v < cur and (T.timed or ph > 0):
                 t0 = max(last, t - 0.6)
                 anim.add(f'{N}-progress', 'stroke-dashoffset', t0, max(0.2, t - t0), cur, v, 'move')
                 last = t
@@ -2005,7 +2062,7 @@ def build_anims(S, T, scene, anim):
         anim.rest_over[f'{N}-progress'] = {'stroke-dashoffset': 0}
     if ch:
         pw = ch['R'] - ch['L']
-        if T.loop:
+        if T.timed:
             anim.add(f'{N}-clip-r', 'width', 0, T.draw_end, '0px', f'{f1(pw)}px', 'linear')
         else:
             for i in range(1, T.n):
@@ -2015,9 +2072,9 @@ def build_anims(S, T, scene, anim):
             sid = rid[s['s']['id']]
             if not s['drawn']:
                 continue
-            anim.add(sid + '-end', 'opacity', T.xtime(1) - (0.3 if T.loop else 0), 0.3, 0, 1)
-            if not T.loop:
-                anim.add(sid + '-dot', 'opacity', T.act[-1], 0.2, 0, 1)
+            anim.add(sid + '-end', 'opacity', T.xtime(1) - (0.3 if T.timed else 0), 0.3, 0, 1)
+            if not T.timed or T.once:     # once: the head dot appears at the end instead of riding
+                anim.add(sid + '-dot', 'opacity', T.act[-1] if not T.timed else T.xtime(1) - 0.3, 0.2, 0, 1)
                 continue
             step = max(1, math.ceil(len(s['pts']) / 30))
             idx = list(range(0, len(s['pts']), step))
@@ -2044,7 +2101,9 @@ def rendered_ids(S, scene):
 
 
 # ============================================================================ emit
-def css_keyframes(el, segs, T, marks):
+def css_keyframes(el, segs, T, marks, final=None):
+    """loop: back to the initial value at 100 % (reset); once: the 100 % stop is the resting
+    frame (final), so the pass ends exactly on the ungated still and fill-mode holds it."""
     stops = {}
 
     def put(t, prop, v, ease=None):
@@ -2069,8 +2128,11 @@ def css_keyframes(el, segs, T, marks):
             put(t0, prop, cur, ease)
             put(t1, prop, v1)
             last, cur = t1, v1
-        put(T.rst, prop, cur, 'exit')
-        put(T.end, prop, init)
+        if T.once:
+            put(T.end, prop, (final or {}).get(prop, cur))
+        else:
+            put(T.rst, prop, cur, 'exit')
+            put(T.end, prop, init)
     out = [f'@keyframes {el} {{']
     for t in sorted(stops):
         props, ease = stops[t]
@@ -2256,8 +2318,14 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
                    f'text-anchor="middle">illustrative</text></g>')
     svg += scene.get('back', [])
 
+    # State layer: every highlight copy, every settled (ok) copy and the captions live in ONE <g>
+    # drawn after the figure, so a phase change (old highlight out, new in, status settles,
+    # caption swaps) is one opacity swap in one group, not five separate moves (concurrency).
+    state = []
+
     def hl_group(el, body):
-        return f'<g id="{el}-hl" class="{N}-hlg"{anim.style(el + "-hl")}>{body}</g>'
+        state.append(f'<g id="{el}-hl" class="{N}-hlg"{anim.style(el + "-hl")}>{body}</g>')
+        return ''
 
     # ---- containers: compare columns, layer bands, lanes (no panels: hairlines and names)
     for c in scene.get('containers', []):
@@ -2286,7 +2354,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
             if text_w(c['label'], F['head']) > c['w']:
                 warn(f'column header {c["label"][:30]!r} is wider than its column; shorten it')
             body = head + f'<path class="{N}-rule {N}-rule-head" d="{rule}"/>'
-            hl = hl_group(el, f'<path class="{N}-glow" d="{rule}"/><path class="{N}-wire-hl" d="{rule}"/>'
+            hl = hl_group(el, f'<path class="{N}-wire-hl" d="{rule}"/>'
                           + head.replace(f'{N}-head"', f'{N}-head {N}-acc"')) if on else ''
         else:
             ty = c['y'] + c['h'] / 2 + F['mono'] * 0.35
@@ -2307,7 +2375,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
             ty = y + F['sub'] * 0.35 if inline else y + F['sub'] + 8
             if not inline and tw > x1 - x0 + 40:
                 warn(f'era {g["id"]}: bracket label is wider than its span; shorten it')
-            hl = hl_group(el, f'<path class="{N}-glow" d="{d}"/><path class="{N}-wire-hl" d="{d}"/>') \
+            hl = hl_group(el, f'<path class="{N}-wire-hl" d="{d}"/>') \
                 if g['id'] in active_ids else ''
             svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}><path class="{N}-bracket" d="{d}"/>{hl}'
                        f'<text class="{N}-t {N}-glbl" x="{f1(mid)}" y="{f1(ty)}" text-anchor="middle">'
@@ -2324,7 +2392,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
                 warn(f'group {g["id"]} bracket overlaps node {n["id"]}; move it by hand')
         el = rid[g['id']]
         d = bracket_d(x0, x1, y, x0 + 8, x0 + 20 + tw + 10, 16)
-        hl = hl_group(el, f'<path class="{N}-glow" d="{d}"/><path class="{N}-wire-hl" d="{d}"/>') \
+        hl = hl_group(el, f'<path class="{N}-wire-hl" d="{d}"/>') \
             if g['id'] in active_ids else ''
         svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}><path class="{N}-bracket" d="{d}"/>{hl}'
                    + ''.join(f'<text class="{N}-t {N}-glbl" x="{f1(x0 + 20)}" y="{f1(y + F["sub"] * (0.35 + 1.25 * k))}">'
@@ -2337,7 +2405,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         draw = e['kind'] in ('flow', 'data')
         wire = (f'<path id="{el}-w" class="{N}-wire{" " + N + "-draw" if draw else ""}" d="{path_d(c)}"'
                 f'{" pathLength=" + chr(34) + "100" + chr(34) if draw else ""}{anim.style(el + "-w")}/>')
-        hl = hl_group(el, f'<path class="{N}-glow" d="{path_d(c)}"/><path class="{N}-wire-hl" d="{path_d(c)}"/>') \
+        hl = hl_group(el, f'<path class="{N}-wire-hl" d="{path_d(c)}"/>') \
             if e['id'] in active_ids else ''
         chain = plain and len(segs(c)) == 1 and abs(c[0][1] - c[3][1]) < 1 and abs(c[1][1] - c[0][1]) < 1
         arrow = '' if chain else f'<path class="{N}-arrow" d="{arrow_d(c)}"/>'
@@ -2349,6 +2417,10 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         svg.append(f'<g id="{el}" class="{N}-edge {N}-ek-{e["kind"]}"{anim.style(el)}>{wire}{hl}{arrow}{lab}</g>')
 
     # ---- nodes
+    # glow budget: only one ring glows, the story's outcome (first node active in the last phase,
+    # else the last node highlighted at all); every other highlight is a plain accent copy
+    lit = [x for p in S.phases for x in p['active'] if x in S.node]
+    glow_id = next((x for x in S.phases[-1]['active'] if x in S.node), lit[-1] if lit else None)
     for k, n in enumerate(S.nodes):
         b, el, kind = scene['nodes'][n['id']], rid[n['id']], n['kind']
         on = n['id'] in active_ids
@@ -2375,7 +2447,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
                 parts.append(f'<path class="{N}-rule" d="M {f1(b["x"])},{f1(b["y"] + b["h"])} H {f1(b["x"] + b["w"])}"/>')
             if on:
                 tick = f'M {f1(b["x"] + 2)},{f1(b["y"] + 12)} V {f1(b["y"] + b["h"] - 12)}'
-                parts.append(hl_group(el, f'<path class="{N}-glow" d="{tick}"/><path class="{N}-wire-hl" d="{tick}"/>{acc}'))
+                parts.append(hl_group(el, f'<path class="{N}-wire-hl" d="{tick}"/>{acc}'))
             svg.append(f'<g id="{el}" class="{N}-node {N}-k-{kind}"{anim.style(el)}>{"".join(parts)}</g>')
             continue
         dot = b['shape'] == 'dot'
@@ -2388,10 +2460,11 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         parts.append(mark_svg(b, base))
         parts.append(inner(S, F, n, b, k))
         if n['id'] in scene.get('ok', ()):
-            parts.append(f'<g id="{el}-ok" class="{N}-okg"{anim.style(el + "-ok")}>'
+            state.append(f'<g id="{el}-ok" class="{N}-okg"{anim.style(el + "-ok")}>'
                          + mark_svg(b, f'{base} {N}-is-ok') + inner(S, F, n, b, k, 'ok') + '</g>')
         if on:
-            parts.append(hl_group(el, mark_svg(b, f'{N}-glow') + mark_svg(b, f'{base} {N}-is-hl')
+            parts.append(hl_group(el, (mark_svg(b, f'{N}-glow') if n['id'] == glow_id else '')
+                                  + mark_svg(b, f'{base} {N}-is-hl')
                                   + inner(S, F, n, b, k, 'hl')))
         parts.append(text_block(N, b['lab'], F))
         svg.append(f'<g id="{el}" class="{N}-node {N}-k-{kind}"{anim.style(el)}>{"".join(parts)}</g>')
@@ -2423,27 +2496,31 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
                    if s['drawn'] else '')
             if dot and 'transform' not in anim.rest(el + '-dot'):
                 dot = dot.replace('cx="0" cy="0"', f'cx="{f1(ex)}" cy="{f1(ey)}"')
-            glow = f'<path class="{N}-glow" d="{s["d"]}"{clip}/>' if k == 0 else ''
+            glow = ''    # lines never glow (glow budget: one glowing element, a node ring)
             svg.append(f'<g id="{el}" class="{N}-series"{anim.style(el)}>{glow}<path class="{N}-ser {N}-c{k}" '
                        f'd="{s["d"]}"{clip}/>{dot}<text id="{el}-end" class="{N}-t {N}-lbl {N}-f{k}" '
                        f'x="{f1(ex + 14)}" y="{f1(s["ly"])}"{anim.style(el + "-end")}>{escape(s["s"]["label"])}</text></g>')
 
-    # ---- packets: glowing dots riding the wires
-    for el, eid in scene.get('packets', []):
-        e = S.edge[eid]
-        r = 10 if S.arch == 'states' else 8
-        svg.append(f'<circle id="{el}" class="{N}-pkt{" " + N + "-pkt-event" if e["kind"] == "event" else ""}" '
-                   f'r="{r}"{anim.style(el, f"offset-path:var(--{rid[eid]})")}/>')
-
-    # ---- caption: plain centred text, cross-faded per phase
+    # ---- caption: plain centred text, cross-faded per phase (inside the state layer)
     if has_note:
         notes = [p['note'] for p in S.phases if p['note']]
         for k, t in enumerate(notes):
             if text_w(t, F['note']) > S.W - 80:
                 warn(f'note {t[:30]!r}... is wider than the caption row')
-            svg.append(f'<text id="{N}-note{k}" class="{N}-t {N}-note" x="{f1(S.W / 2)}" '
-                       f'y="{f1(S.H - 8 - strip / 2 + F["note"] * 0.35)}" text-anchor="middle"'
-                       f'{anim.style(f"{N}-note{k}")}>{escape(t)}</text>')
+            state.append(f'<text id="{N}-note{k}" class="{N}-t {N}-note" x="{f1(S.W / 2)}" '
+                         f'y="{f1(S.H - 8 - strip / 2 + F["note"] * 0.35)}" text-anchor="middle"'
+                         f'{anim.style(f"{N}-note{k}")}>{escape(t)}</text>')
+    if state:
+        svg.append(f'<g id="{N}-state" class="{N}-state">')
+        svg += ['  ' + x for x in state]
+        svg.append('</g>')
+
+    # ---- packets: accent dots riding the wires
+    for el, eid in scene.get('packets', []):
+        e = S.edge[eid]
+        r = 10 if S.arch == 'states' else 8
+        svg.append(f'<circle id="{el}" class="{N}-pkt{" " + N + "-pkt-event" if e["kind"] == "event" else ""}" '
+                   f'r="{r}"{anim.style(el, f"offset-path:var(--{rid[eid]})")}/>')
     return svg
 
 
@@ -2495,7 +2572,7 @@ def css(S, F, T, anim, scene, rid):
 {A} path.{N}-in-ok {{ fill: none; stroke: var(--anim-ok); }}
 {A} path.{N}-in-hl {{ fill: none; stroke: var(--anim-accent); }}
 {A} .{N}-glow {{ fill: none; stroke: var(--anim-accent); stroke-width: 10; stroke-linecap: round; opacity: 0.3; filter: blur(6px); }}
-/* wires: 2.5 px at rest, the active path 4 px accent with a glow */
+/* wires: 2.5 px at rest, the active path 4 px accent (lines never glow) */
 {A} .{N}-wire {{ fill: none; stroke: {ink}; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
 {A} .{N}-draw {{ stroke-dasharray: 100 120; stroke-dashoffset: 0; }}
 {A} .{N}-ek-depends .{N}-wire {{ stroke-dasharray: 10 8; }}
@@ -2527,16 +2604,23 @@ def css(S, F, T, anim, scene, rid):
         out.append(f'/* ---- edge paths: the one copy packets read (offset-path: var(--...)); keep in step with each wire d ---- */')
         out.append(f'{A} {{\n' + '\n'.join(f'  --{rid[e["id"]]}: path("{path_d(scene["edges"][e["id"]])}");'
                                              for e in S.edges) + '\n}')
-    if T.loop:
+    if T.timed:
         marks = {}
         for i, p in enumerate(S.phases):
             marks[round(T.t[i], 2)] = p['label']
-        marks[round(T.rst, 2)] = 'reset'
-        out.append(f'/* ---- motion: one full-cycle track per element, gated on .visible (cycle {f1(T.end)} s) ---- */')
-        for el in anim.segs:
-            out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear infinite; }}')
+        if T.once:
+            marks[round(T.end, 2)] = 'end = resting frame'
+            out.append(f'/* ---- motion: one pass of {f1(T.end)} s per element, gated on .visible; plays once when the '
+                       'slide becomes current, then holds the 100 % stop (= resting frame) ---- */')
+            for el in anim.segs:
+                out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear 1 both; }}')
+        else:
+            marks[round(T.rst, 2)] = 'reset'
+            out.append(f'/* ---- motion: one full-cycle track per element, gated on .visible (cycle {f1(T.end)} s) ---- */')
+            for el in anim.segs:
+                out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear infinite; }}')
         for el, segs in anim.segs.items():
-            out.append(css_keyframes(el, segs, T, marks))
+            out.append(css_keyframes(el, segs, T, marks, anim.rest(el)))
     else:
         out.append('/* step control: the module script below drives the motion with GSAP */')
     out.append(f'@media (prefers-reduced-motion: reduce) {{ {A} * {{ animation: none !important; }} }}')
@@ -2615,7 +2699,7 @@ def main():
     ap.add_argument('--rendered-width', type=float)
     ap.add_argument('--stage-width', type=float, default=1920)
     ap.add_argument('--min-text', type=float)
-    ap.add_argument('--control', choices=['loop', 'step'])
+    ap.add_argument('--control', choices=['once', 'loop', 'step'])
     ap.add_argument('--no-check', action='store_true')
     args = ap.parse_args()
     if args.min_text is None:
@@ -2644,7 +2728,7 @@ def main():
 
     words = ', '.join(n['label'] for n in S.nodes) or ', '.join(s['label'] for s in S.series)
     aria = escape(f'{S.title + ": " if S.title else ""}{S.arch} of {words}', quote=True)
-    cyc = f1(T.end if T.loop else T.end + STEP)
+    cyc = f1(T.end if T.timed else T.end + STEP)
     refine = ('<!-- scaffold: refine by hand -\n'
               f'  generated by scripts/scaffold_from_spec.py from {os.path.basename(args.spec)} '
               f'({S.arch}, {S.control}, {S.W}x{S.H}, rendered {rw:g}px)\n'
@@ -2663,7 +2747,7 @@ def main():
             f'role="img" aria-label="{aria}">']
     html += ['  ' + x for x in body]
     html.append('</svg>')
-    if not T.loop:
+    if not T.timed:
         html.append(gsap_script(S, T, anim))
     html.append('</div>')
     os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)

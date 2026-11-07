@@ -12,8 +12,8 @@ archetype: timeline
 domain: history
 title: "Milestones in long-distance communication"
 size: [1680, 520]
-control: loop
-cycle: 12
+control: once
+cycle: 8.6
 nodes:
   - { id: telegraph, label: Electric telegraph,         sub: "Washington to Baltimore line",        kind: milestone, at: "1844" }
   - { id: telephone, label: Telephone patent,           sub: "US patent No. 174,465 issued",        kind: milestone, at: "1876" }
@@ -22,9 +22,9 @@ nodes:
   - { id: web,       label: World Wide Web proposal,    sub: "Tim Berners-Lee, CERN",               kind: milestone, at: "1989" }
 phases:
   - { t: 0,   label: setup }
-  - { t: 1.0, label: telegraph, show: [telegraph], active: [telegraph] }
-  - { t: 2.6, label: telephone, show: [telephone], active: [telephone] }
-  - { t: 4.4, label: radio,     show: [radio],     active: [radio] }
-  - { t: 6.2, label: arpanet,   show: [arpanet],   active: [arpanet] }
-  - { t: 7.8, label: web,       show: [web],       active: [web] }
-  - { t: 8.8, label: hold,                         active: [web] }
+  - { t: 0.9, label: telegraph, show: [telegraph], active: [telegraph] }
+  - { t: 2.4, label: telephone, show: [telephone], active: [telephone] }
+  - { t: 4.0, label: radio,     show: [radio],     active: [radio] }
+  - { t: 5.6, label: arpanet,   show: [arpanet],   active: [arpanet] }
+  - { t: 6.9, label: web,       show: [web],       active: [web] }
+  - { t: 7.8, label: hold,                         active: [web] }

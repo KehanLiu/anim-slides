@@ -5,6 +5,12 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
 
 ## Principles
 
+0. **Less.** A fragment is the slide's own figure, redrawn quietly, plus one movement. It keeps
+   the figure's form: stairs stay stairs, a table stays rows, a Gantt stays bars. Turning a
+   staircase into a line chart, adding brackets, arrows, glows or a second storyline the slide
+   does not have, or making several things travel at once, is "too much" even when every
+   number is right. Before adding an element or a motion, ask what the slide loses without it;
+   if the answer is nothing, leave it out.
 1. **Space is the main material.** The figure fills about 60 to 70 % of its slot and sits
    centred; the rest stays empty. Fewer elements, larger type, wider gaps. If a slot feels
    crowded, remove a label before shrinking the type.
@@ -31,11 +37,14 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
    2 px stroke in `--anim-line`, mono 18 px) in a corner of the figure, the same way every time.
 8. **Glow, not shadow.** The active element may carry a soft glow: a second copy of the shape
    behind it with the accent colour at 25 to 35 % opacity and a 6 to 10 px blur
-   (`filter: blur()` on the copy, or a wider stroke at low opacity). Nothing else glows.
-9. **Motion is calm.** Enter with a 16 px rise and fade (600 ms, `cubic-bezier(.2,.7,.2,1)`),
-   draw-on over 1.2 s, dim-not-hide for things that lose focus (opacity 0.35). No bounce, no
-   scale beyond 1.05, no more than one thing arriving at a time unless they are a staggered
-   series (80 ms apart).
+   (`filter: blur()` on the copy, or a wider stroke at low opacity). Nothing else glows: one
+   glowing element per fragment at most, and lines and arrows never glow.
+9. **Motion is calm and happens once.** Enter with a 16 px rise and fade (600 ms,
+   `cubic-bezier(.2,.7,.2,1)`), draw-on over 1.2 s, dim-not-hide for things that lose focus
+   (opacity 0.35). No bounce, no scale beyond 1.05, no more than one thing arriving at a time
+   unless they are a staggered series (80 ms apart). The pass plays once when the slide
+   becomes current (4 to 10 s) and ends on the resting frame; nothing loops, pulses or
+   restarts while the slide is up.
 10. **Both themes.** The same rules hold on a light background: lines get darker, the glow
     stays coloured, panels stay absent. Always render both before calling a fragment done.
 

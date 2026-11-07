@@ -13,8 +13,8 @@ name: deploy-pipeline          # kebab-case 2-24 chars, becomes the fragment nam
 archetype: pipeline            # pipeline | graph | timeline | states | compare | layers | chart
 title: "Build to production"   # optional, drawn as a title row if present
 size: [1680, 440]              # viewBox W H; optional, archetype default if absent
-control: loop                  # loop | step
-cycle: 12                      # seconds, loop only
+control: once                  # once (default) | loop | step
+cycle: 8                       # pass length in seconds: once 4-10, loop 8-15; ignored in step
 nodes:
   - id: build                  # kebab-case, unique; rendered id <name>-n-build
     label: Build
@@ -33,7 +33,7 @@ groups:
   - id: ci
     label: CI
 phases:
-  - t: 0                       # seconds into the cycle (loop) or ordinal (step)
+  - t: 0                       # seconds into the pass (once, loop) or ordinal (step)
     label: trigger             # kebab-case, becomes a GSAP label in step mode
     show: [build]              # node/edge/group ids that enter during this phase
     active: [build]            # ids highlighted during this phase
@@ -56,8 +56,8 @@ events:                        # chart archetype only
 | `archetype` | yes | - | One of the seven in [archetypes.md](archetypes.md). Picks layout and motion recipe. |
 | `title` | no | none | One line, max ~48 chars. Drawn as a title row at the top of the viewBox. Omit when the slide already has a title (usual case). |
 | `size` | no | per archetype (below) | `[W, H]`, positive integers, viewBox units. Match the slot's aspect ratio ([layouts.md](layouts.md)). |
-| `control` | no | `loop` | `loop` = CSS keyframes; `step` = paused GSAP timeline, one label per phase. |
-| `cycle` | loop: no | `12` | Seconds, 8 to 15 inclusive (contract section 6). Ignored in `step`. |
+| `control` | no | `once` | `once` = CSS keyframes that play one pass when the slide becomes current and hold the finished state; `loop` = the same keyframes repeated forever, only when the user asks for a continuous loop (kiosk, gallery, hero); `step` = paused GSAP timeline, one label per phase. |
+| `cycle` | no | `8` (once), `12` (loop) | The **pass length** in seconds: 4 to 10 for `once`, 8 to 15 for `loop` (contract section 6). Becomes `data-anim-cycle`. Ignored in `step`. |
 | `domain` | no | none | Metadata only (e.g. `biology`, `finance`), used by `pool/index.yaml`; no effect on layout. |
 | `illustrative` | no | `false` | `true` draws the standard outlined "illustrative" tag at the top right; use it whenever the values are examples. |
 | `lanes` | no | `false` | Graph only. `true` draws `groups` as full-width horizontal swimlanes (lane name in a left column) with nodes placed by rank inside their lane; ungrouped nodes go in an unlabelled last lane. Ignored with a warning when there are no groups. |
@@ -133,8 +133,8 @@ Phases are the story. Each phase is a moment at which things enter, light up or 
 
 | Field | Req | Default | Meaning / rules |
 |---|---|---|---|
-| `t` | yes | - | `loop`: seconds, `0 <= t <= cycle - 1`, strictly increasing, first phase `t: 0`, gaps >= 0.8 s. `step`: ordinals 0, 1, 2 ... in order; a loop spec run with `--control step` keeps its phases in list order (seconds become ordinals) and a `hold` phase becomes one extra key press. |
-| `label` | yes | - | Kebab-case, unique among phases. Becomes `tl.addLabel(label)` in step mode and a comment next to the keyframe stop in loop mode. |
+| `t` | yes | - | `once`: seconds, `0 <= t <= cycle - 0.8`; `loop`: seconds, `0 <= t <= cycle - 1`. Both: strictly increasing, first phase `t: 0`, gaps >= 0.8 s (`once`: >= 0.5 s, warning under 1 s). `step`: ordinals 0, 1, 2 ... in order; a timed spec run with `--control step` keeps its phases in list order (seconds become ordinals) and a `hold` phase becomes one extra key press. `--control once` / `--control loop` on a spec written for another control re-times the phases into the new pass, keeping their proportions. |
+| `label` | yes | - | Kebab-case, unique among phases. Becomes `tl.addLabel(label)` in step mode and a comment next to the keyframe stop in once and loop mode. |
 | `show` | no | `[]` | Ids (node, group, edge as `from>to`, series, event) that enter at `t`. Each id enters at most once across all phases. |
 | `active` | no | `[]` | Ids highlighted from this phase until the next phase. Must be visible at this phase. Keep to 1-3 (contract: about a third of elements active at most). |
 | `flow` | no | `[]` | Edge ids `from>to` that carry a packet starting at `t`. Edge must exist and both endpoints be visible. Max 3 per phase (contract: three things moving at once). |
@@ -150,11 +150,16 @@ Implicit entry (so specs stay short):
 
 Timing semantics:
 
-- `loop`: phase *i* lasts from `t_i` to `t_{i+1}`; the last phase lasts until `cycle`. Entrances
-  start at `t` with element duration (300-500 ms); packets take one hop (0.6-1.2 s). The last
-  phase is the **hold**: by convention `label: hold`, no `show`, no `flow`, `t` between
-  `cycle - 2` and `cycle - 1`. The final ~0.4 s of the cycle is the reset to the empty state.
-- The state at the start of the hold is the resting frame (contract section 5).
+- `once`: phase *i* lasts from `t_i` to `t_{i+1}`; the last phase lasts until `cycle`, the end
+  of the pass. Entrances start at `t` with element duration (300-500 ms); packets take one hop
+  (0.6-1.0 s) and travel their path once. The last phase is the **hold**: by convention
+  `label: hold`, no `show`, no `flow`, `t` between `cycle - 1.5` and `cycle - 0.8`. Nothing
+  resets: the pass ends on the finished state and keeps it (fill-mode `forwards`/`both`). The
+  caption strip cross-fades per phase during the pass and the last caption stays.
+- `loop`: as `once`, but the hold `t` lies between `cycle - 2` and `cycle - 1` and the final
+  ~0.4 s of the cycle is the reset to the empty state before the next round.
+- The state at the start of the hold is the resting frame (contract section 5), and under
+  `once` also the 100 % keyframe of every track.
 - `step`: phase *i* is the state after the presenter's *i*-th key press; phase 0 is shown on
   arrival. No hold is needed, but the last phase must still be the full final state.
 
@@ -178,7 +183,9 @@ time and each event tag appears as the trace reaches it.
 The scaffold refuses a spec when any of these fail; fix the spec, not the fragment.
 
 1. `name`, every id and every phase label are kebab-case and within length.
-2. `archetype` and `control` are known values; `cycle` is 8-15 in loop mode.
+2. `archetype` and `control` are known values (`once`, `loop`, `step`); `cycle` is 4-10 for
+   `once` (the default, so a spec without `control` and with `cycle: 12` is refused with a hint)
+   and 8-15 for `loop`.
 3. All ids are unique across nodes, groups, series and events.
 4. Every `group`, `from`, `to` and every id in `show` / `active` / `flow` resolves.
 5. Archetype-specific node fields are present where required and absent elsewhere
@@ -188,7 +195,8 @@ The scaffold refuses a spec when any of these fail; fix the spec, not the fragme
 7. Chart: at least one series, x strictly increasing, events inside the x range.
 
 Warnings (scaffold proceeds): more than 12 nodes, more than 8 phases, more than 16 edges,
-a label over its length hint, a loop with no hold phase, a phase gap under 1 s.
+a label over its length hint, a pass or loop with no hold phase, a phase gap under 1 s, a once
+hold longer than 1.5 s.
 
 ## Scaffold conventions
 
@@ -198,6 +206,16 @@ Where the schema leaves a drawing decision open, `scripts/scaffold_from_spec.py`
   otherwise the panels are headed "Before" and "After".
 - **layer names**: a group whose members all share one `layer` names that band; otherwise
   "Layer N" counted from the bottom.
+- **once mode**: one track per element, `animation: <id> <cycle>s linear 1 both`, keyframe
+  percentages from the phase seconds, and every 100 % stop set to that element's resting value,
+  so the last frame of the pass is the resting frame. `loop` emits the same tracks with
+  `infinite` and a reset in the last 0.4 s.
+- **state layer**: every highlight copy, every settled (`ok`) copy and the captions sit in one
+  `<g id="<name>-state">` after the figure, so a phase change is one opacity swap in one group
+  (contract section 8, motion concurrency). Static frame elements (never named in `show`) do
+  not fade in under `once`; a chart's head dot appears at the end instead of riding the line.
+- **glow**: only one ring glows, the outcome (the first node active in the last phase, else the
+  last highlighted node); wires, brackets, rules and chart series get a plain accent copy.
 - **step mode**: phases are placed 1.2 s apart on the GSAP timeline, each phase's tweens run in
   the 1.2 s before its label, and `data-anim-cycle` holds the timeline length.
 - **`active` on series or events** is ignored; highlight them by order of entry instead.
@@ -210,14 +228,15 @@ Most sources describe structure, not timing. Default rule:
 
 1. Order the nodes in reading order (list order of the source; for graphs, topological order
    from sources to sinks, ties by list order).
-2. Let `n` = number of nodes, `hold = 2` s, `step = round_half((cycle - hold) / n)`.
-   If `step < 0.8`, raise `cycle` up to 15; if still too small, split the spec.
+2. Let `n` = number of nodes, `hold = 1.2` s (`loop`: 2 s), `step = round_half((cycle - hold) / n)`.
+   If `step < 0.8`, raise `cycle` up to 10 (`loop`: 15); if still too small, split the spec.
 3. Phase *i* (0-based) at `t = i * step`: `show: [node_i]`, `active: [node_i]`,
    `flow: [every edge into node_i from an earlier node]`, `label` = the node id.
 4. Last phase: `t = cycle - hold`, `label: hold`, `active` = the outcome node (sink) or empty.
 5. Write one `note` per phase only where the source gives a sentence for that step.
 
-Example: 5 nodes, cycle 12 -> step 2.0 -> phases at 0, 2, 4, 6, 8, hold at 10.
+Example: 5 nodes, cycle 8 -> step 1.5 -> phases at 0, 1.5, 3, 4.5, 6, hold at 6.8, pass ends at 8.
+(`loop`, cycle 12 -> step 2.0 -> phases at 0, 2, 4, 6, 8, hold at 10.)
 
 For `step` control use the same order with `t: 0, 1, 2 ...` and no hold.
 
@@ -299,7 +318,7 @@ source's words.
 ```yaml
 name: release-flow
 archetype: pipeline
-cycle: 12
+cycle: 9
 nodes:
   - {id: tag, label: Tag commit, sub: maintainer, kind: actor}
   - {id: build, label: Build, sub: CI}
@@ -308,11 +327,11 @@ nodes:
   - {id: production, label: Production, sub: Tuesday window, kind: milestone}
 phases:
   - {t: 0, label: tag, show: [tag], active: [tag], note: "A maintainer tags main"}
-  - {t: 2, label: build, show: [build], active: [build], flow: ["tag>build"]}
-  - {t: 4, label: test, show: [test], active: [test], flow: ["build>test"], note: "Full suite, about 20 minutes"}
-  - {t: 6, label: staging, show: [staging], active: [staging], flow: ["test>staging"], note: "Green builds go to staging for QA"}
-  - {t: 8, label: production, show: [production], active: [production], flow: ["staging>production"], note: "Promoted in the Tuesday window"}
-  - {t: 10, label: hold, active: [production]}
+  - {t: 1.5, label: build, show: [build], active: [build], flow: ["tag>build"]}
+  - {t: 3, label: test, show: [test], active: [test], flow: ["build>test"], note: "Full suite, about 20 minutes"}
+  - {t: 4.5, label: staging, show: [staging], active: [staging], flow: ["test>staging"], note: "Green builds go to staging for QA"}
+  - {t: 6, label: production, show: [production], active: [production], flow: ["staging>production"], note: "Promoted in the Tuesday window"}
+  - {t: 7.8, label: hold, active: [production]}
 ```
 
 No `edges`: the pipeline chains nodes in list order.
@@ -336,7 +355,7 @@ consumers down, but paired siblings enter together to stay under 6 phases.
 ```yaml
 name: data-deps
 archetype: graph
-cycle: 12
+cycle: 9
 nodes:
   - {id: dashboards, label: Dashboards, kind: actor, group: consumers}
   - {id: alerting, label: Alerting, kind: actor, group: consumers}
@@ -357,11 +376,11 @@ groups:
   - {id: platform, label: Data platform}
 phases:
   - {t: 0, label: consumers, show: [dashboards, alerting], active: [dashboards, alerting], note: "Two consumers, one warehouse"}
-  - {t: 2, label: warehouse, show: [warehouse], active: [warehouse], flow: ["dashboards>warehouse", "alerting>warehouse"], note: "Dashboards and alerting read the warehouse"}
-  - {t: 4, label: load, show: [etl], active: [etl], flow: ["warehouse>etl"], note: "The nightly ETL job loads it"}
-  - {t: 6, label: inputs, show: [ingest, object-store], active: [ingest, object-store], flow: ["etl>ingest", "etl>object-store"], note: "ETL needs ingest and the object store"}
-  - {t: 8, label: outside, show: [billing-feed], active: [billing-feed], flow: ["ingest>billing-feed"], note: "Everything rests on one external feed"}
-  - {t: 10, label: hold, active: [billing-feed]}
+  - {t: 1.5, label: warehouse, show: [warehouse], active: [warehouse], flow: ["dashboards>warehouse", "alerting>warehouse"], note: "Dashboards and alerting read the warehouse"}
+  - {t: 3, label: load, show: [etl], active: [etl], flow: ["warehouse>etl"], note: "The nightly ETL job loads it"}
+  - {t: 4.5, label: inputs, show: [ingest, object-store], active: [ingest, object-store], flow: ["etl>ingest", "etl>object-store"], note: "ETL needs ingest and the object store"}
+  - {t: 6, label: outside, show: [billing-feed], active: [billing-feed], flow: ["ingest>billing-feed"], note: "Everything rests on one external feed"}
+  - {t: 7.8, label: hold, active: [billing-feed]}
 ```
 
 ### 3. Mermaid -> spec
@@ -387,7 +406,7 @@ and carries the packet.
 ```yaml
 name: ticket-routing
 archetype: graph
-cycle: 12
+cycle: 8.2
 nodes:
   - {id: open-ticket, label: Open ticket}
   - {id: severity, label: "Severity?", kind: decision}
@@ -402,11 +421,11 @@ edges:
   - {from: queue-triage, to: incident-log}
 phases:
   - {t: 0, label: open, show: [open-ticket], active: [open-ticket], note: "A ticket is opened"}
-  - {t: 1.5, label: decide, show: [severity], active: [severity], flow: ["open-ticket>severity"], note: "Severity decides the route"}
-  - {t: 3.5, label: high, show: [page-on-call], active: [page-on-call], flow: ["severity>page-on-call"], note: "High: page the on-call engineer"}
-  - {t: 5.5, label: low, show: [queue-triage], active: [queue-triage], flow: ["severity>queue-triage"], note: "Low: queue for triage"}
-  - {t: 7.5, label: log, show: [incident-log], active: [incident-log], flow: ["page-on-call>incident-log", "queue-triage>incident-log"], note: "Both end in the incident log"}
-  - {t: 10, label: hold, active: [incident-log]}
+  - {t: 1.2, label: decide, show: [severity], active: [severity], flow: ["open-ticket>severity"], note: "Severity decides the route"}
+  - {t: 2.6, label: high, show: [page-on-call], active: [page-on-call], flow: ["severity>page-on-call"], note: "High: page the on-call engineer"}
+  - {t: 4, label: low, show: [queue-triage], active: [queue-triage], flow: ["severity>queue-triage"], note: "Low: queue for triage"}
+  - {t: 5.4, label: log, show: [incident-log], active: [incident-log], flow: ["page-on-call>incident-log", "queue-triage>incident-log"], note: "Both end in the incident log"}
+  - {t: 7, label: hold, active: [incident-log]}
 ```
 
 Layout notes the scaffolder applies on its own (all in the lean style of `style.md`: rings with

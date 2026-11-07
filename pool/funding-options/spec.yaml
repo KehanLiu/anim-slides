@@ -8,8 +8,8 @@ name: funding-options
 archetype: compare
 domain: business
 size: [1680, 600]
-control: loop
-cycle: 11
+control: once
+cycle: 9
 nodes:
   - { id: b-amt,  side: boot,  group: boot,  label: "What you earn",    sub: "amount" }
   - { id: b-spd,  side: boot,  group: boot,  label: "No raise needed",  sub: "grow as cash comes in" }
@@ -29,8 +29,8 @@ groups:
   - { id: vc,    label: "Venture capital" }
 phases:
   - { t: 0,   label: setup }
-  - { t: 0.9, label: bootstrapping, show: [boot, b-amt, b-spd, b-exp, b-ctl], note: "Bootstrapping: no investors, so you grow at the pace of your revenue" }
-  - { t: 3.2, label: angels, show: [angel, a-amt, a-spd, a-exp, a-ctl], note: "Angels: a first cheque from individuals, in exchange for a stake" }
-  - { t: 5.5, label: venture, show: [vc, v-amt, v-spd, v-exp, v-ctl], note: "Venture capital: the most money, the most diligence, the highest expectations" }
-  - { t: 7.8, label: control, active: [b-ctl, a-ctl, v-ctl], note: "More money, sooner, costs control: pick the row that matters most to you" }
-  - { t: 9.0, label: hold }
+  - { t: 0.8, label: bootstrapping, show: [boot, b-amt, b-spd, b-exp, b-ctl], note: "Bootstrapping: no investors, so you grow at the pace of your revenue" }
+  - { t: 2.9, label: angels, show: [angel, a-amt, a-spd, a-exp, a-ctl], note: "Angels: a first cheque from individuals, in exchange for a stake" }
+  - { t: 5.0, label: venture, show: [vc, v-amt, v-spd, v-exp, v-ctl], note: "Venture capital: the most money, the most diligence, the highest expectations" }
+  - { t: 7.1, label: control, active: [b-ctl, a-ctl, v-ctl], note: "More money, sooner, costs control: pick the row that matters most to you" }
+  - { t: 8.2, label: hold }

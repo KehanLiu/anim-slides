@@ -6,8 +6,8 @@
 name: deploy-pipeline
 archetype: pipeline
 size: [1680, 440]
-control: loop
-cycle: 12
+control: once
+cycle: 9.8
 nodes:
   - { id: commit,  label: Commit,     sub: "main · a1f9c3e",  kind: actor }
   - { id: build,   label: Build,      sub: "v1.4.2 · ~3 min", kind: process }
@@ -22,10 +22,10 @@ edges:
   - { from: prod,    to: staging, kind: event, label: auto-rollback }
 phases:
   - { t: 0,   label: setup,                                                  note: "A commit lands on main" }
-  - { t: 0.9, label: push,    active: [commit] }
-  - { t: 2.2, label: build,   active: [build],   flow: ["commit>build"],     note: "CI builds one immutable artifact" }
-  - { t: 4.0, label: test,    active: [test],    flow: ["build>test"],       note: "Unit and end-to-end tests gate the artifact" }
-  - { t: 5.8, label: staging, active: [staging], flow: ["test>staging"],     note: "Smoke tests pass on staging" }
-  - { t: 7.6, label: canary,  active: [prod, "prod>staging"], flow: ["staging>prod"], note: "Canary on 5 % of traffic, auto-rollback armed" }
-  - { t: 9.4, label: promote, active: [prod],                                note: "Error rate stayed under 1 %: promoted to 100 %" }
-  - { t: 10.4, label: hold }
+  - { t: 0.8, label: push,    active: [commit] }
+  - { t: 2, label: build,   active: [build],   flow: ["commit>build"],     note: "CI builds one immutable artifact" }
+  - { t: 3.6, label: test,    active: [test],    flow: ["build>test"],       note: "Unit and end-to-end tests gate the artifact" }
+  - { t: 5.2, label: staging, active: [staging], flow: ["test>staging"],     note: "Smoke tests pass on staging" }
+  - { t: 6.8, label: canary,  active: [prod, "prod>staging"], flow: ["staging>prod"], note: "Canary on 5 % of traffic, auto-rollback armed" }
+  - { t: 8.0, label: promote, active: [prod],                                note: "Error rate stayed under 1 %: promoted to 100 %" }
+  - { t: 8.9, label: hold }

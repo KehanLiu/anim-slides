@@ -7,8 +7,8 @@
 name: rag-stack
 archetype: layers
 size: [1200, 640]
-control: loop
-cycle: 13
+control: once
+cycle: 9.8
 nodes:
   - { id: chat,   label: Chat UI,       sub: "question in, answer out", layer: 3, group: ui }
   - { id: orch,   label: Orchestrator,  sub: "retrieve, then prompt", layer: 2, group: app }
@@ -31,12 +31,12 @@ groups:
   - { id: data,      label: Data sources }
 phases:
   - { t: 0,    label: build,    note: "A RAG app in four layers" }
-  - { t: 1.4,  label: ask,      active: [chat],  flow: ["chat>orch"],   note: "A user asks a question" }
-  - { t: 2.6,  label: search,   active: [orch],  flow: ["orch>index"],  note: "The question is embedded and searched" }
-  - { t: 3.8,  label: lookup,   active: [index], flow: ["index>docs"],  note: "Nearest chunks point at their sources" }
-  - { t: 5.0,  label: chunks,   active: [docs],  flow: ["docs>index"],  note: "The relevant chunks come back up" }
-  - { t: 6.2,  label: top-k,    active: [index], flow: ["index>orch"],  note: "Top-k chunks reach the orchestrator" }
-  - { t: 7.4,  label: prompt,   active: [orch],  flow: ["orch>llm"],    note: "Question plus chunks go to the LLM" }
-  - { t: 8.6,  label: generate, active: [llm],   flow: ["llm>orch"],    note: "The LLM drafts a grounded answer" }
-  - { t: 9.8,  label: answer,   active: [chat],  flow: ["orch>chat"],   note: "Answer with citations returns to the UI" }
-  - { t: 11.2, label: hold,     active: [chat] }
+  - { t: 1.1,  label: ask,      active: [chat],  flow: ["chat>orch"],   note: "A user asks a question" }
+  - { t: 2.1,  label: search,   active: [orch],  flow: ["orch>index"],  note: "The question is embedded and searched" }
+  - { t: 3,  label: lookup,   active: [index], flow: ["index>docs"],  note: "Nearest chunks point at their sources" }
+  - { t: 4,  label: chunks,   active: [docs],  flow: ["docs>index"],  note: "The relevant chunks come back up" }
+  - { t: 5,  label: top-k,    active: [index], flow: ["index>orch"],  note: "Top-k chunks reach the orchestrator" }
+  - { t: 5.9,  label: prompt,   active: [orch],  flow: ["orch>llm"],    note: "Question plus chunks go to the LLM" }
+  - { t: 6.9,  label: generate, active: [llm],   flow: ["llm>orch"],    note: "The LLM drafts a grounded answer" }
+  - { t: 7.8,  label: answer,   active: [chat],  flow: ["orch>chat"],   note: "Answer with citations returns to the UI" }
+  - { t: 8.8, label: hold,     active: [chat] }

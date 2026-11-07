@@ -1,6 +1,6 @@
 <!-- cloud-spend: chart archetype, lean restyle (references/style.md).
-  12 s cycle: budget and series fade in | trace draws Jan..Dec 0.8-9.6 s | over budget 4.57 s
-  | fix tagged at Jul 5.6 s | back under 7.82 s | Dec readout 9.6 s | hold | reset -->
+  Plays once, 9.5 s pass: budget and series fade in | trace draws Jan..Dec 0.68-8.16 s | over budget 3.88 s
+  | fix tagged at Jul 4.76 s | back under 6.65 s | Dec readout 8.16 s | final state from 8.5 s -->
 <style>
 .anim-cloud-spend {
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -49,74 +49,96 @@
 .anim-cloud-spend .cloud-spend-s2{opacity:1}
 .anim-cloud-spend .cloud-spend-budget,.anim-cloud-spend .cloud-spend-sg,.anim-cloud-spend .cloud-spend-event,.anim-cloud-spend .cloud-spend-end{opacity:1}
 
-/* ---- motion, only when the slide is visible (cycle 12 s) ----
-   x(month m) = 150 + 122 (m-1); the trace reaches month m at t = 0.8 + 0.8 (m-1) s.
-   over budget at m 5.71 (4.57 s), fix at Jul (5.6 s), back under at m 9.77 (7.82 s), Dec at 9.6 s */
-.visible .anim-cloud-spend .cloud-spend-budget{animation:cloud-spend-budget 12s infinite}
-.visible .anim-cloud-spend .cloud-spend-sg{animation:cloud-spend-sg 12s infinite}
-.visible .anim-cloud-spend .cloud-spend-clip-r{animation:cloud-spend-clip 12s infinite}
-.visible .anim-cloud-spend .cloud-spend-head{animation:cloud-spend-head 12s infinite}
-.visible .anim-cloud-spend .cloud-spend-event{animation:cloud-spend-event 12s infinite}
-.visible .anim-cloud-spend .cloud-spend-end{animation:cloud-spend-end 12s infinite}
-.visible .anim-cloud-spend .cloud-spend-s0{animation:cloud-spend-s0 12s infinite}
-.visible .anim-cloud-spend .cloud-spend-s1{animation:cloud-spend-s1 12s infinite}
-.visible .anim-cloud-spend .cloud-spend-s2{animation:cloud-spend-s2 12s infinite}
+/* ---- motion, only when the slide is visible (plays once, 9.5 s pass) ----
+   x(month m) = 150 + 122 (m-1); the trace reaches month m at t = 0.68 + 0.68 (m-1) s.
+   over budget at m 5.71 (3.88 s), fix at Jul (4.76 s), back under at m 9.77 (6.65 s), Dec at 8.16 s */
+.visible .anim-cloud-spend .cloud-spend-budget{animation:cloud-spend-budget 9.5s 1 forwards}
+.visible .anim-cloud-spend .cloud-spend-sg{animation:cloud-spend-sg 9.5s 1 forwards}
+.visible .anim-cloud-spend .cloud-spend-clip-r{animation:cloud-spend-clip 9.5s 1 forwards}
+.visible .anim-cloud-spend .cloud-spend-head{animation:cloud-spend-head 9.5s 1 forwards}
+.visible .anim-cloud-spend .cloud-spend-event{animation:cloud-spend-event 9.5s 1 forwards}
+.visible .anim-cloud-spend .cloud-spend-end{animation:cloud-spend-end 9.5s 1 forwards}
+.visible .anim-cloud-spend .cloud-spend-s0{animation:cloud-spend-s0 9.5s 1 forwards}
+.visible .anim-cloud-spend .cloud-spend-s1{animation:cloud-spend-s1 9.5s 1 forwards}
+.visible .anim-cloud-spend .cloud-spend-s2{animation:cloud-spend-s2 9.5s 1 forwards}
 
-/* budget line fades in 0.2-0.6 s, out with the reset 11.6-12 s */
+/* budget line fades in 0.17-0.51 s, out with the reset 9.86-10.2 s */
 @keyframes cloud-spend-budget{
-  0%,1.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}
-  5%,96.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}
-  100%{opacity:0}}
-/* spend series group: in 0.5-0.8 s, out 11.6-12 s */
+  0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0s */
+  1.79%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.17s */
+  5.37%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}  /* 0.51s */
+  100%{opacity:1;}  /* 9.5s */
+}
+/* spend series group: in 0.42-0.68 s, out 9.86-10.2 s */
 @keyframes cloud-spend-sg{
-  0%,4.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}
-  6.67%,96.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}
-  100%{opacity:0}}
-/* reveal clip: right edge = head x (the dot covers the line end), linear 0.8-9.6 s */
+  0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0s */
+  4.48%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.43s */
+  7.16%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}  /* 0.68s */
+  100%{opacity:1;}  /* 9.5s */
+}
+/* reveal clip: right edge = head x (the dot covers the line end), linear 0.68-8.16 s */
 @keyframes cloud-spend-clip{
-  0%,6.67%{width:30px;animation-timing-function:linear}
-  80%,100%{width:1372px}}
-/* head dot: one stop per month vertex, 0.8 s apart */
+  0%{width:30px;animation-timing-function:linear;}  /* 0s */
+  7.16%{width:30px;animation-timing-function:linear;}  /* 0.68s */
+  85.89%{width:1372px;}  /* 8.16s */
+  100%{width:1372px;}  /* 9.5s */
+}
+/* head dot: one stop per month vertex, 0.68 s apart */
 @keyframes cloud-spend-head{
-  0%,6.67%{transform:translate(150px,306.8px);animation-timing-function:linear}
-  13.33%{transform:translate(272px,293.2px);animation-timing-function:linear}
-  20%{transform:translate(394px,274.5px);animation-timing-function:linear}
-  26.67%{transform:translate(516px,252.4px);animation-timing-function:linear}
-  33.33%{transform:translate(638px,226.9px);animation-timing-function:linear}
-  40%{transform:translate(760px,198px);animation-timing-function:linear}
-  46.67%{transform:translate(882px,157.2px);animation-timing-function:linear}
-  53.33%{transform:translate(1004px,167.4px);animation-timing-function:linear}
-  60%{transform:translate(1126px,189.5px);animation-timing-function:linear}
-  66.67%{transform:translate(1248px,211.6px);animation-timing-function:linear}
-  73.33%{transform:translate(1370px,225.2px);animation-timing-function:linear}
-  80%,100%{transform:translate(1492px,233.7px)}}
-/* fix event: line, chip and peak tag land as the trace reaches Jul (5.6 s) */
+  0%{transform:translate(150px,306.8px);animation-timing-function:linear;}  /* 0s */
+  7.16%{transform:translate(150px,306.8px);animation-timing-function:linear;}  /* 0.68s */
+  14.31%{transform:translate(272px,293.2px);animation-timing-function:linear;}  /* 1.36s */
+  21.47%{transform:translate(394px,274.5px);animation-timing-function:linear;}  /* 2.04s */
+  28.64%{transform:translate(516px,252.4px);animation-timing-function:linear;}  /* 2.72s */
+  35.79%{transform:translate(638px,226.9px);animation-timing-function:linear;}  /* 3.4s */
+  42.95%{transform:translate(760px,198px);animation-timing-function:linear;}  /* 4.08s */
+  50.11%{transform:translate(882px,157.2px);animation-timing-function:linear;}  /* 4.76s */
+  57.26%{transform:translate(1004px,167.4px);animation-timing-function:linear;}  /* 5.44s */
+  64.42%{transform:translate(1126px,189.5px);animation-timing-function:linear;}  /* 6.12s */
+  71.58%{transform:translate(1248px,211.6px);animation-timing-function:linear;}  /* 6.8s */
+  78.73%{transform:translate(1370px,225.2px);animation-timing-function:linear;}  /* 7.48s */
+  85.89%{transform:translate(1492px,233.7px);}  /* 8.16s */
+  100%{transform:translate(1492px,233.7px);}  /* 9.5s */
+}
+/* fix event: line, chip and peak tag land as the trace reaches Jul (4.76 s) */
 @keyframes cloud-spend-event{
-  0%,46.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}
-  50%,96.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}
-  100%{opacity:0}}
-/* end readout: Dec value and drop from peak, 9.6-10 s */
+  0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0s */
+  50.11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 4.76s */
+  53.68%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}  /* 5.1s */
+  100%{opacity:1;}  /* 9.5s */
+}
+/* end readout: Dec value and drop from peak, 8.16-8.5 s */
 @keyframes cloud-spend-end{
-  0%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}
-  83.33%,96.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}
-  100%{opacity:0}}
-/* status chip: within budget -> over budget (4.57 s) -> back under (7.82 s) -> reset */
+  0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0s */
+  85.89%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 8.16s */
+  89.47%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}  /* 8.5s */
+  100%{opacity:1;}  /* 9.5s */
+}
+/* status chip: within budget -> over budget (3.88 s) -> back under (6.65 s) -> reset */
 @keyframes cloud-spend-s0{
-  0%,37.1%{opacity:1}
-  39.1%,96.67%{opacity:0}
-  100%{opacity:1}}
+  0%{opacity:1;}  /* 0s */
+  39.83%{opacity:1;}  /* 3.78s */
+  41.98%{opacity:0;}  /* 3.99s */
+  100%{opacity:0;}  /* 9.5s */
+}
 @keyframes cloud-spend-s1{
-  0%,37.1%{opacity:0}
-  39.1%,64.1%{opacity:1}
-  66.1%,100%{opacity:0}}
+  0%{opacity:0;}  /* 0s */
+  39.83%{opacity:0;}  /* 3.78s */
+  41.98%{opacity:1;}  /* 3.99s */
+  68.82%{opacity:1;}  /* 6.54s */
+  70.97%{opacity:0;}  /* 6.74s */
+  100%{opacity:0;}  /* 9.5s */
+}
 @keyframes cloud-spend-s2{
-  0%,64.1%{opacity:0}
-  66.1%,96.67%{opacity:1}
-  100%{opacity:0}}
+  0%{opacity:0;}  /* 0s */
+  68.82%{opacity:0;}  /* 6.54s */
+  70.97%{opacity:1;}  /* 6.74s */
+  100%{opacity:1;}  /* 9.5s */
+}
 
 @media (prefers-reduced-motion: reduce) { .anim-cloud-spend * { animation: none !important; } }
 </style>
-<div class="anim anim-cloud-spend" data-anim="cloud-spend" data-anim-cycle="12" data-anim-control="loop">
+<div class="anim anim-cloud-spend" data-anim="cloud-spend" data-anim-cycle="9.5" data-anim-control="once">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Monthly cloud spend climbs past a 155 thousand dollar budget, then autoscaling and reserved instances in July bend it back down to 139 thousand by December, under budget again">
   <defs>
     <clipPath id="cloud-spend-clip"><rect class="cloud-spend-clip-r" x="120" y="110" width="1378" height="370"/></clipPath>

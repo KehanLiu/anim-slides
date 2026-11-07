@@ -35,7 +35,8 @@
 .anim-rag-stack .rag-stack-hot { fill: color-mix(in srgb, var(--anim-accent) 14%, var(--anim-bg)); stroke: var(--anim-accent); stroke-width: 3; }
 .anim-rag-stack .rag-stack-hotg { stroke: var(--anim-accent); }
 /* wires and packets */
-.anim-rag-stack .rag-stack-wire { fill: none; stroke: color-mix(in srgb, var(--anim-muted) 45%, var(--anim-bg)); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 100 120; stroke-dashoffset: 0; }
+.anim-rag-stack .rag-stack-wire { fill: none; stroke: color-mix(in srgb, var(--anim-muted) 45%, var(--anim-bg)); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 100 120; }
+.anim-rag-stack .rag-stack-wires { stroke-dashoffset: 0; }
 .anim-rag-stack .rag-stack-pkt { fill: var(--anim-accent); stroke: var(--anim-accent); stroke-width: 12; stroke-opacity: .3; offset-rotate: 0deg; opacity: 0; }
 .anim-rag-stack .rag-stack-pkt.rag-stack-resp { fill: var(--anim-ok); stroke: var(--anim-ok); }
 .anim-rag-stack .rag-stack-p0{offset-path:path('M530 113 V191')}
@@ -74,484 +75,443 @@
 .anim-rag-stack .rag-stack-note { opacity: 0; }
 .anim-rag-stack .rag-stack-n8 { opacity: 1; }
 
-/* 13 s cycle. 0-0.8 s layers build bottom-up | 1.0 s question | 1.4-4.6 s question travels down
-   | 5.0-7.0 s chunks come back up | 7.4-9.4 s LLM round trip | 9.8-10.6 s answer goes up
-   | 10.6-11.05 s answer and citations | 11.4-12.6 s hold | 12.6-12.9 s exit | reset */
-/* hop 1.4-2.2s, question: chat to orchestrator */
+/* Plays once, 9.8 s pass. 0-0.64 s layers build bottom-up | 0.8 s question | 1.12-3.68 s question travels down
+   | 4-5.6 s chunks come back up | 5.92-7.52 s LLM round trip | 7.84-8.48 s answer goes up
+   | 8.48-8.84 s answer and citations | hold on the answer to 9.8 s */
+/* hop 1.12-1.76s, question: chat to orchestrator */
 @keyframes rag-stack-p0m{
   0%{offset-distance:0%;}  /* 0s */
-  10.77%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 1.4s */
-  16.92%{offset-distance:100%;}  /* 2.2s */
-  100%{offset-distance:100%;}  /* 13s */
+  11.43%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 1.12s */
+  17.96%{offset-distance:100%;}  /* 1.76s */
+  100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p0 visible 1.4-2.2s */
+/* packet p0 visible 1.12-1.76s */
 @keyframes rag-stack-p0f{
   0%{opacity:0;}  /* 0s */
-  10.77%{opacity:0;}  /* 1.4s */
-  11.38%{opacity:1;}  /* 1.48s */
-  16.31%{opacity:1;}  /* 2.12s */
-  16.92%{opacity:0;}  /* 2.2s */
-  100%{opacity:0;}  /* 13s */
+  11.43%{opacity:0;}  /* 1.12s */
+  12.08%{opacity:1;}  /* 1.18s */
+  17.31%{opacity:1;}  /* 1.7s */
+  17.96%{opacity:0;}  /* 1.76s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* hop 2.6-3.4s, query vector: orchestrator to vector index */
+/* hop 2.08-2.72s, query vector: orchestrator to vector index */
 @keyframes rag-stack-p1m{
   0%{offset-distance:0%;}  /* 0s */
-  20%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 2.6s */
-  26.15%{offset-distance:100%;}  /* 3.4s */
-  100%{offset-distance:100%;}  /* 13s */
+  21.22%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 2.08s */
+  27.75%{offset-distance:100%;}  /* 2.72s */
+  100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p1 visible 2.6-3.4s */
+/* packet p1 visible 2.08-2.72s */
 @keyframes rag-stack-p1f{
   0%{opacity:0;}  /* 0s */
-  20%{opacity:0;}  /* 2.6s */
-  20.62%{opacity:1;}  /* 2.68s */
-  25.54%{opacity:1;}  /* 3.32s */
-  26.15%{opacity:0;}  /* 3.4s */
-  100%{opacity:0;}  /* 13s */
+  21.22%{opacity:0;}  /* 2.08s */
+  21.88%{opacity:1;}  /* 2.14s */
+  27.1%{opacity:1;}  /* 2.66s */
+  27.75%{opacity:0;}  /* 2.72s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* hop 3.8-4.6s, chunk ids: index to documents */
+/* hop 3.04-3.68s, chunk ids: index to documents */
 @keyframes rag-stack-p2m{
   0%{offset-distance:0%;}  /* 0s */
-  29.23%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 3.8s */
-  35.38%{offset-distance:100%;}  /* 4.6s */
-  100%{offset-distance:100%;}  /* 13s */
+  31.02%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 3.04s */
+  37.55%{offset-distance:100%;}  /* 3.68s */
+  100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p2 visible 3.8-4.6s */
+/* packet p2 visible 3.04-3.68s */
 @keyframes rag-stack-p2f{
   0%{opacity:0;}  /* 0s */
-  29.23%{opacity:0;}  /* 3.8s */
-  29.85%{opacity:1;}  /* 3.88s */
-  34.77%{opacity:1;}  /* 4.52s */
-  35.38%{opacity:0;}  /* 4.6s */
-  100%{opacity:0;}  /* 13s */
+  31.02%{opacity:0;}  /* 3.04s */
+  31.68%{opacity:1;}  /* 3.1s */
+  36.9%{opacity:1;}  /* 3.62s */
+  37.55%{opacity:0;}  /* 3.68s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* hop 5-5.8s, chunk text back up: documents to index */
+/* hop 4-4.64s, chunk text back up: documents to index */
 @keyframes rag-stack-p3m{
   0%{offset-distance:0%;}  /* 0s */
-  38.46%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 5s */
-  44.62%{offset-distance:100%;}  /* 5.8s */
-  100%{offset-distance:100%;}  /* 13s */
+  40.81%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 4s */
+  47.35%{offset-distance:100%;}  /* 4.64s */
+  100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p3 visible 5-5.8s */
+/* packet p3 visible 4-4.64s */
 @keyframes rag-stack-p3f{
   0%{opacity:0;}  /* 0s */
-  38.46%{opacity:0;}  /* 5s */
-  39.08%{opacity:1;}  /* 5.08s */
-  44%{opacity:1;}  /* 5.72s */
-  44.62%{opacity:0;}  /* 5.8s */
-  100%{opacity:0;}  /* 13s */
+  40.81%{opacity:0;}  /* 4s */
+  41.47%{opacity:1;}  /* 4.06s */
+  46.69%{opacity:1;}  /* 4.58s */
+  47.35%{opacity:0;}  /* 4.64s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* hop 6.2-7s, top-k chunks: index to orchestrator */
+/* hop 4.96-5.6s, top-k chunks: index to orchestrator */
 @keyframes rag-stack-p4m{
   0%{offset-distance:0%;}  /* 0s */
-  47.69%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 6.2s */
-  53.85%{offset-distance:100%;}  /* 7s */
-  100%{offset-distance:100%;}  /* 13s */
+  50.61%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 4.96s */
+  57.15%{offset-distance:100%;}  /* 5.6s */
+  100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p4 visible 6.2-7s */
+/* packet p4 visible 4.96-5.6s */
 @keyframes rag-stack-p4f{
   0%{opacity:0;}  /* 0s */
-  47.69%{opacity:0;}  /* 6.2s */
-  48.31%{opacity:1;}  /* 6.28s */
-  53.23%{opacity:1;}  /* 6.92s */
-  53.85%{opacity:0;}  /* 7s */
-  100%{opacity:0;}  /* 13s */
+  50.61%{opacity:0;}  /* 4.96s */
+  51.27%{opacity:1;}  /* 5.02s */
+  56.49%{opacity:1;}  /* 5.54s */
+  57.15%{opacity:0;}  /* 5.6s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* hop 7.4-8.2s, prompt: orchestrator to LLM */
+/* hop 5.92-6.56s, prompt: orchestrator to LLM */
 @keyframes rag-stack-p5m{
   0%{offset-distance:0%;}  /* 0s */
-  56.92%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 7.4s */
-  63.08%{offset-distance:100%;}  /* 8.2s */
-  100%{offset-distance:100%;}  /* 13s */
+  60.4%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 5.92s */
+  66.94%{offset-distance:100%;}  /* 6.56s */
+  100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p5 visible 7.4-8.2s */
+/* packet p5 visible 5.92-6.56s */
 @keyframes rag-stack-p5f{
   0%{opacity:0;}  /* 0s */
-  56.92%{opacity:0;}  /* 7.4s */
-  57.54%{opacity:1;}  /* 7.48s */
-  62.46%{opacity:1;}  /* 8.12s */
-  63.08%{opacity:0;}  /* 8.2s */
-  100%{opacity:0;}  /* 13s */
+  60.4%{opacity:0;}  /* 5.92s */
+  61.06%{opacity:1;}  /* 5.98s */
+  66.28%{opacity:1;}  /* 6.5s */
+  66.94%{opacity:0;}  /* 6.56s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* hop 8.6-9.4s, draft answer: LLM to orchestrator */
+/* hop 6.88-7.52s, draft answer: LLM to orchestrator */
 @keyframes rag-stack-p6m{
   0%{offset-distance:0%;}  /* 0s */
-  66.15%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 8.6s */
-  72.31%{offset-distance:100%;}  /* 9.4s */
-  100%{offset-distance:100%;}  /* 13s */
+  70.2%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 6.88s */
+  76.74%{offset-distance:100%;}  /* 7.52s */
+  100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p6 visible 8.6-9.4s */
+/* packet p6 visible 6.88-7.52s */
 @keyframes rag-stack-p6f{
   0%{opacity:0;}  /* 0s */
-  66.15%{opacity:0;}  /* 8.6s */
-  66.77%{opacity:1;}  /* 8.68s */
-  71.69%{opacity:1;}  /* 9.32s */
-  72.31%{opacity:0;}  /* 9.4s */
-  100%{opacity:0;}  /* 13s */
+  70.2%{opacity:0;}  /* 6.88s */
+  70.86%{opacity:1;}  /* 6.94s */
+  76.08%{opacity:1;}  /* 7.46s */
+  76.74%{opacity:0;}  /* 7.52s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* hop 9.8-10.6s, answer: orchestrator to chat */
+/* hop 7.84-8.48s, answer: orchestrator to chat */
 @keyframes rag-stack-p7m{
   0%{offset-distance:0%;}  /* 0s */
-  75.38%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 9.8s */
-  81.54%{offset-distance:100%;}  /* 10.6s */
-  100%{offset-distance:100%;}  /* 13s */
+  80%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 7.84s */
+  86.53%{offset-distance:100%;}  /* 8.48s */
+  100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p7 visible 9.8-10.6s */
+/* packet p7 visible 7.84-8.48s */
 @keyframes rag-stack-p7f{
   0%{opacity:0;}  /* 0s */
-  75.38%{opacity:0;}  /* 9.8s */
-  76%{opacity:1;}  /* 9.88s */
-  80.92%{opacity:1;}  /* 10.52s */
-  81.54%{opacity:0;}  /* 10.6s */
-  100%{opacity:0;}  /* 13s */
+  80%{opacity:0;}  /* 7.84s */
+  80.65%{opacity:1;}  /* 7.9s */
+  85.87%{opacity:1;}  /* 8.42s */
+  86.53%{opacity:0;}  /* 8.48s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* chat active 1-2.2s, 10.6s-rest */
+/* chat active 0.8-1.76s, 8.48s-rest */
 @keyframes rag-stack-hi-chat{
   0%{opacity:0;}  /* 0s */
-  7.69%{opacity:0;}  /* 1s */
-  9.23%{opacity:1;}  /* 1.2s */
-  16.92%{opacity:1;}  /* 2.2s */
-  18.46%{opacity:0;}  /* 2.4s */
-  81.54%{opacity:0;}  /* 10.6s */
-  83.08%{opacity:1;}  /* 10.8s */
-  99.23%{opacity:1;}  /* 12.9s */
-  99.62%{opacity:0;}  /* 12.95s */
-  100%{opacity:0;}  /* 13s */
+  8.98%{opacity:0;}  /* 0.88s */
+  9.8%{opacity:1;}  /* 0.96s */
+  17.96%{opacity:1;}  /* 1.76s */
+  18.78%{opacity:0;}  /* 1.84s */
+  87.35%{opacity:0;}  /* 8.56s */
+  88.16%{opacity:1;}  /* 8.64s */
+  100%{opacity:1;}  /* 9.8s */
 }
-/* orch active 2.2-3.4s, 7-8.2s, 9.4-10.6s */
+/* orch active 1.76-2.72s, 5.6-6.56s, 7.52-8.48s */
 @keyframes rag-stack-hi-orch{
   0%{opacity:0;}  /* 0s */
-  16.92%{opacity:0;}  /* 2.2s */
-  18.46%{opacity:1;}  /* 2.4s */
-  26.15%{opacity:1;}  /* 3.4s */
-  27.69%{opacity:0;}  /* 3.6s */
-  53.85%{opacity:0;}  /* 7s */
-  55.38%{opacity:1;}  /* 7.2s */
-  63.08%{opacity:1;}  /* 8.2s */
-  64.62%{opacity:0;}  /* 8.4s */
-  72.31%{opacity:0;}  /* 9.4s */
-  73.85%{opacity:1;}  /* 9.6s */
-  81.54%{opacity:1;}  /* 10.6s */
-  83.08%{opacity:0;}  /* 10.8s */
-  100%{opacity:0;}  /* 13s */
+  18.78%{opacity:0;}  /* 1.84s */
+  19.59%{opacity:1;}  /* 1.92s */
+  27.76%{opacity:1;}  /* 2.72s */
+  28.57%{opacity:0;}  /* 2.8s */
+  57.96%{opacity:0;}  /* 5.68s */
+  58.78%{opacity:1;}  /* 5.76s */
+  66.94%{opacity:1;}  /* 6.56s */
+  67.76%{opacity:0;}  /* 6.64s */
+  77.55%{opacity:0;}  /* 7.6s */
+  78.37%{opacity:1;}  /* 7.68s */
+  86.53%{opacity:1;}  /* 8.48s */
+  87.35%{opacity:0;}  /* 8.56s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* index active 3.4-4.6s, 5.8-7s */
+/* index active 2.72-3.68s, 4.64-5.6s */
 @keyframes rag-stack-hi-index{
   0%{opacity:0;}  /* 0s */
-  26.15%{opacity:0;}  /* 3.4s */
-  27.69%{opacity:1;}  /* 3.6s */
-  35.38%{opacity:1;}  /* 4.6s */
-  36.92%{opacity:0;}  /* 4.8s */
-  44.62%{opacity:0;}  /* 5.8s */
-  46.15%{opacity:1;}  /* 6s */
-  53.85%{opacity:1;}  /* 7s */
-  55.38%{opacity:0;}  /* 7.2s */
-  100%{opacity:0;}  /* 13s */
+  28.57%{opacity:0;}  /* 2.8s */
+  29.39%{opacity:1;}  /* 2.88s */
+  37.55%{opacity:1;}  /* 3.68s */
+  38.37%{opacity:0;}  /* 3.76s */
+  48.16%{opacity:0;}  /* 4.72s */
+  48.98%{opacity:1;}  /* 4.8s */
+  57.14%{opacity:1;}  /* 5.6s */
+  57.96%{opacity:0;}  /* 5.68s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* docs active 4.6-5.8s */
+/* docs active 3.68-4.64s */
 @keyframes rag-stack-hi-docs{
   0%{opacity:0;}  /* 0s */
-  35.38%{opacity:0;}  /* 4.6s */
-  36.92%{opacity:1;}  /* 4.8s */
-  44.62%{opacity:1;}  /* 5.8s */
-  46.15%{opacity:0;}  /* 6s */
-  100%{opacity:0;}  /* 13s */
+  38.37%{opacity:0;}  /* 3.76s */
+  39.18%{opacity:1;}  /* 3.84s */
+  47.35%{opacity:1;}  /* 4.64s */
+  48.16%{opacity:0;}  /* 4.72s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* llm active 8.2-9.4s */
+/* llm active 6.56-7.52s */
 @keyframes rag-stack-hi-llm{
   0%{opacity:0;}  /* 0s */
-  63.08%{opacity:0;}  /* 8.2s */
-  64.62%{opacity:1;}  /* 8.4s */
-  72.31%{opacity:1;}  /* 9.4s */
-  73.85%{opacity:0;}  /* 9.6s */
-  100%{opacity:0;}  /* 13s */
+  67.76%{opacity:0;}  /* 6.64s */
+  68.57%{opacity:1;}  /* 6.72s */
+  76.73%{opacity:1;}  /* 7.52s */
+  77.55%{opacity:0;}  /* 7.6s */
+  100%{opacity:0;}  /* 9.8s */
 }
 /* band 0 rises at 0s */
 @keyframes rag-stack-b0{
   0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0s */
-  3.46%{opacity:1;transform:translateY(0px);}  /* 0.45s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(12px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(12px);}  /* 13s */
+  3.67%{opacity:1;transform:translateY(0px);}  /* 0.36s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 0 content lands at 0.08s */
+/* band 0 content lands at 0.06s */
 @keyframes rag-stack-c0{
   0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  0.62%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.08s */
-  4.08%{opacity:1;transform:translateY(0px);}  /* 0.53s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(12px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(12px);}  /* 13s */
+  0.66%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.06s */
+  4.33%{opacity:1;transform:translateY(0px);}  /* 0.42s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 1 rises at 0.1s */
+/* band 1 rises at 0.08s */
 @keyframes rag-stack-b1{
   0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  0.77%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.1s */
-  4.23%{opacity:1;transform:translateY(0px);}  /* 0.55s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(12px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(12px);}  /* 13s */
+  0.82%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.08s */
+  4.49%{opacity:1;transform:translateY(0px);}  /* 0.44s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 1 content lands at 0.18s */
+/* band 1 content lands at 0.14s */
 @keyframes rag-stack-c1{
   0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  1.38%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.18s */
-  4.85%{opacity:1;transform:translateY(0px);}  /* 0.63s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(12px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(12px);}  /* 13s */
+  1.46%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.14s */
+  5.15%{opacity:1;transform:translateY(0px);}  /* 0.5s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 2 rises at 0.2s */
+/* band 2 rises at 0.16s */
 @keyframes rag-stack-b2{
   0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  1.54%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.2s */
-  5%{opacity:1;transform:translateY(0px);}  /* 0.65s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(12px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(12px);}  /* 13s */
+  1.63%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.16s */
+  5.31%{opacity:1;transform:translateY(0px);}  /* 0.52s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 2 content lands at 0.28s */
+/* band 2 content lands at 0.22s */
 @keyframes rag-stack-c2{
   0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  2.15%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.28s */
-  5.62%{opacity:1;transform:translateY(0px);}  /* 0.73s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(12px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(12px);}  /* 13s */
+  2.28%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.22s */
+  5.96%{opacity:1;transform:translateY(0px);}  /* 0.58s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 3 rises at 0.3s */
+/* band 3 rises at 0.24s */
 @keyframes rag-stack-b3{
   0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  2.31%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.3s */
-  5.77%{opacity:1;transform:translateY(0px);}  /* 0.75s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(12px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(12px);}  /* 13s */
+  2.45%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.24s */
+  6.12%{opacity:1;transform:translateY(0px);}  /* 0.6s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 3 content lands at 0.38s */
+/* band 3 content lands at 0.3s */
 @keyframes rag-stack-c3{
   0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  2.92%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.38s */
-  6.38%{opacity:1;transform:translateY(0px);}  /* 0.83s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(12px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(12px);}  /* 13s */
+  3.1%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.3s */
+  6.77%{opacity:1;transform:translateY(0px);}  /* 0.66s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* wires draw on 0.5-1.1s */
+/* all wires draw on together 0.4-0.88s: one track on the wire group */
 @keyframes rag-stack-wire{
   0%{stroke-dashoffset:101;}  /* 0s */
-  3.85%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.5s */
-  8.46%{stroke-dashoffset:0;}  /* 1.1s */
-  99.23%{stroke-dashoffset:0;}  /* 12.9s */
-  99.62%{stroke-dashoffset:101;}  /* 12.95s */
-  100%{stroke-dashoffset:101;}  /* 13s */
+  4.09%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.4s */
+  8.98%{stroke-dashoffset:0;}  /* 0.88s */
+  100%{stroke-dashoffset:0;}  /* 9.8s */
 }
-/* question bubble 1.0s */
+/* question bubble 0.8s */
 @keyframes rag-stack-q{
   0%{opacity:0;transform:translateY(8px);}  /* 0s */
-  7.69%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 1s */
-  10.77%{opacity:1;transform:translateY(0px);}  /* 1.4s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(8px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(8px);}  /* 13s */
+  8.16%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.8s */
+  11.43%{opacity:1;transform:translateY(0px);}  /* 1.12s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* score row 0 at 3.4s */
+/* score row 0 at 2.72s */
 @keyframes rag-stack-r0{
   0%{opacity:0;transform:translateY(6px);}  /* 0s */
-  26.15%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 3.4s */
-  28.85%{opacity:1;transform:translateY(0px);}  /* 3.75s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(6px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(6px);}  /* 13s */
+  27.75%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.72s */
+  30.62%{opacity:1;transform:translateY(0px);}  /* 3s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* score row 1 at 3.48s */
+/* score row 1 at 2.78s */
 @keyframes rag-stack-r1{
   0%{opacity:0;transform:translateY(6px);}  /* 0s */
-  26.77%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 3.48s */
-  29.46%{opacity:1;transform:translateY(0px);}  /* 3.83s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(6px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(6px);}  /* 13s */
+  28.41%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.78s */
+  31.26%{opacity:1;transform:translateY(0px);}  /* 3.06s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* score row 2 at 3.56s */
+/* score row 2 at 2.85s */
 @keyframes rag-stack-r2{
   0%{opacity:0;transform:translateY(6px);}  /* 0s */
-  27.38%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 3.56s */
-  30.08%{opacity:1;transform:translateY(0px);}  /* 3.91s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(6px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(6px);}  /* 13s */
+  29.06%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.85s */
+  31.92%{opacity:1;transform:translateY(0px);}  /* 3.13s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* matched chunks light up 4.6s */
+/* matched chunks light up 3.68s */
 @keyframes rag-stack-dochi{
   0%{opacity:0;}  /* 0s */
-  35.38%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 4.6s */
-  37.31%{opacity:1;}  /* 4.85s */
-  99.23%{opacity:1;}  /* 12.9s */
-  99.62%{opacity:0;}  /* 12.95s */
-  100%{opacity:0;}  /* 13s */
+  37.55%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 3.68s */
+  39.59%{opacity:1;}  /* 3.88s */
+  100%{opacity:1;}  /* 9.8s */
 }
-/* top-2 rows selected 5.8s */
+/* top-2 rows selected 4.64s */
 @keyframes rag-stack-sel{
   0%{opacity:0;}  /* 0s */
-  44.62%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 5.8s */
-  46.54%{opacity:1;}  /* 6.05s */
-  99.23%{opacity:1;}  /* 12.9s */
-  99.62%{opacity:0;}  /* 12.95s */
-  100%{opacity:0;}  /* 13s */
+  47.35%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 4.64s */
+  49.39%{opacity:1;}  /* 4.84s */
+  100%{opacity:1;}  /* 9.8s */
 }
-/* answer bubble 10.6s */
+/* answer bubble 8.48s */
 @keyframes rag-stack-ans{
   0%{opacity:0;transform:translateY(8px);}  /* 0s */
-  81.54%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 10.6s */
-  85%{opacity:1;transform:translateY(0px);}  /* 11.05s */
-  99.23%{opacity:1;transform:translateY(0px);}  /* 12.9s */
-  99.62%{opacity:0;transform:translateY(8px);}  /* 12.95s */
-  100%{opacity:0;transform:translateY(8px);}  /* 13s */
+  86.53%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 8.48s */
+  90.2%{opacity:1;transform:translateY(0px);}  /* 8.84s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* citation badges 10.75s (answer and sources) */
+/* citation badges 8.6s (answer and sources) */
 @keyframes rag-stack-cite{
   0%{opacity:0;transform:scale(0.92);}  /* 0s */
-  82.69%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 10.75s */
-  85%{opacity:1;transform:scale(1);}  /* 11.05s */
-  99.23%{opacity:1;transform:scale(1);}  /* 12.9s */
-  99.62%{opacity:0;transform:scale(0.92);}  /* 12.95s */
-  100%{opacity:0;transform:scale(0.92);}  /* 13s */
+  87.75%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 8.6s */
+  90.2%{opacity:1;transform:scale(1);}  /* 8.84s */
+  100%{opacity:1;transform:scale(1);}  /* 9.8s */
 }
-/* caption 0 0-1.4s */
+/* caption 0 0-1.12s */
 @keyframes rag-stack-n0{
   0%{opacity:0;}  /* 0s */
-  2.31%{opacity:0;}  /* 0.3s */
-  4.23%{opacity:1;}  /* 0.55s */
-  8.85%{opacity:1;}  /* 1.15s */
-  10.77%{opacity:0;}  /* 1.4s */
-  100%{opacity:0;}  /* 13s */
+  2.45%{opacity:0;}  /* 0.24s */
+  4.49%{opacity:1;}  /* 0.44s */
+  9.39%{opacity:1;}  /* 0.92s */
+  11.43%{opacity:0;}  /* 1.12s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* caption 1 1.4-2.6s */
+/* caption 1 1.12-2.08s */
 @keyframes rag-stack-n1{
   0%{opacity:0;}  /* 0s */
-  10.77%{opacity:0;}  /* 1.4s */
-  12.69%{opacity:1;}  /* 1.65s */
-  18.08%{opacity:1;}  /* 2.35s */
-  20%{opacity:0;}  /* 2.6s */
-  100%{opacity:0;}  /* 13s */
+  11.43%{opacity:0;}  /* 1.12s */
+  13.47%{opacity:1;}  /* 1.32s */
+  19.19%{opacity:1;}  /* 1.88s */
+  21.22%{opacity:0;}  /* 2.08s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* caption 2 2.6-3.8s */
+/* caption 2 2.08-3.04s */
 @keyframes rag-stack-n2{
   0%{opacity:0;}  /* 0s */
-  20%{opacity:0;}  /* 2.6s */
-  21.92%{opacity:1;}  /* 2.85s */
-  27.31%{opacity:1;}  /* 3.55s */
-  29.23%{opacity:0;}  /* 3.8s */
-  100%{opacity:0;}  /* 13s */
+  21.22%{opacity:0;}  /* 2.08s */
+  23.26%{opacity:1;}  /* 2.28s */
+  28.98%{opacity:1;}  /* 2.84s */
+  31.02%{opacity:0;}  /* 3.04s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* caption 3 3.8-5s */
+/* caption 3 3.04-4s */
 @keyframes rag-stack-n3{
   0%{opacity:0;}  /* 0s */
-  29.23%{opacity:0;}  /* 3.8s */
-  31.15%{opacity:1;}  /* 4.05s */
-  36.54%{opacity:1;}  /* 4.75s */
-  38.46%{opacity:0;}  /* 5s */
-  100%{opacity:0;}  /* 13s */
+  31.02%{opacity:0;}  /* 3.04s */
+  33.06%{opacity:1;}  /* 3.24s */
+  38.78%{opacity:1;}  /* 3.8s */
+  40.81%{opacity:0;}  /* 4s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* caption 4 5-6.2s */
+/* caption 4 4-4.96s */
 @keyframes rag-stack-n4{
   0%{opacity:0;}  /* 0s */
-  38.46%{opacity:0;}  /* 5s */
-  40.38%{opacity:1;}  /* 5.25s */
-  45.77%{opacity:1;}  /* 5.95s */
-  47.69%{opacity:0;}  /* 6.2s */
-  100%{opacity:0;}  /* 13s */
+  40.81%{opacity:0;}  /* 4s */
+  42.85%{opacity:1;}  /* 4.2s */
+  48.57%{opacity:1;}  /* 4.76s */
+  50.61%{opacity:0;}  /* 4.96s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* caption 5 6.2-7.4s */
+/* caption 5 4.96-5.92s */
 @keyframes rag-stack-n5{
   0%{opacity:0;}  /* 0s */
-  47.69%{opacity:0;}  /* 6.2s */
-  49.62%{opacity:1;}  /* 6.45s */
-  55%{opacity:1;}  /* 7.15s */
-  56.92%{opacity:0;}  /* 7.4s */
-  100%{opacity:0;}  /* 13s */
+  50.61%{opacity:0;}  /* 4.96s */
+  52.66%{opacity:1;}  /* 5.16s */
+  58.37%{opacity:1;}  /* 5.72s */
+  60.4%{opacity:0;}  /* 5.92s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* caption 6 7.4-8.6s */
+/* caption 6 5.92-6.88s */
 @keyframes rag-stack-n6{
   0%{opacity:0;}  /* 0s */
-  56.92%{opacity:0;}  /* 7.4s */
-  58.85%{opacity:1;}  /* 7.65s */
-  64.23%{opacity:1;}  /* 8.35s */
-  66.15%{opacity:0;}  /* 8.6s */
-  100%{opacity:0;}  /* 13s */
+  60.4%{opacity:0;}  /* 5.92s */
+  62.45%{opacity:1;}  /* 6.12s */
+  68.16%{opacity:1;}  /* 6.68s */
+  70.2%{opacity:0;}  /* 6.88s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* caption 7 8.6-9.8s */
+/* caption 7 6.88-7.84s */
 @keyframes rag-stack-n7{
   0%{opacity:0;}  /* 0s */
-  66.15%{opacity:0;}  /* 8.6s */
-  68.08%{opacity:1;}  /* 8.85s */
-  73.46%{opacity:1;}  /* 9.55s */
-  75.38%{opacity:0;}  /* 9.8s */
-  100%{opacity:0;}  /* 13s */
+  70.2%{opacity:0;}  /* 6.88s */
+  72.25%{opacity:1;}  /* 7.08s */
+  77.96%{opacity:1;}  /* 7.64s */
+  80%{opacity:0;}  /* 7.84s */
+  100%{opacity:0;}  /* 9.8s */
 }
-/* caption 8 from 9.8s to rest */
+/* caption 8 from 7.84s to rest */
 @keyframes rag-stack-n8{
   0%{opacity:0;}  /* 0s */
-  75.38%{opacity:0;}  /* 9.8s */
-  77.31%{opacity:1;}  /* 10.05s */
-  99.23%{opacity:1;}  /* 12.9s */
-  99.62%{opacity:0;}  /* 12.95s */
-  100%{opacity:0;}  /* 13s */
+  80%{opacity:0;}  /* 7.84s */
+  82.04%{opacity:1;}  /* 8.04s */
+  100%{opacity:1;}  /* 9.8s */
 }
-/* hold 11.4-12.6s, exit 12.6-12.9s, reset */
+/* hold 9.12-10.08s, exit 10.08-10.32s, reset */
 @keyframes rag-stack-scene{
   0%{opacity:1;}  /* 0s */
-  96.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}  /* 12.6s */
-  99.23%{opacity:0;}  /* 12.9s */
-  99.54%{opacity:0;}  /* 12.94s */
-  100%{opacity:1;}  /* 13s */
+  100%{opacity:1;}  /* 9.8s */
 }
 
-.visible .anim-rag-stack .rag-stack-scene{animation:rag-stack-scene 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-b0{animation:rag-stack-b0 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-c0{animation:rag-stack-c0 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-b1{animation:rag-stack-b1 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-c1{animation:rag-stack-c1 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-b2{animation:rag-stack-b2 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-c2{animation:rag-stack-c2 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-b3{animation:rag-stack-b3 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-c3{animation:rag-stack-c3 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-wire{animation:rag-stack-wire 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-p0{animation:rag-stack-p0m 13s ease-in-out infinite,rag-stack-p0f 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-p1{animation:rag-stack-p1m 13s ease-in-out infinite,rag-stack-p1f 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-p2{animation:rag-stack-p2m 13s ease-in-out infinite,rag-stack-p2f 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-p3{animation:rag-stack-p3m 13s ease-in-out infinite,rag-stack-p3f 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-p4{animation:rag-stack-p4m 13s ease-in-out infinite,rag-stack-p4f 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-p5{animation:rag-stack-p5m 13s ease-in-out infinite,rag-stack-p5f 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-p6{animation:rag-stack-p6m 13s ease-in-out infinite,rag-stack-p6f 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-p7{animation:rag-stack-p7m 13s ease-in-out infinite,rag-stack-p7f 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-hi-chat{animation:rag-stack-hi-chat 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-hi-orch{animation:rag-stack-hi-orch 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-hi-index{animation:rag-stack-hi-index 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-hi-docs{animation:rag-stack-hi-docs 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-hi-llm{animation:rag-stack-hi-llm 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-q{animation:rag-stack-q 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-r0{animation:rag-stack-r0 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-r1{animation:rag-stack-r1 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-r2{animation:rag-stack-r2 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-dochi{animation:rag-stack-dochi 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-sel{animation:rag-stack-sel 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-ans{animation:rag-stack-ans 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-cite{animation:rag-stack-cite 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n0{animation:rag-stack-n0 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n1{animation:rag-stack-n1 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n2{animation:rag-stack-n2 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n3{animation:rag-stack-n3 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n4{animation:rag-stack-n4 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n5{animation:rag-stack-n5 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n6{animation:rag-stack-n6 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n7{animation:rag-stack-n7 13s ease-in-out infinite}
-.visible .anim-rag-stack .rag-stack-n8{animation:rag-stack-n8 13s ease-in-out infinite}
+.visible .anim-rag-stack .rag-stack-scene{animation:rag-stack-scene 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-b0{animation:rag-stack-b0 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-c0{animation:rag-stack-c0 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-b1{animation:rag-stack-b1 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-c1{animation:rag-stack-c1 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-b2{animation:rag-stack-b2 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-c2{animation:rag-stack-c2 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-b3{animation:rag-stack-b3 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-c3{animation:rag-stack-c3 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-wires{animation:rag-stack-wire 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-p0{animation:rag-stack-p0m 9.8s ease-in-out 1 forwards,rag-stack-p0f 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-p1{animation:rag-stack-p1m 9.8s ease-in-out 1 forwards,rag-stack-p1f 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-p2{animation:rag-stack-p2m 9.8s ease-in-out 1 forwards,rag-stack-p2f 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-p3{animation:rag-stack-p3m 9.8s ease-in-out 1 forwards,rag-stack-p3f 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-p4{animation:rag-stack-p4m 9.8s ease-in-out 1 forwards,rag-stack-p4f 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-p5{animation:rag-stack-p5m 9.8s ease-in-out 1 forwards,rag-stack-p5f 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-p6{animation:rag-stack-p6m 9.8s ease-in-out 1 forwards,rag-stack-p6f 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-p7{animation:rag-stack-p7m 9.8s ease-in-out 1 forwards,rag-stack-p7f 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-chat{animation:rag-stack-hi-chat 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-orch{animation:rag-stack-hi-orch 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-index{animation:rag-stack-hi-index 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-docs{animation:rag-stack-hi-docs 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-llm{animation:rag-stack-hi-llm 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-q{animation:rag-stack-q 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-r0{animation:rag-stack-r0 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-r1{animation:rag-stack-r1 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-r2{animation:rag-stack-r2 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-dochi{animation:rag-stack-dochi 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-sel{animation:rag-stack-sel 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-ans{animation:rag-stack-ans 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-cite{animation:rag-stack-cite 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n0{animation:rag-stack-n0 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n1{animation:rag-stack-n1 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n2{animation:rag-stack-n2 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n3{animation:rag-stack-n3 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n4{animation:rag-stack-n4 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n5{animation:rag-stack-n5 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n6{animation:rag-stack-n6 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n7{animation:rag-stack-n7 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-n8{animation:rag-stack-n8 9.8s ease-in-out 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-rag-stack * { animation: none !important; } }
 </style>
-<div class="anim anim-rag-stack" data-anim="rag-stack" data-anim-cycle="13" data-anim-control="loop">
+<div class="anim anim-rag-stack" data-anim="rag-stack" data-anim-cycle="9.8" data-anim-control="once">
 <svg viewBox="0 0 1200 640" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A retrieval-augmented generation app in four layers: a chat question travels down through the orchestrator and vector index to the documents, the relevant chunks come back up, the LLM writes an answer from them and the answer returns to the chat with citations.">
 <g class="rag-stack-scene">
   <!-- ===== bands, bottom-up: a hairline under each layer, mono caps name at the left ===== -->
@@ -560,6 +520,7 @@
   <g class="rag-stack-b2"><path class="rag-stack-hair" d="M24 280 H1176"/><text class="rag-stack-layer" x="48" y="225">Orchestration</text></g>
   <g class="rag-stack-b3"><path class="rag-stack-hair" d="M24 146 H1176"/><text class="rag-stack-layer" x="48" y="91">Interface</text></g>
   <!-- ===== wires: down at x 530, up at x 550, LLM round trip at y 209 / 229 ===== -->
+  <g class="rag-stack-wires">
   <path class="rag-stack-wire" pathLength="100" d="M530 113 V191"/>
   <path class="rag-stack-wire" pathLength="100" d="M550 191 V113"/>
   <path class="rag-stack-wire" pathLength="100" d="M530 247 V325"/>
@@ -568,6 +529,7 @@
   <path class="rag-stack-wire" pathLength="100" d="M550 459 V381"/>
   <path class="rag-stack-wire" pathLength="100" d="M569 209 H871"/>
   <path class="rag-stack-wire" pathLength="100" d="M871 229 H569"/>
+  </g>
   <!-- ===== layer 0: documents ===== -->
   <g class="rag-stack-c0">
     <circle class="rag-stack-ring" cx="540" cy="487" r="30"/>

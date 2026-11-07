@@ -1,13 +1,13 @@
 # Pool of finished, checked fragments. One entry per folder: pool/<name>/<name>.html,
 # plus thumb.png (resting frame) and, where it exists, spec.yaml.
 # Agents: match on archetype, domain and tags first, then read the story; open only the fragment you pick.
-# All entries: data-anim-control="loop", CSS only, pass check_fragment.py at viewBox width.
+# All entries: data-anim-control="once" (one pass of `cycle` seconds, ends on the resting frame), CSS only, pass check_fragment.py at viewBox width.
 
 - name: deploy-pipeline
   archetype: pipeline
   domain: software
   viewbox: [1680, 440]
-  cycle: 12
+  cycle: 9.8
   spec: true
   story: A commit moves through build, test and staging, then a 5 % canary earns 100 % of traffic while an auto-rollback edge stands by.
   tags: [ci-cd, deployment, canary, rollback, devops, stages]
@@ -16,7 +16,7 @@
   archetype: graph
   domain: software
   viewbox: [1680, 600]
-  cycle: 14
+  cycle: 9.8
   spec: true
   story: A service graph builds rank by rank, one request is traced through it, then a third-party outage stays contained to Payments.
   tags: [dependencies, microservices, blast-radius, outage, architecture]
@@ -25,7 +25,7 @@
   archetype: graph
   domain: software
   viewbox: [1000, 560]
-  cycle: 14
+  cycle: 9.4
   spec: false
   story: Requests reach the primary database, it fails, health checks propose promoting the replica, on-call approves and traffic is rerouted.
   tags: [failover, incident, database, high-availability, approval, phased-story]
@@ -35,7 +35,7 @@
   archetype: timeline
   domain: product
   viewbox: [1680, 440]
-  cycle: 12
+  cycle: 9.9
   spec: true
   story: Three milestones ship one after another, mobile apps are in progress and platform v2 is planned.
   tags: [roadmap, product, milestones, planning, release]
@@ -44,7 +44,7 @@
   archetype: states
   domain: software
   viewbox: [1200, 600]
-  cycle: 12
+  cycle: 9.8
   spec: true
   story: A job is picked, fails with a timeout, retries after a backoff and succeeds on the second attempt, with an event log filling in.
   tags: [lifecycle, retry, state-machine, jobs, error-handling]
@@ -53,7 +53,7 @@
   archetype: compare
   domain: software
   viewbox: [1680, 600]
-  cycle: 12
+  cycle: 10
   spec: true
   story: The same four reads without and with a cache; repeated 180 ms database reads become 8 ms hits and database load drops.
   tags: [caching, latency, database, before-after, performance]
@@ -62,7 +62,7 @@
   archetype: layers
   domain: ai
   viewbox: [1200, 640]
-  cycle: 13
+  cycle: 9.8
   spec: true
   story: One question travels down a four-layer RAG stack, matching chunks come back up, the LLM drafts an answer and it returns with citations.
   tags: [rag, llm, retrieval, vector-search, architecture, ai]
@@ -71,7 +71,7 @@
   archetype: chart
   domain: finance
   viewbox: [1680, 600]
-  cycle: 12
+  cycle: 9.5
   spec: true
   story: A line chart draws on as monthly spend climbs past a budget line, then bends back under it after an autoscaling event.
   tags: [cost, budget-threshold, line-draw-on, optimization, monthly-trend]
@@ -80,17 +80,17 @@
   archetype: chart
   domain: software
   viewbox: [800, 500]
-  cycle: 14
+  cycle: 10
   spec: false
   story: A scrolling strip chart of p99 latency; a deploy spikes it over the SLO line, an alert fires and a rollback brings it back.
   tags: [latency, slo, monitoring, incident, rollback, strip-chart]
-  technique: continuous trace drawn twice and translated by one period, events baked into the trace
+  technique: trace revealed once by a growing clip rect with the head dot riding it; event tags fade in as the head arrives
 
 - name: er-patient-flow
   archetype: pipeline
   domain: health
   viewbox: [1680, 560]
-  cycle: 13
+  cycle: 10
   spec: true
   story: An emergency department visit in eight numbered steps wrapped into two rows, from arrival and triage to the decision and discharge.
   tags: [patient-flow, emergency, healthcare, wrapped-pipeline, snake, numbered-steps]
@@ -100,7 +100,7 @@
   archetype: pipeline
   domain: logistics
   viewbox: [1600, 520]
-  cycle: 8
+  cycle: 7.5
   spec: false
   story: A parcel hops through five stations from order to doorstep, each turning green when passed, ending on the 28-hour lead time.
   tags: [delivery, logistics, e-commerce, stations, lead-time]
@@ -109,7 +109,7 @@
   archetype: pipeline
   domain: earth-science
   viewbox: [1680, 600]
-  cycle: 12
+  cycle: 10
   spec: true
   story: Over a sea-and-mountain landscape the sun evaporates water, wind carries the cloud inland, rain falls and a river returns it to the sea.
   tags: [water-cycle, closed-loop, earth-science, landscape, packet-transform, seamless]
@@ -119,7 +119,7 @@
   archetype: graph
   domain: finance
   viewbox: [1680, 600]
-  cycle: 13
+  cycle: 10
   spec: true
   story: Online OR branch applications meet a credit-check diamond; yes runs two checks in parallel to an offer, no ends in a decline with a reason letter.
   tags: [loan, credit-decision, decision-diamond, parallel-checks, alternative-inputs, banking]
@@ -128,7 +128,7 @@
   archetype: graph
   domain: hr
   viewbox: [1680, 600]
-  cycle: 14
+  cycle: 10
   spec: true
   story: Swimlanes for candidate, recruiter and hiring manager; one token is handed between lanes, a revise-offer loop runs once and the offer is accepted.
   tags: [swimlanes, hiring, hr, handoff, revision-loop, branch-outcome]
@@ -138,7 +138,7 @@
   archetype: timeline
   domain: law
   viewbox: [1680, 600]
-  cycle: 13
+  cycle: 10
   spec: true
   story: A generic criminal case from investigation to sentencing; the progress line changes colour at each hand-off between prosecution, court and jury.
   tags: [legal-process, criminal-justice, hand-off, responsibility, civics, alternating-labels]
@@ -148,7 +148,7 @@
   archetype: compare
   domain: biology
   viewbox: [1680, 600]
-  cycle: 12
+  cycle: 10
   spec: true
   story: Photosynthesis and cellular respiration side by side; as each respiration row enters, its direction badge flips to the opposite of photosynthesis.
   tags: [biology, photosynthesis, cellular-respiration, opposites, molecules, textbook]
@@ -158,7 +158,7 @@
   archetype: compare
   domain: business
   viewbox: [1680, 600]
-  cycle: 11
+  cycle: 9
   spec: true
   story: Bootstrapping, angel investors and venture capital built column by column across four criteria, ending on the control-you-keep row.
   tags: [business, startup-funding, option-matrix, trade-off, investors, decision]
@@ -168,7 +168,7 @@
   archetype: states
   domain: engineering
   viewbox: [1680, 600]
-  cycle: 11
+  cycle: 9.5
   spec: false
   story: A side cross-section of a canal lock: the boat enters, the lower gates close, the valve fills the chamber, the upper gates open and the boat leaves higher.
   tags: [canal-lock, transport, water-level, cross-section, physical-process, scene]
@@ -178,7 +178,7 @@
   archetype: pipeline
   domain: marketing
   viewbox: [1680, 600]
-  cycle: 13
+  cycle: 9.6
   spec: true
   story: One cohort of 10,000 thins out through awareness, interest, consideration and purchase to retention; every conversion matches the counts and the numbers are marked illustrative.
   tags: [funnel, conversion, cohort, marketing, sales, illustrative]
@@ -188,7 +188,7 @@
   archetype: timeline
   domain: history
   viewbox: [1680, 520]
-  cycle: 12
+  cycle: 8.6
   spec: true
   story: Five milestones in long-distance communication, from the 1844 telegraph line to the 1989 Web proposal, advancing era by era with brackets for wire, radio and computer networks.
   tags: [history, communication, telegraph, radio, internet, milestones]
@@ -197,7 +197,7 @@
   archetype: layers
   domain: education
   viewbox: [1200, 640]
-  cycle: 13
+  cycle: 10
   spec: false
   story: The six levels of the revised Bloom's taxonomy build bottom-up, then one topic (fractions) climbs from Remember to Create with an example task per level.
   tags: [education, bloom, learning-objectives, pyramid, hierarchy, cognition]
@@ -207,7 +207,7 @@
   archetype: states
   domain: chemistry
   viewbox: [1680, 600]
-  cycle: 14
+  cycle: 10
   spec: true
   story: Solid, liquid and gas with their particles; a token runs all six phase changes, each labelled with whether it absorbs or releases energy, water's 0 °C and 100 °C at 1 atm noted.
   tags: [chemistry, states-of-matter, phase-change, energy, particles, physics]

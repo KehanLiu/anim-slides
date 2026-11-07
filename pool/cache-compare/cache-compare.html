@@ -36,7 +36,6 @@
 .anim-cache-compare .cache-compare-sep{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
 .anim-cache-compare .cache-compare-panel{fill:none;stroke:var(--anim-line);stroke-width:2px;stroke-linecap:round}
 .anim-cache-compare .cache-compare-panel-r{stroke:var(--anim-accent);stroke-width:3px}
-.anim-cache-compare .cache-compare-rule-glow{opacity:.35;filter:blur(6px)}
 .anim-cache-compare .cache-compare-side-l{opacity:.68}
 .anim-cache-compare .cache-compare-wire{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round}
 .anim-cache-compare .cache-compare-node{fill:none;stroke:var(--anim-muted);stroke-width:2.5}
@@ -60,169 +59,169 @@
 .anim-cache-compare .cache-compare-pkt{fill:var(--anim-accent);filter:drop-shadow(0 0 6px var(--anim-accent))}
 .anim-cache-compare .cache-compare-pkt-fill{fill:var(--anim-ok);filter:drop-shadow(0 0 6px var(--anim-ok))}
 
-/* scene: in 0-0.4 s, hold, reset 11.5-11.8 s */
-@keyframes cache-compare-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}3.33%{opacity:1;}95.83%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}98.33%{opacity:0;}100%{opacity:0;}}
-/* left read 1: app -> db 0.9-1.6 s */
-@keyframes cache-compare-pkl0{0%{opacity:0;offset-distance:0%;}7.50%{opacity:0;offset-distance:0%;}7.92%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}12.92%{opacity:1;offset-distance:96%;}13.33%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* left row 1 lands 1.4 s */
-@keyframes cache-compare-rowl0{0%{opacity:0;transform:translateX(30px);}11.67%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cache-compare-barl0{0%{transform:scaleX(0);}12.50%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}16.67%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-/* left bar 1 dims when its right pair lands 6.8 s */
-@keyframes cache-compare-dim0{0%{fill:var(--anim-accent);}56.67%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}58.75%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
-@keyframes cache-compare-msl0{0%{opacity:0;}15.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}18.33%{opacity:1;}100%{opacity:1;}}
-@keyframes cache-compare-dimt0{0%{fill:var(--anim-accent);}56.67%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}58.75%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
-/* left read 2: app -> db 1.8-2.5 s */
-@keyframes cache-compare-pkl1{0%{opacity:0;offset-distance:0%;}15%{opacity:0;offset-distance:0%;}15.42%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}20.42%{opacity:1;offset-distance:96%;}20.83%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* left row 2 lands 2.3 s */
-@keyframes cache-compare-rowl1{0%{opacity:0;transform:translateX(30px);}19.17%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}22.50%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cache-compare-barl1{0%{transform:scaleX(0);}20%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}24.17%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-/* left bar 2 dims when its right pair lands 7.8 s */
-@keyframes cache-compare-dim1{0%{fill:var(--anim-accent);}65%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}67.08%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
-@keyframes cache-compare-msl1{0%{opacity:0;}23.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}25.83%{opacity:1;}100%{opacity:1;}}
-@keyframes cache-compare-dimt1{0%{fill:var(--anim-accent);}65%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}67.08%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
-/* left read 3: app -> db 2.7-3.4 s */
-@keyframes cache-compare-pkl2{0%{opacity:0;offset-distance:0%;}22.50%{opacity:0;offset-distance:0%;}22.92%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}27.92%{opacity:1;offset-distance:96%;}28.33%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* left row 3 lands 3.2 s */
-@keyframes cache-compare-rowl2{0%{opacity:0;transform:translateX(30px);}26.67%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}30%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cache-compare-barl2{0%{transform:scaleX(0);}27.50%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}31.67%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-/* left bar 3 dims when its right pair lands 8.5 s */
-@keyframes cache-compare-dim2{0%{fill:var(--anim-accent);}70.83%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}72.92%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
-@keyframes cache-compare-msl2{0%{opacity:0;}30.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}33.33%{opacity:1;}100%{opacity:1;}}
-@keyframes cache-compare-dimt2{0%{fill:var(--anim-accent);}70.83%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}72.92%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
-/* left read 4: app -> db 3.6-4.3 s */
-@keyframes cache-compare-pkl3{0%{opacity:0;offset-distance:0%;}30%{opacity:0;offset-distance:0%;}30.42%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}35.42%{opacity:1;offset-distance:96%;}35.83%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* left row 4 lands 4.1 s */
-@keyframes cache-compare-rowl3{0%{opacity:0;transform:translateX(30px);}34.17%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.50%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cache-compare-barl3{0%{transform:scaleX(0);}35%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}39.17%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-/* left bar 4 dims when its right pair lands 9.2 s */
-@keyframes cache-compare-dim3{0%{fill:var(--anim-accent);}76.67%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}78.75%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
-@keyframes cache-compare-msl3{0%{opacity:0;}38.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}40.83%{opacity:1;}100%{opacity:1;}}
-@keyframes cache-compare-dimt3{0%{fill:var(--anim-accent);}76.67%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}78.75%{fill:var(--anim-muted);}100%{fill:var(--anim-muted);}}
-@keyframes cache-compare-rdl0{0%{opacity:1;}12.25%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}13.33%{opacity:0;}100%{opacity:0;}}
-@keyframes cache-compare-rdl1{0%{opacity:0;}13.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15%{opacity:1;}19.75%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}20.83%{opacity:0;}100%{opacity:0;}}
-@keyframes cache-compare-rdl2{0%{opacity:0;}20.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}22.50%{opacity:1;}27.25%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}28.33%{opacity:0;}100%{opacity:0;}}
-@keyframes cache-compare-rdl3{0%{opacity:0;}28.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}30%{opacity:1;}34.75%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}35.83%{opacity:0;}100%{opacity:0;}}
-@keyframes cache-compare-rdl4{0%{opacity:0;}35.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.50%{opacity:1;}100%{opacity:1;}}
+/* scene: in 0-0.34 s, then holds */
+@keyframes cache-compare-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}3.4%{opacity:1;}100%{opacity:1}}
+/* left read 1: app -> db 0.77-1.36 s */
+@keyframes cache-compare-pkl0{0%,7.65%{opacity:0;offset-distance:0%;}8.08%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}13.18%{opacity:1;offset-distance:96%;}13.6%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* left row 1 lands 1.19 s */
+@keyframes cache-compare-rowl0{0%{opacity:0;transform:translateX(30px);}11.9%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15.3%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0)}}
+@keyframes cache-compare-barl0{0%{transform:scaleX(0);}12.75%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}17%{transform:scaleX(1);}100%{transform:scaleX(1)}}
+/* left bar 1 dims when its right pair lands 5.78 s */
+@keyframes cache-compare-dim0{0%{fill:var(--anim-accent);}57.8%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}59.92%{fill:var(--anim-muted);}100%{fill:var(--anim-muted)}}
+@keyframes cache-compare-msl0{0%{opacity:0;}16.15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}18.7%{opacity:1;}100%{opacity:1}}
+@keyframes cache-compare-dimt0{0%{fill:var(--anim-accent);}57.8%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}59.92%{fill:var(--anim-muted);}100%{fill:var(--anim-muted)}}
+/* left read 2: app -> db 1.53-2.12 s */
+@keyframes cache-compare-pkl1{0%,15.3%{opacity:0;offset-distance:0%;}15.73%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}20.83%{opacity:1;offset-distance:96%;}21.25%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* left row 2 lands 1.95 s */
+@keyframes cache-compare-rowl1{0%{opacity:0;transform:translateX(30px);}19.55%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}22.95%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0)}}
+@keyframes cache-compare-barl1{0%{transform:scaleX(0);}20.4%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}24.65%{transform:scaleX(1);}100%{transform:scaleX(1)}}
+/* left bar 2 dims when its right pair lands 6.63 s */
+@keyframes cache-compare-dim1{0%{fill:var(--anim-accent);}66.3%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}68.42%{fill:var(--anim-muted);}100%{fill:var(--anim-muted)}}
+@keyframes cache-compare-msl1{0%{opacity:0;}23.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}26.35%{opacity:1;}100%{opacity:1}}
+@keyframes cache-compare-dimt1{0%{fill:var(--anim-accent);}66.3%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}68.42%{fill:var(--anim-muted);}100%{fill:var(--anim-muted)}}
+/* left read 3: app -> db 2.29-2.89 s */
+@keyframes cache-compare-pkl2{0%,22.95%{opacity:0;offset-distance:0%;}23.38%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}28.48%{opacity:1;offset-distance:96%;}28.9%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* left row 3 lands 2.72 s */
+@keyframes cache-compare-rowl2{0%{opacity:0;transform:translateX(30px);}27.2%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}30.6%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0)}}
+@keyframes cache-compare-barl2{0%{transform:scaleX(0);}28.05%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}32.3%{transform:scaleX(1);}100%{transform:scaleX(1)}}
+/* left bar 3 dims when its right pair lands 7.22 s */
+@keyframes cache-compare-dim2{0%{fill:var(--anim-accent);}72.25%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}74.38%{fill:var(--anim-muted);}100%{fill:var(--anim-muted)}}
+@keyframes cache-compare-msl2{0%{opacity:0;}31.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}34%{opacity:1;}100%{opacity:1}}
+@keyframes cache-compare-dimt2{0%{fill:var(--anim-accent);}72.25%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}74.38%{fill:var(--anim-muted);}100%{fill:var(--anim-muted)}}
+/* left read 4: app -> db 3.06-3.65 s */
+@keyframes cache-compare-pkl3{0%,30.6%{opacity:0;offset-distance:0%;}31.03%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}36.13%{opacity:1;offset-distance:96%;}36.55%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* left row 4 lands 3.48 s */
+@keyframes cache-compare-rowl3{0%{opacity:0;transform:translateX(30px);}34.85%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.25%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0)}}
+@keyframes cache-compare-barl3{0%{transform:scaleX(0);}35.7%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}39.95%{transform:scaleX(1);}100%{transform:scaleX(1)}}
+/* left bar 4 dims when its right pair lands 7.82 s */
+@keyframes cache-compare-dim3{0%{fill:var(--anim-accent);}78.2%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}80.32%{fill:var(--anim-muted);}100%{fill:var(--anim-muted)}}
+@keyframes cache-compare-msl3{0%{opacity:0;}39.1%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}41.65%{opacity:1;}100%{opacity:1}}
+@keyframes cache-compare-dimt3{0%{fill:var(--anim-accent);}78.2%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}80.32%{fill:var(--anim-muted);}100%{fill:var(--anim-muted)}}
+@keyframes cache-compare-rdl0{0%{opacity:1;}12.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}13.6%{opacity:0;}100%{opacity:0}}
+@keyframes cache-compare-rdl1{0%{opacity:0;}13.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15.3%{opacity:1;}20.14%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}21.25%{opacity:0;}100%{opacity:0}}
+@keyframes cache-compare-rdl2{0%{opacity:0;}21.25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}22.95%{opacity:1;}27.8%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}28.9%{opacity:0;}100%{opacity:0}}
+@keyframes cache-compare-rdl3{0%{opacity:0;}28.9%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}30.6%{opacity:1;}35.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}36.55%{opacity:0;}100%{opacity:0}}
+@keyframes cache-compare-rdl4{0%{opacity:0;}36.55%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.25%{opacity:1;}100%{opacity:1}}
 /* left load 24 % per read */
-@keyframes cache-compare-fill-l{0%{transform:scaleY(0);}13.33%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1);}16.25%{transform:scaleY(0.24);}20.83%{transform:scaleY(0.24);animation-timing-function:cubic-bezier(0.2,0,0,1);}23.75%{transform:scaleY(0.48);}28.33%{transform:scaleY(0.48);animation-timing-function:cubic-bezier(0.2,0,0,1);}31.25%{transform:scaleY(0.72);}35.83%{transform:scaleY(0.72);animation-timing-function:cubic-bezier(0.2,0,0,1);}38.75%{transform:scaleY(0.96);}100%{transform:scaleY(0.96);}}
-@keyframes cache-compare-fillcol{0%{fill:var(--anim-accent);}35.83%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}37.92%{fill:var(--anim-danger);}100%{fill:var(--anim-danger);}}
-/* database busy from 4.3 s */
-@keyframes cache-compare-busy{0%{opacity:0;}35.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.33%{opacity:1;}100%{opacity:1;}}
-/* right read 1 app -> cache 4.9 s */
-@keyframes cache-compare-pkr0a{0%{opacity:0;offset-distance:0%;}40.83%{opacity:0;offset-distance:0%;}41.25%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}45.42%{opacity:1;offset-distance:96%;}45.83%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* miss: cache -> db 5.65 s */
-@keyframes cache-compare-pkr0b{0%{opacity:0;offset-distance:0%;}47.08%{opacity:0;offset-distance:0%;}47.50%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}51.67%{opacity:1;offset-distance:96%;}52.08%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* fill: db -> cache 6.4 s */
-@keyframes cache-compare-pkr0c{0%{opacity:0;offset-distance:0%;}53.33%{opacity:0;offset-distance:0%;}53.75%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}57.92%{opacity:1;offset-distance:96%;}58.33%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+@keyframes cache-compare-fill-l{0%{transform:scaleY(0);}13.6%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1);}16.57%{transform:scaleY(0.24);}21.25%{transform:scaleY(0.24);animation-timing-function:cubic-bezier(0.2,0,0,1);}24.22%{transform:scaleY(0.48);}28.9%{transform:scaleY(0.48);animation-timing-function:cubic-bezier(0.2,0,0,1);}31.87%{transform:scaleY(0.72);}36.55%{transform:scaleY(0.72);animation-timing-function:cubic-bezier(0.2,0,0,1);}39.52%{transform:scaleY(0.96);}100%{transform:scaleY(0.96)}}
+@keyframes cache-compare-fillcol{0%{fill:var(--anim-accent);}36.55%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}38.68%{fill:var(--anim-danger);}100%{fill:var(--anim-danger)}}
+/* database busy from 3.65 s */
+@keyframes cache-compare-busy{0%{opacity:0;}36.55%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}39.1%{opacity:1;}100%{opacity:1}}
+/* right read 1 app -> cache 4.17 s */
+@keyframes cache-compare-pkr0a{0%,41.65%{opacity:0;offset-distance:0%;}42.08%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}46.33%{opacity:1;offset-distance:96%;}46.75%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* miss: cache -> db 4.8 s */
+@keyframes cache-compare-pkr0b{0%,48.02%{opacity:0;offset-distance:0%;}48.45%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}52.7%{opacity:1;offset-distance:96%;}53.12%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* fill: db -> cache 5.44 s */
+@keyframes cache-compare-pkr0c{0%,54.4%{opacity:0;offset-distance:0%;}54.83%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}59.08%{opacity:1;offset-distance:96%;}59.5%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
 /* MISS chip */
-@keyframes cache-compare-miss{0%{opacity:0;}45.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}47.50%{opacity:1;}64.75%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}65.83%{opacity:0;}100%{opacity:0;}}
+@keyframes cache-compare-miss{0%{opacity:0;}46.75%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}48.45%{opacity:1;}66.05%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}67.15%{opacity:0;}100%{opacity:0}}
 /* HIT chip from the first hit */
-@keyframes cache-compare-hit{0%{opacity:0;}65.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}67.50%{opacity:1;}100%{opacity:1;}}
-@keyframes cache-compare-cempty{0%{opacity:1;}57.08%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}58.33%{opacity:0;}100%{opacity:0;}}
+@keyframes cache-compare-hit{0%{opacity:0;}67.15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}68.85%{opacity:1;}100%{opacity:1}}
+@keyframes cache-compare-cempty{0%{opacity:1;}58.22%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}59.5%{opacity:0;}100%{opacity:0}}
 /* cache warm after the fill */
-@keyframes cache-compare-cwarm{0%{opacity:0;}58.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60.42%{opacity:1;}100%{opacity:1;}}
-@keyframes cache-compare-slot{0%{opacity:0;}58.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-cwarm{0%{opacity:0;}59.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}61.63%{opacity:1;}100%{opacity:1}}
+@keyframes cache-compare-slot{0%{opacity:0;}59.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}61.2%{opacity:1;}100%{opacity:1}}
 /* cache outline turns ok once filled */
-@keyframes cache-compare-cbox{0%{stroke:var(--anim-muted);}58.33%{stroke:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1);}60.42%{stroke:var(--anim-ok);}100%{stroke:var(--anim-ok);}}
-@keyframes cache-compare-rdr0{0%{opacity:1;}51%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}52.08%{opacity:0;}100%{opacity:0;}}
-/* right database read once at 6.2 s */
-@keyframes cache-compare-rdr1{0%{opacity:0;}52.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}53.75%{opacity:1;}100%{opacity:1;}}
+@keyframes cache-compare-cbox{0%{stroke:var(--anim-muted);}59.5%{stroke:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1);}61.63%{stroke:var(--anim-ok);}100%{stroke:var(--anim-ok)}}
+@keyframes cache-compare-rdr0{0%{opacity:1;}52.02%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}53.12%{opacity:0;}100%{opacity:0}}
+/* right database read once at 5.27 s */
+@keyframes cache-compare-rdr1{0%{opacity:0;}53.12%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}54.83%{opacity:1;}100%{opacity:1}}
 /* right load 24 % after the single read */
-@keyframes cache-compare-fill-r{0%{transform:scaleY(0);}52.08%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1);}55%{transform:scaleY(0.24);}100%{transform:scaleY(0.24);}}
-/* right read 2 hit 7.3 s */
-@keyframes cache-compare-pkr1{0%{opacity:0;offset-distance:0%;}60.83%{opacity:0;offset-distance:0%;}61.25%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}65.42%{opacity:1;offset-distance:96%;}65.83%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* right read 3 hit 8.0 s */
-@keyframes cache-compare-pkr2{0%{opacity:0;offset-distance:0%;}66.67%{opacity:0;offset-distance:0%;}67.08%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}71.25%{opacity:1;offset-distance:96%;}71.67%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* right read 4 hit 8.7 s */
-@keyframes cache-compare-pkr3{0%{opacity:0;offset-distance:0%;}72.50%{opacity:0;offset-distance:0%;}72.92%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}77.08%{opacity:1;offset-distance:96%;}77.50%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-/* right row 1 lands 6.8 s */
-@keyframes cache-compare-rowr0{0%{opacity:0;transform:translateX(30px);}56.67%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cache-compare-barr0{0%{transform:scaleX(0);}57.50%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}61.67%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-@keyframes cache-compare-msr0{0%{opacity:0;}60.83%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}63.33%{opacity:1;}100%{opacity:1;}}
-/* right row 2 lands 7.8 s */
-@keyframes cache-compare-rowr1{0%{opacity:0;transform:translateX(30px);}65%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}68.33%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cache-compare-barr1{0%{transform:scaleX(0);}65.83%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}67.92%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-@keyframes cache-compare-msr1{0%{opacity:0;}67.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}70%{opacity:1;}100%{opacity:1;}}
-/* right row 3 lands 8.5 s */
-@keyframes cache-compare-rowr2{0%{opacity:0;transform:translateX(30px);}70.83%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}74.17%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cache-compare-barr2{0%{transform:scaleX(0);}71.67%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}73.75%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-@keyframes cache-compare-msr2{0%{opacity:0;}73.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}75.83%{opacity:1;}100%{opacity:1;}}
-/* right row 4 lands 9.2 s */
-@keyframes cache-compare-rowr3{0%{opacity:0;transform:translateX(30px);}76.67%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}80%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes cache-compare-barr3{0%{transform:scaleX(0);}77.50%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}79.58%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-@keyframes cache-compare-msr3{0%{opacity:0;}79.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}81.67%{opacity:1;}100%{opacity:1;}}
-/* winner outlined 9.8 s */
-@keyframes cache-compare-win{0%{stroke:var(--anim-line);stroke-width:2px;}81.67%{stroke:var(--anim-line);stroke-width:2px;animation-timing-function:cubic-bezier(0.2,0,0,1);}83.75%{stroke:var(--anim-accent);stroke-width:3px;}100%{stroke:var(--anim-accent);stroke-width:3px;}}
+@keyframes cache-compare-fill-r{0%{transform:scaleY(0);}53.12%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1);}56.1%{transform:scaleY(0.24);}100%{transform:scaleY(0.24)}}
+/* right read 2 hit 6.21 s */
+@keyframes cache-compare-pkr1{0%,62.05%{opacity:0;offset-distance:0%;}62.47%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}66.73%{opacity:1;offset-distance:96%;}67.15%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* right read 3 hit 6.8 s */
+@keyframes cache-compare-pkr2{0%,68%{opacity:0;offset-distance:0%;}68.42%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}72.67%{opacity:1;offset-distance:96%;}73.1%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* right read 4 hit 7.39 s */
+@keyframes cache-compare-pkr3{0%,73.95%{opacity:0;offset-distance:0%;}74.38%{opacity:1;offset-distance:4%;animation-timing-function:cubic-bezier(0.2,0,0,1);}78.62%{opacity:1;offset-distance:96%;}79.05%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%}}
+/* right row 1 lands 5.78 s */
+@keyframes cache-compare-rowr0{0%{opacity:0;transform:translateX(30px);}57.8%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}61.2%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0)}}
+@keyframes cache-compare-barr0{0%{transform:scaleX(0);}58.65%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}62.9%{transform:scaleX(1);}100%{transform:scaleX(1)}}
+@keyframes cache-compare-msr0{0%{opacity:0;}62.05%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}64.6%{opacity:1;}100%{opacity:1}}
+/* right row 2 lands 6.63 s */
+@keyframes cache-compare-rowr1{0%{opacity:0;transform:translateX(30px);}66.3%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}69.7%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0)}}
+@keyframes cache-compare-barr1{0%{transform:scaleX(0);}67.15%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}69.28%{transform:scaleX(1);}100%{transform:scaleX(1)}}
+@keyframes cache-compare-msr1{0%{opacity:0;}68.85%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}71.4%{opacity:1;}100%{opacity:1}}
+/* right row 3 lands 7.22 s */
+@keyframes cache-compare-rowr2{0%{opacity:0;transform:translateX(30px);}72.25%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}75.65%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0)}}
+@keyframes cache-compare-barr2{0%{transform:scaleX(0);}73.1%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}75.22%{transform:scaleX(1);}100%{transform:scaleX(1)}}
+@keyframes cache-compare-msr2{0%{opacity:0;}74.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}77.35%{opacity:1;}100%{opacity:1}}
+/* right row 4 lands 7.82 s */
+@keyframes cache-compare-rowr3{0%{opacity:0;transform:translateX(30px);}78.2%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}81.6%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0)}}
+@keyframes cache-compare-barr3{0%{transform:scaleX(0);}79.05%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}81.17%{transform:scaleX(1);}100%{transform:scaleX(1)}}
+@keyframes cache-compare-msr3{0%{opacity:0;}80.75%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}83.3%{opacity:1;}100%{opacity:1}}
+/* winner outlined 8.33 s */
+@keyframes cache-compare-win{0%{stroke:var(--anim-line);stroke-width:2px;}83.3%{stroke:var(--anim-line);stroke-width:2px;animation-timing-function:cubic-bezier(0.2,0,0,1);}85.43%{stroke:var(--anim-accent);stroke-width:3px;}100%{stroke:var(--anim-accent);stroke-width:3px}}
 /* left recedes */
-@keyframes cache-compare-lose{0%{opacity:1;}81.67%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1);}85%{opacity:.68;}100%{opacity:.68;}}
-/* verdict 10.1 s */
-@keyframes cache-compare-verdict{0%{opacity:0;}84.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}87.92%{opacity:1;}100%{opacity:1;}}
-@keyframes cache-compare-vup{0%{transform:translateY(12px);}84.17%{transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}87.92%{transform:translateY(0);}100%{transform:translateY(0);}}
-.visible .anim-cache-compare .cache-compare-scene{animation:cache-compare-scene 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-l0{animation:cache-compare-pkl0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-row-l0{animation:cache-compare-rowl0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-bar-l0{animation:cache-compare-barl0 12s linear infinite,cache-compare-dim0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-ms-l0{animation:cache-compare-msl0 12s linear infinite,cache-compare-dimt0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-l1{animation:cache-compare-pkl1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-row-l1{animation:cache-compare-rowl1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-bar-l1{animation:cache-compare-barl1 12s linear infinite,cache-compare-dim1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-ms-l1{animation:cache-compare-msl1 12s linear infinite,cache-compare-dimt1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-l2{animation:cache-compare-pkl2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-row-l2{animation:cache-compare-rowl2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-bar-l2{animation:cache-compare-barl2 12s linear infinite,cache-compare-dim2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-ms-l2{animation:cache-compare-msl2 12s linear infinite,cache-compare-dimt2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-l3{animation:cache-compare-pkl3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-row-l3{animation:cache-compare-rowl3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-bar-l3{animation:cache-compare-barl3 12s linear infinite,cache-compare-dim3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-ms-l3{animation:cache-compare-msl3 12s linear infinite,cache-compare-dimt3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-rd-l0{animation:cache-compare-rdl0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pc-l0{animation:cache-compare-rdl0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-rd-l1{animation:cache-compare-rdl1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pc-l1{animation:cache-compare-rdl1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-rd-l2{animation:cache-compare-rdl2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pc-l2{animation:cache-compare-rdl2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-rd-l3{animation:cache-compare-rdl3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pc-l3{animation:cache-compare-rdl3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-rd-l4{animation:cache-compare-rdl4 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pc-l4{animation:cache-compare-rdl4 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-fill-l{animation:cache-compare-fill-l 12s linear infinite,cache-compare-fillcol 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-cyl-busy{animation:cache-compare-busy 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-r0a{animation:cache-compare-pkr0a 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-r0b{animation:cache-compare-pkr0b 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-r0c{animation:cache-compare-pkr0c 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-chip-miss{animation:cache-compare-miss 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-chip-hit{animation:cache-compare-hit 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-c-empty{animation:cache-compare-cempty 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-c-warm{animation:cache-compare-cwarm 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-slot{animation:cache-compare-slot 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-cachebox{animation:cache-compare-cbox 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-rd-r0{animation:cache-compare-rdr0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pc-r0{animation:cache-compare-rdr0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-rd-r1{animation:cache-compare-rdr1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pc-r1{animation:cache-compare-rdr1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-fill-r{animation:cache-compare-fill-r 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-r1{animation:cache-compare-pkr1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-r2{animation:cache-compare-pkr2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-pk-r3{animation:cache-compare-pkr3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-row-r0{animation:cache-compare-rowr0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-bar-r0{animation:cache-compare-barr0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-ms-r0{animation:cache-compare-msr0 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-row-r1{animation:cache-compare-rowr1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-bar-r1{animation:cache-compare-barr1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-ms-r1{animation:cache-compare-msr1 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-row-r2{animation:cache-compare-rowr2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-bar-r2{animation:cache-compare-barr2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-ms-r2{animation:cache-compare-msr2 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-row-r3{animation:cache-compare-rowr3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-bar-r3{animation:cache-compare-barr3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-ms-r3{animation:cache-compare-msr3 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-panel-r{animation:cache-compare-win 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-side-l{animation:cache-compare-lose 12s linear infinite}
-.visible .anim-cache-compare .cache-compare-verdict{animation:cache-compare-verdict 12s linear infinite,cache-compare-vup 12s linear infinite}
+@keyframes cache-compare-lose{0%{opacity:1;}83.3%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1);}86.7%{opacity:.68;}100%{opacity:.68}}
+/* verdict 8.58 s */
+@keyframes cache-compare-verdict{0%{opacity:0;}85.85%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}89.68%{opacity:1;}100%{opacity:1}}
+@keyframes cache-compare-vup{0%{transform:translateY(12px);}85.85%{transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}89.68%{transform:translateY(0);}100%{transform:translateY(0)}}
+.visible .anim-cache-compare .cache-compare-scene{animation:cache-compare-scene 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-l0{animation:cache-compare-pkl0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-row-l0{animation:cache-compare-rowl0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-bar-l0{animation:cache-compare-barl0 10s linear 1 forwards,cache-compare-dim0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-ms-l0{animation:cache-compare-msl0 10s linear 1 forwards,cache-compare-dimt0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-l1{animation:cache-compare-pkl1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-row-l1{animation:cache-compare-rowl1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-bar-l1{animation:cache-compare-barl1 10s linear 1 forwards,cache-compare-dim1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-ms-l1{animation:cache-compare-msl1 10s linear 1 forwards,cache-compare-dimt1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-l2{animation:cache-compare-pkl2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-row-l2{animation:cache-compare-rowl2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-bar-l2{animation:cache-compare-barl2 10s linear 1 forwards,cache-compare-dim2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-ms-l2{animation:cache-compare-msl2 10s linear 1 forwards,cache-compare-dimt2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-l3{animation:cache-compare-pkl3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-row-l3{animation:cache-compare-rowl3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-bar-l3{animation:cache-compare-barl3 10s linear 1 forwards,cache-compare-dim3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-ms-l3{animation:cache-compare-msl3 10s linear 1 forwards,cache-compare-dimt3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-rd-l0{animation:cache-compare-rdl0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pc-l0{animation:cache-compare-rdl0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-rd-l1{animation:cache-compare-rdl1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pc-l1{animation:cache-compare-rdl1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-rd-l2{animation:cache-compare-rdl2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pc-l2{animation:cache-compare-rdl2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-rd-l3{animation:cache-compare-rdl3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pc-l3{animation:cache-compare-rdl3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-rd-l4{animation:cache-compare-rdl4 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pc-l4{animation:cache-compare-rdl4 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-fill-l{animation:cache-compare-fill-l 10s linear 1 forwards,cache-compare-fillcol 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-cyl-busy{animation:cache-compare-busy 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-r0a{animation:cache-compare-pkr0a 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-r0b{animation:cache-compare-pkr0b 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-r0c{animation:cache-compare-pkr0c 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-chip-miss{animation:cache-compare-miss 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-chip-hit{animation:cache-compare-hit 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-c-empty{animation:cache-compare-cempty 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-c-warm{animation:cache-compare-cwarm 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-slot{animation:cache-compare-slot 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-cachebox{animation:cache-compare-cbox 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-rd-r0{animation:cache-compare-rdr0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pc-r0{animation:cache-compare-rdr0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-rd-r1{animation:cache-compare-rdr1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pc-r1{animation:cache-compare-rdr1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-fill-r{animation:cache-compare-fill-r 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-r1{animation:cache-compare-pkr1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-r2{animation:cache-compare-pkr2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-pk-r3{animation:cache-compare-pkr3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-row-r0{animation:cache-compare-rowr0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-bar-r0{animation:cache-compare-barr0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-ms-r0{animation:cache-compare-msr0 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-row-r1{animation:cache-compare-rowr1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-bar-r1{animation:cache-compare-barr1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-ms-r1{animation:cache-compare-msr1 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-row-r2{animation:cache-compare-rowr2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-bar-r2{animation:cache-compare-barr2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-ms-r2{animation:cache-compare-msr2 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-row-r3{animation:cache-compare-rowr3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-bar-r3{animation:cache-compare-barr3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-ms-r3{animation:cache-compare-msr3 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-panel-r{animation:cache-compare-win 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-side-l{animation:cache-compare-lose 10s linear 1 forwards}
+.visible .anim-cache-compare .cache-compare-verdict{animation:cache-compare-verdict 10s linear 1 forwards,cache-compare-vup 10s linear 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-cache-compare * { animation: none !important; } }
 </style>
-<div class="anim anim-cache-compare" data-anim="cache-compare" data-anim-cycle="12" data-anim-control="loop">
+<div class="anim anim-cache-compare" data-anim="cache-compare" data-anim-cycle="10" data-anim-control="once">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side by side: without a cache every read goes to the database at 180 ms and the database gets busy; with a cache the first read misses and fills it, later reads hit it at 8 ms and database load stays low.">
 <g class="cache-compare-scene">
 <path class="cache-compare-sep" d="M840 48 V508"/>
@@ -286,7 +285,6 @@
 <circle class="cache-compare-pkt cache-compare-pk-l2" r="7" style="offset-path:path('M126 150 H584')"/>
 <circle class="cache-compare-pkt cache-compare-pk-l3" r="7" style="offset-path:path('M126 150 H584')"/>
 <!-- ===================== with cache ===================== -->
-<path class="cache-compare-panel cache-compare-panel-r cache-compare-rule-glow" d="M880 84 H1018"/>
 <path class="cache-compare-panel cache-compare-panel-r" d="M880 84 H1018"/>
 <g class="cache-compare-side-r">
 <text class="cache-compare-sans cache-compare-head cache-compare-fg" x="880" y="66">With cache</text>

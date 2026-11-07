@@ -68,13 +68,16 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
   deck gets rings and lines in its own blue, not its cards redrawn.
 - **Safe to paste.** Every class, id and keyframe is prefixed, so nothing collides with the deck's
   own CSS.
-- **Plays only when shown.** Animations are gated on the active slide and the resting frame is
-  the finished state, so PDF export and reduced-motion users get a complete still.
-- **Two control modes.** `loop` (default, CSS only) for self-running stories; `step` (GSAP
-  timeline with labels) when the presenter wants to advance phases with a key.
+- **Plays once, when shown.** A fragment plays one calm pass (4 to 10 s) when its slide becomes
+  current and ends on the resting frame, which is the finished state; nothing loops or pulses
+  while you talk, and PDF export and reduced-motion users get a complete still.
+- **Three control modes.** `once` (default, CSS only); `loop` for kiosks and galleries; `step`
+  (GSAP timeline with labels) when the presenter wants to advance phases with a key.
+- **Less by rule.** The fragment is the slide's own figure in its own form plus one movement.
+  The checker measures how many things move and how many glow at the same instant, so "too much" fails before you see it.
 - **Shareable.** The skill adds no CDN or network loads, and `bundle_deck.py` turns the deck
   into one self-contained HTML file for sharing, verified by `check_page.py`.
-- **Verified by looking.** The skill renders phases of the cycle to PNG and inspects them before
+- **Verified by looking.** The skill renders phases of the pass to PNG and inspects them before
   it calls anything done.
 
 ## Install

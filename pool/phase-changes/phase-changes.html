@@ -2,8 +2,8 @@
   Solid, liquid and gas with the six named transitions; changes toward gas (melting, vaporization,
   sublimation) absorb energy, changes toward solid (freezing, condensation, deposition) release it.
   Only temperatures shown: water at 1 atm (0 °C, 100 °C). Particle drawings are schematic.
-  14 s cycle: states enter 0.1-0.65 s | one token per transition, solid > liquid > gas > liquid > solid
-  > gas > solid, 1.7 s apart | 11.1 s all six lit | hold to 13.5 s | reset. -->
+  10 s once-play pass (one full circuit): states enter 0.08-0.6 s | one token per transition, solid > liquid >
+  gas > liquid > solid > gas > solid, 1.34 s apart | 8.7 s all six lit | hold to 10 s, then stays. -->
 <style>
 .anim-phase-changes{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -51,91 +51,88 @@
 .anim-phase-changes .phase-changes-state{transform-box:view-box;transform-origin:0px 0px}
 /* resting frame = the end: all six transitions lit in their energy colour, no token, no state ring, last caption */
 .anim-phase-changes .phase-changes-hot-solid, .anim-phase-changes .phase-changes-hot-liquid, .anim-phase-changes .phase-changes-hot-gas, .anim-phase-changes .phase-changes-tk-melt, .anim-phase-changes .phase-changes-tk-vap, .anim-phase-changes .phase-changes-tk-cond, .anim-phase-changes .phase-changes-tk-frz, .anim-phase-changes .phase-changes-tk-sub, .anim-phase-changes .phase-changes-tk-dep, .anim-phase-changes .phase-changes-n0, .anim-phase-changes .phase-changes-n1, .anim-phase-changes .phase-changes-n2, .anim-phase-changes .phase-changes-n3, .anim-phase-changes .phase-changes-n4, .anim-phase-changes .phase-changes-n5, .anim-phase-changes .phase-changes-n6{opacity:0}
-/* reset 13.5-13.8 s */
-@keyframes phase-changes-scene{0%,96.43%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}98.57%,100%{opacity:0}}
-/* state enters 0.1-0.55 s */
-@keyframes phase-changes-st-solid{0%,0.71%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.93%,100%{opacity:1;transform:translateY(0px)}}
-/* state enters 0.2-0.65 s */
-@keyframes phase-changes-st-liquid{0%,1.43%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.64%,100%{opacity:1;transform:translateY(0px)}}
-/* state enters 0.3-0.75 s */
-@keyframes phase-changes-st-gas{0%,2.14%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.36%,100%{opacity:1;transform:translateY(0px)}}
-/* solid current: 0.8-1.0 s, 7.2-7.8 s, 10.8-11.1 s */
-@keyframes phase-changes-hot-solid{0%,4.29%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.71%,7.14%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}8.21%,50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}51.43%,55.71%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}56.79%,75.71%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.14%,79.29%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80.36%,100%{opacity:0}}
-/* liquid current: 2.1-2.7 s, 5.5-6.1 s */
-@keyframes phase-changes-hot-liquid{0%,13.57%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15%,19.29%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.36%,37.86%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}39.29%,43.57%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}44.64%,100%{opacity:0}}
-/* gas current: 3.8-4.4 s, 9.1-9.5 s */
-@keyframes phase-changes-hot-gas{0%,25.71%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.14%,31.43%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.5%,63.57%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65%,67.86%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}68.93%,100%{opacity:0}}
-/* melting lit 1.0-2.7 s and from 11.1 s */
-@keyframes phase-changes-on-melt{0%,7.14%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.57%,18.57%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}19.64%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.43%,100%{opacity:1}}
-/* token hop 1.0-1.9 s */
-@keyframes phase-changes-tk-melt{0%,6.07%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.14%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}13.57%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}14.64%,100%{opacity:0;offset-distance:100%}}
-/* vaporization lit 2.7-4.4 s and from 11.1 s */
-@keyframes phase-changes-on-vap{0%,19.29%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.71%,30.71%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}31.79%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.43%,100%{opacity:1}}
-/* token hop 2.7-3.6 s */
-@keyframes phase-changes-tk-vap{0%,18.21%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.29%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}25.71%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}26.79%,100%{opacity:0;offset-distance:100%}}
-/* condensation lit 4.4-6.1 s and from 11.1 s */
-@keyframes phase-changes-on-cond{0%,31.43%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.86%,42.86%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.93%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.43%,100%{opacity:1}}
-/* token hop 4.4-5.3 s */
-@keyframes phase-changes-tk-cond{0%,30.36%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.43%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}37.86%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.93%,100%{opacity:0;offset-distance:100%}}
-/* freezing lit 6.1-7.8 s and from 11.1 s */
-@keyframes phase-changes-on-frz{0%,43.57%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}45%,55%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}56.07%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.43%,100%{opacity:1}}
-/* token hop 6.1-7.0 s */
-@keyframes phase-changes-tk-frz{0%,42.5%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.57%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}50%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}51.07%,100%{opacity:0;offset-distance:100%}}
-/* sublimation lit 7.8-9.5 s and from 11.1 s */
-@keyframes phase-changes-on-sub{0%,55.71%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}57.14%,67.14%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}68.21%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.43%,100%{opacity:1}}
-/* token hop 7.8-8.9 s */
-@keyframes phase-changes-tk-sub{0%,54.64%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.71%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}63.57%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}64.64%,100%{opacity:0;offset-distance:100%}}
-/* deposition lit 9.5-11.1 s and from 11.1 s */
-@keyframes phase-changes-on-dep{0%,67.86%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.29%,78.57%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}79.64%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.43%,100%{opacity:1}}
-/* token hop 9.5-10.6 s */
-@keyframes phase-changes-tk-dep{0%,66.79%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.86%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}75.71%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}76.79%,100%{opacity:0;offset-distance:100%}}
-/* caption 0-1.0 s */
-@keyframes phase-changes-n0{0%,6.43%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}7.5%,100%{opacity:0}}
-/* caption 1.0-2.6 s */
-@keyframes phase-changes-n1{0%,7.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.64%,18.21%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}19.29%,100%{opacity:0}}
-/* caption 2.7-4.2 s */
-@keyframes phase-changes-n2{0%,19.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.79%,30.36%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}31.43%,100%{opacity:0}}
-/* caption 4.4-5.9 s */
-@keyframes phase-changes-n3{0%,31.79%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.93%,42.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.57%,100%{opacity:0}}
-/* caption 6.1-7.6 s */
-@keyframes phase-changes-n4{0%,43.93%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.07%,54.64%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}55.71%,100%{opacity:0}}
-/* caption 7.8-9.3 s */
-@keyframes phase-changes-n5{0%,56.07%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.21%,66.79%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}67.86%,100%{opacity:0}}
-/* caption 9.5-10.9 s */
-@keyframes phase-changes-n6{0%,68.21%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.36%,78.21%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}79.29%,100%{opacity:0}}
-/* final caption from 11.1 s */
-@keyframes phase-changes-n7{0%,79.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.79%,100%{opacity:1}}
-.visible .anim-phase-changes .phase-changes-scene{animation:phase-changes-scene 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-st-solid{animation:phase-changes-st-solid 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-st-liquid{animation:phase-changes-st-liquid 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-st-gas{animation:phase-changes-st-gas 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-hot-solid{animation:phase-changes-hot-solid 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-hot-liquid{animation:phase-changes-hot-liquid 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-hot-gas{animation:phase-changes-hot-gas 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-on-melt{animation:phase-changes-on-melt 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-tk-melt{animation:phase-changes-tk-melt 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-on-vap{animation:phase-changes-on-vap 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-tk-vap{animation:phase-changes-tk-vap 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-on-cond{animation:phase-changes-on-cond 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-tk-cond{animation:phase-changes-tk-cond 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-on-frz{animation:phase-changes-on-frz 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-tk-frz{animation:phase-changes-tk-frz 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-on-sub{animation:phase-changes-on-sub 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-tk-sub{animation:phase-changes-tk-sub 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-on-dep{animation:phase-changes-on-dep 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-tk-dep{animation:phase-changes-tk-dep 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-n0{animation:phase-changes-n0 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-n1{animation:phase-changes-n1 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-n2{animation:phase-changes-n2 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-n3{animation:phase-changes-n3 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-n4{animation:phase-changes-n4 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-n5{animation:phase-changes-n5 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-n6{animation:phase-changes-n6 14s linear infinite}
-.visible .anim-phase-changes .phase-changes-n7{animation:phase-changes-n7 14s linear infinite}
+/* state enters 0.08-0.43 s */
+@keyframes phase-changes-st-solid{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}0.78%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.32%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* state enters 0.16-0.51 s */
+@keyframes phase-changes-st-liquid{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}1.57%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.11%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* state enters 0.24-0.59 s */
+@keyframes phase-changes-st-gas{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.35%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.9%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* solid current: 0.63-0.79 s, 5.66-6.13 s, 8.49-8.72 s */
+@keyframes phase-changes-hot-solid{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.72%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.28%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}7.86%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}9.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.02%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.6%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}61.31%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}62.49%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.89%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.25%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88.43%{opacity:0}100%{opacity:0}}
+/* liquid current: 1.65-2.12 s, 4.32-4.79 s */
+@keyframes phase-changes-hot-liquid{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.93%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.51%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.23%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}22.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.66%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.24%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.95%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}49.12%{opacity:0}100%{opacity:0}}
+/* gas current: 2.99-3.46 s, 7.15-7.47 s */
+@keyframes phase-changes-hot-gas{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.29%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.87%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.59%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}35.76%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.53%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}74.68%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}75.85%{opacity:0}100%{opacity:0}}
+/* melting lit 0.79-2.12 s and from 8.72 s */
+@keyframes phase-changes-on-melt{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.86%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.43%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.44%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.61%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
+/* token hop 0.79-1.49 s */
+@keyframes phase-changes-tk-melt{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.68%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.86%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}14.93%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}16.11%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
+/* vaporization lit 2.12-3.46 s and from 8.72 s */
+@keyframes phase-changes-on-vap{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.23%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.79%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.79%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.98%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
+/* token hop 2.12-2.83 s */
+@keyframes phase-changes-tk-vap{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.04%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.23%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}28.29%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}29.48%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
+/* condensation lit 3.46-4.79 s and from 8.72 s */
+@keyframes phase-changes-on-cond{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.59%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.16%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.16%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}48.34%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
+/* token hop 3.46-4.17 s */
+@keyframes phase-changes-tk-cond{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.41%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.59%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}41.66%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}42.84%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
+/* freezing lit 4.79-6.13 s and from 8.72 s */
+@keyframes phase-changes-on-frz{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}49.52%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60.52%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}61.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
+/* token hop 4.79-5.5 s */
+@keyframes phase-changes-tk-frz{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.77%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.95%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}55.02%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}56.2%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
+/* sublimation lit 6.13-7.47 s and from 8.72 s */
+@keyframes phase-changes-on-sub{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.88%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}73.88%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}75.06%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
+/* token hop 6.13-7 s */
+@keyframes phase-changes-tk-sub{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.13%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.31%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}69.95%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}71.13%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
+/* deposition lit 7.47-8.72 s and from 8.72 s */
+@keyframes phase-changes-on-dep{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.25%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.46%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
+/* token hop 7.47-8.33 s */
+@keyframes phase-changes-tk-dep{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.5%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.68%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}83.31%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}84.5%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
+/* caption 0-0.79 s */
+@keyframes phase-changes-n0{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}7.08%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}8.25%{opacity:0}100%{opacity:0}}
+/* caption 0.79-2.04 s */
+@keyframes phase-changes-n1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.61%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.04%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.23%{opacity:0}100%{opacity:0}}
+/* caption 2.12-3.3 s */
+@keyframes phase-changes-n2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.61%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.98%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.41%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.59%{opacity:0}100%{opacity:0}}
+/* caption 3.46-4.64 s */
+@keyframes phase-changes-n3{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.98%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.34%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}46.77%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.95%{opacity:0}100%{opacity:0}}
+/* caption 4.79-5.97 s */
+@keyframes phase-changes-n4{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.34%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.7%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60.13%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}61.31%{opacity:0}100%{opacity:0}}
+/* caption 6.13-7.31 s */
+@keyframes phase-changes-n5{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.06%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}73.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}74.68%{opacity:0}100%{opacity:0}}
+/* caption 7.47-8.57 s */
+@keyframes phase-changes-n6{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.06%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.43%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.07%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.25%{opacity:0}100%{opacity:0}}
+/* final caption from 8.72 s */
+@keyframes phase-changes-n7{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90%{opacity:1}100%{opacity:1}}
+.visible .anim-phase-changes .phase-changes-st-solid{animation:phase-changes-st-solid 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-st-liquid{animation:phase-changes-st-liquid 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-st-gas{animation:phase-changes-st-gas 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-hot-solid{animation:phase-changes-hot-solid 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-hot-liquid{animation:phase-changes-hot-liquid 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-hot-gas{animation:phase-changes-hot-gas 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-on-melt{animation:phase-changes-on-melt 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-tk-melt{animation:phase-changes-tk-melt 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-on-vap{animation:phase-changes-on-vap 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-tk-vap{animation:phase-changes-tk-vap 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-on-cond{animation:phase-changes-on-cond 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-tk-cond{animation:phase-changes-tk-cond 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-on-frz{animation:phase-changes-on-frz 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-tk-frz{animation:phase-changes-tk-frz 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-on-sub{animation:phase-changes-on-sub 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-tk-sub{animation:phase-changes-tk-sub 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-on-dep{animation:phase-changes-on-dep 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-tk-dep{animation:phase-changes-tk-dep 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-n0{animation:phase-changes-n0 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-n1{animation:phase-changes-n1 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-n2{animation:phase-changes-n2 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-n3{animation:phase-changes-n3 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-n4{animation:phase-changes-n4 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-n5{animation:phase-changes-n5 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-n6{animation:phase-changes-n6 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-n7{animation:phase-changes-n7 10s linear 1 both}
 
 @media (prefers-reduced-motion: reduce) { .anim-phase-changes * { animation: none !important; } }
 </style>
-<div class="anim anim-phase-changes" data-anim="phase-changes" data-anim-cycle="14" data-anim-control="loop">
+<div class="anim anim-phase-changes" data-anim="phase-changes" data-anim-cycle="10" data-anim-control="once">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Phase changes between solid, liquid and gas: melting, vaporization and sublimation absorb energy; freezing, condensation and deposition release it. A token travels each of the six transitions in turn.">
 <g class="phase-changes-scene">
 <path class="phase-changes-arc phase-changes-k-abs-s" d="M24 40 H58"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M58.0 47.0 L72.0 40.0 L58.0 33.0"/><text class="phase-changes-ten phase-changes-k-abs" x="86" y="46">absorbs energy</text>

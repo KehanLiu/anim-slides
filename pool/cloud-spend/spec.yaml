@@ -6,8 +6,8 @@ name: cloud-spend
 archetype: chart
 title: "Monthly cloud spend"
 size: [1680, 600]
-control: loop
-cycle: 12
+control: once
+cycle: 9.5
 series:
   - { id: spend,  label: Spend,  points: [[1, 96], [2, 104], [3, 115], [4, 128], [5, 143], [6, 160], [7, 184], [8, 178], [9, 165], [10, 152], [11, 144], [12, 139]] }
   - { id: budget, label: Budget, points: [[1, 155], [12, 155]] }
@@ -15,7 +15,7 @@ events:
   - { at: 7, label: "Autoscale + reserved" }
 phases:
   - { t: 0,  label: setup,   note: "Spend grows with usage" }
-  - { t: 4.5, label: over,    note: "Spend crosses the budget" }
-  - { t: 5.6, label: fix,    note: "Autoscaling + reserved instances" }
-  - { t: 8,  label: under,   note: "Back under budget" }
-  - { t: 10, label: hold }
+  - { t: 3.8, label: over,    note: "Spend crosses the budget" }
+  - { t: 4.8, label: fix,    note: "Autoscaling + reserved instances" }
+  - { t: 6.8,  label: under,   note: "Back under budget" }
+  - { t: 8.5, label: hold }

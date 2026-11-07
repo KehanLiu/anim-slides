@@ -7,8 +7,8 @@ name: er-patient-flow
 domain: health
 archetype: pipeline
 size: [1680, 560]
-control: loop
-cycle: 13
+control: once
+cycle: 10
 nodes:
   - { id: arrival,    label: Arrival,      sub: "on foot or ambulance", kind: actor }
   - { id: triage,     label: Triage,       sub: "urgency level set" }
@@ -28,11 +28,11 @@ edges:
   - { from: decide,   to: discharge }
 phases:
   - { t: 0,     label: setup,     note: "A patient arrives at the emergency department" }
-  - { t: 1.0,   label: arrival,   active: [arrival] }
-  - { t: 2.25,  label: triage,    active: [triage],    flow: ["arrival>triage"],    note: "Triage sets the urgency, so the sickest are seen first" }
-  - { t: 3.5,   label: register,  active: [register],  flow: ["triage>register"],   note: "Registration opens the record for this visit" }
-  - { t: 4.75,  label: assess,    active: [assess],    flow: ["register>assess"],   note: "A clinician examines the patient" }
-  - { t: 6.3,   label: tests,     active: [tests],     flow: ["assess>tests"],      note: "Tests are ordered and the results come back" }
-  - { t: 7.55,  label: treat,     active: [treat],     flow: ["tests>treat"],       note: "Treatment starts as the results are reviewed" }
-  - { t: 8.8,   label: decide,    active: [decide],    flow: ["treat>decide"],      note: "The team decides: home, or a bed on a ward" }
-  - { t: 10.05, label: discharge, active: [discharge], flow: ["decide>discharge"],  note: "Discharged home with a follow-up plan: visit complete" }
+  - { t: 0.82,   label: arrival,   active: [arrival] }
+  - { t: 1.84,  label: triage,    active: [triage],    flow: ["arrival>triage"],    note: "Triage sets the urgency, so the sickest are seen first" }
+  - { t: 2.87,   label: register,  active: [register],  flow: ["triage>register"],   note: "Registration opens the record for this visit" }
+  - { t: 3.89,  label: assess,    active: [assess],    flow: ["register>assess"],   note: "A clinician examines the patient" }
+  - { t: 5.17,   label: tests,     active: [tests],     flow: ["assess>tests"],      note: "Tests are ordered and the results come back" }
+  - { t: 6.19,  label: treat,     active: [treat],     flow: ["tests>treat"],       note: "Treatment starts as the results are reviewed" }
+  - { t: 7.22,   label: decide,    active: [decide],    flow: ["treat>decide"],      note: "The team decides: home, or a bed on a ward" }
+  - { t: 8.24, label: discharge, active: [discharge], flow: ["decide>discharge"],  note: "Discharged home with a follow-up plan: visit complete" }

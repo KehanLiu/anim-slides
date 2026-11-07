@@ -1,7 +1,7 @@
 <!-- parcel-route: hero demo fragment (archetype pipeline), lean style (references/style.md).
   Story: a parcel hops ordered > picked > sorted > on the van > delivered; the active ring lights in the
-  accent, each hand-off settles in ok, the route draws on, the lead time lands.
-  Cycle 8 s, hold 6.5-7.6 s. Resting frame = delivered.
+  accent (the only glow), each hand-off settles in ok, the route draws on as a plain line, the lead time lands.
+  Once-play pass 7.5 s (lead time lands at 6.5 s, then a 1 s hold); ends on the resting frame = delivered.
   Names, numbers and times are illustrative examples. -->
 <style>
 .anim-parcel-route{
@@ -25,8 +25,7 @@
 .anim-parcel-route .parcel-route-big{font-family:var(--anim-font);font-size:28px;font-weight:400;fill:var(--anim-fg)}
 .anim-parcel-route .parcel-route-hl{fill:var(--anim-accent);font-weight:600}
 .anim-parcel-route .parcel-route-track{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round}
-.anim-parcel-route .parcel-route-prog{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-parcel-route .parcel-route-progglow{fill:none;stroke:var(--anim-ok);stroke-width:10;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0;opacity:.18;filter:blur(6px)}
+.anim-parcel-route .parcel-route-prog{fill:none;stroke:var(--anim-ok);stroke-width:4;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-parcel-route .parcel-route-disc{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2.5}
 .anim-parcel-route .parcel-route-ring{opacity:0;transform-box:fill-box;transform-origin:center}
 .anim-parcel-route .parcel-route-ring-run{fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:4}
@@ -37,68 +36,66 @@
 .anim-parcel-route .parcel-route-ico-ok{stroke:var(--anim-ok)}
 .anim-parcel-route .parcel-route-ok0,.anim-parcel-route .parcel-route-ok1,.anim-parcel-route .parcel-route-ok2,.anim-parcel-route .parcel-route-ok3,.anim-parcel-route .parcel-route-ok4{transform-box:fill-box;transform-origin:center}
 .anim-parcel-route .parcel-route-box{fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:2.5;stroke-linejoin:round}
-.anim-parcel-route .parcel-route-boxglow{fill:var(--anim-accent);opacity:.3;filter:blur(8px)}
 .anim-parcel-route .parcel-route-tape{fill:none;stroke:var(--anim-accent);stroke-width:2;stroke-linecap:round}
 .anim-parcel-route .parcel-route-pin{fill:none;stroke:var(--anim-accent);stroke-width:2;stroke-linecap:round;opacity:.6}
 .anim-parcel-route .parcel-route-mk{transform:translateX(1280px)}
-/* motion, only when the slide is visible */
-@keyframes parcel-route-scene{0%{opacity:0}3.125%,95%{opacity:1}98.125%,100%{opacity:0}}
-@keyframes parcel-route-st0{0%,1.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-st1{0%,2.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-st2{0%,3.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-st3{0%,4.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-st4{0%,5.25%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.875%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-ring0{0%,9.375%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.5%{opacity:1;transform:scale(1)}15%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}16.875%,100%{opacity:0;transform:scale(1.04)}}
-@keyframes parcel-route-ok0{0%,15%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.75%,100%{opacity:1;transform:scale(1)}}
-@keyframes parcel-route-done0{0%,15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.125%,100%{opacity:1}}
-@keyframes parcel-route-ring1{0%,23.125%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26.25%{opacity:1;transform:scale(1)}30%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}31.875%,100%{opacity:0;transform:scale(1.04)}}
-@keyframes parcel-route-ok1{0%,30%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.75%,100%{opacity:1;transform:scale(1)}}
-@keyframes parcel-route-done1{0%,30%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.125%,100%{opacity:1}}
-@keyframes parcel-route-ring2{0%,38.125%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.25%{opacity:1;transform:scale(1)}45%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}46.875%,100%{opacity:0;transform:scale(1.04)}}
-@keyframes parcel-route-ok2{0%,45%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.75%,100%{opacity:1;transform:scale(1)}}
-@keyframes parcel-route-done2{0%,45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.125%,100%{opacity:1}}
-@keyframes parcel-route-ring3{0%,53.125%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.25%{opacity:1;transform:scale(1)}60%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}61.875%,100%{opacity:0;transform:scale(1.04)}}
-@keyframes parcel-route-ok3{0%,60%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.75%,100%{opacity:1;transform:scale(1)}}
-@keyframes parcel-route-done3{0%,60%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.125%,100%{opacity:1}}
-@keyframes parcel-route-ring4{0%,68.125%{opacity:0;transform:scale(.95);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.25%{opacity:1;transform:scale(1)}73.75%{opacity:1;transform:scale(1);animation-timing-function:cubic-bezier(0.3,0,1,1)}75.625%,100%{opacity:0;transform:scale(1.04)}}
-@keyframes parcel-route-ok4{0%,73.75%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.5%,100%{opacity:1;transform:scale(1)}}
-@keyframes parcel-route-done4{0%,73.75%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.875%,100%{opacity:1}}
-@keyframes parcel-route-mk{0%,15%{transform:translateX(0);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}23.75%,30%{transform:translateX(320px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}38.75%,45%{transform:translateX(640px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}53.75%,60%{transform:translateX(960px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}68.75%,100%{transform:translateX(1280px)}}
-@keyframes parcel-route-mkin{0%,6.25%{opacity:0;transform:translateY(-16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10%,100%{opacity:1;transform:translateY(0)}}
-@keyframes parcel-route-prog{0%,15%{stroke-dashoffset:101;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}23.75%,30%{stroke-dashoffset:75;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}38.75%,45%{stroke-dashoffset:50;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}53.75%,60%{stroke-dashoffset:25;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}68.75%{stroke-dashoffset:0;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}76.25%,100%{stroke-dashoffset:0;stroke:var(--anim-ok)}}
-@keyframes parcel-route-note{0%,75%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.25%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-parcel-route .parcel-route-scene{animation:parcel-route-scene 8s infinite both}
-.visible .anim-parcel-route .parcel-route-st0{animation:parcel-route-st0 8s infinite both}
-.visible .anim-parcel-route .parcel-route-st1{animation:parcel-route-st1 8s infinite both}
-.visible .anim-parcel-route .parcel-route-st2{animation:parcel-route-st2 8s infinite both}
-.visible .anim-parcel-route .parcel-route-st3{animation:parcel-route-st3 8s infinite both}
-.visible .anim-parcel-route .parcel-route-st4{animation:parcel-route-st4 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ring0{animation:parcel-route-ring0 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ok0{animation:parcel-route-ok0 8s infinite both}
-.visible .anim-parcel-route .parcel-route-done0{animation:parcel-route-done0 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ring1{animation:parcel-route-ring1 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ok1{animation:parcel-route-ok1 8s infinite both}
-.visible .anim-parcel-route .parcel-route-done1{animation:parcel-route-done1 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ring2{animation:parcel-route-ring2 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ok2{animation:parcel-route-ok2 8s infinite both}
-.visible .anim-parcel-route .parcel-route-done2{animation:parcel-route-done2 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ring3{animation:parcel-route-ring3 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ok3{animation:parcel-route-ok3 8s infinite both}
-.visible .anim-parcel-route .parcel-route-done3{animation:parcel-route-done3 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ring4{animation:parcel-route-ring4 8s infinite both}
-.visible .anim-parcel-route .parcel-route-ok4{animation:parcel-route-ok4 8s infinite both}
-.visible .anim-parcel-route .parcel-route-done4{animation:parcel-route-done4 8s infinite both}
-.visible .anim-parcel-route .parcel-route-mk{animation:parcel-route-mk 8s infinite both}
-.visible .anim-parcel-route .parcel-route-mk-in{animation:parcel-route-mkin 8s infinite both}
-.visible .anim-parcel-route .parcel-route-prog,.visible .anim-parcel-route .parcel-route-progglow{animation:parcel-route-prog 8s infinite both}
-.visible .anim-parcel-route .parcel-route-note{animation:parcel-route-note 8s infinite both}
+/* motion, only when the slide is visible: one 7.5 s pass, played once */
+@keyframes parcel-route-scene{0%{opacity:0}3.33%,100%{opacity:1}}
+@keyframes parcel-route-st0{0%,1.33%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.33%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-st1{0%,2.4%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.4%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-st2{0%,3.47%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.47%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-st3{0%,4.53%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.53%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-st4{0%,5.6%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.6%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-ring0{0%,10%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.33%{opacity:1}14%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}16%,100%{opacity:0}}
+@keyframes parcel-route-ok0{0%,12%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16%,100%{opacity:1}}
+@keyframes parcel-route-done0{0%,12.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16%,100%{opacity:1}}
+@keyframes parcel-route-ring1{0%,24.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28%{opacity:1}30%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32%,100%{opacity:0}}
+@keyframes parcel-route-ok1{0%,28%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32%,100%{opacity:1}}
+@keyframes parcel-route-done1{0%,28.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32%,100%{opacity:1}}
+@keyframes parcel-route-ring2{0%,40.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44%{opacity:1}46%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}48%,100%{opacity:0}}
+@keyframes parcel-route-ok2{0%,44%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48%,100%{opacity:1}}
+@keyframes parcel-route-done2{0%,44.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48%,100%{opacity:1}}
+@keyframes parcel-route-ring3{0%,56.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60%{opacity:1}62%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}64%,100%{opacity:0}}
+@keyframes parcel-route-ok3{0%,60%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64%,100%{opacity:1}}
+@keyframes parcel-route-done3{0%,60.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64%,100%{opacity:1}}
+@keyframes parcel-route-ring4{0%,72.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76%{opacity:1}78.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80.67%,100%{opacity:0}}
+@keyframes parcel-route-ok4{0%,78.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.67%,100%{opacity:1}}
+@keyframes parcel-route-done4{0%,78.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82%,100%{opacity:1}}
+@keyframes parcel-route-mk{0%,16%{transform:translateX(0);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}25.33%,32%{transform:translateX(320px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}41.33%,48%{transform:translateX(640px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}57.33%,64%{transform:translateX(960px);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}73.33%,100%{transform:translateX(1280px)}}
+@keyframes parcel-route-mkin{0%,6.67%{opacity:0;transform:translateY(-16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.67%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-prog{0%,16%{stroke-dashoffset:101;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}25.33%,32%{stroke-dashoffset:75;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}41.33%,48%{stroke-dashoffset:50;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}57.33%,64%{stroke-dashoffset:25;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}73.33%{stroke-dashoffset:0;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}81.33%,100%{stroke-dashoffset:0;stroke:var(--anim-ok)}}
+@keyframes parcel-route-note{0%,80%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.67%,100%{opacity:1;transform:translateY(0)}}
+.visible .anim-parcel-route .parcel-route-scene{animation:parcel-route-scene 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-st0{animation:parcel-route-st0 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-st1{animation:parcel-route-st1 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-st2{animation:parcel-route-st2 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-st3{animation:parcel-route-st3 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-st4{animation:parcel-route-st4 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ring0{animation:parcel-route-ring0 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ok0{animation:parcel-route-ok0 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-done0{animation:parcel-route-done0 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ring1{animation:parcel-route-ring1 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ok1{animation:parcel-route-ok1 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-done1{animation:parcel-route-done1 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ring2{animation:parcel-route-ring2 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ok2{animation:parcel-route-ok2 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-done2{animation:parcel-route-done2 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ring3{animation:parcel-route-ring3 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ok3{animation:parcel-route-ok3 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-done3{animation:parcel-route-done3 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ring4{animation:parcel-route-ring4 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-ok4{animation:parcel-route-ok4 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-done4{animation:parcel-route-done4 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-mk{animation:parcel-route-mk 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-mk-in{animation:parcel-route-mkin 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-prog{animation:parcel-route-prog 7.5s 1 both}
+.visible .anim-parcel-route .parcel-route-note{animation:parcel-route-note 7.5s 1 both}
 @media (prefers-reduced-motion: reduce){.anim-parcel-route *{animation:none !important}}
 </style>
-<div class="anim anim-parcel-route" data-anim="parcel-route" data-anim-cycle="8" data-anim-control="loop">
+<div class="anim anim-parcel-route" data-anim="parcel-route" data-anim-cycle="7.5" data-anim-control="once">
 <svg viewBox="0 0 1600 520" width="100%" height="100%" role="img" aria-label="A parcel moves through five delivery stages, from order to doorstep, each turning green as it is handed off.">
 <g class="parcel-route-scene">
 <path class="parcel-route-track" d="M160 190 H1440"/>
-<path class="parcel-route-progglow parcel-route-prog-g" pathLength="100" d="M160 190 H1440"/>
 <path class="parcel-route-prog" pathLength="100" d="M160 190 H1440"/>
 <g transform="translate(160 190)"><g class="parcel-route-st0">
 <circle class="parcel-route-disc" r="44"/>
@@ -146,7 +143,6 @@
 <text class="parcel-route-sub" y="126" text-anchor="middle">Tue 13:40 · signed</text>
 </g></g>
 <g transform="translate(160 96)"><g class="parcel-route-mk"><g class="parcel-route-mk-in">
-<rect class="parcel-route-boxglow" x="-20" y="-18" width="40" height="36" rx="5"/>
 <path class="parcel-route-pin" d="M0 26 V40"/>
 <rect class="parcel-route-box" x="-20" y="-18" width="40" height="36" rx="5"/>
 <path class="parcel-route-tape" d="M0 -18 V18 M-20 -5 H20"/>

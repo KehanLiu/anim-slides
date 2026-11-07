@@ -8,8 +8,8 @@ name: loan-decision
 domain: finance
 archetype: graph
 size: [1680, 600]
-control: loop
-cycle: 13
+control: once
+cycle: 10
 nodes:
   - { id: online,     label: Apply online,         sub: "web or mobile app", kind: actor }
   - { id: branch,     label: Apply in branch,      sub: "with an advisor",   kind: actor }
@@ -32,11 +32,11 @@ groups:
   - { id: parallel, label: In parallel }
 phases:
   - { t: 0,    label: setup,    note: "Two ways in: apply online or in a branch" }
-  - { t: 1.0,  label: online,   active: [online],             flow: ["online>credit"],  note: "Application 1 arrives online" }
-  - { t: 2.2,  label: check-1,  active: [credit],                                       note: "Credit check: the score clears the minimum" }
-  - { t: 3.0,  label: verify,   active: [income, collateral], flow: ["credit>income", "credit>collateral"], note: "Income and collateral are verified in parallel" }
-  - { t: 5.2,  label: offer,    active: [offer],              flow: ["income>offer", "collateral>offer"],   note: "Both confirmed: a loan offer is sent" }
-  - { t: 7.0,  label: branch,   active: [branch],             flow: ["branch>credit"],  note: "Application 2 arrives in a branch" }
-  - { t: 8.2,  label: check-2,  active: [credit],                                       note: "Credit check: the score falls short" }
-  - { t: 9.0,  label: decline,  active: [decline],            flow: ["credit>decline"], note: "Declined, with a letter that explains why" }
-  - { t: 10.2, label: letter,   active: [letter],             flow: ["decline>letter"], note: "Every application ends in an offer or a reasoned decline" }
+  - { t: 0.8,  label: online,   active: [online],             flow: ["online>credit"],  note: "Application 1 arrives online" }
+  - { t: 1.76,  label: check-1,  active: [credit],                                       note: "Credit check: the score clears the minimum" }
+  - { t: 2.4,  label: verify,   active: [income, collateral], flow: ["credit>income", "credit>collateral"], note: "Income and collateral are verified in parallel" }
+  - { t: 4.32,  label: offer,    active: [offer],              flow: ["income>offer", "collateral>offer"],   note: "Both confirmed: a loan offer is sent" }
+  - { t: 5.6,  label: branch,   active: [branch],             flow: ["branch>credit"],  note: "Application 2 arrives in a branch" }
+  - { t: 6.56,  label: check-2,  active: [credit],                                       note: "Credit check: the score falls short" }
+  - { t: 7.2,  label: decline,  active: [decline],            flow: ["credit>decline"], note: "Declined, with a letter that explains why" }
+  - { t: 8.16, label: letter,   active: [letter],             flow: ["decline>letter"], note: "Every application ends in an offer or a reasoned decline" }

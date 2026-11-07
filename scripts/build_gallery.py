@@ -7,7 +7,9 @@ usage:
 Reads <pool>/index.yaml (a plain YAML list of entries; folders without a row are added with
 what can be read from the fragment) and writes:
 
-  DIR/index.html          every fragment live in a filterable grid, light/dark retheme toggle
+  DIR/index.html          every fragment live in a filterable grid, light/dark retheme toggle;
+                          a once fragment plays one pass when its card scrolls into view and then
+                          rests on its finished state; each card has a Replay button
   DIR/<name>/index.html   one page per fragment: large live view, copy button, spec.yaml
   DIR/<name>/<name>.html  the fragment itself, plus thumb.png and spec.yaml when present
 
@@ -175,9 +177,10 @@ def load_pool(pool):
         e['dir'] = os.path.join(pool, n)
         vb = r.get('viewbox')
         e['viewbox'] = [float(v) for v in vb] if isinstance(vb, list) and len(vb) == 2 else viewbox_of(src)
-        if not e.get('cycle'):
-            m = re.search(r'data-anim-cycle="([\d.]+)"', src)
-            e['cycle'] = _scalar(m.group(1)) if m else None
+        m = re.search(r'data-anim-cycle="([\d.]+)"', src)     # the fragment is the truth
+        e['cycle'] = _scalar(m.group(1)) if m else e.get('cycle')
+        m = re.search(r'data-anim-control="(\w+)"', src)
+        e['control'] = m.group(1) if m else 'once'
         e['archetype'] = e.get('archetype') or 'other'
         e['tags'] = [str(t) for t in (e.get('tags') or [])]
         spec = os.path.join(pool, n, 'spec.yaml')
@@ -266,11 +269,13 @@ header.top .wrap{display:flex;align-items:center;gap:12px;min-height:56px}
 .card[hidden]{display:none}
 .stage{display:block;background:var(--anim-theme-bg);padding:12px;border-bottom:1px solid var(--border);overflow:hidden}
 .stage>.fit{width:100%}
-/* start every card part-way into its loop so the grid looks alive at first sight; fragments set
-   no delays of their own, so one shifted delay keeps each fragment's internal timing intact */
+/* loop fragments only: start part-way into the loop so the grid looks alive at first sight;
+   fragments set no delays of their own, so one shifted delay keeps their internal timing intact.
+   once fragments start at 0 s when their card scrolls into view and then rest. */
 .lead *{animation-delay:var(--lead,0s) !important}
 .card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.card h2{font-size:16px;margin:0;font-family:var(--code);font-weight:500}
+.card h2{font-size:16px;margin:0;font-family:var(--code);font-weight:500;display:flex;align-items:center;gap:8px}
+.card h2 .btn{margin-left:auto;font-family:var(--sans,inherit);font-size:12px;padding:2px 9px}
 .card h2 a{color:var(--text)}
 .meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
 .pill{border-radius:6px;padding:1px 7px;background:color-mix(in srgb,var(--anim-theme-accent) 16%,transparent);
@@ -339,10 +344,13 @@ JS = r"""
   function gate(f,on){if(f)f.classList.toggle('visible',on)}
   function toast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;
     el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('on')},1600)}
-  // play only what is on screen: the fragments are gated on a .visible ancestor
+  // play only what is on screen: the fragments are gated on a .visible ancestor. A once fragment
+  // plays its single pass the first time it scrolls into view, then keeps the gate so it rests on
+  // its finished state; Replay restarts it. Loop fragments run only while on screen.
   if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target._inview=e.isIntersecting;
-      gate(e.target,e.isIntersecting&&!root.classList.contains('resting'))})},{rootMargin:'120px'});
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){var f=e.target;f._inview=e.isIntersecting;
+      if(f.dataset.ctl!=='loop'&&!e.isIntersecting&&f._played)return;
+      var on=e.isIntersecting&&!root.classList.contains('resting');gate(f,on);if(on)f._played=true})},{rootMargin:'0px'});
     document.querySelectorAll('.fit').forEach(function(f){io.observe(f)});
   }
   var q=document.getElementById('q');if(q)q.addEventListener('input',filter);
@@ -404,8 +412,8 @@ def meta_pills(e):
     w, h = e['viewbox']
     out.append(f'<span class="pill dim">{w:g}×{h:g}</span>')
     if e.get('cycle'):
-        out.append(f'<span class="pill dim">{e["cycle"]:g} s</span>' if isinstance(e['cycle'], (int, float))
-                   else f'<span class="pill dim">{esc(e["cycle"])} s</span>')
+        c = f'{e["cycle"]:g}' if isinstance(e['cycle'], (int, float)) else esc(e['cycle'])
+        out.append(f'<span class="pill dim">{esc(e.get("control") or "once")} {c} s</span>')
     return ''.join(out)
 
 
@@ -428,16 +436,16 @@ def build_index(entries, title, repo_url):
         text = ' '.join([n, e['archetype'], str(e.get('domain') or ''), str(e.get('story') or ''), *e['tags']]).lower()
         tags = ''.join(f'<span>#{esc(t)}</span>' for t in e['tags'])
         cyc = e.get('cycle')
-        if isinstance(cyc, (int, float)) and cyc > 0 and 'animation-delay' not in e['src']:
+        if e['control'] == 'loop' and isinstance(cyc, (int, float)) and cyc > 0 and 'animation-delay' not in e['src']:
             lead_cls, lead = ' lead', f';--lead:-{0.4 * cyc:.2f}s'
         else:
             lead_cls, lead = '', ''
         cards.append(f"""<article class="card" data-archetype="{esc(e['archetype'])}" data-domain="{esc(e.get('domain') or '')}" data-text="{esc(text)}">
-  <a class="stage" href="{n}/index.html" aria-label="Open {esc(n)}"><div class="fit visible{lead_cls}" style="{fit_style(e)}{lead}">
+  <a class="stage" href="{n}/index.html" aria-label="Open {esc(n)}"><div class="fit visible{lead_cls}" id="fit-{n}" data-ctl="{esc(e['control'])}" style="{fit_style(e)}{lead}">
 {e['src']}
   </div></a>
   <div class="body">
-    <h2><a href="{n}/index.html">{esc(n)}</a></h2>
+    <h2><a href="{n}/index.html">{esc(n)}</a><button class="btn" type="button" data-replay="fit-{n}" aria-label="Replay {esc(n)}">Replay</button></h2>
     <div class="meta">{meta_pills(e)}</div>
     <p class="story">{esc(e.get('story') or '')}</p>
     <div class="tags">{tags}</div>
@@ -481,8 +489,11 @@ def build_detail(e, title, repo_url):
     if e.get('domain'):
         facts.append(('Domain', esc(e['domain'])))
     facts.append(('viewBox', f'{w:g} × {h:g}'))
+    facts.append(('Control', {'once': 'once: plays one pass, then rests on the finished state',
+                              'loop': 'loop: repeats while shown', 'step': 'step: presenter-driven'}
+                  .get(e.get('control'), esc(e.get('control') or ''))))
     if e.get('cycle'):
-        facts.append(('Cycle', f'{esc(e["cycle"])} s'))
+        facts.append(('Pass' if e.get('control') != 'loop' else 'Cycle', f'{esc(e["cycle"])} s'))
     if e.get('technique'):
         facts.append(('Technique', esc(e['technique'])))
     if e['tags']:
@@ -502,7 +513,7 @@ def build_detail(e, title, repo_url):
 <nav class="crumbs"><a href="../index.html">All fragments</a> / {esc(n)}</nav>
 <h1>{esc(n)}</h1>
 <p class="story">{esc(e.get('story') or '')}</p>
-<div class="bigstage"><div class="fit visible" id="live" style="{fit_style(e, '72vh')}">
+<div class="bigstage"><div class="fit visible" id="live" data-ctl="{esc(e['control'])}" style="{fit_style(e, '72vh')}">
 {e['src']}
 </div></div>
 <div class="actions">
@@ -513,7 +524,8 @@ def build_detail(e, title, repo_url):
 <textarea class="sr" id="frag-src" aria-hidden="true" tabindex="-1">{esc(e['src'])}</textarea>
 <dl class="facts">{dl}</dl>
 <p class="story" style="font-size:14px">Paste the fragment into any HTML deck; it plays while an ancestor has the
-class <code>visible</code> and otherwise shows its resting frame. Rename the prefix
+class <code>visible</code> (one pass for <code>once</code>, then it holds the finished state) and
+otherwise shows its resting frame. Rename the prefix
 (<code>{esc(n)}</code>) when you adapt it so it stays unique in your deck.</p>
 {spec}
 </main>"""
@@ -555,7 +567,7 @@ def main():
                 shutil.copyfile(p, os.path.join(d, fn))
     open(os.path.join(out, '.nojekyll'), 'w').close()
     with open(os.path.join(out, 'pool.json'), 'w', encoding='utf-8') as f:
-        json.dump([{k: e.get(k) for k in ('name', 'archetype', 'domain', 'viewbox', 'cycle', 'story', 'tags')}
+        json.dump([{k: e.get(k) for k in ('name', 'archetype', 'domain', 'viewbox', 'control', 'cycle', 'story', 'tags')}
                    for e in entries], f, indent=1)
     print(f'build_gallery: {len(entries)} fragments -> {out}/index.html')
 

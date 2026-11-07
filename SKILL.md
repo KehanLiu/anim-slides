@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.7.0"
+  version: "0.8.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
@@ -59,9 +59,10 @@ state the assumption in the brief and continue.
 
 ### 1. Spec
 Write `anim/<name>/spec.yaml` following `references/spec-format.md`: name, archetype, nodes,
-edges, groups, phases with second marks, cycle, control (`loop` default, with a caption strip
-for up to about 6 narrated phases; `step` only when the presenter must drive the phases, the
-story has more, and the host can load GSAP). Reuse the
+edges, groups, phases with second marks, cycle (the pass length), control (`once` default: one
+calm pass of 4 to 10 s when the slide becomes current, ending on the resting frame; `loop`
+only when the user asks for a continuous loop; `step` only when the presenter must drive the
+phases, the story has more, and the host can load GSAP). Reuse the
 source's own words as labels. Keep a spec under about 12 nodes; split otherwise.
 
 ### 1b. Check the pool
@@ -179,8 +180,14 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - The look follows `references/style.md`: no filled cards, chips or caption bars; rings and
   thin lines; one accent with glow; at most two semantic colours, each meaning something on
   the slide.
-- At most three things moving at once, cycle 8 to 15 s with a hold, `linear` only for
-  continuous loops, exits about 65 % of entrance length, reduced-motion block present.
+- Less. The fragment is the slide's own figure in its own form (stairs stay stairs, a table
+  stays rows) plus one movement; no invented chart forms, no extra brackets, arrows or
+  storylines, one glowing element at most and never a glowing line. When in doubt, leave it
+  out (`references/style.md`, principle 0).
+- Plays once. One pass of 4 to 10 s when the slide becomes current, iteration count 1 with
+  fill forwards, the 100 % keyframe equal to the resting frame, nothing looping or pulsing
+  while the slide is up. At most three things moving at once, `linear` only for continuous
+  loops, exits about 65 % of entrance length, reduced-motion block present.
 
 ## Files
 - `references/fragment-contract.md` — the output contract (shape, prefixes, tokens, gate, resting frame, control variants)
@@ -195,7 +202,7 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `scripts/render_deck.py` — source deck to contact sheets (12 slides each) plus full-size pages for candidates
 - `scripts/host_theme.py` — host glue: `--anim-theme-*` block derived from the deck's CSS (match) or the lean palette (lean)
 - `scripts/md_to_deck.py` — Markdown or remark deck to a self-contained HTML deck to integrate into
-- `scripts/scaffold_from_spec.py` — spec validation and spec to skeleton fragment (loop or step); YAML or JSON, PyYAML optional
+- `scripts/scaffold_from_spec.py` — spec validation and spec to skeleton fragment (once, loop or step); YAML or JSON, PyYAML optional
 - `scripts/check_fragment.py` — static contract checks
 - `scripts/verify_facts.py` — provenance gate: fragment text and numbers against the source slide
 - `references/style.md` — the visual style: lean, quiet, one accent, no boxes; checklist before shipping

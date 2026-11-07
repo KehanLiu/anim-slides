@@ -8,8 +8,8 @@ name: court-case
 archetype: timeline
 domain: civics-law
 size: [1680, 600]
-control: loop
-cycle: 13
+control: once
+cycle: 10
 nodes:
   - { id: inv, label: Investigation, sub: "evidence and suspects",      kind: milestone, at: "police" }
   - { id: chg, label: Charge,        sub: "prosecutor files charges",   kind: milestone, at: "prosecution" }
@@ -20,11 +20,11 @@ nodes:
   - { id: sen, label: Sentencing,    sub: "judge sets the penalty",     kind: milestone, at: "court" }
 phases:
   - { t: 0,    label: setup,                                   note: "Police investigate and the prosecution decides on charges" }
-  - { t: 1.0,  label: inv,  show: [inv], active: [inv] }
-  - { t: 2.5,  label: chg,  show: [chg], active: [chg] }
-  - { t: 4.0,  label: arr,  show: [arr], active: [arr],        note: "Hand-off 1: at arraignment the court takes charge of the case" }
-  - { t: 5.5,  label: dis,  show: [dis], active: [dis] }
-  - { t: 7.0,  label: tri,  show: [tri], active: [tri],        note: "Hand-off 2: once the evidence is heard, the jury deliberates" }
-  - { t: 8.5,  label: ver,  show: [ver], active: [ver],        note: "Hand-off 3: the verdict returns the case to the judge" }
-  - { t: 10.0, label: sen,  show: [sen], active: [sen] }
-  - { t: 10.8, label: hold,              active: [sen],        note: "In a jury trial, each stage has one owner: prosecution, court, jury, court" }
+  - { t: 0.8,  label: inv,  show: [inv], active: [inv] }
+  - { t: 2,  label: chg,  show: [chg], active: [chg] }
+  - { t: 3.2,  label: arr,  show: [arr], active: [arr],        note: "Hand-off 1: at arraignment the court takes charge of the case" }
+  - { t: 4.4,  label: dis,  show: [dis], active: [dis] }
+  - { t: 5.6,  label: tri,  show: [tri], active: [tri],        note: "Hand-off 2: once the evidence is heard, the jury deliberates" }
+  - { t: 6.8,  label: ver,  show: [ver], active: [ver],        note: "Hand-off 3: the verdict returns the case to the judge" }
+  - { t: 7.8, label: sen,  show: [sen], active: [sen] }
+  - { t: 8.8, label: hold,              active: [sen],        note: "In a jury trial, each stage has one owner: prosecution, court, jury, court" }

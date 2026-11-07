@@ -2,7 +2,7 @@
   Story: commit > build > test > staging > canary; five rings on one thin line, a glowing dot carries
   the artifact ring to ring, the active ring lights in the accent and a passed ring settles in ok; the
   rollback edge above Staging and Production is armed (marching, warn colour) during the canary,
-  errors stay under the limit and production is promoted to 100 %. Cycle 12 s, hold 9.4-11.5 s.
+  errors stay under the limit and production is promoted to 100 %. Plays once: 9.8 s pass, final state from 8.7 s.
   Names, numbers and times are illustrative examples. -->
 <style>
 .anim-deploy-pipeline{
@@ -49,178 +49,178 @@
 /* resting frame = finished story: every stage passed, production live at 100 %, rollback guard idle */
 .anim-deploy-pipeline .deploy-pipeline-arc-armed,.anim-deploy-pipeline .deploy-pipeline-rb-on,.anim-deploy-pipeline .deploy-pipeline-prod-s1,.anim-deploy-pipeline .deploy-pipeline-pkt,.anim-deploy-pipeline .deploy-pipeline-pkt-glow,.anim-deploy-pipeline .deploy-pipeline-commit-run,.anim-deploy-pipeline .deploy-pipeline-commit-c0,.anim-deploy-pipeline .deploy-pipeline-commit-c1,.anim-deploy-pipeline .deploy-pipeline-build-run,.anim-deploy-pipeline .deploy-pipeline-build-c0,.anim-deploy-pipeline .deploy-pipeline-build-c1,.anim-deploy-pipeline .deploy-pipeline-test-run,.anim-deploy-pipeline .deploy-pipeline-test-c0,.anim-deploy-pipeline .deploy-pipeline-test-c1,.anim-deploy-pipeline .deploy-pipeline-staging-run,.anim-deploy-pipeline .deploy-pipeline-staging-c0,.anim-deploy-pipeline .deploy-pipeline-staging-c1,.anim-deploy-pipeline .deploy-pipeline-prod-run,.anim-deploy-pipeline .deploy-pipeline-prod-c0,.anim-deploy-pipeline .deploy-pipeline-prod-c1,.anim-deploy-pipeline .deploy-pipeline-n0,.anim-deploy-pipeline .deploy-pipeline-n1,.anim-deploy-pipeline .deploy-pipeline-n2,.anim-deploy-pipeline .deploy-pipeline-n3,.anim-deploy-pipeline .deploy-pipeline-n4{opacity:0}
 
-/* ---- motion (12 s cycle), only when the slide is visible ---- */
-/* fade in 0-0.3 s, hold until 11.5 s, reset 11.5-11.8 s */
-@keyframes deploy-pipeline-scene{0%{opacity:0}2.5%,95.83%{opacity:1}98.33%,100%{opacity:0}}
+/* ---- motion (plays once, 9.8 s pass), only when the slide is visible ---- */
+/* fade in 0-0.27 s, then holds */
+@keyframes deploy-pipeline-scene{0%{opacity:0}2.76%,100%{opacity:1}}
 /* stage 0 enters at 0.05 s */
-@keyframes deploy-pipeline-st0{0%,0.42%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.17%,100%{opacity:1;transform:translateY(0)}}
-/* stage 1 enters at 0.13 s */
-@keyframes deploy-pipeline-st1{0%,1.08%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.83%,100%{opacity:1;transform:translateY(0)}}
-/* stage 2 enters at 0.21 s */
-@keyframes deploy-pipeline-st2{0%,1.75%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.5%,100%{opacity:1;transform:translateY(0)}}
-/* stage 3 enters at 0.29 s */
-@keyframes deploy-pipeline-st3{0%,2.42%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.17%,100%{opacity:1;transform:translateY(0)}}
-/* stage 4 enters at 0.37 s */
-@keyframes deploy-pipeline-st4{0%,3.08%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.83%,100%{opacity:1;transform:translateY(0)}}
-/* wire 0 draws on at 0.35 s */
-@keyframes deploy-pipeline-w0{0%,2.92%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.5%,100%{stroke-dashoffset:0}}
+@keyframes deploy-pipeline-st0{0%,0.46%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.6%,100%{opacity:1;transform:translateY(0)}}
+/* stage 1 enters at 0.12 s */
+@keyframes deploy-pipeline-st1{0%,1.19%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.32%,100%{opacity:1;transform:translateY(0)}}
+/* stage 2 enters at 0.19 s */
+@keyframes deploy-pipeline-st2{0%,1.93%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.06%,100%{opacity:1;transform:translateY(0)}}
+/* stage 3 enters at 0.26 s */
+@keyframes deploy-pipeline-st3{0%,2.67%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.8%,100%{opacity:1;transform:translateY(0)}}
+/* stage 4 enters at 0.33 s */
+@keyframes deploy-pipeline-st4{0%,3.39%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.53%,100%{opacity:1;transform:translateY(0)}}
+/* wire 0 draws on at 0.32 s */
+@keyframes deploy-pipeline-w0{0%,3.22%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.27%,100%{stroke-dashoffset:0}}
+/* from 0.68s */
+@keyframes deploy-pipeline-w0a{0%,6.89%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.73%,100%{opacity:1}}
+/* wire 1 draws on at 0.39 s */
+@keyframes deploy-pipeline-w1{0%,3.95%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9%,100%{stroke-dashoffset:0}}
 /* from 0.75s */
-@keyframes deploy-pipeline-w0a{0%,6.25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.92%,100%{opacity:1}}
-/* wire 1 draws on at 0.43 s */
-@keyframes deploy-pipeline-w1{0%,3.58%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.17%,100%{stroke-dashoffset:0}}
-/* from 0.83s */
-@keyframes deploy-pipeline-w1a{0%,6.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.58%,100%{opacity:1}}
-/* wire 2 draws on at 0.51 s */
-@keyframes deploy-pipeline-w2{0%,4.25%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.83%,100%{stroke-dashoffset:0}}
-/* from 0.91s */
-@keyframes deploy-pipeline-w2a{0%,7.58%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.25%,100%{opacity:1}}
-/* wire 3 draws on at 0.59 s */
-@keyframes deploy-pipeline-w3{0%,4.92%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.5%,100%{stroke-dashoffset:0}}
-/* from 0.99s */
-@keyframes deploy-pipeline-w3a{0%,8.25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.92%,100%{opacity:1}}
+@keyframes deploy-pipeline-w1a{0%,7.63%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.46%,100%{opacity:1}}
+/* wire 2 draws on at 0.46 s */
+@keyframes deploy-pipeline-w2{0%,4.68%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.73%,100%{stroke-dashoffset:0}}
+/* from 0.82s */
+@keyframes deploy-pipeline-w2a{0%,8.35%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.19%,100%{opacity:1}}
+/* wire 3 draws on at 0.53 s */
+@keyframes deploy-pipeline-w3{0%,5.42%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.47%,100%{stroke-dashoffset:0}}
+/* from 0.89s */
+@keyframes deploy-pipeline-w3a{0%,9.09%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.93%,100%{opacity:1}}
 /* rollback guard enters with the wires */
-@keyframes deploy-pipeline-rb{0%,5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.33%,100%{opacity:1}}
-/* 0.9s - 1.4s */
-@keyframes deploy-pipeline-commit-run{0%,7.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.17%{opacity:1}11.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}13.33%,100%{opacity:0}}
-/* from 1.4s */
-@keyframes deploy-pipeline-commit-ok{0%,11.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.75%,100%{opacity:1}}
-/* 0s - 0.9s */
-@keyframes deploy-pipeline-commit-c0{0%{opacity:1}7.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}8.75%,100%{opacity:0}}
-/* 0.9s - 1.4s */
-@keyframes deploy-pipeline-commit-c1{0%,7.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.17%{opacity:1}11.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}12.92%,100%{opacity:0}}
-/* from 1.4s */
-@keyframes deploy-pipeline-commit-c2{0%,11.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.33%,100%{opacity:1}}
-/* 2.2s - 3.2s */
-@keyframes deploy-pipeline-build-run{0%,18.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20%{opacity:1}26.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}28.33%,100%{opacity:0}}
-/* from 3.2s */
-@keyframes deploy-pipeline-build-ok{0%,26.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.75%,100%{opacity:1}}
-/* 0s - 2.2s */
-@keyframes deploy-pipeline-build-c0{0%{opacity:1}18.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}19.58%,100%{opacity:0}}
-/* 2.2s - 3.2s */
-@keyframes deploy-pipeline-build-c1{0%,18.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20%{opacity:1}26.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}27.92%,100%{opacity:0}}
-/* from 3.2s */
-@keyframes deploy-pipeline-build-c2{0%,26.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.33%,100%{opacity:1}}
-/* 4.0s - 5.0s */
-@keyframes deploy-pipeline-test-run{0%,33.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35%{opacity:1}41.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.33%,100%{opacity:0}}
-/* from 5.0s */
-@keyframes deploy-pipeline-test-ok{0%,41.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.75%,100%{opacity:1}}
-/* 0s - 4.0s */
-@keyframes deploy-pipeline-test-c0{0%{opacity:1}33.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.58%,100%{opacity:0}}
-/* 4.0s - 5.0s */
-@keyframes deploy-pipeline-test-c1{0%,33.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35%{opacity:1}41.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}42.92%,100%{opacity:0}}
-/* from 5.0s */
-@keyframes deploy-pipeline-test-c2{0%,41.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.33%,100%{opacity:1}}
-/* 5.8s - 6.8s */
-@keyframes deploy-pipeline-staging-run{0%,48.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50%{opacity:1}56.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}58.33%,100%{opacity:0}}
-/* from 6.8s */
-@keyframes deploy-pipeline-staging-ok{0%,56.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.75%,100%{opacity:1}}
-/* 0s - 5.8s */
-@keyframes deploy-pipeline-staging-c0{0%{opacity:1}48.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}49.58%,100%{opacity:0}}
-/* 5.8s - 6.8s */
-@keyframes deploy-pipeline-staging-c1{0%,48.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50%{opacity:1}56.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}57.92%,100%{opacity:0}}
-/* from 6.8s */
-@keyframes deploy-pipeline-staging-c2{0%,56.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.33%,100%{opacity:1}}
-/* 7.6s - 9.4s */
-@keyframes deploy-pipeline-prod-run{0%,63.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
-/* from 9.4s */
-@keyframes deploy-pipeline-prod-ok{0%,78.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.42%,100%{opacity:1}}
-/* 0s - 7.6s */
-@keyframes deploy-pipeline-prod-c0{0%{opacity:1}63.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}64.58%,100%{opacity:0}}
-/* 7.6s - 9.4s */
-@keyframes deploy-pipeline-prod-c1{0%,63.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}79.58%,100%{opacity:0}}
-/* from 9.4s */
-@keyframes deploy-pipeline-prod-c2{0%,78.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80%,100%{opacity:1}}
-/* hop 1.4-2.2 s */
-@keyframes deploy-pipeline-p0{0%,11.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}12.5%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}17.5%{offset-distance:94%;opacity:1}18.33%,100%{offset-distance:100%;opacity:0}}
-/* hop 3.2-4.0 s */
-@keyframes deploy-pipeline-p1{0%,26.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}27.5%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}32.5%{offset-distance:94%;opacity:1}33.33%,100%{offset-distance:100%;opacity:0}}
-/* hop 5.0-5.8 s */
-@keyframes deploy-pipeline-p2{0%,41.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}42.5%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}47.5%{offset-distance:94%;opacity:1}48.33%,100%{offset-distance:100%;opacity:0}}
-/* hop 6.8-7.6 s */
-@keyframes deploy-pipeline-p3{0%,56.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}57.5%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}62.5%{offset-distance:94%;opacity:1}63.33%,100%{offset-distance:100%;opacity:0}}
-/* 0s - 9.4s */
-@keyframes deploy-pipeline-prod-s1{0%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
-/* from 9.4s */
-@keyframes deploy-pipeline-prod-s2{0%,78.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.83%,100%{opacity:1}}
-/* 7.6s - 9.4s */
-@keyframes deploy-pipeline-rb-on{0%,63.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65.83%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
+@keyframes deploy-pipeline-rb{0%,5.51%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.18%,100%{opacity:1}}
+/* 0.81s - 1.26s */
+@keyframes deploy-pipeline-commit-run{0%,8.27%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.11%{opacity:1}12.86%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}14.69%,100%{opacity:0}}
+/* from 1.26s */
+@keyframes deploy-pipeline-commit-ok{0%,12.86%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.15%,100%{opacity:1}}
+/* 0s - 0.81s */
+@keyframes deploy-pipeline-commit-c0{0%{opacity:1}8.27%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}9.64%,100%{opacity:0}}
+/* 0.81s - 1.26s */
+@keyframes deploy-pipeline-commit-c1{0%,8.27%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.11%{opacity:1}12.86%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}14.24%,100%{opacity:0}}
+/* from 1.26s */
+@keyframes deploy-pipeline-commit-c2{0%,12.86%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.69%,100%{opacity:1}}
+/* 1.98s - 2.88s */
+@keyframes deploy-pipeline-build-run{0%,20.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.04%{opacity:1}29.39%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}31.22%,100%{opacity:0}}
+/* from 2.88s */
+@keyframes deploy-pipeline-build-ok{0%,29.39%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.68%,100%{opacity:1}}
+/* 0s - 1.98s */
+@keyframes deploy-pipeline-build-c0{0%{opacity:1}20.2%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.58%,100%{opacity:0}}
+/* 1.98s - 2.88s */
+@keyframes deploy-pipeline-build-c1{0%,20.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.04%{opacity:1}29.39%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}30.77%,100%{opacity:0}}
+/* from 2.88s */
+@keyframes deploy-pipeline-build-c2{0%,29.39%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.22%,100%{opacity:1}}
+/* 3.6s - 4.5s */
+@keyframes deploy-pipeline-test-run{0%,36.73%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.57%{opacity:1}45.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.75%,100%{opacity:0}}
+/* from 4.5s */
+@keyframes deploy-pipeline-test-ok{0%,45.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.21%,100%{opacity:1}}
+/* 0s - 3.6s */
+@keyframes deploy-pipeline-test-c0{0%{opacity:1}36.73%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.11%,100%{opacity:0}}
+/* 3.6s - 4.5s */
+@keyframes deploy-pipeline-test-c1{0%,36.73%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.57%{opacity:1}45.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.3%,100%{opacity:0}}
+/* from 4.5s */
+@keyframes deploy-pipeline-test-c2{0%,45.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.75%,100%{opacity:1}}
+/* 5.22s - 6.12s */
+@keyframes deploy-pipeline-staging-run{0%,53.26%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.1%{opacity:1}62.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}64.28%,100%{opacity:0}}
+/* from 6.12s */
+@keyframes deploy-pipeline-staging-ok{0%,62.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.74%,100%{opacity:1}}
+/* 0s - 5.22s */
+@keyframes deploy-pipeline-staging-c0{0%{opacity:1}53.26%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}54.64%,100%{opacity:0}}
+/* 5.22s - 6.12s */
+@keyframes deploy-pipeline-staging-c1{0%,53.26%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.1%{opacity:1}62.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.83%,100%{opacity:0}}
+/* from 6.12s */
+@keyframes deploy-pipeline-staging-c2{0%,62.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.28%,100%{opacity:1}}
+/* 6.84s - 8.46s */
+@keyframes deploy-pipeline-prod-run{0%,69.79%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.63%{opacity:1}86.32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88.16%,100%{opacity:0}}
+/* from 8.46s */
+@keyframes deploy-pipeline-prod-ok{0%,86.32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.63%,100%{opacity:1}}
+/* 0s - 6.84s */
+@keyframes deploy-pipeline-prod-c0{0%{opacity:1}69.79%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}71.17%,100%{opacity:0}}
+/* 6.84s - 8.46s */
+@keyframes deploy-pipeline-prod-c1{0%,69.79%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.63%{opacity:1}86.32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.7%,100%{opacity:0}}
+/* from 8.46s */
+@keyframes deploy-pipeline-prod-c2{0%,86.32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.16%,100%{opacity:1}}
+/* hop 1.26-1.98 s */
+@keyframes deploy-pipeline-p0{0%,12.86%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}13.78%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}19.29%{offset-distance:94%;opacity:1}20.2%,100%{offset-distance:100%;opacity:0}}
+/* hop 2.88-3.6 s */
+@keyframes deploy-pipeline-p1{0%,29.39%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}30.31%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}35.82%{offset-distance:94%;opacity:1}36.73%,100%{offset-distance:100%;opacity:0}}
+/* hop 4.5-5.22 s */
+@keyframes deploy-pipeline-p2{0%,45.92%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}46.84%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}52.35%{offset-distance:94%;opacity:1}53.26%,100%{offset-distance:100%;opacity:0}}
+/* hop 6.12-6.84 s */
+@keyframes deploy-pipeline-p3{0%,62.45%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}63.37%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}68.88%{offset-distance:94%;opacity:1}69.79%,100%{offset-distance:100%;opacity:0}}
+/* 0s - 8.46s */
+@keyframes deploy-pipeline-prod-s1{0%{opacity:1}86.32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88.16%,100%{opacity:0}}
+/* from 8.46s */
+@keyframes deploy-pipeline-prod-s2{0%,86.32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.08%,100%{opacity:1}}
+/* 6.84s - 8.46s */
+@keyframes deploy-pipeline-rb-on{0%,69.79%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.55%{opacity:1}86.32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88.16%,100%{opacity:0}}
 /* idle label hidden while armed */
-@keyframes deploy-pipeline-rb-idle{0%,63.33%{opacity:1}65%,78.33%{opacity:0}80.83%,100%{opacity:1}}
-/* armed rollback edge: 7.6 s - 9.4 s */
-@keyframes deploy-pipeline-armed{0%,63.33%{opacity:0}65.83%,78.33%{opacity:1}80%,100%{opacity:0}}
-@keyframes deploy-pipeline-march{to{stroke-dashoffset:-26}}
-/* 0s - 2.2s */
-@keyframes deploy-pipeline-n0{0%{opacity:1}18.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20%,100%{opacity:0}}
-/* 2.2s - 4.0s */
-@keyframes deploy-pipeline-n1{0%,18.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.83%{opacity:1}33.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}35%,100%{opacity:0}}
-/* 4.0s - 5.8s */
-@keyframes deploy-pipeline-n2{0%,33.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35.83%{opacity:1}48.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}50%,100%{opacity:0}}
-/* 5.8s - 7.6s */
-@keyframes deploy-pipeline-n3{0%,48.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.83%{opacity:1}63.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}65%,100%{opacity:0}}
-/* 7.6s - 9.4s */
-@keyframes deploy-pipeline-n4{0%,63.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65.83%{opacity:1}78.33%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
-/* from 9.4s */
-@keyframes deploy-pipeline-n5{0%,78.33%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.83%,100%{opacity:1}}
+@keyframes deploy-pipeline-rb-idle{0%,69.79%{opacity:1}71.63%,86.32%{opacity:0}89.08%,100%{opacity:1}}
+/* armed rollback edge: 6.84 s - 8.46 s */
+@keyframes deploy-pipeline-armed{0%,69.79%{opacity:0}72.55%,86.32%{opacity:1}88.16%,100%{opacity:0}}
+@keyframes deploy-pipeline-march{to{stroke-dashoffset:-312}}
+/* 0s - 1.98s */
+@keyframes deploy-pipeline-n0{0%{opacity:1}20.2%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}22.04%,100%{opacity:0}}
+/* 1.98s - 3.6s */
+@keyframes deploy-pipeline-n1{0%,20.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.96%{opacity:1}36.73%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.57%,100%{opacity:0}}
+/* 3.6s - 5.22s */
+@keyframes deploy-pipeline-n2{0%,36.73%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}39.49%{opacity:1}53.26%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}55.1%,100%{opacity:0}}
+/* 5.22s - 6.84s */
+@keyframes deploy-pipeline-n3{0%,53.26%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.02%{opacity:1}69.79%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}71.63%,100%{opacity:0}}
+/* 6.84s - 8.46s */
+@keyframes deploy-pipeline-n4{0%,69.79%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.55%{opacity:1}86.32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88.16%,100%{opacity:0}}
+/* from 8.46s */
+@keyframes deploy-pipeline-n5{0%,86.32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.08%,100%{opacity:1}}
 
-.visible .anim-deploy-pipeline .deploy-pipeline-scene{animation:deploy-pipeline-scene 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-st0{animation:deploy-pipeline-st0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-st1{animation:deploy-pipeline-st1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-st2{animation:deploy-pipeline-st2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-st3{animation:deploy-pipeline-st3 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-st4{animation:deploy-pipeline-st4 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-w0{animation:deploy-pipeline-w0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-w0a{animation:deploy-pipeline-w0a 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-w1{animation:deploy-pipeline-w1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-w1a{animation:deploy-pipeline-w1a 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-w2{animation:deploy-pipeline-w2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-w2a{animation:deploy-pipeline-w2a 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-w3{animation:deploy-pipeline-w3 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-w3a{animation:deploy-pipeline-w3a 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-rb{animation:deploy-pipeline-rb 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-commit-run{animation:deploy-pipeline-commit-run 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-commit-ok{animation:deploy-pipeline-commit-ok 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-commit-c0{animation:deploy-pipeline-commit-c0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-commit-c1{animation:deploy-pipeline-commit-c1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-commit-c2{animation:deploy-pipeline-commit-c2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-build-run{animation:deploy-pipeline-build-run 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-build-ok{animation:deploy-pipeline-build-ok 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-build-c0{animation:deploy-pipeline-build-c0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-build-c1{animation:deploy-pipeline-build-c1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-build-c2{animation:deploy-pipeline-build-c2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-test-run{animation:deploy-pipeline-test-run 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-test-ok{animation:deploy-pipeline-test-ok 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-test-c0{animation:deploy-pipeline-test-c0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-test-c1{animation:deploy-pipeline-test-c1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-test-c2{animation:deploy-pipeline-test-c2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-staging-run{animation:deploy-pipeline-staging-run 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-staging-ok{animation:deploy-pipeline-staging-ok 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-staging-c0{animation:deploy-pipeline-staging-c0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-staging-c1{animation:deploy-pipeline-staging-c1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-staging-c2{animation:deploy-pipeline-staging-c2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-prod-run{animation:deploy-pipeline-prod-run 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-prod-ok{animation:deploy-pipeline-prod-ok 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-prod-c0{animation:deploy-pipeline-prod-c0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-prod-c1{animation:deploy-pipeline-prod-c1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-prod-c2{animation:deploy-pipeline-prod-c2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-p0{animation:deploy-pipeline-p0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-p1{animation:deploy-pipeline-p1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-p2{animation:deploy-pipeline-p2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-p3{animation:deploy-pipeline-p3 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-prod-s1{animation:deploy-pipeline-prod-s1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-prod-s2{animation:deploy-pipeline-prod-s2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-rb-on{animation:deploy-pipeline-rb-on 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-rb-idle{animation:deploy-pipeline-rb-idle 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-arc-armed{animation:deploy-pipeline-march .8s linear infinite,deploy-pipeline-armed 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-n0{animation:deploy-pipeline-n0 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-n1{animation:deploy-pipeline-n1 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-n2{animation:deploy-pipeline-n2 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-n3{animation:deploy-pipeline-n3 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-n4{animation:deploy-pipeline-n4 12s linear infinite}
-.visible .anim-deploy-pipeline .deploy-pipeline-n5{animation:deploy-pipeline-n5 12s linear infinite}
+.visible .anim-deploy-pipeline .deploy-pipeline-scene{animation:deploy-pipeline-scene 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-st0{animation:deploy-pipeline-st0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-st1{animation:deploy-pipeline-st1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-st2{animation:deploy-pipeline-st2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-st3{animation:deploy-pipeline-st3 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-st4{animation:deploy-pipeline-st4 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-w0{animation:deploy-pipeline-w0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-w0a{animation:deploy-pipeline-w0a 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-w1{animation:deploy-pipeline-w1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-w1a{animation:deploy-pipeline-w1a 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-w2{animation:deploy-pipeline-w2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-w2a{animation:deploy-pipeline-w2a 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-w3{animation:deploy-pipeline-w3 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-w3a{animation:deploy-pipeline-w3a 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-rb{animation:deploy-pipeline-rb 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-run{animation:deploy-pipeline-commit-run 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-ok{animation:deploy-pipeline-commit-ok 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-c0{animation:deploy-pipeline-commit-c0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-c1{animation:deploy-pipeline-commit-c1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-commit-c2{animation:deploy-pipeline-commit-c2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-run{animation:deploy-pipeline-build-run 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-ok{animation:deploy-pipeline-build-ok 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-c0{animation:deploy-pipeline-build-c0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-c1{animation:deploy-pipeline-build-c1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-build-c2{animation:deploy-pipeline-build-c2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-run{animation:deploy-pipeline-test-run 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-ok{animation:deploy-pipeline-test-ok 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-c0{animation:deploy-pipeline-test-c0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-c1{animation:deploy-pipeline-test-c1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-test-c2{animation:deploy-pipeline-test-c2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-run{animation:deploy-pipeline-staging-run 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-ok{animation:deploy-pipeline-staging-ok 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-c0{animation:deploy-pipeline-staging-c0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-c1{animation:deploy-pipeline-staging-c1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-staging-c2{animation:deploy-pipeline-staging-c2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-run{animation:deploy-pipeline-prod-run 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-ok{animation:deploy-pipeline-prod-ok 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-c0{animation:deploy-pipeline-prod-c0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-c1{animation:deploy-pipeline-prod-c1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-c2{animation:deploy-pipeline-prod-c2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-p0{animation:deploy-pipeline-p0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-p1{animation:deploy-pipeline-p1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-p2{animation:deploy-pipeline-p2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-p3{animation:deploy-pipeline-p3 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-s1{animation:deploy-pipeline-prod-s1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-prod-s2{animation:deploy-pipeline-prod-s2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-rb-on{animation:deploy-pipeline-rb-on 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-rb-idle{animation:deploy-pipeline-rb-idle 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-arc-armed{animation:deploy-pipeline-march 9.6s linear 1 forwards,deploy-pipeline-armed 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-n0{animation:deploy-pipeline-n0 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-n1{animation:deploy-pipeline-n1 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-n2{animation:deploy-pipeline-n2 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-n3{animation:deploy-pipeline-n3 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-n4{animation:deploy-pipeline-n4 9.8s linear 1 forwards}
+.visible .anim-deploy-pipeline .deploy-pipeline-n5{animation:deploy-pipeline-n5 9.8s linear 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-deploy-pipeline * { animation: none !important; } }
 </style>
-<div class="anim anim-deploy-pipeline" data-anim="deploy-pipeline" data-anim-cycle="12" data-anim-control="loop">
+<div class="anim anim-deploy-pipeline" data-anim="deploy-pipeline" data-anim-cycle="9.8" data-anim-control="once">
 <svg viewBox="0 0 1680 440" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Deployment pipeline: a commit is built, tested and smoke-tested on staging, then released as a 5 % canary with automatic rollback armed; errors stay under 1 % and production is promoted to 100 % of traffic.">
 <g class="deploy-pipeline-scene">
   <path class="deploy-pipeline-wire deploy-pipeline-w0" pathLength="100" d="M236 160 H482"/>

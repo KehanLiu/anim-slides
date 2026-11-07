@@ -7,8 +7,8 @@
 name: cache-compare
 archetype: compare
 size: [1680, 600]
-control: loop
-cycle: 12
+control: once
+cycle: 10
 nodes:
   - { id: l-r1, side: left,  group: nocache, label: "Read 1  → database", sub: "180 ms" }
   - { id: l-r2, side: left,  group: nocache, label: "Read 2  → database", sub: "180 ms" }
@@ -23,8 +23,8 @@ groups:
   - { id: cache,   label: "With cache" }
 phases:
   - { t: 0,   label: setup,  show: [nocache, cache] }
-  - { t: 1,   label: direct, show: [l-r1, l-r2, l-r3, l-r4], note: "Every read goes to the database" }
-  - { t: 4.8, label: miss,   show: [r-r1], active: [r-r1, l-r1], note: "First read misses and fills the cache" }
-  - { t: 7.3, label: hits,   show: [r-r2, r-r3, r-r4], active: [r-r2, r-r3, r-r4], note: "Later reads hit the cache" }
-  - { t: 9.7, label: verdict, active: [cache], note: "22× faster on hits, 75 % fewer database reads" }
-  - { t: 10.8, label: hold }
+  - { t: 0.8,   label: direct, show: [l-r1, l-r2, l-r3, l-r4], note: "Every read goes to the database" }
+  - { t: 4.1, label: miss,   show: [r-r1], active: [r-r1, l-r1], note: "First read misses and fills the cache" }
+  - { t: 6.2, label: hits,   show: [r-r2, r-r3, r-r4], active: [r-r2, r-r3, r-r4], note: "Later reads hit the cache" }
+  - { t: 8.2, label: verdict, active: [cache], note: "22× faster on hits, 75 % fewer database reads" }
+  - { t: 9, label: hold }

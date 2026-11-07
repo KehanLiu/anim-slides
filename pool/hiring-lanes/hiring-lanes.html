@@ -66,66 +66,66 @@
 .anim-hiring-lanes .hiring-lanes-boxon,.anim-hiring-lanes .hiring-lanes-rvon,.anim-hiring-lanes .hiring-lanes-e1,.anim-hiring-lanes .hiring-lanes-f1,.anim-hiring-lanes .hiring-lanes-note{opacity:0}
 .anim-hiring-lanes .hiring-lanes-acc,.anim-hiring-lanes .hiring-lanes-e2,.anim-hiring-lanes .hiring-lanes-f2,.anim-hiring-lanes .hiring-lanes-n5{opacity:1}
 
-/* 14 s cycle. 0.8 s apply | 1.8 s screen | 3.6 s interview | 5 s approve | 6.6 s offer v1
-   | 8 s candidate reviews | 8.4-9.4 s revise loop | 9.8-10.8 s offer v2 | 11.8 s accepted
-   | 11.8-13.6 s hold | 13.6-14 s reset */
-@keyframes hiring-lanes-on-a{0%{opacity:0}0.36%{opacity:0}2.14%{opacity:1}12.86%{opacity:1}14.64%{opacity:0}100%{opacity:0}}  /* 0.3-1.8 s */
-@keyframes hiring-lanes-on-b{0%{opacity:0}11.07%{opacity:0}12.86%{opacity:1}25.71%{opacity:1}27.50%{opacity:0}100%{opacity:0}}  /* 1.8-3.6 s */
-@keyframes hiring-lanes-on-c{0%{opacity:0}23.93%{opacity:0}25.71%{opacity:1}35.71%{opacity:1}37.50%{opacity:0}100%{opacity:0}}  /* 3.6-5 s */
-@keyframes hiring-lanes-on-d{0%{opacity:0}33.93%{opacity:0}35.71%{opacity:1}47.14%{opacity:1}48.93%{opacity:0}100%{opacity:0}}  /* 5-6.6 s */
-@keyframes hiring-lanes-on-e{0%{opacity:0}45.36%{opacity:0}47.14%{opacity:1}57.14%{opacity:1}58.93%{opacity:0}65.36%{opacity:0}67.14%{opacity:1}77.14%{opacity:1}78.93%{opacity:0}100%{opacity:0}}  /* 6.6-8 s, 9.4-10.8 s */
-@keyframes hiring-lanes-on-f{0%{opacity:0}55.36%{opacity:0}57.14%{opacity:1}67.14%{opacity:1}68.93%{opacity:0}75.36%{opacity:0}77.14%{opacity:1}84.29%{opacity:1}86.07%{opacity:0}100%{opacity:0}}  /* 8-9.4 s, 10.8-11.8 s */
-@keyframes hiring-lanes-acc{0%{opacity:0}82.50%{opacity:0}84.29%{opacity:1}97.14%{opacity:1}98.93%{opacity:0}100%{opacity:0}}  /* 11.8-13.6 s */
-@keyframes hiring-lanes-e2{0%{opacity:0}65.36%{opacity:0}67.14%{opacity:1}97.14%{opacity:1}98.93%{opacity:0}100%{opacity:0}}  /* 9.4-13.6 s */
-@keyframes hiring-lanes-e1{0%{opacity:1}67.14%{opacity:1}68.93%{opacity:0}96.07%{opacity:0}97.86%{opacity:1}100%{opacity:1}}  /* 0-9.4 s, 13.7-14 s */
-@keyframes hiring-lanes-f2{0%{opacity:0}75.36%{opacity:0}77.14%{opacity:1}97.14%{opacity:1}98.93%{opacity:0}100%{opacity:0}}  /* 10.8-13.6 s */
-@keyframes hiring-lanes-f1{0%{opacity:1}77.14%{opacity:1}78.93%{opacity:0}96.07%{opacity:0}97.86%{opacity:1}100%{opacity:1}}  /* 0-10.8 s, 13.7-14 s */
-@keyframes hiring-lanes-rvon{0%{opacity:0}58.21%{opacity:0}60%{opacity:1}70%{opacity:1}71.79%{opacity:0}100%{opacity:0}}  /* 8.4-9.8 s */
-@keyframes hiring-lanes-n0{0%{opacity:1}12.86%{opacity:1}14.64%{opacity:0}96.07%{opacity:0}97.86%{opacity:1}100%{opacity:1}}  /* 0-1.8 s, 13.7-14 s */
-@keyframes hiring-lanes-n1{0%{opacity:0}11.07%{opacity:0}12.86%{opacity:1}25.71%{opacity:1}27.50%{opacity:0}100%{opacity:0}}  /* 1.8-3.6 s */
-@keyframes hiring-lanes-n2{0%{opacity:0}23.93%{opacity:0}25.71%{opacity:1}47.14%{opacity:1}48.93%{opacity:0}100%{opacity:0}}  /* 3.6-6.6 s */
-@keyframes hiring-lanes-n3{0%{opacity:0}45.36%{opacity:0}47.14%{opacity:1}60%{opacity:1}61.79%{opacity:0}100%{opacity:0}}  /* 6.6-8.4 s */
-@keyframes hiring-lanes-n4{0%{opacity:0}58.21%{opacity:0}60%{opacity:1}77.14%{opacity:1}78.93%{opacity:0}100%{opacity:0}}  /* 8.4-10.8 s */
-@keyframes hiring-lanes-n5{0%{opacity:0}75.36%{opacity:0}77.14%{opacity:1}97.14%{opacity:1}98.93%{opacity:0}100%{opacity:0}}  /* 10.8-13.6 s */
-@keyframes hiring-lanes-t1{0%,5%{offset-distance:0%;opacity:0}5.71%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}12.86%{offset-distance:100%;opacity:1}18.57%{offset-distance:100%;opacity:1}19.29%,100%{offset-distance:100%;opacity:0}}  /* hop 0.8-1.8 s, held to 2.6 s */
-@keyframes hiring-lanes-t2{0%,17.86%{offset-distance:0%;opacity:0}18.57%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}25.71%{offset-distance:100%;opacity:1}31.43%{offset-distance:100%;opacity:1}32.14%,100%{offset-distance:100%;opacity:0}}  /* hop 2.6-3.6 s, held to 4.4 s */
-@keyframes hiring-lanes-t3{0%,30.71%{offset-distance:0%;opacity:0}31.43%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}35.71%{offset-distance:100%;opacity:1}40%{offset-distance:100%;opacity:1}40.71%,100%{offset-distance:100%;opacity:0}}  /* hop 4.4-5 s, held to 5.6 s */
-@keyframes hiring-lanes-t4{0%,39.29%{offset-distance:0%;opacity:0}40%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}47.14%{offset-distance:100%;opacity:1}50%{offset-distance:100%;opacity:1}50.71%,100%{offset-distance:100%;opacity:0}}  /* hop 5.6-6.6 s, held to 7 s */
-@keyframes hiring-lanes-t5{0%,49.29%{offset-distance:0%;opacity:0}50%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}57.14%{offset-distance:100%;opacity:1}60%{offset-distance:100%;opacity:1}60.71%,100%{offset-distance:100%;opacity:0}}  /* hop 7-8 s, held to 8.4 s */
-@keyframes hiring-lanes-t6{0%,59.29%{offset-distance:0%;opacity:0}60%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}67.14%{offset-distance:100%;opacity:1}70%{offset-distance:100%;opacity:1}70.71%,100%{offset-distance:100%;opacity:0}}  /* hop 8.4-9.4 s, held to 9.8 s */
-@keyframes hiring-lanes-t7{0%,69.29%{offset-distance:0%;opacity:0}70%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}77.14%{offset-distance:100%;opacity:1}80%{offset-distance:100%;opacity:1}80.71%,100%{offset-distance:100%;opacity:0}}  /* hop 9.8-10.8 s, held to 11.2 s */
-@keyframes hiring-lanes-t8{0%,79.29%{offset-distance:0%;opacity:0}80%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}84.29%{offset-distance:100%;opacity:1}84.29%{offset-distance:100%;opacity:1}85%,100%{offset-distance:100%;opacity:0}}  /* hop 11.2-11.8 s, held to 11.8 s */
+/* one 10 s pass, played once. 0.6 s apply | 1.35 s screen | 2.7 s interview | 3.75 s approve | 4.95 s offer v1
+   | 6 s candidate reviews | 6.3-7.05 s revise loop | 7.35-8.1 s offer v2 | 8.85 s accepted
+   | 9.08-10 s hold on the resting frame */
+@keyframes hiring-lanes-on-a{0%{opacity:0}0.38%{opacity:0}2.25%{opacity:1}13.5%{opacity:1}15.37%,100%{opacity:0}}  /* 0.22-1.35 s */
+@keyframes hiring-lanes-on-b{0%{opacity:0}11.62%{opacity:0}13.5%{opacity:1}27%{opacity:1}28.88%,100%{opacity:0}}  /* 1.35-2.7 s */
+@keyframes hiring-lanes-on-c{0%{opacity:0}25.13%{opacity:0}27%{opacity:1}37.5%{opacity:1}39.38%,100%{opacity:0}}  /* 2.7-3.75 s */
+@keyframes hiring-lanes-on-d{0%{opacity:0}35.63%{opacity:0}37.5%{opacity:1}49.5%{opacity:1}51.38%,100%{opacity:0}}  /* 3.75-4.95 s */
+@keyframes hiring-lanes-on-e{0%{opacity:0}47.63%{opacity:0}49.5%{opacity:1}60%{opacity:1}61.88%{opacity:0}68.63%{opacity:0}70.5%{opacity:1}81%{opacity:1}82.88%,100%{opacity:0}}  /* 4.95-6 s, 7.05-8.1 s */
+@keyframes hiring-lanes-on-f{0%{opacity:0}58.13%{opacity:0}60%{opacity:1}70.5%{opacity:1}72.38%{opacity:0}79.13%{opacity:0}81%{opacity:1}88.5%{opacity:1}90.37%,100%{opacity:0}}  /* 6-7.05 s, 8.1-8.85 s */
+@keyframes hiring-lanes-acc{0%{opacity:0}86.63%{opacity:0}88.5%,100%{opacity:1}}  /* from 8.85 s */
+@keyframes hiring-lanes-e2{0%{opacity:0}68.63%{opacity:0}70.5%,100%{opacity:1}}  /* from 7.05 s */
+@keyframes hiring-lanes-e1{0%{opacity:1}70.5%{opacity:1}72.38%,100%{opacity:0}}  /* 0-7.05 s */
+@keyframes hiring-lanes-f2{0%{opacity:0}79.13%{opacity:0}81%,100%{opacity:1}}  /* from 8.1 s */
+@keyframes hiring-lanes-f1{0%{opacity:1}81%{opacity:1}82.88%,100%{opacity:0}}  /* 0-8.1 s */
+@keyframes hiring-lanes-rvon{0%{opacity:0}61.12%{opacity:0}63%{opacity:1}73.5%{opacity:1}75.38%,100%{opacity:0}}  /* 6.3-7.35 s */
+@keyframes hiring-lanes-n0{0%{opacity:1}13.5%{opacity:1}15.37%,100%{opacity:0}}  /* 0-1.35 s */
+@keyframes hiring-lanes-n1{0%{opacity:0}11.62%{opacity:0}13.5%{opacity:1}27%{opacity:1}28.88%,100%{opacity:0}}  /* 1.35-2.7 s */
+@keyframes hiring-lanes-n2{0%{opacity:0}25.13%{opacity:0}27%{opacity:1}49.5%{opacity:1}51.38%,100%{opacity:0}}  /* 2.7-4.95 s */
+@keyframes hiring-lanes-n3{0%{opacity:0}47.63%{opacity:0}49.5%{opacity:1}63%{opacity:1}64.88%,100%{opacity:0}}  /* 4.95-6.3 s */
+@keyframes hiring-lanes-n4{0%{opacity:0}61.12%{opacity:0}63%{opacity:1}81%{opacity:1}82.88%,100%{opacity:0}}  /* 6.3-8.1 s */
+@keyframes hiring-lanes-n5{0%{opacity:0}79.13%{opacity:0}81%,100%{opacity:1}}  /* from 8.1 s */
+@keyframes hiring-lanes-t1{0%,5.25%{offset-distance:0%;opacity:0}6%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}13.5%{offset-distance:100%;opacity:1}19.5%{offset-distance:100%;opacity:1}20.25%,100%{offset-distance:100%;opacity:0}}  /* hop 0.6-1.35 s, held to 1.95 s */
+@keyframes hiring-lanes-t2{0%,18.75%{offset-distance:0%;opacity:0}19.5%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}27%{offset-distance:100%;opacity:1}33%{offset-distance:100%;opacity:1}33.75%,100%{offset-distance:100%;opacity:0}}  /* hop 1.95-2.7 s, held to 3.3 s */
+@keyframes hiring-lanes-t3{0%,32.25%{offset-distance:0%;opacity:0}33%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}37.5%{offset-distance:100%;opacity:1}42%{offset-distance:100%;opacity:1}42.75%,100%{offset-distance:100%;opacity:0}}  /* hop 3.3-3.75 s, held to 4.2 s */
+@keyframes hiring-lanes-t4{0%,41.25%{offset-distance:0%;opacity:0}42%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}49.5%{offset-distance:100%;opacity:1}52.5%{offset-distance:100%;opacity:1}53.25%,100%{offset-distance:100%;opacity:0}}  /* hop 4.2-4.95 s, held to 5.25 s */
+@keyframes hiring-lanes-t5{0%,51.75%{offset-distance:0%;opacity:0}52.5%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}60%{offset-distance:100%;opacity:1}63%{offset-distance:100%;opacity:1}63.75%,100%{offset-distance:100%;opacity:0}}  /* hop 5.25-6 s, held to 6.3 s */
+@keyframes hiring-lanes-t6{0%,62.25%{offset-distance:0%;opacity:0}63%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}70.5%{offset-distance:100%;opacity:1}73.5%{offset-distance:100%;opacity:1}74.25%,100%{offset-distance:100%;opacity:0}}  /* hop 6.3-7.05 s, held to 7.35 s */
+@keyframes hiring-lanes-t7{0%,72.75%{offset-distance:0%;opacity:0}73.5%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}81%{offset-distance:100%;opacity:1}84%{offset-distance:100%;opacity:1}84.75%,100%{offset-distance:100%;opacity:0}}  /* hop 7.35-8.1 s, held to 8.4 s */
+@keyframes hiring-lanes-t8{0%,83.25%{offset-distance:0%;opacity:0}84%{offset-distance:0%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}88.5%{offset-distance:100%;opacity:1}88.5%{offset-distance:100%;opacity:1}89.25%,100%{offset-distance:100%;opacity:0}}  /* hop 8.4-8.85 s, held to 8.85 s */
 
-.visible .anim-hiring-lanes .hiring-lanes-on-a{animation:hiring-lanes-on-a 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-on-b{animation:hiring-lanes-on-b 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-on-c{animation:hiring-lanes-on-c 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-on-d{animation:hiring-lanes-on-d 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-on-e{animation:hiring-lanes-on-e 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-on-f{animation:hiring-lanes-on-f 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-acc{animation:hiring-lanes-acc 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-e2{animation:hiring-lanes-e2 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-e1{animation:hiring-lanes-e1 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-f2{animation:hiring-lanes-f2 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-f1{animation:hiring-lanes-f1 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-rvon{animation:hiring-lanes-rvon 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-n0{animation:hiring-lanes-n0 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-n1{animation:hiring-lanes-n1 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-n2{animation:hiring-lanes-n2 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-n3{animation:hiring-lanes-n3 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-n4{animation:hiring-lanes-n4 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-n5{animation:hiring-lanes-n5 14s ease-in-out infinite}
-.visible .anim-hiring-lanes .hiring-lanes-t1{animation:hiring-lanes-t1 14s linear infinite}
-.visible .anim-hiring-lanes .hiring-lanes-t2{animation:hiring-lanes-t2 14s linear infinite}
-.visible .anim-hiring-lanes .hiring-lanes-t3{animation:hiring-lanes-t3 14s linear infinite}
-.visible .anim-hiring-lanes .hiring-lanes-t4{animation:hiring-lanes-t4 14s linear infinite}
-.visible .anim-hiring-lanes .hiring-lanes-t5{animation:hiring-lanes-t5 14s linear infinite}
-.visible .anim-hiring-lanes .hiring-lanes-t6{animation:hiring-lanes-t6 14s linear infinite}
-.visible .anim-hiring-lanes .hiring-lanes-t7{animation:hiring-lanes-t7 14s linear infinite}
-.visible .anim-hiring-lanes .hiring-lanes-t8{animation:hiring-lanes-t8 14s linear infinite}
+.visible .anim-hiring-lanes .hiring-lanes-on-a{animation:hiring-lanes-on-a 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-on-b{animation:hiring-lanes-on-b 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-on-c{animation:hiring-lanes-on-c 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-on-d{animation:hiring-lanes-on-d 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-on-e{animation:hiring-lanes-on-e 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-on-f{animation:hiring-lanes-on-f 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-acc{animation:hiring-lanes-acc 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-e2{animation:hiring-lanes-e2 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-e1{animation:hiring-lanes-e1 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-f2{animation:hiring-lanes-f2 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-f1{animation:hiring-lanes-f1 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-rvon{animation:hiring-lanes-rvon 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-n0{animation:hiring-lanes-n0 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-n1{animation:hiring-lanes-n1 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-n2{animation:hiring-lanes-n2 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-n3{animation:hiring-lanes-n3 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-n4{animation:hiring-lanes-n4 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-n5{animation:hiring-lanes-n5 10s ease-in-out 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-t1{animation:hiring-lanes-t1 10s linear 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-t2{animation:hiring-lanes-t2 10s linear 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-t3{animation:hiring-lanes-t3 10s linear 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-t4{animation:hiring-lanes-t4 10s linear 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-t5{animation:hiring-lanes-t5 10s linear 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-t6{animation:hiring-lanes-t6 10s linear 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-t7{animation:hiring-lanes-t7 10s linear 1 forwards}
+.visible .anim-hiring-lanes .hiring-lanes-t8{animation:hiring-lanes-t8 10s linear 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-hiring-lanes * { animation: none !important; } }
 </style>
-<div class="anim anim-hiring-lanes" data-anim="hiring-lanes" data-anim-cycle="14" data-anim-control="loop">
+<div class="anim anim-hiring-lanes" data-anim="hiring-lanes" data-anim-cycle="10" data-anim-control="once">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hiring process in three swimlanes: a candidate applies, the recruiter screens, the hiring manager interviews and approves, the recruiter makes an offer, the candidate asks for a revision, and the revised offer is accepted.">
   <!-- ===== lanes: hairline separators, mono names ===== -->
   <path class="hiring-lanes-sep" d="M24 184 H1380 M24 348 H1380"/>

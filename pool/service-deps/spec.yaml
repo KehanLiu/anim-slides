@@ -6,8 +6,8 @@
 name: service-deps
 archetype: graph
 size: [1680, 600]
-control: loop
-cycle: 14
+control: once
+cycle: 9.8
 nodes:
   - { id: web,       label: Web app,          sub: browser,          kind: process,  group: edge }
   - { id: gateway,   label: API gateway,      sub: "auth · routing", kind: process,  group: edge }
@@ -31,10 +31,10 @@ groups:
   - { id: core, label: Core services }
 phases:
   - { t: 0,   label: setup,    show: [edge, web, gateway],                      note: "Requests enter through the API gateway" }
-  - { t: 1.6, label: core,     show: [core, orders, payments],                  note: "Core services sit behind the gateway" }
-  - { t: 3,   label: storage,  show: [inventory, db] }
-  - { t: 4.2, label: external, show: [psp],                                     note: "Payments calls an external provider" }
-  - { t: 5.1, label: events,   show: [queue],                                   note: "Orders and Inventory publish events" }
-  - { t: 6.2, label: trace,    active: [gateway, orders, db], flow: ["web>gateway", "gateway>orders", "orders>db"], note: "One request: web app → gateway → Orders → database" }
-  - { t: 9,   label: blast,    active: [psp, payments],                         note: "Provider down: only Payments degrades, orders keep flowing" }
-  - { t: 10.6, label: hold }
+  - { t: 1.3, label: core,     show: [core, orders, payments],                  note: "Core services sit behind the gateway" }
+  - { t: 2.4,   label: storage,  show: [inventory, db] }
+  - { t: 3.4, label: external, show: [psp],                                     note: "Payments calls an external provider" }
+  - { t: 4.1, label: events,   show: [queue],                                   note: "Orders and Inventory publish events" }
+  - { t: 5, label: trace,    active: [gateway, orders, db], flow: ["web>gateway", "gateway>orders", "orders>db"], note: "One request: web app → gateway → Orders → database" }
+  - { t: 7.2,   label: blast,    active: [psp, payments],                         note: "Provider down: only Payments degrades, orders keep flowing" }
+  - { t: 8.8, label: hold }

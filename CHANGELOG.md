@@ -2,6 +2,19 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.8.0 - 2026-11-07
+
+- **Plays once.** The default control is `once`: one pass of 4 to 10 s when the slide becomes
+  current, iteration count 1 with fill forwards, the 100 % keyframe equal to the resting
+  frame. `loop` stays for kiosks, galleries and the hero, on request. All 22 pool entries,
+  the scaffolder and the checker follow (the checker fails on `infinite` under `once`). The
+  gallery gets a replay control per card.
+- **Less.** New style principle 0 and a hard rule: the fragment is the slide's own figure in
+  its own form plus one movement; no invented chart forms, extra brackets, arrows or glows.
+  The checker measures motion and glow concurrency (at most three things moving, one glow visible, never a glowing line).
+  Driver: a rebuilt slide where a staircase became a glowing line chart; the user: "that kind
+  of stuff is too much".
+
 ## 0.7.0 - 2026-11-06
 
 - **One look per deck: match or lean.** Intake now settles whether fragments take the host's

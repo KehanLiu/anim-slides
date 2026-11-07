@@ -4,19 +4,31 @@
 Usage:
   check_fragment.py FRAGMENT.html --name NAME --rendered-width PX
                     [--stage-width 1920] [--min-text PX] [--gate .visible|none]
-                    [--control loop|step]
+                    [--control once|loop|step]
 
   --rendered-width  width in CSS px at which the SVG is shown on the stage
   --stage-width     width of the slide stage in CSS px (default 1920); sets the text floor
                     to 18 * stage_width / 1920, never below 10 (12 at 1280, 10 at 960)
   --min-text        explicit text floor in px; overrides the one derived from --stage-width
   --gate            ancestor selector that gates the animations (default .visible)
-  --control         loop | step (default: the wrapper's data-anim-control, else loop)
+  --control         once | loop | step (default: the wrapper's data-anim-control, else once)
+
+Controls (references/fragment-contract.md section 7):
+  once  (default) one pass when the slide becomes current, then hold the finished state:
+        data-anim-cycle 4-10 s, no `infinite`, every gated animation fills forwards/both,
+        the 100 % keyframe equals the resting frame
+  loop  continuous loop, only when asked for (kiosk, gallery, hero): cycle 8-15 s
+  step  presenter-driven GSAP timeline, one module script
+All controls: motion concurrency (things moving at the same instant, a staggered reveal counts
+as one: WARN > 3, FAIL > 6) and
+glow concurrency (glow elements visible at the same instant: WARN > 1, FAIL > 2; a stroke-only
+glow warns: lines and arrows never glow).
 
 Every finding is printed as OK / WARN / FAIL with a line hint. Exit code 1 on any FAIL.
 Standard library only.
 """
 import argparse
+import math
 import re
 import sys
 from html.parser import HTMLParser
@@ -304,7 +316,7 @@ def main():
     ap.add_argument('--stage-width', type=float, default=1920)
     ap.add_argument('--min-text', type=float, default=None)
     ap.add_argument('--gate', default='.visible', help='gate selector, or "none"')
-    ap.add_argument('--control', choices=['loop', 'step'], default=None)
+    ap.add_argument('--control', choices=['once', 'loop', 'step'], default=None)
     a = ap.parse_args()
     if a.min_text is None:
         a.min_text = round(max(10.0, 18 * a.stage_width / 1920), 2)
@@ -352,6 +364,7 @@ def main():
     for e in others:
         R.fail('structure', f'unexpected top-level <{e["tag"]}>', e['line'])
     control = a.control
+    ctl_implicit = False
     if wrapper:
         wa = wrapper['attrs']
         if wa.get('data-anim') != name:
@@ -361,14 +374,20 @@ def main():
             R.fail('structure', 'wrapper needs data-anim-cycle="<seconds>"', wrapper['line'])
         elif not re.fullmatch(r'\d+(\.\d+)?', cyc.strip()):
             R.fail('structure', f'data-anim-cycle="{cyc}" is not numeric', wrapper['line'])
-        ctl = wa.get('data-anim-control', 'loop')
-        if ctl not in ('loop', 'step'):
-            R.fail('structure', f'data-anim-control="{ctl}" must be loop or step', wrapper['line'])
-        elif ctl == 'loop' and cyc and re.fullmatch(r'\d+(\.\d+)?', cyc.strip()) \
-                and not 8 <= float(cyc) <= 15:
-            R.fail('structure', f'data-anim-cycle="{cyc}" outside 8 to 15 s (contract section 6)', wrapper['line'])
+        ctl = wa.get('data-anim-control')
+        ctl_implicit = ctl is None and not control
+        ctl = ctl or 'once'
+        if ctl not in ('once', 'loop', 'step'):
+            R.fail('structure', f'data-anim-control="{ctl}" must be once, loop or step', wrapper['line'])
+            ctl = 'once'
         control = control or ctl
-    control = control or 'loop'
+        lo, hi = {'once': (4, 10), 'loop': (8, 15)}.get(control, (None, None))
+        if lo and cyc and re.fullmatch(r'\d+(\.\d+)?', cyc.strip()) and not lo <= float(cyc) <= hi:
+            R.fail('structure', f'data-anim-cycle="{cyc}" outside {lo} to {hi} s for control={control} '
+                   '(contract section 6)' + (' (data-anim-control absent, so once is assumed; set '
+                   'data-anim-control="once" and shorten the pass, or "loop" only for a kiosk/gallery/hero)'
+                   if ctl_implicit else ''), wrapper['line'])
+    control = control or 'once'
 
     svgs = [e for e in E if e['tag'] == 'svg']
     vbw = None
@@ -394,7 +413,8 @@ def main():
         if not e['in_svg'] and e['tag'] not in ('style', 'div', 'script', 'svg'):
             R.fail('structure', f'HTML element <{e["tag"]}> outside the SVG', e['line'])
     if not any(i[0] == 'FAIL' and i[1] == 'structure' for i in R.items):
-        R.ok('structure', f'one <style>, wrapper div.anim.{wrap_cls}, one <svg> (viewBox width {vbw:g}), control={control}')
+        R.ok('structure', f'one <style>, wrapper div.anim.{wrap_cls}, one <svg> (viewBox width {vbw:g}), control={control}'
+              + (' (default: no data-anim-control)' if ctl_implicit else ''))
 
     # ------------------------------------------------------------------ forbidden
     nf0 = len(R.items)
@@ -412,7 +432,7 @@ def main():
                 R.warn('forbidden', f'script does not call window.animSlides.register("{name}", tl)', s['line'])
     else:
         for s in scripts:
-            R.fail('forbidden', '<script> not allowed with control=loop', s['line'])
+            R.fail('forbidden', f'<script> not allowed with control={control}', s['line'])
     for e in E:
         if e['tag'] in ('link', 'image', 'img', 'iframe', 'object', 'embed', 'foreignobject'):
             R.fail('forbidden', f'<{e["tag"]}> not allowed', e['line'])
@@ -652,7 +672,7 @@ def main():
         return re.sub('^' + gate_re, '', s) if gate_re and re.match(gate_re, s) else s
 
     # base (ungated, outside @media) declarations of the three hiding properties
-    HIDE_PROPS = ('opacity', 'visibility', 'display')
+    HIDE_PROPS = ('opacity', 'visibility', 'display', 'fill')   # fill: for the glow-on-a-line check
     base_rules = []   # (parsed, spec, order, {prop: (value, important)})
     order = 0
     for sel, body, pos, ctx in walk_rules(tree):
@@ -782,7 +802,8 @@ def main():
             d = d or cycle
             if not d or (cycle and d < 0.75 * cycle):
                 continue   # short decorative loop (pulse, spinner), not the story track
-            p = max(50.0, 100 * (1 - 1 / d))   # one second before the loop restarts: the hold
+            # loop: one second before the loop restarts (the hold); once: the end of the pass
+            p = 100.0 if control == 'once' else max(50.0, 100 * (1 - 1 / d))
             for nm in names:
                 prop = 'visibility' if why.startswith('visibility') else 'opacity'
                 v = visible_at(keyframes[nm], prop, p, 0.0)
@@ -790,7 +811,7 @@ def main():
                     late = (nm, p)
         if late:
             shown_late.append((e, why, late))
-        elif not tracks and i not in unsure and control == 'loop' and has_text(i):
+        elif not tracks and i not in unsure and control != 'step' and has_text(i):
             never_shown.append((e, why))
 
     def describe(e):
@@ -805,7 +826,7 @@ def main():
                'reveals it', e['line'])
     # a finite animation with fill forwards/both that ends at opacity 0 leaves the element
     # invisible for as long as the slide is shown
-    for s, v, ln, g, ctx in anim_rules:
+    for s, v, ln, g, ctx in (anim_rules if control != 'once' else []):   # once: see the control section
         if ctx or re.search(r'\binfinite\b', v) or not re.search(r'\b(forwards|both)\b', v):
             continue
         for nm in set(re.findall(r'(?<![\w-])([A-Za-z_][\w-]*)', v)) & set(keyframes):
@@ -815,6 +836,282 @@ def main():
                        f'{s[:60]} stays invisible once played', ln)
     if len(R.items) == nf0:
         R.ok('resting-frame', 'no element that the story shows at its end is hidden in the resting frame')
+
+    # ------------------------------------------------------------------ control: once
+    # once (default): one pass, then hold the finished state. No infinite, every gated animation
+    # fills forwards/both, and each track ends (100 %) on the resting frame.
+    if control == 'once':
+        nf0 = len(R.items)
+        why = (' (data-anim-control absent, so once is assumed)' if ctl_implicit else '')
+        fix = ('use animation-iteration-count 1 (drop infinite) with animation-fill-mode forwards and make '
+               'the 100 % keyframe the resting frame; set data-anim-control="loop" only for a kiosk, '
+               'gallery or hero loop (contract section 7)')
+        inf = [m.start() for m in re.finditer(r'\binfinite\b', css)]
+        if inf:
+            R.fail('control', f'control=once{why}: {len(inf)} "infinite" in the style; the fragment must play '
+                   f'once and rest: {fix}', line_of(style_pos + inf[0]))
+        fill_rules = set()
+        for sel, body, pos, ctx in walk_rules(tree):
+            for prop, val in decls(body):
+                if prop == 'animation-fill-mode' and re.search(r'\b(forwards|both)\b', val):
+                    fill_rules |= set(split_selectors(sel))
+        any_fill_decl = any(x.rstrip().endswith('*') for x in fill_rules)   # e.g. .visible .anim-x * {...}
+        nofill, many = [], []
+        for s, v, ln, g, ctx in anim_rules:
+            if ctx or (gate and not g):
+                continue
+            if not re.search(r'\b(forwards|both)\b', v) and s not in fill_rules and not any_fill_decl:
+                nofill.append((s, ln))
+            bare = re.sub(r'\([^)]*\)', '', v)
+            for n in re.findall(r'(?<![\w.%-])(\d*\.?\d+)(?![\w.%])', bare):
+                if float(n) > 1:
+                    many.append((s, ln, n))
+        if nofill:
+            R.fail('control', f'control=once{why}: {len(nofill)} gated animation(s) without fill-mode forwards/both '
+                   f'(first: {nofill[0][0][:50]}); after the pass the element snaps back: {fix}', nofill[0][1])
+        for s, ln, n in many[:3]:
+            R.fail('control', f'control=once: iteration count {n} on {s[:50]}; one pass only', ln)
+        # each track's last opacity must equal the resting opacity
+        ends = []
+        for i, tracks in anims.items():
+            if i in unsure:
+                continue
+            for names, d in tracks:
+                for nm in names:
+                    pts = [(pct, dd['opacity']) for pct, dd in keyframes.get(nm, []) if 'opacity' in dd]
+                    if not pts or pts[-1][0] < 100.0:
+                        continue    # no 100 % stop: the browser ends on the base value, i.e. the resting frame
+                    end = css_number(pts[-1][1])
+                    rest = resolved(i, 'opacity')
+                    restn = 1.0 if rest is None else css_number(rest)
+                    if end is not None and restn is not None and abs(end - restn) > 0.01:
+                        ends.append((E[i], nm, end, restn))
+        for e, nm, end, restn in ends[:5]:
+            R.warn('control', f'{describe(e)}: keyframes {nm} end at opacity {end:g} but the resting frame has '
+                   f'{restn:g}; the 100 % keyframe must equal the resting frame', e['line'])
+        if len(R.items) == nf0:
+            R.ok('control', 'once: no infinite, gated animations fill forwards/both, tracks end on the resting frame')
+    elif control == 'loop':
+        R.ok('control', 'loop: continuous; use only when a loop was asked for (kiosk, gallery, hero)')
+
+    # ------------------------------------------------------------------ motion and glow concurrency
+    # The eye sees moving parts, not tracks: sample the pass and count how many elements are
+    # moving at the same instant, and how many glow elements are visible at the same instant.
+    def split_top(v):
+        out, depth, cur = [], 0, ''
+        for ch in v:
+            depth += ch == '('
+            depth -= ch == ')'
+            if ch == ',' and depth == 0:
+                out.append(cur)
+                cur = ''
+            else:
+                cur += ch
+        return [x.strip() for x in out + [cur] if x.strip()]
+
+    def parse_anim(entry, longs, k):
+        nm = (set(re.findall(r'(?<![\w-])([A-Za-z_][\w-]*)', entry)) & set(keyframes))
+        if not nm:
+            return None
+        bare = re.sub(r'\([^)]*\)', '', entry)
+        times = [float(m.group(1)) / (1000 if m.group(2) == 'ms' else 1)
+                 for m in re.finditer(r'(?<![\w.-])(-?\d*\.?\d+)(ms|s)\b', bare)]
+        def lg(prop):
+            vals = split_top(longs.get(prop, ''))
+            return vals[min(k, len(vals) - 1)] if vals else None
+        dur = times[0] if times else time_s(lg('animation-duration') or '')
+        delay = times[1] if len(times) > 1 else (time_s(lg('animation-delay') or '') if lg('animation-delay') else 0.0)
+        it = lg('animation-iteration-count')
+        if re.search(r'\binfinite\b', bare) or (it and 'infinite' in it):
+            iters = math.inf
+        else:
+            m = re.search(r'(?<![\w.%-])(\d*\.?\d+)(?![\w.%])', bare)
+            iters = float(m.group(1)) if m else (float(it) if it and re.fullmatch(r'\d*\.?\d+', it) else 1.0)
+        fm = re.search(r'\b(forwards|backwards|both|none)\b', bare)
+        fill = fm.group(1) if fm else (lg('animation-fill-mode') or 'none')
+        if not dur or dur <= 0:
+            return None
+        return {'name': sorted(nm)[0], 'dur': dur, 'delay': max(0.0, delay or 0.0), 'iters': iters, 'fill': fill}
+
+    tracks = {}      # element index -> [track]
+    for sel, body, pos, ctx in walk_rules(tree):
+        if ctx:
+            continue
+        dd = decls(body)
+        longs = {p: v for p, v in dd if p.startswith('animation-')}
+        for p, v in dd:
+            if p not in ('animation', 'animation-name'):
+                continue
+            v = v.replace('!important', '').strip()
+            if v.lower() == 'none':
+                continue
+            parsed_tr = [t for t in (parse_anim(x, longs, k) for k, x in enumerate(split_top(v))) if t]
+            if not parsed_tr:
+                continue
+            for s1 in split_selectors(sel):
+                if gate and not (gate_re and re.match(gate_re, s1)):
+                    pass     # ungated animations also run while shown
+                parsed, _ = parse_selector(strip_gate(s1))
+                if parsed is None:
+                    continue
+                for i in range(len(E)):
+                    if selector_matches(parsed, i, E):
+                        tracks.setdefault(i, []).extend(parsed_tr)
+
+    def kf_moving(name):
+        """[(p0, p1, kind)] in 0..1 where keyframes `name` change something. Each property is
+        followed on its own (CSS interpolates a property between the stops that name it, so a
+        stop that omits it changes nothing). kind: 'appear' = opacity rises from 0, optionally
+        with a transform settling, and nothing else changes; 'fade' = another opacity-only
+        change; 'action' = anything else."""
+        per = {}
+        for pct, d in keyframes.get(name, []):
+            for k, v in d.items():
+                if k != 'animation-timing-function':
+                    per.setdefault(k, []).append((pct / 100, v))
+        segs_p = []    # (p0, p1, prop, rising_from_zero)
+        for k, pts in per.items():
+            for (a, va), (b, vb) in zip(pts, pts[1:]):
+                if b > a and va != vb:
+                    n0, n1 = css_number(va), css_number(vb)
+                    segs_p.append((a, b, k, k == 'opacity' and n0 is not None and n1 is not None
+                                   and n0 <= 0.01 and n1 > n0))
+        cuts = sorted({x for a, b, _, _ in segs_p for x in (a, b)})
+        out = []
+        for a, b in zip(cuts, cuts[1:]):
+            act = [sp for sp in segs_p if sp[0] <= a and b <= sp[1]]
+            if not act:
+                continue
+            props = {sp[2] for sp in act}
+            if 'opacity' in props and props <= {'opacity', 'transform', 'translate'} \
+                    and all(sp[3] for sp in act if sp[2] == 'opacity'):
+                kind = 'appear'
+            elif props == {'opacity'}:
+                kind = 'fade'
+            else:
+                kind = 'action'
+            out.append((a, b, kind))
+        return out
+
+    svg_idx = {i for i, e in enumerate(E) if e['tag'] == 'svg'}
+
+    def local(tr, t):
+        """Progress 0..1 inside the current iteration, or None when the track is not running."""
+        x = t - tr['delay']
+        if x < 0 or x >= tr['dur'] * tr['iters']:
+            return None
+        return (x % tr['dur']) / tr['dur']
+
+    loopish = any(tr['iters'] == math.inf for ts in tracks.values() for tr in ts)
+    horizon = cycle or 0.0
+    for ts in tracks.values():
+        for tr in ts:
+            if tr['iters'] != math.inf:
+                horizon = max(horizon, tr['delay'] + tr['dur'] * tr['iters'])
+    horizon = horizon or 10.0
+    STEPS = [round(k * 0.02, 2) for k in range(int(horizon / 0.02) + 1)]
+    mov_cache = {}
+    moving_at = []
+    # A staggered reveal is one thing: every element that is only appearing (opacity up from 0,
+    # maybe with a settling transform) counts once together. Otherwise one "thing" per moving
+    # element; opacity-only swaps inside one group (a status that cross-fades between stacked
+    # copies in the same node) count once for that group.
+    for t in STEPS:
+        things, appearing = set(), False
+        for i, ts in tracks.items():
+            for tr in ts:
+                p = local(tr, t)
+                if p is None:
+                    continue
+                segs_ = mov_cache.setdefault(tr['name'], kf_moving(tr['name']))
+                hit = [k for a, b, k in segs_ if a <= p < b]
+                if not hit:
+                    continue
+                if all(k == 'appear' for k in hit):
+                    appearing = True
+                    continue
+                par = E[i]['anc'][-1] if E[i]['anc'] else None
+                things.add(('g', par) if all(k != 'action' for k in hit) and par is not None
+                           and par not in svg_idx and E[par]['in_svg'] else ('e', i))
+                break
+        moving_at.append(len(things) + appearing)
+    mx = max(moving_at or [0])
+    tmx = STEPS[moving_at.index(mx)] if moving_at else 0
+    mmsg = f'{mx} things move at once at t={tmx:g} s; at most three, or a staggered series'
+    if mx > 6:
+        R.fail('concurrency', mmsg)
+    elif mx > 3:
+        R.warn('concurrency', mmsg)
+    else:
+        R.ok('concurrency', f'motion: at most {mx} element(s) moving at once (t={tmx:g} s) over {horizon:g} s'
+             + (' (loop)' if loopish else ''))
+    R.ok('concurrency', f'info: {len({tr["name"] for ts in tracks.values() for tr in ts})} distinct animation '
+         f'name(s) on {len(tracks)} element(s)')
+
+    GLOW_RE = re.compile(r'\b(blur|drop-shadow)\(', re.I)
+    glow_rules = []
+    for sel, body, pos, ctx in walk_rules(tree):
+        if ctx:
+            continue
+        if any(p == 'filter' and GLOW_RE.search(v) for p, v in decls(body)):
+            for s1 in split_selectors(sel):
+                glow_rules.append(parse_selector(strip_gate(s1))[0])
+    glows = []
+    for i, e in enumerate(E):
+        if not e['in_svg'] or e['tag'] in NO_RENDER or any(E[a]['tag'] in NO_RENDER for a in e['anc']):
+            continue
+        fv = e['attrs'].get('filter', '') + ' ' + ' '.join(v for p, v in decls(e['attrs'].get('style', '')) if p == 'filter')
+        if any('glow' in c for c in e['attrs'].get('class', '').split()) or GLOW_RE.search(fv) \
+                or any(pr and selector_matches(pr, i, E) for pr in glow_rules):
+            glows.append(i)
+
+    def opacity_at(i, t):
+        base = css_number(resolved(i, 'opacity') or '1')
+        val = 1.0 if base is None else base
+        for tr in tracks.get(i, []):
+            st = [(pct / 100, css_number(d['opacity'])) for pct, d in keyframes.get(tr['name'], []) if 'opacity' in d]
+            st = [(p, v) for p, v in st if v is not None]
+            if not st:
+                continue
+            x = t - tr['delay']
+            end = tr['dur'] * tr['iters']
+            if x < 0:
+                if tr['fill'] in ('backwards', 'both'):
+                    val = st[0][1]
+                continue
+            if x >= end:
+                if tr['fill'] in ('forwards', 'both'):
+                    val = st[-1][1]
+                continue
+            p = (x % tr['dur']) / tr['dur']
+            if st[0][0] > 0:
+                st.insert(0, (0.0, val))
+            if st[-1][0] < 1:
+                st.append((1.0, val))
+            for (p0, v0), (p1, v1) in zip(st, st[1:]):
+                if p0 <= p <= p1:
+                    val = v0 if p1 == p0 else v0 + (v1 - v0) * (p - p0) / (p1 - p0)
+                    break
+        return val
+
+    def visible(i, t):
+        return all(opacity_at(j, t) > 0.01 for j in [i] + list(E[i]['anc']))
+
+    gsteps = STEPS + [round(horizon + 1, 2)]     # one sample after the pass: fill forwards
+    gl_at = [sum(1 for i in glows if visible(i, t)) for t in gsteps]
+    gx = max(gl_at or [0])
+    tg = gsteps[gl_at.index(gx)] if gl_at else 0
+    gmsg = f'{gx} glows visible at once at t={tg:g} s; one glowing element at most'
+    if gx > 2:
+        R.fail('concurrency', gmsg, E[glows[0]]['line'] if glows else None)
+    elif gx > 1:
+        R.warn('concurrency', gmsg, E[glows[0]]['line'] if glows else None)
+    else:
+        R.ok('concurrency', f'glow: at most {gx} glow element(s) visible at once ({len(glows)} in total)')
+    for i in glows:
+        e = E[i]
+        if e['tag'] in ('line', 'polyline') or (e['tag'] == 'path' and (resolved(i, 'fill') or '').lower() == 'none'):
+            R.warn('concurrency', f'{describe(e)} glows but is stroke-only: lines and arrows never glow', e['line'])
 
     # ------------------------------------------------------------------ index-class collisions
     # Per-index classes (<name>-mk0, -mk1, ...) are usually generated in a loop. A hand-written

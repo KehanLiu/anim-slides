@@ -2,9 +2,9 @@
   Story: one cohort enters at Awareness and thins out stage by stage; each band shows its count
   (one dot = 50 people) and the conversion to the next stage. ILLUSTRATIVE numbers, marked in the
   fragment: 10,000 -> 2,500 (25 %) -> 800 (32 %) -> 200 (25 %) -> 150 (75 %). Band widths taper
-  evenly and are not to scale; the dot counts are. Cycle 13 s, hold 10.6-12.5 s.
-  Lean style: thin band outlines, quiet fills, the active band in the accent over a blurred glow
-  copy, plain caption, outlined illustrative tag. -->
+  evenly and are not to scale; the dot counts are. Once-play pass 9.6 s, final hold 8.6-9.6 s.
+  Lean style: thin band outlines, quiet fills, the active band outlined in the accent, a blurred glow
+  copy on the outcome band only, plain caption, outlined illustrative tag. -->
 <style>
 .anim-sales-funnel{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -29,11 +29,11 @@
 .anim-sales-funnel .sales-funnel-mono{font-family:var(--anim-mono);font-size:18px;font-weight:400;fill:var(--anim-muted)}
 .anim-sales-funnel .sales-funnel-num{font-family:var(--anim-font);font-size:26px;font-weight:600;fill:var(--anim-fg)}
 .anim-sales-funnel .sales-funnel-pct{font-family:var(--anim-mono);font-size:22px;font-weight:600;fill:var(--anim-accent)}
-/* bands: thin outline, flat quiet fill; the active band is outlined in the accent over a blurred glow copy */
+/* bands: thin outline, flat quiet fill; the active band is outlined in the accent; only the outcome band (Retention) carries a blurred glow copy */
 .anim-sales-funnel .sales-funnel-band{fill:color-mix(in srgb,var(--anim-fg) 5%,var(--anim-bg));stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
 .anim-sales-funnel .sales-funnel-hi{opacity:0}
 .anim-sales-funnel .sales-funnel-hi-line{fill:color-mix(in srgb,var(--anim-accent) 7%,var(--anim-bg));stroke:var(--anim-accent);stroke-width:3;stroke-linejoin:round}
-.anim-sales-funnel .sales-funnel-hi-glow{fill:none;stroke:var(--anim-accent);stroke-width:10;stroke-linejoin:round;opacity:.3;filter:blur(7px)}
+.anim-sales-funnel .sales-funnel-hi-glow{fill:var(--anim-accent);stroke:var(--anim-accent);stroke-width:10;stroke-linejoin:round;opacity:.3;filter:blur(7px)}
 .anim-sales-funnel .sales-funnel-hi4{opacity:1}
 .anim-sales-funnel .sales-funnel-keep{fill:var(--anim-accent)}
 .anim-sales-funnel .sales-funnel-keep-ok{fill:var(--anim-ok)}
@@ -46,72 +46,72 @@
 /* resting frame: whole funnel, every count and conversion, last stage active with retained dots in ok, takeaway shown */
 .anim-sales-funnel .sales-funnel-n0{opacity:0}
 
-/* ---- motion (13 s cycle). Stage i lands at 0.8, 2.8, 4.8, 6.8, 8.8 s; its drop-outs dim 1 s later as the conversion draws. Hold 10.6-12.5 s ---- */
-.visible .anim-sales-funnel .sales-funnel-scene{animation:sales-funnel-scene 13s infinite}
-@keyframes sales-funnel-scene{0%{opacity:0}2.31%,96.15%{opacity:1}98.46%,100%{opacity:0}}
-.visible .anim-sales-funnel .sales-funnel-dots0{animation:sales-funnel-dots0 13s infinite}
-@keyframes sales-funnel-dots0{0%,6.15%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.00%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-sales-funnel .sales-funnel-cnt0{animation:sales-funnel-cnt0 13s infinite}
-@keyframes sales-funnel-cnt0{0%,6.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.00%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-hi0{animation:sales-funnel-hi0 13s infinite}
-@keyframes sales-funnel-hi0{0%,6.15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.08%,21.54%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}23.08%,100%{opacity:0}}
-.visible .anim-sales-funnel .sales-funnel-drop0{animation:sales-funnel-drop0 13s infinite}
-@keyframes sales-funnel-drop0{0%,13.85%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}16.54%,100%{fill:var(--anim-muted);opacity:.4}}
-.visible .anim-sales-funnel .sales-funnel-arc0{animation:sales-funnel-arc0 13s infinite}
-@keyframes sales-funnel-arc0{0%,13.85%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.46%,100%{stroke-dashoffset:0}}
-.visible .anim-sales-funnel .sales-funnel-pc0{animation:sales-funnel-pc0 13s infinite}
-@keyframes sales-funnel-pc0{0%,15.00%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.46%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-dots1{animation:sales-funnel-dots1 13s infinite}
-@keyframes sales-funnel-dots1{0%,21.54%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.38%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-sales-funnel .sales-funnel-cnt1{animation:sales-funnel-cnt1 13s infinite}
-@keyframes sales-funnel-cnt1{0%,22.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.38%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-hi1{animation:sales-funnel-hi1 13s infinite}
-@keyframes sales-funnel-hi1{0%,21.54%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.46%,36.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.46%,100%{opacity:0}}
-.visible .anim-sales-funnel .sales-funnel-drop1{animation:sales-funnel-drop1 13s infinite}
-@keyframes sales-funnel-drop1{0%,29.23%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}31.92%,100%{fill:var(--anim-muted);opacity:.4}}
-.visible .anim-sales-funnel .sales-funnel-arc1{animation:sales-funnel-arc1 13s infinite}
-@keyframes sales-funnel-arc1{0%,29.23%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.85%,100%{stroke-dashoffset:0}}
-.visible .anim-sales-funnel .sales-funnel-pc1{animation:sales-funnel-pc1 13s infinite}
-@keyframes sales-funnel-pc1{0%,30.38%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.85%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-dots2{animation:sales-funnel-dots2 13s infinite}
-@keyframes sales-funnel-dots2{0%,36.92%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.77%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-sales-funnel .sales-funnel-cnt2{animation:sales-funnel-cnt2 13s infinite}
-@keyframes sales-funnel-cnt2{0%,37.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.77%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-hi2{animation:sales-funnel-hi2 13s infinite}
-@keyframes sales-funnel-hi2{0%,36.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.85%,52.31%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}53.85%,100%{opacity:0}}
-.visible .anim-sales-funnel .sales-funnel-drop2{animation:sales-funnel-drop2 13s infinite}
-@keyframes sales-funnel-drop2{0%,44.62%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}47.31%,100%{fill:var(--anim-muted);opacity:.4}}
-.visible .anim-sales-funnel .sales-funnel-arc2{animation:sales-funnel-arc2 13s infinite}
-@keyframes sales-funnel-arc2{0%,44.62%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}49.23%,100%{stroke-dashoffset:0}}
-.visible .anim-sales-funnel .sales-funnel-pc2{animation:sales-funnel-pc2 13s infinite}
-@keyframes sales-funnel-pc2{0%,45.77%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}49.23%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-dots3{animation:sales-funnel-dots3 13s infinite}
-@keyframes sales-funnel-dots3{0%,52.31%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.15%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-sales-funnel .sales-funnel-cnt3{animation:sales-funnel-cnt3 13s infinite}
-@keyframes sales-funnel-cnt3{0%,53.08%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.15%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-hi3{animation:sales-funnel-hi3 13s infinite}
-@keyframes sales-funnel-hi3{0%,52.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.23%,67.69%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}69.23%,100%{opacity:0}}
-.visible .anim-sales-funnel .sales-funnel-drop3{animation:sales-funnel-drop3 13s infinite}
-@keyframes sales-funnel-drop3{0%,60.00%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}62.69%,100%{fill:var(--anim-muted);opacity:.4}}
-.visible .anim-sales-funnel .sales-funnel-arc3{animation:sales-funnel-arc3 13s infinite}
-@keyframes sales-funnel-arc3{0%,60.00%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.62%,100%{stroke-dashoffset:0}}
-.visible .anim-sales-funnel .sales-funnel-pc3{animation:sales-funnel-pc3 13s infinite}
-@keyframes sales-funnel-pc3{0%,61.15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.62%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-dots4{animation:sales-funnel-dots4 13s infinite}
-@keyframes sales-funnel-dots4{0%,67.69%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.54%,100%{opacity:1;transform:translateY(0)}}
-.visible .anim-sales-funnel .sales-funnel-cnt4{animation:sales-funnel-cnt4 13s infinite}
-@keyframes sales-funnel-cnt4{0%,68.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.54%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-hi4{animation:sales-funnel-hi4 13s infinite}
-@keyframes sales-funnel-hi4{0%,67.69%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.62%,100%{opacity:1}}
-.visible .anim-sales-funnel .sales-funnel-keep4{animation:sales-funnel-keep4 13s infinite}
-@keyframes sales-funnel-keep4{0%,75.38%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1)}78.08%,100%{fill:var(--anim-ok)}}
-.visible .anim-sales-funnel .sales-funnel-n0{animation:sales-funnel-n0 13s infinite}
-@keyframes sales-funnel-n0{0%,2.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.38%,76.92%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}78.92%,100%{opacity:0}}
-.visible .anim-sales-funnel .sales-funnel-n1{animation:sales-funnel-n1 13s infinite}
-@keyframes sales-funnel-n1{0%,78.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.54%,100%{opacity:1}}
+/* ---- motion (9.6 s once-play pass). Stage i lands at 0.65, 2.27, 3.89, 5.51, 7.14 s; its drop-outs dim 0.8 s later as the conversion draws. Takeaway lands 8.6 s, hold to 9.6 s ---- */
+.visible .anim-sales-funnel .sales-funnel-scene{animation:sales-funnel-scene 9.6s 1 both}
+@keyframes sales-funnel-scene{0%{opacity:0}2.54%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-dots0{animation:sales-funnel-dots0 9.6s 1 both}
+@keyframes sales-funnel-dots0{0%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.76%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.99%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-sales-funnel .sales-funnel-cnt0{animation:sales-funnel-cnt0 9.6s 1 both}
+@keyframes sales-funnel-cnt0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.99%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-hi0{animation:sales-funnel-hi0 9.6s 1 both}
+@keyframes sales-funnel-hi0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.76%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.88%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}23.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25.36%{opacity:0}100%{opacity:0}}
+.visible .anim-sales-funnel .sales-funnel-drop0{animation:sales-funnel-drop0 9.6s 1 both}
+@keyframes sales-funnel-drop0{0%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}15.22%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}18.17%{fill:var(--anim-muted);opacity:.4}100%{fill:var(--anim-muted);opacity:.4}}
+.visible .anim-sales-funnel .sales-funnel-arc0{animation:sales-funnel-arc0 9.6s 1 both}
+@keyframes sales-funnel-arc0{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.22%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.28%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+.visible .anim-sales-funnel .sales-funnel-pc0{animation:sales-funnel-pc0 9.6s 1 both}
+@keyframes sales-funnel-pc0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.48%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.28%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-dots1{animation:sales-funnel-dots1 9.6s 1 both}
+@keyframes sales-funnel-dots1{0%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.67%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.88%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-sales-funnel .sales-funnel-cnt1{animation:sales-funnel-cnt1 9.6s 1 both}
+@keyframes sales-funnel-cnt1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}24.51%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.88%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-hi1{animation:sales-funnel-hi1 9.6s 1 both}
+@keyframes sales-funnel-hi1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.77%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40.56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}42.25%{opacity:0}100%{opacity:0}}
+.visible .anim-sales-funnel .sales-funnel-drop1{animation:sales-funnel-drop1 9.6s 1 both}
+@keyframes sales-funnel-drop1{0%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}32.11%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}35.07%{fill:var(--anim-muted);opacity:.4}100%{fill:var(--anim-muted);opacity:.4}}
+.visible .anim-sales-funnel .sales-funnel-arc1{animation:sales-funnel-arc1 9.6s 1 both}
+@keyframes sales-funnel-arc1{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.11%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.19%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+.visible .anim-sales-funnel .sales-funnel-pc1{animation:sales-funnel-pc1 9.6s 1 both}
+@keyframes sales-funnel-pc1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.38%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.19%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-dots2{animation:sales-funnel-dots2 9.6s 1 both}
+@keyframes sales-funnel-dots2{0%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.56%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.79%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-sales-funnel .sales-funnel-cnt2{animation:sales-funnel-cnt2 9.6s 1 both}
+@keyframes sales-funnel-cnt2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.41%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.79%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-hi2{animation:sales-funnel-hi2 9.6s 1 both}
+@keyframes sales-funnel-hi2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.56%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}42.68%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}57.47%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59.16%{opacity:0}100%{opacity:0}}
+.visible .anim-sales-funnel .sales-funnel-drop2{animation:sales-funnel-drop2 9.6s 1 both}
+@keyframes sales-funnel-drop2{0%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}49.02%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}51.98%{fill:var(--anim-muted);opacity:.4}100%{fill:var(--anim-muted);opacity:.4}}
+.visible .anim-sales-funnel .sales-funnel-arc2{animation:sales-funnel-arc2 9.6s 1 both}
+@keyframes sales-funnel-arc2{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}49.02%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.09%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+.visible .anim-sales-funnel .sales-funnel-pc2{animation:sales-funnel-pc2 9.6s 1 both}
+@keyframes sales-funnel-pc2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.29%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.09%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-dots3{animation:sales-funnel-dots3 9.6s 1 both}
+@keyframes sales-funnel-dots3{0%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}57.47%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.69%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-sales-funnel .sales-funnel-cnt3{animation:sales-funnel-cnt3 9.6s 1 both}
+@keyframes sales-funnel-cnt3{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.69%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-hi3{animation:sales-funnel-hi3 9.6s 1 both}
+@keyframes sales-funnel-hi3{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}57.47%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.58%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}74.37%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}76.06%{opacity:0}100%{opacity:0}}
+.visible .anim-sales-funnel .sales-funnel-drop3{animation:sales-funnel-drop3 9.6s 1 both}
+@keyframes sales-funnel-drop3{0%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}65.92%{fill:var(--anim-accent);opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}68.88%{fill:var(--anim-muted);opacity:.4}100%{fill:var(--anim-muted);opacity:.4}}
+.visible .anim-sales-funnel .sales-funnel-arc3{animation:sales-funnel-arc3 9.6s 1 both}
+@keyframes sales-funnel-arc3{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}65.92%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+.visible .anim-sales-funnel .sales-funnel-pc3{animation:sales-funnel-pc3 9.6s 1 both}
+@keyframes sales-funnel-pc3{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-dots4{animation:sales-funnel-dots4 9.6s 1 both}
+@keyframes sales-funnel-dots4{0%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.37%{opacity:0;transform:translateY(-18px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}78.6%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+.visible .anim-sales-funnel .sales-funnel-cnt4{animation:sales-funnel-cnt4 9.6s 1 both}
+@keyframes sales-funnel-cnt4{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.21%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}78.6%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-hi4{animation:sales-funnel-hi4 9.6s 1 both}
+@keyframes sales-funnel-hi4{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.37%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.49%{opacity:1}100%{opacity:1}}
+.visible .anim-sales-funnel .sales-funnel-keep4{animation:sales-funnel-keep4 9.6s 1 both}
+@keyframes sales-funnel-keep4{0%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1)}82.82%{fill:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1)}85.78%{fill:var(--anim-ok)}100%{fill:var(--anim-ok)}}
+.visible .anim-sales-funnel .sales-funnel-n0{animation:sales-funnel-n0 9.6s 1 both}
+@keyframes sales-funnel-n0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.54%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.91%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}84.51%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.71%{opacity:0}100%{opacity:0}}
+.visible .anim-sales-funnel .sales-funnel-n1{animation:sales-funnel-n1 9.6s 1 both}
+@keyframes sales-funnel-n1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.59%{opacity:1}100%{opacity:1}}
 @media (prefers-reduced-motion: reduce) { .anim-sales-funnel * { animation: none !important; } }
 </style>
-<div class="anim anim-sales-funnel" data-anim="sales-funnel" data-anim-cycle="13" data-anim-control="loop">
+<div class="anim anim-sales-funnel" data-anim="sales-funnel" data-anim-cycle="9.6" data-anim-control="once">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustrative sales funnel: a cohort of 10,000 people narrows to 2,500 at Interest, 800 at Consideration, 200 at Purchase and 150 at Retention; 2 percent of the cohort buys and 75 percent of buyers are retained.">
 <g class="sales-funnel-scene">
   <text class="sales-funnel-t sales-funnel-title" x="40" y="46">Sales funnel</text>
@@ -123,7 +123,7 @@
   <text class="sales-funnel-mono" x="1456" y="76">to next stage</text>
   <!-- Awareness: 10,000 = 200 dots -->
   <path class="sales-funnel-band" d="M260.0 96 H1180.0 L1120.0 168 H320.0 Z"/>
-  <g class="sales-funnel-hi sales-funnel-hi0"><path class="sales-funnel-hi-glow" d="M260.0 96 H1180.0 L1120.0 168 H320.0 Z"/><path class="sales-funnel-hi-line" d="M260.0 96 H1180.0 L1120.0 168 H320.0 Z"/></g>
+  <g class="sales-funnel-hi sales-funnel-hi0"><path class="sales-funnel-hi-line" d="M260.0 96 H1180.0 L1120.0 168 H320.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="140">Awareness</text>
   <g class="sales-funnel-dots0">
     <g class="sales-funnel-keep"><circle cx="377.0" cy="112.5" r="4.5"/><circle cx="433.0" cy="112.5" r="4.5"/><circle cx="489.0" cy="112.5" r="4.5"/><circle cx="545.0" cy="112.5" r="4.5"/><circle cx="601.0" cy="112.5" r="4.5"/><circle cx="657.0" cy="112.5" r="4.5"/><circle cx="713.0" cy="112.5" r="4.5"/><circle cx="769.0" cy="112.5" r="4.5"/><circle cx="825.0" cy="112.5" r="4.5"/><circle cx="881.0" cy="112.5" r="4.5"/><circle cx="937.0" cy="112.5" r="4.5"/><circle cx="993.0" cy="112.5" r="4.5"/><circle cx="1049.0" cy="112.5" r="4.5"/><circle cx="405.0" cy="125.5" r="4.5"/><circle cx="461.0" cy="125.5" r="4.5"/><circle cx="517.0" cy="125.5" r="4.5"/><circle cx="573.0" cy="125.5" r="4.5"/><circle cx="629.0" cy="125.5" r="4.5"/><circle cx="685.0" cy="125.5" r="4.5"/><circle cx="741.0" cy="125.5" r="4.5"/><circle cx="797.0" cy="125.5" r="4.5"/><circle cx="853.0" cy="125.5" r="4.5"/><circle cx="909.0" cy="125.5" r="4.5"/><circle cx="965.0" cy="125.5" r="4.5"/><circle cx="1021.0" cy="125.5" r="4.5"/><circle cx="377.0" cy="138.5" r="4.5"/><circle cx="433.0" cy="138.5" r="4.5"/><circle cx="489.0" cy="138.5" r="4.5"/><circle cx="545.0" cy="138.5" r="4.5"/><circle cx="601.0" cy="138.5" r="4.5"/><circle cx="657.0" cy="138.5" r="4.5"/><circle cx="713.0" cy="138.5" r="4.5"/><circle cx="769.0" cy="138.5" r="4.5"/><circle cx="825.0" cy="138.5" r="4.5"/><circle cx="881.0" cy="138.5" r="4.5"/><circle cx="937.0" cy="138.5" r="4.5"/><circle cx="993.0" cy="138.5" r="4.5"/><circle cx="1049.0" cy="138.5" r="4.5"/><circle cx="405.0" cy="151.5" r="4.5"/><circle cx="461.0" cy="151.5" r="4.5"/><circle cx="517.0" cy="151.5" r="4.5"/><circle cx="573.0" cy="151.5" r="4.5"/><circle cx="629.0" cy="151.5" r="4.5"/><circle cx="685.0" cy="151.5" r="4.5"/><circle cx="741.0" cy="151.5" r="4.5"/><circle cx="797.0" cy="151.5" r="4.5"/><circle cx="853.0" cy="151.5" r="4.5"/><circle cx="909.0" cy="151.5" r="4.5"/><circle cx="965.0" cy="151.5" r="4.5"/><circle cx="1021.0" cy="151.5" r="4.5"/></g>
@@ -137,7 +137,7 @@
   <text class="sales-funnel-pct sales-funnel-pc0" x="1456" y="169">25 %</text>
   <!-- Interest: 2,500 = 50 dots -->
   <path class="sales-funnel-band" d="M330.0 180 H1110.0 L1050.0 252 H390.0 Z"/>
-  <g class="sales-funnel-hi sales-funnel-hi1"><path class="sales-funnel-hi-glow" d="M330.0 180 H1110.0 L1050.0 252 H390.0 Z"/><path class="sales-funnel-hi-line" d="M330.0 180 H1110.0 L1050.0 252 H390.0 Z"/></g>
+  <g class="sales-funnel-hi sales-funnel-hi1"><path class="sales-funnel-hi-line" d="M330.0 180 H1110.0 L1050.0 252 H390.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="224">Interest</text>
   <g class="sales-funnel-dots1">
     <g class="sales-funnel-keep"><circle cx="566.0" cy="209.5" r="4.5"/><circle cx="608.0" cy="209.5" r="4.5"/><circle cx="650.0" cy="209.5" r="4.5"/><circle cx="692.0" cy="209.5" r="4.5"/><circle cx="734.0" cy="209.5" r="4.5"/><circle cx="776.0" cy="209.5" r="4.5"/><circle cx="818.0" cy="209.5" r="4.5"/><circle cx="860.0" cy="209.5" r="4.5"/><circle cx="580.0" cy="222.5" r="4.5"/><circle cx="622.0" cy="222.5" r="4.5"/><circle cx="664.0" cy="222.5" r="4.5"/><circle cx="706.0" cy="222.5" r="4.5"/><circle cx="748.0" cy="222.5" r="4.5"/><circle cx="790.0" cy="222.5" r="4.5"/><circle cx="832.0" cy="222.5" r="4.5"/><circle cx="874.0" cy="222.5" r="4.5"/></g>
@@ -151,7 +151,7 @@
   <text class="sales-funnel-pct sales-funnel-pc1" x="1456" y="253">32 %</text>
   <!-- Consideration: 800 = 16 dots -->
   <path class="sales-funnel-band" d="M400.0 264 H1040.0 L980.0 336 H460.0 Z"/>
-  <g class="sales-funnel-hi sales-funnel-hi2"><path class="sales-funnel-hi-glow" d="M400.0 264 H1040.0 L980.0 336 H460.0 Z"/><path class="sales-funnel-hi-line" d="M400.0 264 H1040.0 L980.0 336 H460.0 Z"/></g>
+  <g class="sales-funnel-hi sales-funnel-hi2"><path class="sales-funnel-hi-line" d="M400.0 264 H1040.0 L980.0 336 H460.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="308">Consideration</text>
   <g class="sales-funnel-dots2">
     <g class="sales-funnel-keep"><circle cx="685.0" cy="293.5" r="4.5"/><circle cx="741.0" cy="293.5" r="4.5"/><circle cx="713.0" cy="306.5" r="4.5"/><circle cx="769.0" cy="306.5" r="4.5"/></g>
@@ -165,7 +165,7 @@
   <text class="sales-funnel-pct sales-funnel-pc2" x="1456" y="337">25 %</text>
   <!-- Purchase: 200 = 4 dots -->
   <path class="sales-funnel-band" d="M470.0 348 H970.0 L910.0 420 H530.0 Z"/>
-  <g class="sales-funnel-hi sales-funnel-hi3"><path class="sales-funnel-hi-glow" d="M470.0 348 H970.0 L910.0 420 H530.0 Z"/><path class="sales-funnel-hi-line" d="M470.0 348 H970.0 L910.0 420 H530.0 Z"/></g>
+  <g class="sales-funnel-hi sales-funnel-hi3"><path class="sales-funnel-hi-line" d="M470.0 348 H970.0 L910.0 420 H530.0 Z"/></g>
   <text class="sales-funnel-t sales-funnel-lbl" x="40" y="392">Purchase</text>
   <g class="sales-funnel-dots3">
     <g class="sales-funnel-keep"><circle cx="699.0" cy="384.0" r="4.5"/><circle cx="727.0" cy="384.0" r="4.5"/><circle cx="741.0" cy="384.0" r="4.5"/></g>

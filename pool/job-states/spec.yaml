@@ -7,8 +7,8 @@
 name: job-states
 archetype: states
 size: [1200, 600]
-control: loop
-cycle: 12
+control: once
+cycle: 9.8
 nodes:
   - { id: queued,  label: Queued }
   - { id: running, label: Running,   sub: "attempt 1 of 3" }
@@ -21,9 +21,9 @@ edges:
   - { from: failed,  to: queued,  label: "retry · 2 s", kind: event }
 phases:
   - { t: 0,   label: queued,  active: [queued],                            note: "00:00 queued" }
-  - { t: 1,   label: pick,    active: [running], flow: ["queued>running"], note: "00:02 picked · attempt 1" }
-  - { t: 3.4, label: fail,    active: [failed],  flow: ["running>failed"], note: "00:31 error · timeout" }
-  - { t: 5.2, label: retry,   active: [queued],  flow: ["failed>queued"],  note: "00:33 retry after 2 s" }
-  - { t: 6.6, label: repick,  active: [running], flow: ["queued>running"], note: "00:35 picked · attempt 2" }
-  - { t: 8.4, label: success, active: [done],    flow: ["running>done"],   note: "00:58 exit 0 · succeeded" }
-  - { t: 9.4, label: hold,    active: [done] }
+  - { t: 0.9,   label: pick,    active: [running], flow: ["queued>running"], note: "00:02 picked · attempt 1" }
+  - { t: 3.1, label: fail,    active: [failed],  flow: ["running>failed"], note: "00:31 error · timeout" }
+  - { t: 4.7, label: retry,   active: [queued],  flow: ["failed>queued"],  note: "00:33 retry after 2 s" }
+  - { t: 5.9, label: repick,  active: [running], flow: ["queued>running"], note: "00:35 picked · attempt 2" }
+  - { t: 7.6, label: success, active: [done],    flow: ["running>done"],   note: "00:58 exit 0 · succeeded" }
+  - { t: 8.7, label: hold,    active: [done] }

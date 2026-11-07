@@ -10,6 +10,9 @@ the rendered slide check the rest.
    one figure per actor, an organ the slide is about) is kept: embed the source image beside
    the fragment when the licence allows (credit it), or redraw it as a simple SVG glyph in the
    same colours. Drop only backgrounds, logos and unrelated photos, and say what you dropped.
+   The figure's form is content too: a staircase is redrawn as a staircase, not re-plotted as
+   a line chart; a table stays rows; the slide's reading order stays. Changing the form is an
+   interpretation the author did not make.
 1. **Numbers come from the source.** Every value, date, percentage, unit and axis value is on the
    slide, in its notes or tables, or in a figure you have read. If a value is a placeholder, the
    fragment itself says so in visible text ("illustrative values"); a comment is not enough.

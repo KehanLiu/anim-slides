@@ -1,6 +1,6 @@
 <!-- service-deps: graph archetype, lean restyle (references/style.md) of pool/service-deps.
-  14 s cycle: 0-6 s graph builds rank by rank | 6.2-8.6 s one request traced web > gateway > Orders > DB
-  | 9-10.6 s provider fails, Payments degrades, the rest is untouched | hold | 13.3 s fade, restart -->
+  Plays once, 9.8 s pass: 0-4.8 s graph builds rank by rank | 5-6.9 s one request traced web > gateway > Orders > DB
+  | 7.2-8.5 s provider fails, Payments degrades, the rest is untouched | hold on the outage from 8.8 s -->
 <style>
 .anim-service-deps {
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -46,7 +46,6 @@
 .anim-service-deps .service-deps-evt{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-dasharray:4 9}
 .anim-service-deps .service-deps-arw{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 60%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .anim-service-deps .service-deps-trace,.anim-service-deps .service-deps-okl{fill:none;stroke:var(--anim-accent);stroke-width:4;stroke-linecap:round}
-.anim-service-deps .service-deps-glow{fill:none;stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;stroke-linecap:round;filter:blur(5px)}
 .anim-service-deps .service-deps-arw-ok{stroke:var(--anim-accent);stroke-width:3}
 .anim-service-deps .service-deps-bad{fill:none;stroke:var(--anim-danger);stroke-width:3;stroke-linecap:round;stroke-dasharray:8 9}
 .anim-service-deps .service-deps-arw-bad{stroke:var(--anim-danger);stroke-width:3}
@@ -59,104 +58,104 @@
    Layers that belong only to earlier phases rest at opacity 0. */
 .anim-service-deps .service-deps-n-web,.anim-service-deps .service-deps-n-gw,.anim-service-deps .service-deps-n-orders,.anim-service-deps .service-deps-n-pay,.anim-service-deps .service-deps-n-inv,.anim-service-deps .service-deps-n-db,.anim-service-deps .service-deps-n-psp,.anim-service-deps .service-deps-n-bus,.anim-service-deps .service-deps-a-e1,.anim-service-deps .service-deps-a-e2,.anim-service-deps .service-deps-a-e3,.anim-service-deps .service-deps-a-e4,.anim-service-deps .service-deps-a-e5,.anim-service-deps .service-deps-a-e8,.anim-service-deps .service-deps-a-e6,.anim-service-deps .service-deps-a-e7,.anim-service-deps .service-deps-g-edge,.anim-service-deps .service-deps-g-core,.anim-service-deps .service-deps-down-psp,.anim-service-deps .service-deps-down-e8,.anim-service-deps .service-deps-deg-pay,.anim-service-deps .service-deps-deg-e3,.anim-service-deps .service-deps-ok,.anim-service-deps .service-deps-cap5{opacity:1}
 .anim-service-deps .service-deps-hot-web,.anim-service-deps .service-deps-hot-gw,.anim-service-deps .service-deps-hot-orders,.anim-service-deps .service-deps-hot-db,.anim-service-deps .service-deps-trace,.anim-service-deps .service-deps-pkt,.anim-service-deps .service-deps-cap0,.anim-service-deps .service-deps-cap1,.anim-service-deps .service-deps-cap2,.anim-service-deps .service-deps-cap3,.anim-service-deps .service-deps-cap4{opacity:0}
-@keyframes service-deps-n-web{0%,1.43%{opacity:0}4.29%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-n-gw{0%,6.43%{opacity:0}9.29%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-n-orders{0%,15.71%{opacity:0}18.57%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-n-pay{0%,16.79%{opacity:0}19.64%,42.86%{opacity:1}45.71%,63.57%{opacity:.4}66.43%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-n-inv{0%,24.29%{opacity:0}27.14%,42.86%{opacity:1}45.71%,63.57%{opacity:.4}66.43%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-n-db{0%,25.36%{opacity:0}28.21%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-n-psp{0%,32.86%{opacity:0}35.71%,42.86%{opacity:1}45.71%,63.57%{opacity:.4}66.43%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-n-bus{0%,38.57%{opacity:0}41.43%,42.86%{opacity:1}45.71%,63.57%{opacity:.4}66.43%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e1{0%,4.29%{stroke-dashoffset:101}8.57%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
-@keyframes service-deps-a-e1{0%,7.5%{opacity:0}9.64%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e2{0%,12.86%{stroke-dashoffset:101}17.14%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
-@keyframes service-deps-a-e2{0%,16.07%{opacity:0}18.21%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e3{0%,13.57%{stroke-dashoffset:101}17.86%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
-@keyframes service-deps-a-e3{0%,16.79%{opacity:0}18.93%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e4{0%,21.43%{stroke-dashoffset:101}25.71%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
-@keyframes service-deps-a-e4{0%,24.64%{opacity:0}26.79%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e5{0%,22.14%{stroke-dashoffset:101}26.43%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
-@keyframes service-deps-a-e5{0%,25.36%{opacity:0}27.5%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-d-e8{0%,30%{stroke-dashoffset:101}34.29%,97.14%{stroke-dashoffset:0}97.86%,100%{stroke-dashoffset:101}}
-@keyframes service-deps-a-e8{0%,33.21%{opacity:0}35.36%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-a-e6{0%,35.71%{opacity:0}37.86%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-a-e7{0%,36.43%{opacity:0}38.57%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-dim{0%,42.86%{opacity:1}45.71%,63.57%{opacity:.35}66.43%,100%{opacity:1}}
-@keyframes service-deps-g-edge{0%,0%{opacity:0}2.86%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-g-core{0%,11.43%{opacity:0}14.29%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-pk-e1{0%,44.21%{opacity:0;offset-distance:0%}44.29%{opacity:1;offset-distance:0%}50%{opacity:1;offset-distance:100%}51.07%,100%{opacity:0;offset-distance:100%}}
-@keyframes service-deps-pk-e2{0%,49.93%{opacity:0;offset-distance:0%}50%{opacity:1;offset-distance:0%}55.71%{opacity:1;offset-distance:100%}56.79%,100%{opacity:0;offset-distance:100%}}
-@keyframes service-deps-pk-e5{0%,55.64%{opacity:0;offset-distance:0%}55.71%{opacity:1;offset-distance:0%}61.43%{opacity:1;offset-distance:100%}62.5%,100%{opacity:0;offset-distance:100%}}
-@keyframes service-deps-hot-web{0%,42.86%{opacity:0}44.64%,49.29%{opacity:1}50.45%,100%{opacity:0}}
-@keyframes service-deps-hot-gw{0%,49.64%{opacity:0}51.43%,55%{opacity:1}56.16%,100%{opacity:0}}
-@keyframes service-deps-hot-orders{0%,55.36%{opacity:0}57.14%,60.71%{opacity:1}61.88%,100%{opacity:0}}
-@keyframes service-deps-hot-db{0%,61.07%{opacity:0}62.86%,64.29%{opacity:1}65.45%,100%{opacity:0}}
-@keyframes service-deps-tr-e1{0%,44.29%{opacity:0}46.07%,63.57%{opacity:1}64.73%,100%{opacity:0}}
-@keyframes service-deps-tr-e2{0%,50%{opacity:0}51.79%,63.57%{opacity:1}64.73%,100%{opacity:0}}
-@keyframes service-deps-tr-e5{0%,55.71%{opacity:0}57.5%,63.57%{opacity:1}64.73%,100%{opacity:0}}
-@keyframes service-deps-down-psp{0%,64.29%{opacity:0}66.07%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-down-e8{0%,67.14%{opacity:0}69.29%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-deg-pay{0%,70%{opacity:0}71.79%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-deg-e3{0%,72.86%{opacity:0}75%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-ok{0%,75.71%{opacity:0}78.57%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-cap0{0%,11.43%{opacity:1}12.86%,97.14%{opacity:0}100%{opacity:1}}
-@keyframes service-deps-cap1{0%,11.43%{opacity:0}13.57%,30%{opacity:1}31.43%,100%{opacity:0}}
-@keyframes service-deps-cap2{0%,30%{opacity:0}32.14%,35.71%{opacity:1}37.14%,100%{opacity:0}}
-@keyframes service-deps-cap3{0%,35.71%{opacity:0}37.86%,42.86%{opacity:1}44.29%,100%{opacity:0}}
-@keyframes service-deps-cap4{0%,42.86%{opacity:0}45%,64.29%{opacity:1}65.71%,100%{opacity:0}}
-@keyframes service-deps-cap5{0%,64.29%{opacity:0}66.43%,97.14%{opacity:1}97.86%,100%{opacity:0}}
-@keyframes service-deps-scene{0%,95%{opacity:1}97.14%,98.93%{opacity:0}100%{opacity:1}}
-.visible .anim-service-deps .service-deps-n-web{animation:service-deps-n-web 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-n-gw{animation:service-deps-n-gw 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-n-orders{animation:service-deps-n-orders 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-n-pay{animation:service-deps-n-pay 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-n-inv{animation:service-deps-n-inv 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-n-db{animation:service-deps-n-db 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-n-psp{animation:service-deps-n-psp 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-n-bus{animation:service-deps-n-bus 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-d-e1{animation:service-deps-d-e1 14s cubic-bezier(0.16,1,0.3,1) infinite}
-.visible .anim-service-deps .service-deps-a-e1{animation:service-deps-a-e1 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-d-e2{animation:service-deps-d-e2 14s cubic-bezier(0.16,1,0.3,1) infinite}
-.visible .anim-service-deps .service-deps-a-e2{animation:service-deps-a-e2 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-d-e3{animation:service-deps-d-e3 14s cubic-bezier(0.16,1,0.3,1) infinite}
-.visible .anim-service-deps .service-deps-a-e3{animation:service-deps-a-e3 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-d-e4{animation:service-deps-d-e4 14s cubic-bezier(0.16,1,0.3,1) infinite}
-.visible .anim-service-deps .service-deps-a-e4{animation:service-deps-a-e4 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-d-e5{animation:service-deps-d-e5 14s cubic-bezier(0.16,1,0.3,1) infinite}
-.visible .anim-service-deps .service-deps-a-e5{animation:service-deps-a-e5 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-d-e8{animation:service-deps-d-e8 14s cubic-bezier(0.16,1,0.3,1) infinite}
-.visible .anim-service-deps .service-deps-a-e8{animation:service-deps-a-e8 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-a-e6{animation:service-deps-a-e6 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-a-e7{animation:service-deps-a-e7 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-dim{animation:service-deps-dim 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-g-edge{animation:service-deps-g-edge 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-g-core{animation:service-deps-g-core 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-pk-e1{animation:service-deps-pk-e1 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-pk-e2{animation:service-deps-pk-e2 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-pk-e5{animation:service-deps-pk-e5 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-hot-web{animation:service-deps-hot-web 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-hot-gw{animation:service-deps-hot-gw 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-hot-orders{animation:service-deps-hot-orders 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-hot-db{animation:service-deps-hot-db 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-tr-e1{animation:service-deps-tr-e1 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-tr-e2{animation:service-deps-tr-e2 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-tr-e5{animation:service-deps-tr-e5 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-down-psp{animation:service-deps-down-psp 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-down-e8{animation:service-deps-down-e8 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-deg-pay{animation:service-deps-deg-pay 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-deg-e3{animation:service-deps-deg-e3 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-ok{animation:service-deps-ok 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-cap0{animation:service-deps-cap0 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-cap1{animation:service-deps-cap1 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-cap2{animation:service-deps-cap2 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-cap3{animation:service-deps-cap3 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-cap4{animation:service-deps-cap4 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-cap5{animation:service-deps-cap5 14s ease-in-out infinite}
-.visible .anim-service-deps .service-deps-scene{animation:service-deps-scene 14s ease-in-out infinite}
+@keyframes service-deps-n-web{0%,1.63%{opacity:0}4.9%,100%{opacity:1}}
+@keyframes service-deps-n-gw{0%,7.35%{opacity:0}10.62%,100%{opacity:1}}
+@keyframes service-deps-n-orders{0%,17.95%{opacity:0}21.22%,100%{opacity:1}}
+@keyframes service-deps-n-pay{0%,19.19%{opacity:0}22.45%,48.16%{opacity:1}50.51%,72.65%{opacity:.4}75.92%,100%{opacity:1}}
+@keyframes service-deps-n-inv{0%,27.76%{opacity:0}31.02%,48.16%{opacity:1}50.51%,72.65%{opacity:.4}75.92%,100%{opacity:1}}
+@keyframes service-deps-n-db{0%,28.98%{opacity:0}32.24%,100%{opacity:1}}
+@keyframes service-deps-n-psp{0%,37.55%{opacity:0}40.81%,48.16%{opacity:1}50.51%,72.65%{opacity:.4}75.92%,100%{opacity:1}}
+@keyframes service-deps-n-bus{0%,44.08%{opacity:0}47.35%,48.16%{opacity:1}50.51%,72.65%{opacity:.4}75.92%,100%{opacity:1}}
+@keyframes service-deps-d-e1{0%,4.9%{stroke-dashoffset:101}9.79%,100%{stroke-dashoffset:0}}
+@keyframes service-deps-a-e1{0%,8.57%{opacity:0}11.02%,100%{opacity:1}}
+@keyframes service-deps-d-e2{0%,14.7%{stroke-dashoffset:101}19.59%,100%{stroke-dashoffset:0}}
+@keyframes service-deps-a-e2{0%,18.37%{opacity:0}20.81%,100%{opacity:1}}
+@keyframes service-deps-d-e3{0%,15.51%{stroke-dashoffset:101}20.41%,100%{stroke-dashoffset:0}}
+@keyframes service-deps-a-e3{0%,19.19%{opacity:0}21.63%,100%{opacity:1}}
+@keyframes service-deps-d-e4{0%,24.49%{stroke-dashoffset:101}29.38%,100%{stroke-dashoffset:0}}
+@keyframes service-deps-a-e4{0%,28.16%{opacity:0}30.62%,100%{opacity:1}}
+@keyframes service-deps-d-e5{0%,25.3%{stroke-dashoffset:101}30.21%,100%{stroke-dashoffset:0}}
+@keyframes service-deps-a-e5{0%,28.98%{opacity:0}31.43%,100%{opacity:1}}
+@keyframes service-deps-d-e8{0%,34.29%{stroke-dashoffset:101}39.19%,100%{stroke-dashoffset:0}}
+@keyframes service-deps-a-e8{0%,37.95%{opacity:0}40.41%,100%{opacity:1}}
+@keyframes service-deps-a-e6{0%,40.81%{opacity:0}43.27%,100%{opacity:1}}
+@keyframes service-deps-a-e7{0%,41.63%{opacity:0}44.08%,100%{opacity:1}}
+@keyframes service-deps-dim{0%,48.16%{opacity:1}50.51%,72.65%{opacity:.35}75.92%,100%{opacity:1}}
+@keyframes service-deps-g-edge{0%,0%{opacity:0}3.27%,100%{opacity:1}}
+@keyframes service-deps-g-core{0%,13.06%{opacity:0}16.33%,100%{opacity:1}}
+@keyframes service-deps-pk-e1{0%,50.53%{opacity:0;offset-distance:0%}50.62%{opacity:1;offset-distance:0%}57.14%{opacity:1;offset-distance:100%}58.37%,100%{opacity:0;offset-distance:100%}}
+@keyframes service-deps-pk-e2{0%,57.06%{opacity:0;offset-distance:0%}57.14%{opacity:1;offset-distance:0%}63.67%{opacity:1;offset-distance:100%}64.9%,100%{opacity:0;offset-distance:100%}}
+@keyframes service-deps-pk-e5{0%,63.59%{opacity:0;offset-distance:0%}63.67%{opacity:1;offset-distance:0%}70.21%{opacity:1;offset-distance:100%}71.43%,100%{opacity:0;offset-distance:100%}}
+@keyframes service-deps-hot-web{0%,48.98%{opacity:0}51.02%,55.4%{opacity:1}56.73%,100%{opacity:0}}
+@keyframes service-deps-hot-gw{0%,56.73%{opacity:0}58.78%,61.95%{opacity:1}63.27%,100%{opacity:0}}
+@keyframes service-deps-hot-orders{0%,63.27%{opacity:0}65.3%,68.47%{opacity:1}69.79%,100%{opacity:0}}
+@keyframes service-deps-hot-db{0%,69.79%{opacity:0}71.43%{opacity:1}72.65%,100%{opacity:0}}
+@keyframes service-deps-tr-e1{0%,50.62%{opacity:0}52.65%,72.65%{opacity:1}73.98%,100%{opacity:0}}
+@keyframes service-deps-tr-e2{0%,57.14%{opacity:0}59.19%,72.65%{opacity:1}73.98%,100%{opacity:0}}
+@keyframes service-deps-tr-e5{0%,63.67%{opacity:0}65.71%,72.65%{opacity:1}73.98%,100%{opacity:0}}
+@keyframes service-deps-down-psp{0%,73.47%{opacity:0}75.51%,100%{opacity:1}}
+@keyframes service-deps-down-e8{0%,76.73%{opacity:0}79.19%,100%{opacity:1}}
+@keyframes service-deps-deg-pay{0%,80%{opacity:0}82.05%,100%{opacity:1}}
+@keyframes service-deps-deg-e3{0%,83.27%{opacity:0}85.71%,100%{opacity:1}}
+@keyframes service-deps-ok{0%,86.53%{opacity:0}89.79%,100%{opacity:1}}
+@keyframes service-deps-cap0{0%,13.06%{opacity:1}14.7%,100%{opacity:0}}
+@keyframes service-deps-cap1{0%,13.06%{opacity:0}15.51%,34.29%{opacity:1}35.92%,100%{opacity:0}}
+@keyframes service-deps-cap2{0%,34.29%{opacity:0}36.73%,40.81%{opacity:1}42.45%,100%{opacity:0}}
+@keyframes service-deps-cap3{0%,40.81%{opacity:0}43.27%,48.98%{opacity:1}50.62%,100%{opacity:0}}
+@keyframes service-deps-cap4{0%,48.98%{opacity:0}51.43%,73.47%{opacity:1}75.1%,100%{opacity:0}}
+@keyframes service-deps-cap5{0%,73.47%{opacity:0}75.92%,100%{opacity:1}}
+@keyframes service-deps-scene{0%,100%{opacity:1}}
+.visible .anim-service-deps .service-deps-n-web{animation:service-deps-n-web 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-n-gw{animation:service-deps-n-gw 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-n-orders{animation:service-deps-n-orders 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-n-pay{animation:service-deps-n-pay 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-n-inv{animation:service-deps-n-inv 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-n-db{animation:service-deps-n-db 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-n-psp{animation:service-deps-n-psp 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-n-bus{animation:service-deps-n-bus 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-d-e1{animation:service-deps-d-e1 9.8s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-service-deps .service-deps-a-e1{animation:service-deps-a-e1 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-d-e2{animation:service-deps-d-e2 9.8s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-service-deps .service-deps-a-e2{animation:service-deps-a-e2 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-d-e3{animation:service-deps-d-e3 9.8s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-service-deps .service-deps-a-e3{animation:service-deps-a-e3 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-d-e4{animation:service-deps-d-e4 9.8s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-service-deps .service-deps-a-e4{animation:service-deps-a-e4 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-d-e5{animation:service-deps-d-e5 9.8s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-service-deps .service-deps-a-e5{animation:service-deps-a-e5 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-d-e8{animation:service-deps-d-e8 9.8s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-service-deps .service-deps-a-e8{animation:service-deps-a-e8 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-a-e6{animation:service-deps-a-e6 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-a-e7{animation:service-deps-a-e7 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-dim{animation:service-deps-dim 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-g-edge{animation:service-deps-g-edge 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-g-core{animation:service-deps-g-core 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-pk-e1{animation:service-deps-pk-e1 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-pk-e2{animation:service-deps-pk-e2 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-pk-e5{animation:service-deps-pk-e5 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-hot-web{animation:service-deps-hot-web 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-hot-gw{animation:service-deps-hot-gw 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-hot-orders{animation:service-deps-hot-orders 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-hot-db{animation:service-deps-hot-db 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-tr-e1{animation:service-deps-tr-e1 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-tr-e2{animation:service-deps-tr-e2 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-tr-e5{animation:service-deps-tr-e5 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-down-psp{animation:service-deps-down-psp 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-down-e8{animation:service-deps-down-e8 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-deg-pay{animation:service-deps-deg-pay 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-deg-e3{animation:service-deps-deg-e3 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-ok{animation:service-deps-ok 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-cap0{animation:service-deps-cap0 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-cap1{animation:service-deps-cap1 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-cap2{animation:service-deps-cap2 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-cap3{animation:service-deps-cap3 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-cap4{animation:service-deps-cap4 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-cap5{animation:service-deps-cap5 9.8s ease-in-out 1 forwards}
+.visible .anim-service-deps .service-deps-scene{animation:service-deps-scene 9.8s ease-in-out 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-service-deps * { animation: none !important; } }
 </style>
-<div class="anim anim-service-deps" data-anim="service-deps" data-anim-cycle="14" data-anim-control="loop">
+<div class="anim anim-service-deps" data-anim="service-deps" data-anim-cycle="9.8" data-anim-control="once">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Service dependency graph: a request flows from the web app through the API gateway to Orders and its database; when the external payment provider goes down, only Payments degrades while orders keep flowing.">
 <g class="service-deps-scene">
 <g class="service-deps-g-edge"><text class="service-deps-glbl" x="150" y="234">Edge</text><path class="service-deps-brk" d="M208 228 H530 V244"/></g>
@@ -173,18 +172,18 @@
 </g>
 <g class="service-deps-dim"><text class="service-deps-elbl service-deps-a-e6" x="1330" y="186" text-anchor="middle">order.placed</text>
 <text class="service-deps-elbl service-deps-a-e8" x="1330" y="386" text-anchor="middle">HTTPS</text></g>
-<path class="service-deps-trace service-deps-glow service-deps-tr-e1" d="M235 300 L445 300"/><path class="service-deps-trace service-deps-tr-e1" d="M235 300 L445 300"/>
-<path class="service-deps-trace service-deps-glow service-deps-tr-e2" d="M525 300 C650 300 660 200 775 200"/><path class="service-deps-trace service-deps-tr-e2" d="M525 300 C650 300 660 200 775 200"/>
-<path class="service-deps-trace service-deps-glow service-deps-tr-e5" d="M848 223 C930 260 1000 280 1105 280"/><path class="service-deps-trace service-deps-tr-e5" d="M848 223 C930 260 1000 280 1105 280"/>
+<path class="service-deps-trace service-deps-tr-e1" d="M235 300 L445 300"/>
+<path class="service-deps-trace service-deps-tr-e2" d="M525 300 C650 300 660 200 775 200"/>
+<path class="service-deps-trace service-deps-tr-e5" d="M848 223 C930 260 1000 280 1105 280"/>
 <path class="service-deps-bad service-deps-down-e8" d="M855 400 L1445 400"/>
 <path class="service-deps-arw service-deps-arw-bad service-deps-down-e8" d="M1437 393 L1445 400 L1437 407"/>
 <g class="service-deps-down-e8"><circle class="service-deps-xbg" cx="1000" cy="400" r="15"/><path class="service-deps-x" d="M994 394 L1006 406 M1006 394 L994 406"/></g>
 <path class="service-deps-warnl service-deps-deg-e3" d="M525 300 C650 300 660 400 775 400"/>
 <path class="service-deps-arw service-deps-arw-warn service-deps-deg-e3" d="M767 393 L775 400 L767 407"/>
 <g class="service-deps-ok">
-<path class="service-deps-glow" d="M235 300 L445 300"/><path class="service-deps-okl" d="M235 300 L445 300"/><path class="service-deps-arw service-deps-arw-ok" d="M437 293 L445 300 L437 307"/>
-<path class="service-deps-glow" d="M525 300 C650 300 660 200 775 200"/><path class="service-deps-okl" d="M525 300 C650 300 660 200 775 200"/><path class="service-deps-arw service-deps-arw-ok" d="M767 193 L775 200 L767 207"/>
-<path class="service-deps-glow" d="M848 223 C930 260 1000 280 1105 280"/><path class="service-deps-okl" d="M848 223 C930 260 1000 280 1105 280"/><path class="service-deps-arw service-deps-arw-ok" d="M1097 273 L1105 280 L1097 287"/>
+<path class="service-deps-okl" d="M235 300 L445 300"/><path class="service-deps-arw service-deps-arw-ok" d="M437 293 L445 300 L437 307"/>
+<path class="service-deps-okl" d="M525 300 C650 300 660 200 775 200"/><path class="service-deps-arw service-deps-arw-ok" d="M767 193 L775 200 L767 207"/>
+<path class="service-deps-okl" d="M848 223 C930 260 1000 280 1105 280"/><path class="service-deps-arw service-deps-arw-ok" d="M1097 273 L1105 280 L1097 287"/>
 </g>
 <g class="service-deps-n-web">
 <circle class="service-deps-ring" cx="195" cy="300" r="34"/>

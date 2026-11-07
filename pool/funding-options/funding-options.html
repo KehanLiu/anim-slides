@@ -34,6 +34,7 @@
 .anim-funding-options .funding-options-fill-ctl{fill:var(--anim-accent)}
 .anim-funding-options .funding-options-band{fill:none;stroke:var(--anim-accent);stroke-width:3px;stroke-linecap:round;stroke-linejoin:round}
 .anim-funding-options .funding-options-glow{opacity:.35;stroke-width:8px;filter:blur(6px)}
+.anim-funding-options .funding-options-glowbar{fill:var(--anim-accent);stroke:none}
 .anim-funding-options .funding-options-hlcrit{fill:var(--anim-accent)}
 .anim-funding-options .funding-options-dim{opacity:.5}
 .anim-funding-options .funding-options-tag{fill:none;stroke:var(--anim-line);stroke-width:2px}
@@ -41,113 +42,154 @@
 .anim-funding-options .funding-options-n0,.anim-funding-options .funding-options-n1,.anim-funding-options .funding-options-n2{opacity:0}
 .anim-funding-options .funding-options-ac{fill:var(--anim-accent);font-weight:600}
 
-/* scene: in 0-0.3 s, reset 10.5-10.8 s */
-@keyframes funding-options-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}2.73%{opacity:1;}95.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}98.18%{opacity:0;}100%{opacity:0;}}
-/* row header 1 at 0.30 s */
-@keyframes funding-options-crit0{0%{opacity:0;transform:translateX(-20px);}2.73%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}6.82%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-/* row header 2 at 0.38 s */
-@keyframes funding-options-crit1{0%{opacity:0;transform:translateX(-20px);}3.45%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}7.55%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-/* row header 3 at 0.46 s */
-@keyframes funding-options-crit2{0%{opacity:0;transform:translateX(-20px);}4.18%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}8.27%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-/* row header 4 at 0.54 s */
-@keyframes funding-options-crit3{0%{opacity:0;transform:translateX(-20px);}4.91%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}9%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-/* column 1 card lands 0.9 s, cells follow 0.1 s later, 80 ms apart */
-@keyframes funding-options-col0{0%{opacity:0;transform:translateY(16px);}8.18%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}12.73%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cst0{0%{stroke:var(--anim-line);}8.18%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}10.91%{stroke:var(--anim-accent);}26.36%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}29.09%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
-@keyframes funding-options-cell00{0%{opacity:0;transform:translateY(10px);}9.09%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}12.73%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl00{0%{transform:scaleX(0);}10.91%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}16.36%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-@keyframes funding-options-cell01{0%{opacity:0;transform:translateY(10px);}9.82%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}13.45%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell02{0%{opacity:0;transform:translateY(10px);}10.55%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.18%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell03{0%{opacity:0;transform:translateY(10px);}11.27%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.91%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl03{0%{transform:scaleX(0);}13.09%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}18.55%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-/* column 2 card lands 3.2 s, cells follow 0.1 s later, 80 ms apart */
-@keyframes funding-options-col1{0%{opacity:0;transform:translateY(16px);}29.09%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}33.64%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cst1{0%{stroke:var(--anim-line);}29.09%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}31.82%{stroke:var(--anim-accent);}47.27%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}50%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
-@keyframes funding-options-cell10{0%{opacity:0;transform:translateY(10px);}30%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}33.64%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl10{0%{transform:scaleX(0);}31.82%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.27%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-@keyframes funding-options-cell11{0%{opacity:0;transform:translateY(10px);}30.73%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}34.36%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell12{0%{opacity:0;transform:translateY(10px);}31.45%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}35.09%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell13{0%{opacity:0;transform:translateY(10px);}32.18%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}35.82%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl13{0%{transform:scaleX(0);}34%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}39.45%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-/* column 3 card lands 5.5 s, cells follow 0.1 s later, 80 ms apart */
-@keyframes funding-options-col2{0%{opacity:0;transform:translateY(16px);}50%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}54.55%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cst2{0%{stroke:var(--anim-line);}50%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}52.73%{stroke:var(--anim-accent);}68.18%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}70.91%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
-@keyframes funding-options-cell20{0%{opacity:0;transform:translateY(10px);}50.91%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}54.55%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl20{0%{transform:scaleX(0);}52.73%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}58.18%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-@keyframes funding-options-cell21{0%{opacity:0;transform:translateY(10px);}51.64%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}55.27%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell22{0%{opacity:0;transform:translateY(10px);}52.36%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}56%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell23{0%{opacity:0;transform:translateY(10px);}53.09%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}56.73%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl23{0%{transform:scaleX(0);}54.91%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60.36%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-/* highlight row at 7.8 s */
-@keyframes funding-options-band{0%{opacity:0;transform:scaleX(.98);}70.91%{opacity:0;transform:scaleX(.98);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}75%{opacity:1;transform:scaleX(1);}100%{opacity:1;transform:scaleX(1);}}
-/* other rows recede */
-@keyframes funding-options-dim{0%{opacity:1;}70.91%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1);}75%{opacity:.5;}100%{opacity:.5;}}
-@keyframes funding-options-hlc{0%{fill:var(--anim-muted);}70.91%{fill:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1);}73.64%{fill:var(--anim-accent);}100%{fill:var(--anim-accent);}}
+/* scene: in 0-0.27 s, then holds (once-play, no reset) */
+@keyframes funding-options-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}3.03%{opacity:1;}100%{opacity:1;}}
+/* row header 1 at 0.27 s */
+@keyframes funding-options-crit0{0%{opacity:0;transform:translateX(-20px);}3.03%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}7.57%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+/* row header 2 at 0.35 s */
+@keyframes funding-options-crit1{0%{opacity:0;transform:translateX(-20px);}3.83%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}8.38%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+/* row header 3 at 0.42 s */
+@keyframes funding-options-crit2{0%{opacity:0;transform:translateX(-20px);}4.64%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}9.18%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+/* row header 4 at 0.49 s */
+@keyframes funding-options-crit3{0%{opacity:0;transform:translateX(-20px);}5.45%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}9.99%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
+/* column 1 card lands 0.82 s, cells follow 0.09 s later, 80 ms apart */
+@keyframes funding-options-col0{0%{opacity:0;transform:translateY(16px);}9.08%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.13%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cst0{0%{stroke:var(--anim-line);}9.08%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}12.11%{stroke:var(--anim-accent);}29.26%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}32.29%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
+@keyframes funding-options-cell00{0%{opacity:0;transform:translateY(10px);}10.09%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.13%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl00{0%{transform:scaleX(0);}12.11%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}18.16%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes funding-options-cell01{0%{opacity:0;transform:translateY(10px);}10.9%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.93%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cell02{0%{opacity:0;transform:translateY(10px);}11.71%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15.74%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cell03{0%{opacity:0;transform:translateY(10px);}12.51%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}16.55%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl03{0%{transform:scaleX(0);}14.53%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}20.59%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+/* column 2 card lands 2.91 s, cells follow 0.09 s later, 80 ms apart */
+@keyframes funding-options-col1{0%{opacity:0;transform:translateY(16px);}32.29%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.33%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cst1{0%{stroke:var(--anim-line);}32.29%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}35.31%{stroke:var(--anim-accent);}52.46%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}55.49%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
+@keyframes funding-options-cell10{0%{opacity:0;transform:translateY(10px);}33.3%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.33%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl10{0%{transform:scaleX(0);}35.31%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}41.36%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes funding-options-cell11{0%{opacity:0;transform:translateY(10px);}34.11%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.13%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cell12{0%{opacity:0;transform:translateY(10px);}34.9%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.94%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cell13{0%{opacity:0;transform:translateY(10px);}35.71%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}39.75%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl13{0%{transform:scaleX(0);}37.73%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}43.78%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+/* column 3 card lands 4.99 s, cells follow 0.09 s later, 80 ms apart */
+@keyframes funding-options-col2{0%{opacity:0;transform:translateY(16px);}55.49%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60.54%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cst2{0%{stroke:var(--anim-line);}55.49%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}58.52%{stroke:var(--anim-accent);}75.67%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}78.7%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
+@keyframes funding-options-cell20{0%{opacity:0;transform:translateY(10px);}56.5%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60.54%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl20{0%{transform:scaleX(0);}58.52%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}64.57%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes funding-options-cell21{0%{opacity:0;transform:translateY(10px);}57.31%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}61.34%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cell22{0%{opacity:0;transform:translateY(10px);}58.11%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}62.15%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-cell23{0%{opacity:0;transform:translateY(10px);}58.92%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}62.96%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl23{0%{transform:scaleX(0);}60.94%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}66.99%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+/* highlight row at 7.08 s */
+@keyframes funding-options-band{0%{opacity:0;transform:scaleX(.98);}78.7%{opacity:0;transform:scaleX(.98);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}83.24%{opacity:1;transform:scaleX(1);}100%{opacity:1;transform:scaleX(1);}}
+/* other rows recede: one group track */
+@keyframes funding-options-dim{0%{opacity:1;}78.7%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1);}83.24%{opacity:.5;}100%{opacity:.5;}}
+@keyframes funding-options-hlc{0%{fill:var(--anim-muted);}78.7%{fill:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1);}81.73%{fill:var(--anim-accent);}100%{fill:var(--anim-accent);}}
 /* note 1 */
-@keyframes funding-options-n0{0%{opacity:0;}10%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}13.64%{opacity:1;}25.91%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}28.18%{opacity:0;}100%{opacity:0;}}
+@keyframes funding-options-n0{0%{opacity:0;}11.1%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15.14%{opacity:1;}28.76%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}31.28%{opacity:0;}100%{opacity:0;}}
 /* note 2 */
-@keyframes funding-options-n1{0%{opacity:0;}30.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}34.55%{opacity:1;}46.82%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}49.09%{opacity:0;}100%{opacity:0;}}
+@keyframes funding-options-n1{0%{opacity:0;}34.3%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.34%{opacity:1;}51.96%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}54.48%{opacity:0;}100%{opacity:0;}}
 /* note 3 */
-@keyframes funding-options-n2{0%{opacity:0;}51.82%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}55.45%{opacity:1;}71.36%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}73.64%{opacity:0;}100%{opacity:0;}}
+@keyframes funding-options-n2{0%{opacity:0;}57.51%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}61.54%{opacity:1;}75.67%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}78.2%{opacity:0;}100%{opacity:0;}}
 /* verdict */
-@keyframes funding-options-n3{0%{opacity:0;transform:translateY(12px);}74.55%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}79.09%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-.visible .anim-funding-options .funding-options-scene{animation:funding-options-scene 11s linear infinite}
-.visible .anim-funding-options .funding-options-crit0{animation:funding-options-crit0 11s linear infinite}
-.visible .anim-funding-options .funding-options-crit1{animation:funding-options-crit1 11s linear infinite}
-.visible .anim-funding-options .funding-options-crit2{animation:funding-options-crit2 11s linear infinite}
-.visible .anim-funding-options .funding-options-crit3{animation:funding-options-crit3 11s linear infinite}
-.visible .anim-funding-options .funding-options-col0{animation:funding-options-col0 11s linear infinite}
-.visible .anim-funding-options .funding-options-card0{animation:funding-options-cst0 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell00{animation:funding-options-cell00 11s linear infinite}
-.visible .anim-funding-options .funding-options-fl00{animation:funding-options-fl00 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell01{animation:funding-options-cell01 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell02{animation:funding-options-cell02 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell03{animation:funding-options-cell03 11s linear infinite}
-.visible .anim-funding-options .funding-options-fl03{animation:funding-options-fl03 11s linear infinite}
-.visible .anim-funding-options .funding-options-col1{animation:funding-options-col1 11s linear infinite}
-.visible .anim-funding-options .funding-options-card1{animation:funding-options-cst1 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell10{animation:funding-options-cell10 11s linear infinite}
-.visible .anim-funding-options .funding-options-fl10{animation:funding-options-fl10 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell11{animation:funding-options-cell11 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell12{animation:funding-options-cell12 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell13{animation:funding-options-cell13 11s linear infinite}
-.visible .anim-funding-options .funding-options-fl13{animation:funding-options-fl13 11s linear infinite}
-.visible .anim-funding-options .funding-options-col2{animation:funding-options-col2 11s linear infinite}
-.visible .anim-funding-options .funding-options-card2{animation:funding-options-cst2 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell20{animation:funding-options-cell20 11s linear infinite}
-.visible .anim-funding-options .funding-options-fl20{animation:funding-options-fl20 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell21{animation:funding-options-cell21 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell22{animation:funding-options-cell22 11s linear infinite}
-.visible .anim-funding-options .funding-options-cell23{animation:funding-options-cell23 11s linear infinite}
-.visible .anim-funding-options .funding-options-fl23{animation:funding-options-fl23 11s linear infinite}
-.visible .anim-funding-options .funding-options-band{animation:funding-options-band 11s linear infinite}
-.visible .anim-funding-options .funding-options-dim{animation:funding-options-dim 11s linear infinite}
-.visible .anim-funding-options .funding-options-hlcrit{animation:funding-options-hlc 11s linear infinite}
-.visible .anim-funding-options .funding-options-n0{animation:funding-options-n0 11s linear infinite}
-.visible .anim-funding-options .funding-options-n1{animation:funding-options-n1 11s linear infinite}
-.visible .anim-funding-options .funding-options-n2{animation:funding-options-n2 11s linear infinite}
-.visible .anim-funding-options .funding-options-n3{animation:funding-options-n3 11s linear infinite}
+@keyframes funding-options-n3{0%{opacity:0;transform:translateY(12px);}83.5%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}88.5%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+.visible .anim-funding-options .funding-options-scene{animation:funding-options-scene 9s linear 1 both}
+.visible .anim-funding-options .funding-options-crit0{animation:funding-options-crit0 9s linear 1 both}
+.visible .anim-funding-options .funding-options-crit1{animation:funding-options-crit1 9s linear 1 both}
+.visible .anim-funding-options .funding-options-crit2{animation:funding-options-crit2 9s linear 1 both}
+.visible .anim-funding-options .funding-options-crit3{animation:funding-options-crit3 9s linear 1 both}
+.visible .anim-funding-options .funding-options-col0{animation:funding-options-col0 9s linear 1 both}
+.visible .anim-funding-options .funding-options-card0{animation:funding-options-cst0 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell00{animation:funding-options-cell00 9s linear 1 both}
+.visible .anim-funding-options .funding-options-fl00{animation:funding-options-fl00 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell01{animation:funding-options-cell01 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell02{animation:funding-options-cell02 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell03{animation:funding-options-cell03 9s linear 1 both}
+.visible .anim-funding-options .funding-options-fl03{animation:funding-options-fl03 9s linear 1 both}
+.visible .anim-funding-options .funding-options-col1{animation:funding-options-col1 9s linear 1 both}
+.visible .anim-funding-options .funding-options-card1{animation:funding-options-cst1 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell10{animation:funding-options-cell10 9s linear 1 both}
+.visible .anim-funding-options .funding-options-fl10{animation:funding-options-fl10 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell11{animation:funding-options-cell11 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell12{animation:funding-options-cell12 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell13{animation:funding-options-cell13 9s linear 1 both}
+.visible .anim-funding-options .funding-options-fl13{animation:funding-options-fl13 9s linear 1 both}
+.visible .anim-funding-options .funding-options-col2{animation:funding-options-col2 9s linear 1 both}
+.visible .anim-funding-options .funding-options-card2{animation:funding-options-cst2 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell20{animation:funding-options-cell20 9s linear 1 both}
+.visible .anim-funding-options .funding-options-fl20{animation:funding-options-fl20 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell21{animation:funding-options-cell21 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell22{animation:funding-options-cell22 9s linear 1 both}
+.visible .anim-funding-options .funding-options-cell23{animation:funding-options-cell23 9s linear 1 both}
+.visible .anim-funding-options .funding-options-fl23{animation:funding-options-fl23 9s linear 1 both}
+.visible .anim-funding-options g.funding-options-band{animation:funding-options-band 9s linear 1 both}
+.visible .anim-funding-options .funding-options-dim{animation:funding-options-dim 9s linear 1 both}
+.visible .anim-funding-options .funding-options-hlcrit{animation:funding-options-hlc 9s linear 1 both}
+.visible .anim-funding-options .funding-options-n0{animation:funding-options-n0 9s linear 1 both}
+.visible .anim-funding-options .funding-options-n1{animation:funding-options-n1 9s linear 1 both}
+.visible .anim-funding-options .funding-options-n2{animation:funding-options-n2 9s linear 1 both}
+.visible .anim-funding-options .funding-options-n3{animation:funding-options-n3 9s linear 1 both}
 
 @media (prefers-reduced-motion: reduce) { .anim-funding-options * { animation: none !important; } }
 </style>
-<div class="anim anim-funding-options" data-anim="funding-options" data-anim-cycle="11" data-anim-control="loop">
+<div class="anim anim-funding-options" data-anim="funding-options" data-anim-cycle="9" data-anim-control="once">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three ways to fund a company compared on four criteria: bootstrapping keeps all control but raises only what you earn; angel investors give $25k to $500k in weeks to months for a stake; venture capital gives $1M to $50M+ over 3 to 6 months for fast growth and a board seat. The control you keep is highlighted: it shrinks as the money grows.">
 <g class="funding-options-scene">
 <path class="funding-options-rule" d="M60 220 H1624"/>
 <path class="funding-options-rule" d="M60 320 H1624"/>
 <path class="funding-options-rule" d="M60 420 H1624"/>
-<g class="funding-options-crit0"><g class="funding-options-dim">
+<g class="funding-options-dim">
+<g class="funding-options-crit0"><g>
 <text class="funding-options-mono funding-options-crit" x="60" y="166">Typical amount</text>
 <text class="funding-options-mono funding-options-csub" x="60" y="194">per round</text>
 </g></g>
-<g class="funding-options-crit1"><g class="funding-options-dim">
+<g class="funding-options-crit1"><g>
 <text class="funding-options-mono funding-options-crit" x="60" y="266">Speed to raise</text>
 <text class="funding-options-mono funding-options-csub" x="60" y="294">first pitch to money</text>
 </g></g>
-<g class="funding-options-crit2"><g class="funding-options-dim">
+<g class="funding-options-crit2"><g>
 <text class="funding-options-mono funding-options-crit" x="60" y="366">What they expect</text>
 <text class="funding-options-mono funding-options-csub" x="60" y="394">in return</text>
 </g></g>
+<g class="funding-options-cell00"><g>
+<text class="funding-options-sans funding-options-val" x="384" y="164">What you earn</text>
+<path class="funding-options-track" d="M384 188 H744"/>
+<rect class="funding-options-fill funding-options-fill-amt funding-options-fl00" x="384" y="186" width="22" height="4" rx="2"/>
+</g></g>
+<g class="funding-options-cell01"><g>
+<text class="funding-options-sans funding-options-val" x="384" y="264">No raise needed</text>
+<text class="funding-options-mono funding-options-csub" x="384" y="294">grow as cash comes in</text>
+</g></g>
+<g class="funding-options-cell02"><g>
+<text class="funding-options-sans funding-options-val" x="384" y="364">Nothing</text>
+<text class="funding-options-mono funding-options-csub" x="384" y="394">you answer to customers</text>
+</g></g>
+<g class="funding-options-cell10"><g>
+<text class="funding-options-sans funding-options-val" x="824" y="164">$25k to $500k</text>
+<path class="funding-options-track" d="M824 188 H1184"/>
+<rect class="funding-options-fill funding-options-fill-amt funding-options-fl10" x="824" y="186" width="108" height="4" rx="2"/>
+</g></g>
+<g class="funding-options-cell11"><g>
+<text class="funding-options-sans funding-options-val" x="824" y="264">Weeks to months</text>
+<text class="funding-options-mono funding-options-csub" x="824" y="294">a few pitches, light checks</text>
+</g></g>
+<g class="funding-options-cell12"><g>
+<text class="funding-options-sans funding-options-val" x="824" y="364">A stake, some say</text>
+<text class="funding-options-mono funding-options-csub" x="824" y="394">updates, often mentoring</text>
+</g></g>
+<g class="funding-options-cell20"><g>
+<text class="funding-options-sans funding-options-val" x="1264" y="164">$1M to $50M+</text>
+<path class="funding-options-track" d="M1264 188 H1624"/>
+<rect class="funding-options-fill funding-options-fill-amt funding-options-fl20" x="1264" y="186" width="360" height="4" rx="2"/>
+</g></g>
+<g class="funding-options-cell21"><g>
+<text class="funding-options-sans funding-options-val" x="1264" y="264">3 to 6 months</text>
+<text class="funding-options-mono funding-options-csub" x="1264" y="294">per round, deep diligence</text>
+</g></g>
+<g class="funding-options-cell22"><g>
+<text class="funding-options-sans funding-options-val" x="1264" y="364">Fast growth, an exit</text>
+<text class="funding-options-mono funding-options-csub" x="1264" y="394">board seat, 10× ambition</text>
+</g></g>
+</g>
 <g class="funding-options-crit3"><g>
 <text class="funding-options-mono funding-options-crit funding-options-hlcrit" x="60" y="466">Control you keep</text>
 <text class="funding-options-mono funding-options-csub" x="60" y="494">of the company</text>
@@ -156,19 +198,6 @@
 <path class="funding-options-card funding-options-card0" d="M384 112 H744"/>
 <text class="funding-options-sans funding-options-head" x="384" y="62">Bootstrapping</text>
 <text class="funding-options-mono funding-options-hsub" x="384" y="92">your savings and revenue</text>
-<g class="funding-options-cell00"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="384" y="164">What you earn</text>
-<path class="funding-options-track" d="M384 188 H744"/>
-<rect class="funding-options-fill funding-options-fill-amt funding-options-fl00" x="384" y="186" width="22" height="4" rx="2"/>
-</g></g>
-<g class="funding-options-cell01"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="384" y="264">No raise needed</text>
-<text class="funding-options-mono funding-options-csub" x="384" y="294">grow as cash comes in</text>
-</g></g>
-<g class="funding-options-cell02"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="384" y="364">Nothing</text>
-<text class="funding-options-mono funding-options-csub" x="384" y="394">you answer to customers</text>
-</g></g>
 <g class="funding-options-cell03"><g>
 <text class="funding-options-sans funding-options-val" x="384" y="464">All of it</text>
 <path class="funding-options-track" d="M384 488 H744"/>
@@ -180,19 +209,6 @@
 <path class="funding-options-card funding-options-card1" d="M824 112 H1184"/>
 <text class="funding-options-sans funding-options-head" x="824" y="62">Angel investors</text>
 <text class="funding-options-mono funding-options-hsub" x="824" y="92">wealthy individuals</text>
-<g class="funding-options-cell10"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="824" y="164">$25k to $500k</text>
-<path class="funding-options-track" d="M824 188 H1184"/>
-<rect class="funding-options-fill funding-options-fill-amt funding-options-fl10" x="824" y="186" width="108" height="4" rx="2"/>
-</g></g>
-<g class="funding-options-cell11"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="824" y="264">Weeks to months</text>
-<text class="funding-options-mono funding-options-csub" x="824" y="294">a few pitches, light checks</text>
-</g></g>
-<g class="funding-options-cell12"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="824" y="364">A stake, some say</text>
-<text class="funding-options-mono funding-options-csub" x="824" y="394">updates, often mentoring</text>
-</g></g>
 <g class="funding-options-cell13"><g>
 <text class="funding-options-sans funding-options-val" x="824" y="464">Most of it</text>
 <path class="funding-options-track" d="M824 488 H1184"/>
@@ -204,19 +220,6 @@
 <path class="funding-options-card funding-options-card2" d="M1264 112 H1624"/>
 <text class="funding-options-sans funding-options-head" x="1264" y="62">Venture capital</text>
 <text class="funding-options-mono funding-options-hsub" x="1264" y="92">professional funds</text>
-<g class="funding-options-cell20"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="1264" y="164">$1M to $50M+</text>
-<path class="funding-options-track" d="M1264 188 H1624"/>
-<rect class="funding-options-fill funding-options-fill-amt funding-options-fl20" x="1264" y="186" width="360" height="4" rx="2"/>
-</g></g>
-<g class="funding-options-cell21"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="1264" y="264">3 to 6 months</text>
-<text class="funding-options-mono funding-options-csub" x="1264" y="294">per round, deep diligence</text>
-</g></g>
-<g class="funding-options-cell22"><g class="funding-options-dim">
-<text class="funding-options-sans funding-options-val" x="1264" y="364">Fast growth, an exit</text>
-<text class="funding-options-mono funding-options-csub" x="1264" y="394">board seat, 10× ambition</text>
-</g></g>
 <g class="funding-options-cell23"><g>
 <text class="funding-options-sans funding-options-val" x="1264" y="464">Less each round</text>
 <path class="funding-options-track" d="M1264 488 H1624"/>
@@ -225,7 +228,7 @@
 </g></g>
 </g>
 <g class="funding-options-band" style="transform-box:fill-box;transform-origin:50% 50%">
-<path class="funding-options-band funding-options-glow" d="M52 432 H40 V508 H52 M60 520 H1624"/>
+<rect class="funding-options-glowbar funding-options-glow" x="60" y="517" width="1564" height="6" rx="3"/>
 <path class="funding-options-band" d="M52 432 H40 V508 H52 M60 520 H1624"/>
 </g>
 <rect class="funding-options-tag" x="60" y="40" width="148" height="32" rx="4"/>
