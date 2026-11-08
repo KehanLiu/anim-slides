@@ -190,3 +190,11 @@ Rules that followed (0.10.0, modelled on frontend-slides' "show, don't tell"):
 - The scaffolder covers the plain archetype forms; other shapes are hand-built from the spec.
 - Markers go inside the slot div. One phase-mark definition everywhere (settled moments).
 - Delivery is a before/after review page (`review_page.py`) and a few lines.
+
+- **A fallback deck in the folder is not a decision.** A 12-slide corporate pptx run under
+  0.10.0 found a `deck.md` from an earlier try, built the host with `md_to_deck.py`, wrote
+  "user's earlier choice" into Decisions and asked at intake whether to "keep the md_to_deck
+  host". The three fragments were good; the nine text slides around them were a raw dump, and
+  the owner asked why frontend-slides was not the base. Rule since 0.11.0: with a deck skill
+  installed the fallback is never used or offered; the intake deck question is full deck or
+  lighter path only.

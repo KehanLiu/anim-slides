@@ -38,7 +38,10 @@ to the source's brand unless the user wants a new look); only when neither exist
 `scripts/md_to_deck.py` as a fallback. Its output is a plain host for integration (full-width
 title, the body as bullets, images as they come), not a design; say so to the user in one
 sentence, because the deck will read like a document until a deck skill or a designer styles
-it. Converting a pptx to Markdown and then to `md_to_deck.py` throws away the pptx's own
+it. When a deck skill is installed the fallback is not an option at all: do not offer "keep the
+existing md_to_deck host" at intake, and do not read a `deck.md` or a fallback deck already in
+the folder as the user's decision (a 12-slide run did exactly that and delivered three good
+figures inside nine raw text slides). Converting a pptx to Markdown and then to `md_to_deck.py` throws away the pptx's own
 layout; keep the pptx as the source for `extract_slides.py` and `render_deck.py` either way.
 For the fallback, fetch the images the Markdown references (relative paths) into the deck's
 folder first, or the deck shows placeholders.

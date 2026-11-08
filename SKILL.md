@@ -44,7 +44,10 @@ next to the user's deck, `anim/<name>/` one per fragment.
 deck comes from, in order: (a) the user's own or organisation's deck skill; (b) `frontend-slides`
 when installed (pick the aesthetic preview closest to the source's brand unless the user wants
 a new look); (c) only when neither exists, `scripts/md_to_deck.py` (a plain host, not a design:
-say so in one sentence). The intake message says up front that the HTML deck has to exist first
+say so in one sentence). A `deck.md` or an `md_to_deck.py` deck already lying in the folder is
+not a choice the user made: with a deck skill installed the fallback is never used and never
+offered, not as "keep the existing host" either; the intake's deck question is full deck or
+lighter path, nothing else. The intake message says up front that the HTML deck has to exist first
 and what it costs: a deck skill rebuilds the whole deck, and on a 40-slide deck that is the
 longest step. It offers the **lighter path**: standalone animated slide pages for the chosen
 slides only (one self-contained HTML per slide at 1280x720 or the source stage: title, fragment,
@@ -206,7 +209,8 @@ cheap; write them all before building), then builds.
   first fragment; no later questions; defaults taken are recorded in `anim/triage.md`.
 - **Deck first.** anim-slides styles fragments, never the deck. A source that is not an HTML
   deck goes through a deck skill (Mode A, announced with its cost and the lighter path);
-  `md_to_deck.py` is a last resort, named as such.
+  `md_to_deck.py` is used only when no deck skill is installed, never offered otherwise, and an
+  existing fallback deck in the folder does not count as the user's choice.
 - **Keep the slide's visuals.** A chart, graph, table, map, flowchart or scientific figure is
   the slide's core content: redraw it from its data and animate that, never replace it with a
   text summary. An icon or picture that labels a column, lane, category or actor is content
