@@ -36,7 +36,8 @@ One pass of 4 to 10 s (`data-anim-cycle`), shaped as one staggered reveal:
 | hold | last 0.8-1.5 s | nothing moves; the finished state (= 100 % keyframe = resting frame) is shown and stays, with the last caption |
 
 Phases keep their second marks from the spec; keyframe percentage = seconds / pass * 100.
-The start seconds of every phase after the first go on the wrapper as `data-anim-phases`.
+The phase marks go on the wrapper as `data-anim-phases`: settled moments between narrated steps
+(three to five per slide, six when the slide narrates six), ascending, the last at the hold start.
 At most three things move at any moment, and no element moves twice unless the story needs it:
 a packet that travels one path once is fine, a pulse that repeats is not. A highlight that moves
 from step to step is one focus changing place, not repetition.

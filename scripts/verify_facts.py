@@ -31,7 +31,12 @@ unmatched words WARN per text element, capitalised terms, acronyms and codes sep
 "names". "splice" warns when a label joins words that never share one source bullet (meaning
 added between them); "causal-slot" warns when text in a why/reason/cause slot (class or id)
 comes from a bullet that states no cause. --strict makes these label findings FAIL.
+Adjacent text runs (two <tspan>s, nested elements) are read with a space between them; when
+that reading fails, the run-together form ('15<tspan>FTE', a word split across tspans) and a
+de-hyphenated form are tried too, and the cleanest is kept. Soft hyphens are ignored. Source
+words run together by an extractor ('FloorConsideration') also match split apart.
 Output: OK / WARN / FAIL lines, then PASS or FAILED; exit code 1 on any FAIL.
+verify_facts.py --self-test runs the built-in tests.
 Standard library only.
 """
 import argparse
@@ -67,6 +72,18 @@ class Report:
 # ----------------------------------------------------------------------------- fragment text
 TEXT_TAGS = {'text', 'title', 'desc'}
 SKIP_TAGS = {'style', 'script'}
+SOFT = '\x00'  # a child-element boundary inside a text element: a space, or nothing
+INVISIBLE_RE = re.compile('[\u00ad\u200b\u200c\u200d\u2060\ufeff]')  # &shy;, zero-width
+
+
+def clean_text(s):
+    """Drop soft hyphens and zero-width characters, collapse whitespace."""
+    return re.sub(r'\s+', ' ', INVISIBLE_RE.sub('', s)).strip()
+
+
+def dehyphen(s):
+    """'Consid- eration' (a hyphen at a line break) -> 'Consideration'."""
+    return re.sub(r'([a-z])-\s+([a-z])', r'\1\2', s)
 
 
 class Elem:
@@ -76,7 +93,20 @@ class Elem:
 
     @property
     def text(self):
-        return re.sub(r'\s+', ' ', ''.join(self.parts)).strip()
+        """Spaced form: a space at every child-element boundary (two <tspan>s, nested
+        elements), whitespace collapsed. The default for every check."""
+        s = re.sub(SOFT + r'+(?=[,.;:!?)](?:\s|$|' + SOFT + '))', '', ''.join(self.parts))
+        return clean_text(s.replace(SOFT, ' '))  # no space before trailing punctuation
+
+    @property
+    def variants(self):
+        """Readings to try, best first: spaced; tight (child elements joined without a
+        space: '15<tspan>FTE' or a word split across tspans); de-hyphenated (a word broken
+        with a hyphen at a tspan line end). Duplicates dropped."""
+        spaced = self.text
+        tight = clean_text(''.join(self.parts).replace(SOFT, ''))
+        out = [spaced, tight, dehyphen(spaced)]
+        return list(dict.fromkeys(v for v in out if v))
 
     def where(self):
         cls = (self.attrs.get('class') or '').split()
@@ -124,6 +154,8 @@ class FragmentParser(HTMLParser):
         elif self.cur is not None:
             if (tag == 'tspan' and 'x' in a) or tag in ('br', 'p', 'div', 'li'):
                 self.cur.parts.append(' ')  # a new line inside the element
+            else:
+                self.cur.parts.append(SOFT)  # adjacent runs: try with and without a space
         if tag == 'foreignobject' and not void:
             self.fo += 1
         if not void:
@@ -143,6 +175,8 @@ class FragmentParser(HTMLParser):
         if self.cur is not None and len(self.anc) <= self.cur.depth:
             self.elems.append(self.cur)
             self.cur = None
+        elif self.cur is not None:
+            self.cur.parts.append(SOFT)  # end of a child element
 
     def handle_data(self, data):
         if self.skip:
@@ -380,6 +414,20 @@ def load_corpus(args, R):
     return corpus
 
 
+JOINED_RE = re.compile(r'(?<=[a-z])(?=[A-Z][a-z])')
+
+
+def with_splits(text):
+    """Source text plus a copy of its run-together words split apart ('FloorConsideration',
+    two text runs joined without a space -> also 'Floor Consideration'). Both forms are kept,
+    so a real name like 'PowerPoint' still matches as written."""
+    text = INVISIBLE_RE.sub('', text)
+    joined = [w for w in re.findall(r'[A-Za-z]+', text) if JOINED_RE.search(w)]
+    if not joined:
+        return text
+    return text + '\n' + ' '.join(JOINED_RE.sub(' ', w) for w in joined)
+
+
 class Vocab:
     """Stems of one corpus tier, with a prefix index for tolerant matching."""
 
@@ -387,6 +435,7 @@ class Vocab:
         self.stems, self.prefixes = set(), {}
 
     def add_text(self, text):
+        text = with_splits(text)
         for m in IDENT_RE.finditer(fold(text)):
             self.stems.add(m.group(0).lower())
         for w in words_in(text):
@@ -395,8 +444,8 @@ class Vocab:
             if len(st) >= 5:
                 self.prefixes.setdefault(st[:5], set()).add(st)
 
-    def has(self, st):
-        return word_match(st, self.stems, self.prefixes)
+    def has(self, st, exact=False):
+        return st in self.stems if exact else word_match(st, self.stems, self.prefixes)
 
 
 def content_stems(text):
@@ -407,7 +456,7 @@ def content_stems(text):
 def source_units(text):
     """Units for co-occurrence checks: each bullet / line, and each pair of adjacent bullets
     (a timeline label often joins a step and its date). Returns (unit text, paragraph text)."""
-    paras = [p.strip() for p in re.split(r'\n+', text) if p.strip()]
+    paras = [p.strip() for p in re.split(r'\n+', INVISIBLE_RE.sub('', text)) if p.strip()]
     out = []
     for i, p in enumerate(paras):
         out.append((p, p))
@@ -591,9 +640,9 @@ def slot_kind(e):
 
 
 # ----------------------------------------------------------------------------- main
-def main():
+def build_parser():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    ap.add_argument('fragment')
+    ap.add_argument('fragment', nargs='?')
     ap.add_argument('--source', action='append')
     ap.add_argument('--slide', action='append', default=[])
     ap.add_argument('--slides', action='append', default=[])
@@ -606,8 +655,25 @@ def main():
                     help='word, name, splice, causal-slot and cross-slide findings on visible '
                          'labels FAIL instead of WARN (aria-label prose stays WARN)')
     ap.add_argument('--quiet-ok', action='store_true', help='print only WARN and FAIL lines')
-    args = ap.parse_args()
+    ap.add_argument('--self-test', action='store_true', help='run the built-in tests and exit')
+    return ap
 
+
+def best_variant(e, check):
+    """Run check(text) -> (findings, *rest) on each reading of e (spaced, tight,
+    de-hyphenated) and keep the first with the fewest FAIL, then WARN findings."""
+    best, best_key = None, None
+    for t in e.variants:
+        res = check(t)
+        key = (sum(1 for f in res[0] if f[0] == 'FAIL'), sum(1 for f in res[0] if f[0] == 'WARN'))
+        if best is None or key < best_key:
+            best, best_key = res, key
+        if key == (0, 0):
+            break
+    return best
+
+
+def verify(args):
     R = Report()
     corpus = load_corpus(args, R)
     elems = fragment_elements(args.fragment)
@@ -619,18 +685,18 @@ def main():
     vocab = {t: Vocab() for t in tiers}
     units = []  # (label, sentence, set of stems) of primary sources, for co-occurrence checks
     for lab, tier, text in corpus:
-        ntext = URL_RE.sub(' ', text)
+        ntext = URL_RE.sub(' ', INVISIBLE_RE.sub('', text))
         if tier == 'spec':  # "Slide 24" / "slides 5-6" in a header cite the source, not data
             ntext = re.sub(r'\bslides?\s+\d+(?:\s*[-–,]\s*\d+)*', ' ', ntext, flags=re.I)
         nums[tier].extend((n, lab) for n in numbers_in(ntext))
         vocab[tier].add_text(text)
         if tier == 'primary':
             for unit, para in source_units(text):
-                units.append((lab, unit, set(content_stems(unit)), para))
+                units.append((lab, unit, set(content_stems(with_splits(unit))), para))
 
     illustrative = args.illustrative
     for e in elems:
-        if ILLUS_RE.search(e.text):
+        if any(ILLUS_RE.search(t) for t in e.variants):
             illustrative = True
             R.add('WARN', 'illustrative', f"fragment says \"{e.text[:60]}\" ({e.where()}): "
                   'number mismatches are downgraded to WARN')
@@ -645,29 +711,30 @@ def main():
     all_src = [x for t in tiers for x in nums[t]]
 
     # ---- numbers
-    n_ok = 0
-    outside = {'cross-slide': [], 'spec-only': []}
-    axis_seen, idx_used, seen = set(), False, set()
-    for e in elems:
-        for n in numbers_in(e.text):
-            key = (n.raw, n.value, e.text)
+    def check_numbers(e, text):
+        """Findings for the numbers in one reading of e: (findings, n_ok, axis, idx, outside)."""
+        out, n_ok, axis, idx = [], 0, set(), False
+        outs = {'cross-slide': [], 'spec-only': []}
+        seen = set()
+        for n in numbers_in(text):
+            key = (n.raw, n.value)
             if key in seen:
                 continue
             seen.add(key)
-            where = f"in '{e.text[:70]}' ({e.where()})"
+            where = f"in '{text[:70]}' ({e.where()})"
             st, det = find_match(n, nums['primary'])
             if st == 'ok':
                 n_ok += 1
                 continue
             if id(e) in ticks:
-                axis_seen.add(ticks[id(e)])
+                axis.add(ticks[id(e)])
                 continue
-            m = INDEX_RE.match(e.text.strip())
+            m = INDEX_RE.match(text.strip())
             if m and int(m.group(1)) in idx_set and same(float(m.group(1)), n.value):
-                idx_used = True
+                idx = True
                 continue
             if n.spelled and idx_set and same(n.value, max(idx_set)):
-                idx_used = True  # "eight steps" with badges 1..8
+                idx = True  # "eight steps" with badges 1..8
                 continue
             hit = None
             for t in tiers[1:]:
@@ -676,25 +743,44 @@ def main():
                     hit = (TIER_NAME[t], det2)
                     break
             if hit:
-                outside[hit[0]].append(f'{n.raw} [{", ".join(hit[1])}]')
+                outs[hit[0]].append(f'{n.raw} [{", ".join(hit[1])}]')
                 continue
             st3, det3 = (st, det) if st else find_match(n, all_src)
             if st3 == 'unit':
-                R.add('WARN', 'numbers', f'{n.raw} {where}: the source has this value without % ({", ".join(det3)})')
+                out.append(('WARN', 'numbers', f'{n.raw} {where}: the source has this value without % ({", ".join(det3)})'))
                 continue
             if st3 == 'rounded':
-                R.add('WARN', 'numbers', f'{n.raw} {where}: rounded from {det3}')
+                out.append(('WARN', 'numbers', f'{n.raw} {where}: rounded from {det3}'))
                 continue
             how = derive(n, nums['primary'] + nums['spec'] + nums['allow'])
             if how:
-                R.add('WARN', 'derived', f'{how} {where}')
+                out.append(('WARN', 'derived', f'{how} {where}'))
                 continue
             if n.spelled:
-                R.add('WARN', 'numbers', f'spelled-out "{n.raw}" {where}: not in the source; '
-                      'fine for a count of what the fragment shows, otherwise a FAIL')
+                out.append(('WARN', 'numbers', f'spelled-out "{n.raw}" {where}: not in the source; '
+                            'fine for a count of what the fragment shows, otherwise a FAIL'))
                 continue
-            R.add('WARN' if illustrative else 'FAIL', 'numbers',
-                  f'{n.raw} {where}: not in the source' + (' (illustrative)' if illustrative else ''))
+            out.append(('WARN' if illustrative else 'FAIL', 'numbers',
+                        f'{n.raw} {where}: not in the source' + (' (illustrative)' if illustrative else '')))
+        # cross-slide / spec-only hits rank between a clean match and a finding
+        ranked = out + [('WARN', '', '')] * (len(outs['cross-slide']) + len(outs['spec-only']))
+        return ranked, out, n_ok, axis, idx, outs
+
+    n_ok = 0
+    outside = {'cross-slide': [], 'spec-only': []}
+    axis_seen, idx_used, seen_txt = set(), False, set()
+    for e in elems:
+        if e.text in seen_txt:
+            continue
+        seen_txt.add(e.text)
+        _, found, k, axis, idx, outs = best_variant(e, lambda t: check_numbers(e, t))
+        for f in found:
+            R.add(*f)
+        n_ok += k
+        axis_seen |= axis
+        idx_used = idx_used or idx
+        for kk in outside:
+            outside[kk].extend(outs[kk])
     if n_ok:
         R.add('OK', 'numbers', f'{n_ok} number{"s" if n_ok > 1 else ""} found on the slide')
     for a in sorted(axis_seen):
@@ -710,12 +796,9 @@ def main():
               + ', '.join(sorted(set(outside['spec-only']))))
 
     # ---- words, names, cross-slide words, sentence splices, causal slots
-    seen_txt, w_ok, w_total = set(), 0, 0
-    for e in elems:
-        t = e.text
-        if (t, slot_kind(e)) in seen_txt:
-            continue
-        seen_txt.add((t, slot_kind(e)))
+    def check_words(e, t):
+        """Findings for the words of one reading t of e: (findings, words ok, words total)."""
+        out, w_ok, w_total = [], 0, 0
         label = f"'{t[:60]}{'...' if len(t) > 60 else ''}' ({e.where()})"
         miss_w, miss_n, cross, spec_w = [], [], [], []
         ft = fold(t)
@@ -731,18 +814,22 @@ def main():
             else:
                 miss_n.append(m.group(0))
         prim_stems = []
+        # a word that exists only in a joined reading ('Consid'+'eration') must match exactly:
+        # prefix tolerance would let 'Floor'+'Pancake' pass as a form of 'floor'
+        spaced = {w.lower() for w in words_in(fold(e.text))}
         for i, w in enumerate(words_in(IDENT_RE.sub(' ', ft))):
             lw = w.lower()
             if lw in STOP or len(lw) < 2 or lw in NUM_WORDS:
                 continue
             w_total += 1
             st = stem(lw)
-            if vocab['primary'].has(st):
+            ex = lw not in spaced
+            if vocab['primary'].has(st, ex):
                 w_ok += 1
                 prim_stems.append(st)
-            elif vocab['context'].has(st):
+            elif vocab['context'].has(st, ex):
                 cross.append(w)
-            elif vocab['spec'].has(st) or vocab['allow'].has(st):
+            elif vocab['spec'].has(st, ex) or vocab['allow'].has(st, ex):
                 spec_w.append(w)
             elif (len(w) >= 2 and w.isupper()) or (w[0].isupper() and i > 0):
                 miss_n.append(w)
@@ -750,15 +837,15 @@ def main():
                 miss_w.append(w)
         dd = lambda xs: ', '.join(dict.fromkeys(xs))  # noqa: E731
         if miss_n:
-            R.add('WARN', 'names', f'{label}: no source match for {dd(miss_n)}')
+            out.append(('WARN', 'names', f'{label}: no source match for {dd(miss_n)}'))
         if miss_w:
-            R.add('WARN', 'words', f'{label}: no source match for {dd(miss_w)}')
+            out.append(('WARN', 'words', f'{label}: no source match for {dd(miss_w)}'))
         if cross:
-            R.add('WARN', 'cross-slide', f'{label}: only on other slides: {dd(cross)}')
+            out.append(('WARN', 'cross-slide', f'{label}: only on other slides: {dd(cross)}'))
         if spec_w and e.tag != 'aria-label':
-            R.add('WARN', 'spec-only', f'{label}: only in the spec header or allow list: {dd(spec_w)}')
+            out.append(('WARN', 'spec-only', f'{label}: only in the spec header or allow list: {dd(spec_w)}'))
         if e.tag == 'aria-label' or not units:
-            continue
+            return out, w_ok, w_total
         # best supporting source sentence for this element
         want = set(prim_stems)
         best = max(units, key=lambda u: sum(1 for s_ in want if s_ in u[2] or
@@ -766,16 +853,28 @@ def main():
         covered = {s_ for s_ in want if s_ in best[2] or
                    any(word_match(s_, {x}, {x[:5]: {x}}) for x in best[2])}
         if len(want) >= 3 and len(want - covered) >= 1 and len(covered) >= 2:
-            R.add('WARN', 'splice', f'{label}: closest source passage "{best[1][:80]}" ({best[0]}) '
-                  f'lacks {dd(sorted(want - covered))}, taken from elsewhere: check the claim is the slide\'s')
+            out.append(('WARN', 'splice', f'{label}: closest source passage "{best[1][:80]}" ({best[0]}) '
+                        f'lacks {dd(sorted(want - covered))}, taken from elsewhere: check the claim is the slide\'s'))
         kind = slot_kind(e)
         if kind and want and covered:
             own_causal = CAUSAL_PHRASE.search(t)
             if kind in ('note', 'legend') and not own_causal:
-                continue  # captions and categories: only a causal wording needs a causal source
+                return out, w_ok, w_total  # captions and categories: only a causal wording needs a causal source
             if not CAUSAL_PHRASE.search(best[3]):
-                R.add('WARN', 'causal-slot', f'{label} sits in a "{kind}" slot, but its source passage '
-                      f'"{best[1][:80]}" ({best[0]}) states no cause (no because / due to / so / leads to)')
+                out.append(('WARN', 'causal-slot', f'{label} sits in a "{kind}" slot, but its source passage '
+                            f'"{best[1][:80]}" ({best[0]}) states no cause (no because / due to / so / leads to)'))
+        return out, w_ok, w_total
+
+    seen_txt, w_ok, w_total = set(), 0, 0
+    for e in elems:
+        if (e.text, slot_kind(e)) in seen_txt:
+            continue
+        seen_txt.add((e.text, slot_kind(e)))
+        found, k, tot = best_variant(e, lambda t: check_words(e, t))
+        for f in found:
+            R.add(*f)
+        w_ok += k
+        w_total += tot
     if w_total:
         R.add('OK', 'words', f'{w_ok} of {w_total} words match the primary source ({100 * w_ok // w_total}%)')
 
@@ -785,7 +884,64 @@ def main():
                    for lvl, chk, msg in R.items]
     if args.quiet_ok:
         R.items = [i for i in R.items if i[0] != 'OK']
-    sys.exit(1 if R.print() else 0)
+    return R
+
+
+# ----------------------------------------------------------------------------- self-test
+SELF_TESTS = [
+    # (name, fragment body, source text, expect no WARN/FAIL)
+    ('two tspans', '<text x="0" y="0"><tspan>Floor</tspan><tspan>Consideration</tspan></text>',
+     'Floor consideration of the bill', True),
+    ('nested tspan with dy', '<text x="0" y="0">Floor<tspan dy="1.2em">Consideration'
+     '<tspan dy="-0.4em">vote</tspan></tspan></text>', 'Floor consideration and a vote', True),
+    ('word broken across tspans', '<text x="0" y="0">Consid<tspan class="b">eration</tspan> '
+     'of the <tspan>15</tspan><tspan class="u">FTE</tspan></text>', 'Consideration took 15 FTE', True),
+    ('soft hyphen and hyphen at a line end', '<text x="0" y="0">Consid&shy;eration '
+     '<tspan x="0" dy="1em">appro-</tspan><tspan x="0" dy="1em">priation</tspan></text>',
+     'Consideration of the appropriation', True),
+    ('source runs joined', '<text x="0" y="0"><tspan>Floor</tspan> <tspan>Consideration</tspan></text>',
+     'FloorConsideration', True),
+    ('unrelated words still warn', '<text x="0" y="0"><tspan>Floor</tspan><tspan>Pancake</tspan></text>',
+     'Floor consideration', False),
+]
+
+
+def self_test():
+    import tempfile
+    fails = 0
+    with tempfile.TemporaryDirectory(prefix='verify-facts-test.') as tmp:
+        def run(body, extra):
+            frag = os.path.join(tmp, 'f.html')
+            with open(frag, 'w', encoding='utf-8') as fh:
+                fh.write('<svg viewBox="0 0 100 100">' + body + '</svg>')
+            R = verify(build_parser().parse_args([frag, *extra]))
+            return [i for i in R.items if i[0] != 'OK']
+
+        cases = [(n, b, ['--source-text', s], ok) for n, b, s, ok in SELF_TESTS]
+        outline = os.path.join(tmp, 'outline.json')
+        with open(outline, 'w', encoding='utf-8') as fh:
+            json.dump({'slides': [{'index': 1, 'title': 'Senate procedure',
+                                   'bullets': ['Committee markup', 'Floor', 'Consideration of the bill',
+                                               'Conference report, 3 days']}]}, fh)
+        cases.append(('outline bullets', '<text x="0" y="0"><tspan>Floor</tspan><tspan dy="1em">'
+                      'Consideration</tspan></text><text x="0" y="20">Conference <tspan>report</tspan>: '
+                      '<tspan>3</tspan> days</text>', ['--source', outline, '--slide', '1'], True))
+        for name, body, extra, want_clean in cases:
+            bad = run(body, extra)
+            ok = (not bad) == want_clean
+            fails += not ok
+            print(f'{"ok  " if ok else "FAIL"} {name}' + ('' if ok else f': {bad}'))
+    print('self-test: ' + ('all passed' if not fails else f'{fails} failed'))
+    return 1 if fails else 0
+
+
+def main():
+    args = build_parser().parse_args()
+    if args.self_test:
+        sys.exit(self_test())
+    if not args.fragment:
+        sys.exit('verify_facts.py: give FRAGMENT.html (or --self-test)')
+    sys.exit(1 if verify(args).print() else 0)
 
 
 if __name__ == '__main__':

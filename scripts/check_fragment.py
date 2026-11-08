@@ -3,12 +3,14 @@
 
 Usage:
   check_fragment.py FRAGMENT.html --name NAME --rendered-width PX
-                    [--stage-width 1920] [--min-text PX] [--gate .visible|none]
+                    [--stage-width W] [--min-text PX] [--gate .visible|none]
                     [--control once|loop|step]
 
   --rendered-width  width in CSS px at which the SVG is shown on the stage
-  --stage-width     width of the slide stage in CSS px (default 1920); sets the text floor
-                    to 18 * stage_width / 1920, never below 10 (12 at 1280, 10 at 960)
+  --stage-width     width of the host deck's slide stage in CSS px; sets the text floor to
+                    18 * stage_width / 1920, never below 10 (12 at 1280, 10 at 960). When absent
+                    a 1920 stage (floor 18 px) is assumed and an INFO line says so: pass the
+                    host's real width (e.g. 1280) when its stage is narrower
   --min-text        explicit text floor in px; overrides the one derived from --stage-width
   --gate            ancestor selector that gates the animations (default .visible)
   --control         once | loop | step (default: the wrapper's data-anim-control, else once)
@@ -28,7 +30,7 @@ as one: WARN > 3, FAIL > 6) and
 glow concurrency (glow elements visible at the same instant: WARN > 1, FAIL > 2; a stroke-only
 glow warns: lines and arrows never glow).
 
-Every finding is printed as OK / WARN / FAIL with a line hint. Exit code 1 on any FAIL.
+Every finding is printed as OK / WARN / FAIL (INFO for notes) with a line hint. Exit code 1 on any FAIL.
 Standard library only.
 """
 import argparse
@@ -313,15 +315,23 @@ def time_s(v):
 
 # ----------------------------------------------------------------------------- main
 def main():
-    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0],
+                                 formatter_class=argparse.RawDescriptionHelpFormatter,
+                                 epilog=__doc__.split('\n', 2)[2])
     ap.add_argument('fragment')
-    ap.add_argument('--name', required=True)
-    ap.add_argument('--rendered-width', type=float, required=True)
-    ap.add_argument('--stage-width', type=float, default=1920)
-    ap.add_argument('--min-text', type=float, default=None)
+    ap.add_argument('--name', required=True, help='fragment name (kebab-case, the anim-NAME class)')
+    ap.add_argument('--rendered-width', type=float, required=True, metavar='PX',
+                    help='width in CSS px at which the SVG is shown on the stage')
+    ap.add_argument('--stage-width', type=float, default=None, metavar='W',
+                    help='host slide stage width in CSS px (default: 1920 assumed); sets the text floor')
+    ap.add_argument('--min-text', type=float, default=None, metavar='PX',
+                    help='explicit text floor in px; overrides the one derived from --stage-width')
     ap.add_argument('--gate', default='.visible', help='gate selector, or "none"')
     ap.add_argument('--control', choices=['once', 'loop', 'step'], default=None)
     a = ap.parse_args()
+    stage_assumed = a.stage_width is None and a.min_text is None
+    if a.stage_width is None:
+        a.stage_width = 1920.0
     if a.min_text is None:
         a.min_text = round(max(10.0, 18 * a.stage_width / 1920), 2)
         floor_src = f'18 px x {a.stage_width:g}/1920 stage' + (', clamped to 10' if a.min_text == 10 else '')
@@ -334,6 +344,9 @@ def main():
     gate = None if a.gate.strip().lower() == 'none' else a.gate.strip()
     gate_classes = set(re.findall(r'\.([\w-]+)', gate)) if gate else set()
     R = Report()
+    if stage_assumed:
+        R.add('INFO', 'text-size', f'no --stage-width given: assuming a {a.stage_width:g} px stage, text floor '
+              f'{a.min_text:g} px; pass --stage-width W if the host stage is narrower')
 
     if not re.fullmatch(r'[a-z][a-z0-9]*(-[a-z0-9]+)*', name) or not 2 <= len(name) <= 24:
         R.fail('structure', f'name "{name}" must be kebab-case, 2-24 chars')
@@ -612,7 +625,9 @@ def main():
             px = float(m.group(1))
             sizes.append(px * scale)
             if px * scale < a.min_text - 0.01:
-                R.fail('text-size', f'{where} {px:g}px renders at {px * scale:.1f}px < {a.min_text:g}px', ln)
+                R.fail('text-size', f'{where} {px:g}px renders at {px * scale:.1f}px < {a.min_text:g}px'
+                       + (f' (floor for an assumed {a.stage_width:g} px stage; pass --stage-width W if the '
+                          'host stage is narrower)' if stage_assumed else ''), ln)
 
         for sel, body, pos, ctx in walk_rules(tree):
             for prop, val in decls(body):

@@ -13,6 +13,12 @@ Writes:
 
 Look at the sheets first (one image read per 12 slides); open full/ only for candidates.
 
+Page numbers are the presentation's slide numbers, hidden slides included, so they match
+extract_slides.py's "index". Hidden slides (pptx `<p:sld show="0">`, odp
+`presentation:visibility="hidden"`) are exported too (LibreOffice ExportHiddenSlides) and
+captioned "N hidden"; a LibreOffice that still skips them gets a grey "slide N (hidden)"
+placeholder page in their place. One stderr line lists the hidden slide numbers.
+
 Needs: soffice (LibreOffice) for PowerPoint, pdftoppm (poppler) and a Chrome, Chromium or Edge
 binary (CHROME=/path overrides detection). HTML decks are printed to PDF with headless Chrome;
 that follows the deck's @media print / @page rules (md_to_deck.py decks have them). A deck that
@@ -29,7 +35,11 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import re
+import struct
 import time
+import zipfile
+import zlib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -104,6 +114,87 @@ def parse_pages(spec):
     return sorted(out)
 
 
+PPTX_EXT = (".pptx", ".pptm", ".ppsx", ".potx")
+
+
+def hidden_slides(src):
+    """(slide count, sorted hidden slide numbers) in presentation order, or None when the
+    format carries no readable flag (.ppt, .key, .pdf, .html) or the file cannot be read."""
+    ext = src.suffix.lower()
+    try:
+        with zipfile.ZipFile(src) as z:
+            names = set(z.namelist())
+            if ext in PPTX_EXT:
+                return _pptx_hidden(z, names)
+            if ext == ".odp" and "content.xml" in names:
+                xml = z.read("content.xml").decode("utf-8", "replace")
+                pages = re.findall(r"<draw:page\b[^>]*>", xml)
+                return len(pages), [i + 1 for i, t in enumerate(pages)
+                                    if re.search(r'presentation:visibility="hidden"', t)]
+    except (zipfile.BadZipFile, OSError, KeyError):
+        return None
+    return None
+
+
+def _pptx_hidden(z, names):
+    """Same order as extract_slides.py: presentation.xml sldIdLst, else slideN.xml numbering."""
+    found = sorted((int(m.group(1)), n) for n in names
+                   if (m := re.fullmatch(r"ppt/slides/slide(\d+)\.xml", n)))
+    order = [n for _, n in found]
+    try:
+        pres = z.read("ppt/presentation.xml").decode("utf-8", "replace")
+        rels = z.read("ppt/_rels/presentation.xml.rels").decode("utf-8", "replace")
+        target = {}
+        for rel in re.findall(r"<Relationship\b[^>]*>", rels):
+            i, t = re.search(r'\bId="([^"]+)"', rel), re.search(r'\bTarget="([^"]+)"', rel)
+            if i and t:
+                target[i.group(1)] = "ppt/" + t.group(1).lstrip("/").replace("ppt/", "", 1)
+        lst = re.search(r"<p:sldIdLst\b.*?</p:sldIdLst>", pres, re.S)
+        ids = re.findall(r'<p:sldId\b[^>]*\br:id="([^"]+)"', lst.group(0)) if lst else []
+        listed = [target.get(r) for r in ids]
+        listed = [n for n in listed if n in names]
+        order = listed or order
+    except KeyError:
+        pass
+    hidden = []
+    for i, n in enumerate(order, 1):
+        head = re.search(r"<p:sld\b[^>]*>", z.read(n).decode("utf-8", "replace"))
+        if head and re.search(r'\bshow="(?:0|false)"', head.group(0)):
+            hidden.append(i)
+    return len(order), hidden
+
+
+def write_png(path, w, h, rgb=(0x9a, 0x9a, 0x9a)):
+    """A solid-colour PNG with the standard library only (fallback placeholder)."""
+    row = b"\x00" + bytes(rgb) * w
+    raw = zlib.compress(row * h, 9)
+
+    def chunk(tag, data):
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xffffffff)
+    Path(path).write_bytes(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
+                           + chunk(b"IDAT", raw) + chunk(b"IEND", b""))
+
+
+def placeholder(chrome, path, w, h, n):
+    """Grey page labelled 'slide N (hidden)' at w x h px, for a slide the PDF export skipped."""
+    hp = Path(path).with_suffix(".html")
+    hp.write_text("<!doctype html><meta charset=utf-8><style>html,body{margin:0;height:100%%;"
+                  "background:#9a9a9a;color:#fff;display:flex;align-items:center;justify-content:center;"
+                  "font:bold %dpx system-ui,sans-serif}</style><div>slide %d (hidden)</div>"
+                  % (max(12, h // 9), n), encoding="utf-8")
+    try:
+        subprocess.run([chrome, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+                        "--force-device-scale-factor=1", "--window-size=%d,%d" % (w, h),
+                        "--screenshot=" + str(path), hp.resolve().as_uri()],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        pass
+    hp.unlink()
+    if not Path(path).exists():
+        write_png(path, w, h)
+    return Path(path)
+
+
 def to_pdf(src, tmp, chrome):
     ext = src.suffix.lower()
     if ext == ".pdf":
@@ -113,10 +204,15 @@ def to_pdf(src, tmp, chrome):
         if not soffice:
             die("no soffice (LibreOffice) found; install it, or export the deck to PDF and pass the PDF")
         profile = Path(tmp) / ("lo-%d" % os.getpid())  # own profile: parallel runs do not collide
-        cmd = [soffice, "--headless", "-env:UserInstallation=" + profile.as_uri(),
-               "--convert-to", "pdf", "--outdir", str(tmp), str(src)]
-        r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=600)
         pdf = Path(tmp) / (src.stem + ".pdf")
+        # export hidden slides too, so page N is slide N (JSON filter options: LibreOffice 7.4+;
+        # an older one fails or ignores them, then the plain export runs and main() fills gaps)
+        for fmt in ('pdf:impress_pdf_Export:{"ExportHiddenSlides":{"type":"boolean","value":"true"}}', "pdf"):
+            cmd = [soffice, "--headless", "-env:UserInstallation=" + profile.as_uri(),
+                   "--convert-to", fmt, "--outdir", str(tmp), str(src)]
+            r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=600)
+            if pdf.exists():
+                break
         if not pdf.exists():
             die("soffice did not produce a PDF:\n" + r.stderr.decode(errors="replace")[-800:])
         return pdf
@@ -134,8 +230,9 @@ def to_pdf(src, tmp, chrome):
     die("unsupported input %s (use .pptx, .ppt, .odp, .pdf or .html)" % src.name, 2)
 
 
-def rasterize(pdftoppm, pdf, dest, dpi, first=None, last=None):
-    """Render pages to dest/p-NN.png; returns {page number: path}."""
+def rasterize(pdftoppm, pdf, dest, dpi, first=None, last=None, number=None, width=None):
+    """Render pages to dest/p-NN.png; returns {page number: path}. number maps a PDF page
+    to the slide number used in the file name (default: the same)."""
     dest.mkdir(parents=True, exist_ok=True)
     tmpdir = Path(tempfile.mkdtemp(dir=dest))
     cmd = [pdftoppm, "-png", "-r", str(dpi)]
@@ -149,9 +246,11 @@ def rasterize(pdftoppm, pdf, dest, dpi, first=None, last=None):
     out = {}
     for f in tmpdir.glob("x-*.png"):
         out[int(f.stem.split("-")[-1])] = f
-    width = max(2, len(str(max(out) if out else 1)))
+    number = number or {}
+    width = width or max(2, len(str(max(out) if out else 1)))
     final = {}
-    for n, f in sorted(out.items()):
+    for p, f in sorted(out.items()):
+        n = number.get(p, p)
         target = dest / ("p-%0*d.png" % (width, n))
         f.replace(target)
         final[n] = target
@@ -165,7 +264,7 @@ def png_size(path):
     return int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")
 
 
-def build_sheets(chrome, pages, outdir, per_sheet, tw):
+def build_sheets(chrome, pages, outdir, per_sheet, tw, hidden=()):
     first = pages[min(pages)]
     w, h = png_size(first)
     th = max(1, round(h * tw / w))
@@ -178,8 +277,10 @@ def build_sheets(chrome, pages, outdir, per_sheet, tw):
         cw = cols * (tw + GAP) + GAP
         ch = rows * (th + CAPTION + GAP) + GAP
         cells = "".join(
-            '<figure><img src="%s"><figcaption>%d</figcaption></figure>'
-            % (html.escape(pages[n].resolve().as_uri()), n) for n in chunk)
+            '<figure><img src="%s"><figcaption>%d%s</figcaption></figure>'
+            % (html.escape(pages[n].resolve().as_uri()), n,
+               ' <span style="color:#aaa;font-weight:normal">hidden</span>' if n in hidden else "")
+            for n in chunk)
         doc = ("<!doctype html><meta charset=utf-8><style>html,body{margin:0;background:#1d1d1d;"
                "font:bold 20px system-ui,sans-serif;color:#fff}"
                ".g{display:grid;grid-template-columns:repeat(%d,%dpx);gap:%dpx;padding:%dpx}"
@@ -248,11 +349,37 @@ def main():
         if pages_dir.exists():
             for f in pages_dir.glob("p-*.png"):
                 f.unlink()
-        pages = rasterize(pdftoppm, pdf, pages_dir, 60)
+        info = hidden_slides(src)
+        total, hidden = info if info else (0, [])
+        width = max(2, len(str(total))) if total else None
+        pages = rasterize(pdftoppm, pdf, pages_dir, 60, width=width)
         if not pages:
             die("the PDF has no pages")
+        width = width or max(2, len(str(max(pages))))
+        gaps = bool(hidden) and len(pages) == total - len(hidden)  # export skipped the hidden slides
+        number = {}
+        if gaps:  # PDF page -> slide number, stepping over the hidden ones
+            number = dict(enumerate([n for n in range(1, total + 1) if n not in hidden], 1))
+            moved = {}
+            for p in sorted(pages, reverse=True):  # slide number >= page number: no overwrite
+                target = pages_dir / ("p-%0*d.png" % (width, number[p]))
+                pages[p].replace(target)
+                moved[number[p]] = target
+            pages = moved
+            w, h = png_size(next(iter(pages.values())))
+            for n in hidden:
+                pages[n] = placeholder(chrome, pages_dir / ("p-%0*d.png" % (width, n)), w, h, n)
+            pages = dict(sorted(pages.items()))
+        if hidden:
+            how = ("LibreOffice skipped them; grey placeholder pages inserted" if gaps else
+                   "rendered, captioned 'hidden'" if len(pages) == total else
+                   "WARNING: PDF has %d pages for %d slides, numbers may drift" % (len(pages), total))
+            print("hidden slides: %s (%s)" % (",".join(map(str, hidden)), how), file=sys.stderr)
+        elif info and len(pages) != total:
+            print("warning: PDF has %d pages for %d slides; numbers may not match extract_slides.py"
+                  % (len(pages), total), file=sys.stderr)
         t2 = time.time()
-        sheets = build_sheets(chrome, pages, out, a.per_sheet, tw)
+        sheets = build_sheets(chrome, pages, out, a.per_sheet, tw, set(hidden))
         for f in out.glob("sheet-*.png"):  # stale sheets from an earlier, longer deck
             if f.name not in {Path(s["sheet"]).name for s in sheets}:
                 f.unlink()
@@ -261,11 +388,18 @@ def main():
         bad = [n for n in want if n not in pages]
         if bad:
             print("warning: --pages outside 1-%d ignored: %s" % (max(pages), ",".join(map(str, bad))))
+        back = {v: k for k, v in number.items()}  # slide number -> PDF page
         for n in [n for n in want if n in pages]:
-            full.update(rasterize(pdftoppm, pdf, out / "full", 120, n, n))
+            if gaps and n in hidden:
+                w, h = png_size(pages[n])
+                (out / "full").mkdir(parents=True, exist_ok=True)
+                full[n] = placeholder(chrome, (out / "full").joinpath("p-%0*d.png" % (width, n)), 2 * w, 2 * h, n)
+                continue
+            p = back.get(n, n)
+            full.update(rasterize(pdftoppm, pdf, out / "full", 120, p, p, number=number, width=width))
         t4 = time.time()
 
-    print("%s: %d pages (to PDF %.1fs, pages %.1fs, sheets %.1fs, full %.1fs)"
+    print("%s: %d slides (to PDF %.1fs, pages %.1fs, sheets %.1fs, full %.1fs)"
           % (src.name, len(pages), t1 - t0, t2 - t1, t3 - t2, t4 - t3))
     print("pages:  %s/p-*.png" % pages_dir)
     for s in sheets:
@@ -276,6 +410,7 @@ def main():
     if a.out_json:
         Path(a.out_json).write_text(json.dumps({
             "pages": len(pages),
+            "hidden": hidden,
             "sheets": sheets,
             "full": {str(n): str(p) for n, p in sorted(full.items())},
         }, indent=2) + "\n", encoding="utf-8")

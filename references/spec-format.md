@@ -168,8 +168,10 @@ Timing semantics:
 ## Phase marks (`data-anim-phases`)
 
 The scaffold always writes `data-anim-phases="m1,m2,..."` on the wrapper, for `once`, `step` and
-`loop`: the `t` of every phase after the first, in order, rounded to one decimal, so the hold's
-start is the last mark. Without a hold phase the end of the motion (the pass length; `loop`: the
+`loop`. A mark is a settled moment between narrated steps; the scaffold derives them as the `t`
+of every phase after the first, in order, rounded to one decimal, so the hold's start is the
+last mark (keep specs to three to five narrated phases plus the hold so the marks stay that
+many; a hand-built fragment sets its marks by looking at the frames). Without a hold phase the end of the motion (the pass length; `loop`: the
 start of the reset) closes the list, and a single phase gives just that end. Marks are strictly
 ascending, each > 0 and <= `cycle`. Segment *k* runs from mark *k-1* (0 for the first) to mark
 *k*, and is one phase. Under `once` and `loop` the attribute is ignored, so any fragment that

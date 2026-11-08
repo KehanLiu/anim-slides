@@ -168,7 +168,22 @@ With the skill installed, ask your agent in plain words:
 - "Here is our release procedure (paste). Turn it into an animated diagram for slide 7."
 - "Animate this Mermaid flowchart for a 1200x600 slot."
 
-The skill follows `SKILL.md`: intake and triage, spec, brief, build, verify, integrate, audit.
+The skill works in three phases, in the spirit of "show, don't tell":
+
+1. **Show first, ask once.** It outlines and renders your deck, drafts a triage table (which
+   slides get a figure and why), builds and renders the first figure, and then asks one
+   question with everything in it: the proposal, stills of that figure in your deck's look and
+   in the lean dark look, play-once or click-through, and whether the file will be shared. For
+   a PowerPoint it also says that an HTML deck has to be built first, what that costs, and
+   offers standalone animated slide pages as a lighter path. No answer means sensible defaults,
+   written down in `anim/triage.md`.
+2. **Build silently.** The remaining figures, checked for contract, legibility and accuracy,
+   inlined into the deck.
+3. **Deliver by showing.** A before/after review page of every animated slide, the deck, and
+   two one-line switches for later (click-through, lean look).
+
+"Improve the slides" and "add more animations" mean the same to the skill: figures replace
+text blocks and screenshots; nothing else about the deck changes.
 Harnesses pick it up automatically from its description; to call it by name use `/anim-slides`
 (Claude Code, Cursor, Copilot, Kiro, Droid, Antigravity, Devin Desktop), `$anim-slides` (Codex),
 or ask for it by name where the agent loads skills through a tool (OpenCode, Zed, Goose, Gemini

@@ -27,8 +27,10 @@ One file `<name>.html` containing exactly two top-level things, in this order:
 - `data-anim-phases` lists the phase stop marks in seconds, comma-separated: strictly
   ascending, each above 0 and at most the pass length. Segment k runs from mark k-1 (0 for the
   first) to mark k; the last mark is where the hold starts (the figure is complete and nothing moves after it, so
-  the frame at the last mark is the resting frame). The marks
-  are the start seconds of every phase after the first. Required under `step`, validated under
+  the frame at the last mark is the resting frame). A phase mark is a settled moment between
+  narrated steps: nothing visible is mid-motion there. Three to five per slide (six when the
+  slide narrates six steps), ascending, the last at the hold start. The scaffolder derives them
+  from phase starts; a hand-built fragment sets them by looking at the frames. Required under `step`, validated under
   `once` when present; the scaffolder always writes it, so a fragment can switch control
   without a rebuild.
 - Exactly one `<svg>`. HTML text outside the SVG is not allowed; captions belong to the slide.

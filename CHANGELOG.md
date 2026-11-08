@@ -2,6 +2,39 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.10.0 - 2026-11-08
+
+- **"Show, don't tell" restructure** of SKILL.md, modelled on frontend-slides: Phase 0 reads the
+  request into a mode (A deck first, B animate in place, C single slide, D illustrate from
+  docs, E re-integrate with `--control` / `--mode`, no rebuild); Phase 1 shows first and asks
+  once; Phase 2 builds silently; Phase 3 delivers by showing. "Improve the slides" and "add
+  more animations" mean the same: figures replace text blocks and screenshots, nothing else
+  changes; "more" reads as the upper end of the 3-8 per 30 budget. Workflow text cut where a
+  reference already holds the rule.
+- **One intake message.** The five separate "ask the user" points (triage approval, look,
+  control, ambiguity, hand-over) become one message, via the harness's structured-question UI
+  when there is one. Nothing is asked after it; defaults taken go into a Decisions section of
+  `anim/triage.md`. Ambiguous order, direction or grouping becomes a stated assumption; an
+  unreadable figure is traced and tagged "traced from <source> figure".
+- **First fragment rendered before asking**: integrated into its slide at rest under match and
+  under lean, plus both readings when a slide has two plausible figure forms.
+- **Lighter path** for Mode A: the intake message announces the deck rebuild and its cost and
+  offers standalone animated slide pages for the chosen slides only.
+- **`review_page.py` at delivery**: a before/after page of every animated slide is the report;
+  the closing message is a few lines with the two later switches.
+- **Mark definition unified** (SKILL.md, contract, brief template, input-stage): a phase mark is
+  a settled moment between narrated steps, three to five per slide (six for six narrated
+  steps), the last at the hold start.
+- **Slot markers inside the slot**: `<div id="sN-slot"><!-- sN-body -->...<!-- /sN-body --></div>`;
+  markers round the div let `--replace-until` delete the sized div.
+- **Scaffolder scope stated**: plain forms of the seven archetypes; triangles, donuts, bars,
+  timelines with event text are hand-built from the spec.
+- Fixes folded in: SKILL.md's `verify_facts.py` command gains `--spec`; number slides by
+  `outline.json` (`render_deck.py` skips hidden slides); take the final screenshot from the
+  running deck when the rest render hides the deck's own staggered text; compare a
+  usage-count accent from `host_theme.py` with the deck's CSS; pass `--stage-width` to the
+  checker. New lesson "Two bare-prompt runs (2026-11-08)".
+
 ## 0.9.1 - 2026-11-08
 
 - **Deck first.** Intake now starts with "Get an HTML deck first": an HTML deck proceeds; a

@@ -44,6 +44,12 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
 - Look at every phase PNG with your image viewing tool. Every fragment that was only code-reviewed had an
   overlap somewhere.
 - A headless screenshot never proves smoothness. Check once in a real browser before shipping.
+- A one-slide headless screenshot:
+  `chrome --headless=new --hide-scrollbars --window-size=1920,1080 --timeout=3000 --screenshot=s4.png 'file:///abs/deck.html#/4'`
+  (`#/4` is reveal.js, `md_to_deck.py` decks use `#4`). It shows t = 0; for the resting frame
+  use `render-phases.sh --page deck.html --slide 4 1920 1080 rest`. Never pass
+  `--user-data-dir` (Chrome hangs); export PDFs from the browser's print dialog, the CLI
+  `--print-to-pdf` on `?print-pdf` is unreliable.
 - Browser extensions often cannot open `file://` URLs. Serve the deck with
   `python3 -m http.server` and add a changing query string (`?v=N`) to force a reload; a hash
   change alone does not reload the page.
@@ -130,8 +136,10 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
     name `.reveal` also matches reveal.js detection in `host_theme.py`'s slide selectors
     (harmless in this run).
   - Without `--selector`, `measure_slot.py` returned junk on the absolutely positioned layout.
-    A fixed-size `<div id="sN-slot">` between `<!-- sN-body -->` markers made measuring exact
-    and `integrate_fragment.py --anchor`/`--replace-until` painless; ask the deck skill for it.
+    A fixed-size `<div id="sN-slot">` with the `<!-- sN-body -->` markers inside it made
+    measuring exact and `integrate_fragment.py --anchor`/`--replace-until` painless; ask the
+    deck skill for it. (Markers round the div, as first written, let `--replace-until` delete
+    the sized div; see the 2026-11-08 entry.)
   - The deck's Google Fonts / Fontshare link is the deck's load. The lean working deck fails
     `check_page.py`'s external check on it; `bundle_deck.py --fetch` inlined 9 fonts and the
     bundled deck passed with 0 fail.
@@ -144,3 +152,41 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
   - `extract_slides.py` missed a cover photo placed on slide layout 4 and reported a picture
     that does not show on the rendered slide. A picture count that differs between
     `outline.json` and the render means: look at the layout's pictures.
+
+## Two bare-prompt runs (2026-11-08)
+
+Two fresh-user tests, the agent alone with SKILL.md 0.9.1 and a bare prompt: "improve the
+slides" on a 46-slide pptx and "add more animations to this deck" on a 43-slide pptx.
+
+What went right: showcase-quality fragments, seven slides each, every check green
+(`check_fragment.py`, `verify_facts.py`, `check_page.py`). Triage, contract and style rules held.
+
+What went wrong:
+- About 25 minutes and 1.1 M tokens per run; some 15 reference files read.
+- Twelve decisions taken silently per run. The skill had five separate "ask the user" points
+  (triage approval, look, control, ambiguity, hand-over) and no way to ask them at once, so an
+  agent that could not wait asked none; one run invented a `DECISIONS.md` to record them.
+- The deck rebuild by frontend-slides took most of the time, and the user was never told it
+  would happen or offered a lighter path.
+- The scaffolder's output was thrown away for most real shapes (triangle graph, 4+4 snake
+  U-turn, timeline with event text, bar chart, donut).
+- Small contradictions: the slot markers were written "round" the `#sN-slot` div, so
+  `--replace-until` deleted the sized div; SKILL.md's `verify_facts.py` line omitted `--spec`
+  that accuracy.md requires; `render_deck.py` skips hidden slides, so its numbering ran behind
+  `outline.json`; the rest render hid the deck's own staggered text; `host_theme.py` picked an
+  accent by usage count on a deck without variables; the checker's text floor assumed a 1920
+  stage when `--stage-width` was left out; the phase-mark wording ("start of every phase after
+  the first") did not fit hand-built fragments.
+
+Rules that followed (0.10.0, modelled on frontend-slides' "show, don't tell"):
+- Phase 0 reads the request into a mode (A deck first, B in place, C one slide, D from docs,
+  E re-integrate). "Improve" and "add more animations" mean the same: figures replace text
+  blocks and screenshots, nothing else changes; "more" is the upper end of the budget.
+- Show first, ask once: build and render the first fragment (match and lean stills, both
+  readings when there are two), then one intake message with proposal, stills, look, control,
+  deck-first cost and lighter path, hand-over. Nothing is asked after it; defaults go into a
+  Decisions section of `anim/triage.md`. An unreadable figure is traced and tagged, not asked.
+- Mode A announces the deck rebuild and its cost and offers standalone animated slide pages.
+- The scaffolder covers the plain archetype forms; other shapes are hand-built from the spec.
+- Markers go inside the slot div. One phase-mark definition everywhere (settled moments).
+- Delivery is a before/after review page (`review_page.py`) and a few lines.

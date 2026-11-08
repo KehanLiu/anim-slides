@@ -31,8 +31,9 @@ layout placeholder is not counted, and a slide with `showMasterSp="0"` gets 0.
 both new fields.
 
 `builds` (per slide, always present, 0 when none) counts the click builds the
-source deck already has; the top-level `builds` is the deck total. A deck that
-builds by click is the signal to recommend the `step` control at intake.
+source deck already has; the top-level `builds` is the deck total. The default
+control stays `once`; a deck that builds by click only means `step` is worth
+mentioning if the presenter wants to click through.
 pptx: click-triggered effects in `p:timing` (`p:cTn nodeType="clickEffect"`).
 HTML: elements with class `fragment` (reveal.js), `data-fragment-index`,
 `build`/`build-item`, `substep` (impress.js substep plugin), and `.step` nested
@@ -985,9 +986,10 @@ def main(argv=None):
             "hidden_pictures", "layout_pictures", "tables", "connectors", "mermaid", "builds", "suggested_archetype", "confidence", "reason"]
     slides = [{k: s[k] for k in keys if k in s} for s in slides]
     builds = sum(s.get("builds", 0) for s in slides)
-    print("builds: %d click build%s in the source deck%s" % (
-        builds, "" if builds == 1 else "s", " (recommend control step)" if builds else ""),
-        file=sys.stderr)
+    if builds:
+        print("builds: %d click build%s in the source; step control is available if the presenter "
+              "wants to click through (default stays once)" % (builds, "" if builds == 1 else "s"),
+              file=sys.stderr)
     out = {"source": os.path.basename(args.source), "stage": stage, "aspect": aspect,
            "slides": slides, "builds": builds}
     data = json.dumps(out, indent=2, ensure_ascii=False)

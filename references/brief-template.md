@@ -32,7 +32,7 @@ e.g. "box `build` at x 40 y 120 w 220 h 120; wire build->test along y 180".>
 | 0.0 | ... | ... | ... | ... | ... |
 
 - **Cycle:** <seconds> (the pass length: 4 to 10 s for once and step, 8 to 15 s for loop, including the hold)
-- **Phases (marks):** <start seconds of every phase after the first, e.g. 2, 4.5, 7; the last is the hold start> (becomes `data-anim-phases`)
+- **Phases (marks):** <settled moments between narrated steps, nothing visible mid-motion there; three to five (six when the slide narrates six steps), ascending, the last at the hold start; e.g. 2, 4.5, 7> (becomes `data-anim-phases`)
 - **Resting frame:** <what the still shows: final state, which labels, which colours>
 - **Control:** once | step | loop (the deck's choice from intake, the same for every fragment; loop only on request; a different value needs a reason in `anim/triage.md`; under step the presenter uses the keyboard or a clicker, since a wheel or swipe skips phases)
 
@@ -59,7 +59,7 @@ marks, and anything not verified.
 1. `python3 scripts/check_fragment.py <dir>/<name>.html --name <name> --rendered-width <w> --stage-width <stage>`
 2. `scripts/render-phases.sh <dir> <W> <H> <seconds from the plan> rest`
 3. Open every PNG with your image viewing tool. Fix clipping, overlap, unreadable text, empty panels.
-4. `python3 scripts/verify_facts.py <dir>/<name>.html --source <outline.json> --slide <N>` passes; every WARN reviewed.
+4. `python3 scripts/verify_facts.py <dir>/<name>.html --source <outline.json> --slide <N> --spec <dir>/spec.yaml` passes; every WARN reviewed.
    Re-render. Iterate at least once.
 
 Contract section 8 is the definition of done.
@@ -97,7 +97,7 @@ Packet: circle r 10 on the wire path.
 The hold from 7 s to 8 s is the finished state and stays (it is the resting frame).
 
 - **Cycle:** 8 s
-- **Phases (marks):** 1, 2, 3.5, 5, 6, 7
+- **Phases (marks):** 2, 3.5, 5, 6, 7 (five settled frames, one after each narrated step: commit, build, test, staging, release; the hold starts at 7)
 - **Resting frame:** all five boxes, all chips "ok"/"live", production outlined in `--anim-ok`.
 - **Control:** once
 

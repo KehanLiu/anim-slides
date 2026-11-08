@@ -33,9 +33,12 @@ the rendered slide check the rest.
 6. **Charts are redrawn from their data at exact scale.** Read the values off the figure, write
    them into the spec's header comment ("E0 (10 B$, 8%)"), plot them on a linear axis with
    evenly spaced ticks. No smoothing, no extra points, no invented trend between known points.
-7. **Unreadable figure: ask, don't guess.** If a value, label or arrow on a picture cannot be
-   read at the rendered resolution, ask the user for the source data or a better image, or leave
-   that element out. Never fill a gap with a plausible number.
+7. **Unreadable figure: trace and tag, don't guess.** If a value, label or arrow on a picture
+   cannot be read at the rendered resolution, redraw the figure's form from the picture, keep
+   only the values that are printed on it, and tag the fragment "traced from <source> figure"
+   (a mono sub-label, like the illustrative tag). Never fill a gap with a plausible number, and
+   do not stop to ask: the intake message is the one question (SKILL.md, Phase 1); record the
+   trace in the Decisions section of `anim/triage.md`.
 
 ## Running the gate
 ```
@@ -71,6 +74,6 @@ rendered PNG next to the rendered source slide is still the final check.
 - Labels use the slide's own words; shorten, never paraphrase or explain.
 - Why/reason/legend slots only hold relations the slide states.
 - Arrows, directions and order exactly as on the slide; no facts from other slides.
-- Charts redrawn from their data at exact scale; unreadable figure = ask, not guess.
+- Charts redrawn from their data at exact scale; unreadable figure = traced and tagged, not guessed.
 - verify_facts.py: 0 FAIL, each WARN fixed or justified in the report.
 ```

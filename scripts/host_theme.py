@@ -4,6 +4,7 @@
 Usage:
   host_theme.py DECK.html --mode match|lean [-o anim/host-theme.css] [--slide-selector SEL]
         [--json] [--apply DECK.html] [--backup]
+  host_theme.py --apply DECK.html --from anim/host-theme.css [--backup]
 
 Fragments read --anim-* tokens whose fallbacks are the lean dark palette
 (references/fragment-contract.md section 3). A host retunes them by setting --anim-theme-*.
@@ -26,7 +27,13 @@ This script writes that block, so nobody hand-writes host glue.
   -o FILE  write the CSS (or JSON) to FILE instead of stdout.
   --apply DECK.html  insert the block into that deck's <head> between
          <!-- anim-theme:start --> and <!-- anim-theme:end --> (before </head>); a second run
-         replaces it in place. --backup writes DECK.html.bak first.
+         replaces it in place. --backup writes DECK.html.bak first. Without --from the block is
+         derived from DECK (the positional one); with -o as well, the same block goes to both
+         (an existing -o file with different content, e.g. hand edits, is kept as FILE.bak).
+  --from FILE  with --apply: insert exactly the block in FILE (the CSS that -o wrote, hand-
+         corrected; or the part between the anim-theme markers if FILE has them). Nothing is
+         derived, so --mode, -o, --json and --slide-selector are not used. This is the step after
+         correcting a derived token by hand.
 
 The block always starts with the line "/* anim-slides host theme (" so a newer one can be
 pasted over an older one. Exit: 0 ok, 1 deck unreadable, 2 bad arguments.
@@ -469,20 +476,61 @@ def apply(path, block, backup):
     print(f'host_theme: {what} the theme block in {path}', file=sys.stderr)
 
 
+def read_block(path):
+    """The theme block in a corrected file: the text between the anim-theme markers (inside
+    <style>) when present, else the whole file. Exits 1 when unreadable, 2 when not a block."""
+    try:
+        text = open(path, encoding='utf-8').read()
+    except (OSError, UnicodeError) as e:
+        print(f'host_theme: cannot read {path}: {e}', file=sys.stderr)
+        sys.exit(1)
+    i, j = text.find(MARK_START), text.find(MARK_END)
+    if i >= 0 and j > i:
+        text = text[i + len(MARK_START):j]
+        text = re.sub(r'^\s*<style\b[^>]*>\n?|</style\s*>\s*$', '', text.strip() + '\n', flags=re.I)
+    text = text.strip('\n') + '\n'
+    if text.lstrip().startswith('{'):
+        print(f'host_theme: {path} looks like --json output; --from needs the CSS block', file=sys.stderr)
+        sys.exit(2)
+    if '--anim-theme-' not in text or re.search(r'</?\s*[a-z!]', text, re.I):
+        print(f'host_theme: {path} holds no anim theme block (want "--anim-theme-*" CSS, no HTML)',
+              file=sys.stderr)
+        sys.exit(2)
+    if not text.startswith(HEADER):
+        print(f'host_theme: WARN {path} does not start with "{HEADER}"; a later run cannot recognise '
+              'it as an anim-slides theme', file=sys.stderr)
+    return text
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog=__doc__.split('\n', 2)[2])
-    ap.add_argument('deck')
-    ap.add_argument('--mode', required=True, choices=['match', 'lean'])
+    ap.add_argument('deck', nargs='?')
+    ap.add_argument('--mode', choices=['match', 'lean'])
     ap.add_argument('-o', '--output')
     ap.add_argument('--slide-selector')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--apply', metavar='DECK')
     ap.add_argument('--backup', action='store_true')
+    ap.add_argument('--from', dest='from_file', metavar='FILE')
     a = ap.parse_args()
     if a.backup and not a.apply:
         ap.error('--backup needs --apply')
+    if a.from_file:
+        if not a.apply:
+            ap.error('--from needs --apply DECK')
+        if a.output or a.json or a.slide_selector:
+            ap.error('--from applies a finished block: -o, --json and --slide-selector do not apply')
+        block = read_block(a.from_file)
+        m = re.match(re.escape(HEADER) + r'(\w+)', block)
+        print(f'host_theme: applying {a.from_file} as is ({m.group(1) if m else "unknown"} block, '
+              'no derivation)' + (f'; --mode {a.mode} and {a.deck} are ignored' if a.mode or a.deck
+                                  else ''), file=sys.stderr)
+        apply(a.apply, block, a.backup)
+        return 0
+    if not a.deck or not a.mode:
+        ap.error('DECK and --mode are required (or --apply DECK --from FILE)')
     if a.slide_selector is not None and not re.fullmatch(r'[\w.#\-\[\]="\' :>()]+', a.slide_selector):
         ap.error('--slide-selector: a plain CSS selector, no braces or semicolons')
     try:
@@ -511,11 +559,23 @@ def main():
                       indent=2) + '\n' if a.json else block
     if a.output:
         os.makedirs(os.path.dirname(os.path.abspath(a.output)), exist_ok=True)
+        try:
+            old = open(a.output, encoding='utf-8').read()
+        except (OSError, UnicodeError):
+            old = None
+        if old is not None and old != text:
+            shutil.copyfile(a.output, a.output + '.bak')
+            print(f'host_theme: WARN {a.output} had different content (hand edits?); kept it as '
+                  f'{a.output}.bak. To apply a corrected file use --apply DECK --from FILE',
+                  file=sys.stderr)
         open(a.output, 'w', encoding='utf-8').write(text)
         print(f'host_theme: wrote {a.output}', file=sys.stderr)
     elif not a.apply or a.json:
         sys.stdout.write(text)
     if a.apply:
+        print(f'host_theme: applying the block derived from {a.deck}'
+              + (f' (the same block as {a.output})' if a.output and not a.json else ''),
+              file=sys.stderr)
         apply(a.apply, block, a.backup)
     return 0
 

@@ -1,7 +1,8 @@
 # Input stage
 
 From a user's existing deck or documentation to a short list of illustration briefs. Output of
-this stage: one folder per illustration with a spec and a brief, ready for parallel building.
+this stage: the triage table, the one intake message (SKILL.md Phase 1) and one folder per
+illustration with a spec and a brief, ready for parallel building.
 
 ```
 source (pptx / html / md / mermaid)
@@ -16,7 +17,7 @@ source (pptx / html / md / mermaid)
 
 | Input | How to read it |
 |---|---|
-| `.pptx` | `python3 scripts/extract_slides.py deck.pptx -o anim/outline.json`. Text, bullets, notes and image counts per slide, plus a suggested archetype. An image count that differs from the pictures in the render points at pictures on the slide layout (a cover photo on the layout). Slide images are not interpreted: run `scripts/render_deck.py deck.pptx -o anim/render`, read the `sheet-NN.png` contact sheets for triage, and open `full/p-NN.png` (`--pages`) only for the candidates. A chart, graph or diagram picture is the slide's core content and must be redrawn (from its data, with credit) in the fragment, not dropped; an illustration that labels a column, lane, category or actor is kept (embedded beside the fragment or redrawn as a glyph); if it cannot be read, ask for the source. The HTML deck to integrate into comes from a deck skill (see "Deck first" below); the pptx stays the triage source. |
+| `.pptx` | `python3 scripts/extract_slides.py deck.pptx -o anim/outline.json`. Text, bullets, notes and image counts per slide, plus a suggested archetype. An image count that differs from the pictures in the render points at pictures on the slide layout (a cover photo on the layout). Slide images are not interpreted: run `scripts/render_deck.py deck.pptx -o anim/render`, read the `sheet-NN.png` contact sheets for triage, and open `full/p-NN.png` (`--pages`) only for the candidates. A chart, graph or diagram picture is the slide's core content and must be redrawn (from its data, with credit) in the fragment, not dropped; an illustration that labels a column, lane, category or actor is kept (embedded beside the fragment or redrawn as a glyph); if it cannot be read at full size, trace it from the source picture and tag it "traced from <source> figure" ([accuracy.md](accuracy.md)); do not stop to ask. The HTML deck to integrate into comes from a deck skill (see "Deck first" below); the pptx stays the triage source. |
 | HTML deck | `python3 scripts/extract_slides.py deck.html -o anim/outline.json`. Same JSON; slides are the deck's section elements. The stage is 1920x1080 unless you pass `--stage W H`. Measure slots in the real deck later ([layouts.md](layouts.md)). |
 | Markdown (`.md`, `.markdown`) | `python3 scripts/extract_slides.py doc.md -o anim/outline.json`. Same JSON; a slide is each `---`-separated part when the file uses rules, otherwise each `#`. remark decks: `???` becomes `notes`; `.class[...]`, `class:`/`layout:`/`background-*:` lines and `--` are stripped; `layout: true`/`exclude: true` slides are skipped; paragraphs and later headings become bullets. The HTML deck to integrate into comes from a deck skill first (see "Deck first" below); only when none is installed, run `scripts/md_to_deck.py deck.md -o deck.html` as a fallback host and tell the user it is not a designed deck. Each `#` / `##` section. HTML comments become `notes`; mermaid fences go to `mermaid`. Each section that describes a process, a set of dependencies, a sequence of dates or a before/after is a candidate. Numbered lists and tables are strong signals. |
 | Plain docs (other formats) | No extractor. Read the file and apply the same signals. |
@@ -39,14 +40,27 @@ title, the body as bullets, images as they come), not a design; say so to the us
 sentence, because the deck will read like a document until a deck skill or a designer styles
 it. Converting a pptx to Markdown and then to `md_to_deck.py` throws away the pptx's own
 layout; keep the pptx as the source for `extract_slides.py` and `render_deck.py` either way.
+For the fallback, fetch the images the Markdown references (relative paths) into the deck's
+folder first, or the deck shows placeholders.
 
-When the deck skill builds the HTML deck, ask it (or do it right after) to wrap each candidate
-slide's body in a fixed-size slot between markers, with the id and marker names `md_to_deck.py`
-uses (there the slot is an empty sibling of the marked body; here it holds the body):
+The deck rebuild is the longest step of Mode A (a deck skill redesigns every slide; on a
+40-slide deck it takes longer than all the figures together). Say so in the intake message and
+offer the lighter path: standalone animated slide pages for the chosen slides only, one
+self-contained HTML per slide at 1280x720 or the source stage (title, fragment, one-line
+takeaway). It suits a user who keeps presenting from PowerPoint or wants to see the figures
+before committing to a new deck. The default is the full deck.
+
+When the deck skill builds the HTML deck, ask it (or do it right after) to give each candidate
+slide a fixed-size slot div and to put the markers **inside** it, round its content, with the
+id and marker names `md_to_deck.py` uses (there the slot is an empty sibling of the marked
+body):
 
 ```html
-<!-- s4-body --><div id="s4-slot" style="width:1680px;height:610px">...</div><!-- /s4-body -->
+<div id="s4-slot" style="width:1680px;height:610px"><!-- s4-body -->...<!-- /s4-body --></div>
 ```
+
+Markers outside the div (round it) make `--replace-until` delete the sized div with the body;
+the fragment then has no box to fill.
 
 `measure_slot.py deck.html --slide 4 --selector '#s4-slot'` then measures exactly (on an
 absolutely positioned layout, measuring without `--selector` returned junk), and
@@ -85,7 +99,7 @@ deck's load, not one anim-slides adds; `bundle_deck.py --fetch` inlines it at ha
 |---|---|
 | `source` | Basename of the input file (`deck.pptx`, not the path). |
 | `stage` | Slide size in px: `--stage W H` when passed; otherwise pptx slide size scaled to 1920 wide, and `[1920, 1080]` for HTML and Markdown. Feeds `--min-text` scaling ([layouts.md](layouts.md)). |
-| `index` | 1-based slide number as the presenter sees it. |
+| `index` | 1-based slide number as the presenter sees it. Number triage rows by this. `render_deck.py` skips hidden slides, so its page numbers can run behind `index` after a hidden slide; note hidden slides in the triage. |
 | `title` | Title placeholder text, or the first heading; `""` if none. |
 | `bullets` | Body paragraphs in order, one string per bullet, indentation flattened. |
 | `notes` | Speaker notes, `""` if none. Often states the real point of the slide. |
@@ -125,6 +139,7 @@ Keep as text:
 
 Budget:
 - 3 to 8 illustrations per 30 slides is normal. One per section is a good rhythm.
+  "Add (more) animations" reads as the upper end of this budget, not beyond it.
 - On a short deck (under about 15 slides) the budget is a floor, not a cap: every slide whose
   content is a process, a structure, a timeline, a comparison or a data series gets one. A
   10-slide deck with 3 animated slides is the usual reason a user says "I see almost no change".
@@ -135,11 +150,17 @@ Budget:
   top of the list up to the budget; mark the rest **maybe** and show them to the user.
 
 Write the triage to `anim/triage.md` before building, every slide on its own row, and keep it
-with the work folder. The header records the two per-deck choices (next sections):
+with the work folder. The header records the two per-deck choices (next sections); a
+**Decisions** section lists every default taken without an answer from the user:
 
 ```markdown
 Look: match (branded course deck)
-Control: step (source builds by click: outline.json builds = 14)
+Control: once (source builds by click: outline.json builds = 14; step mentioned, not chosen)
+
+## Decisions
+- Look: match by default (branded deck); user did not answer.
+- Slide 18: 14 items, split into two figures (18a, 18b) instead of asking.
+- Slide 9: steps assumed sequential (bullets are numbered).
 ```
 
 | Slide | Title | Decision | Archetype | Replaces | Why |
@@ -153,12 +174,14 @@ pills, a bullet column, an HTML diagram). A fragment that adds motion over the s
 drawing and leaves the boxes in place replaces nothing; it is allowed only with a reason in
 this column.
 
-Unless the user asked for silent operation, wait for a yes / edits on this table. It is the
-cheapest point to correct course.
+The table goes into the one intake message (SKILL.md Phase 1) together with the first
+fragment's stills; that message is the only point where the user corrects course. When the
+user is absent or says "just do it", carry on with the table as drafted and record the
+defaults in Decisions.
 
 ### Look: match or lean
 
-Settle this once per deck, right after triage, before any fragment is built:
+Settle this once per deck, in the intake message:
 
 - **match** (default for branded, corporate and course decks): fragments take the host's
   palette and fonts. `python3 scripts/host_theme.py deck.html --mode match -o anim/host-theme.css`
@@ -175,9 +198,14 @@ Only colours and fonts differ between the two. The shape rules in [style.md](sty
 both: rings and labels on lines, hairline brackets, one lit accent, space. A match theme never
 licenses filled cards or pills because the deck has them.
 
-Build the first fragment, render it under both (`render-phases.sh --theme anim/host-theme.css`
-and `--theme anim/lean-theme.css`), and show the two stills to the user with one sentence each.
-If the user named a look already, skip the question and note the choice in `BRIEF.md`.
+Build the first fragment before asking, render it integrated into its slide at rest under
+both (`render-phases.sh --theme anim/host-theme.css` and `--theme anim/lean-theme.css`, or
+`--page` on a scratch copy of the deck), and put the two stills in the intake message with one
+sentence each. When the slide has two plausible figure readings (timeline or pipeline, table
+or compare), add a still of each reading. If the user named a look already, skip the question
+and note the choice in the triage header and `BRIEF.md`. On a deck without CSS variables
+`host_theme.py` may pick the accent by usage count; compare it once with what the deck's own
+CSS highlights.
 
 ### Control: once or step
 
@@ -189,12 +217,15 @@ slide) is used only when the user asks for click-through.
 - Do not recommend step unprompted. When `outline.json` reports `builds` above 0 (reveal.js
   `.fragment`, PowerPoint click animations, impress.js substeps, the deck's own keyboard build
   steps) the presenter is used to clicking through slides: mention it in one line in the same
-  message as the look ("your deck builds by click; the figures can do the same (step), say so
-  if you want it") and carry on with once unless they do.
+  intake message as the look ("your deck builds by click; the figures can do the same (step),
+  say so if you want it") and carry on with once unless they do.
 - A step deck is presented with the keyboard or a clicker. Step listens to keys only; a deck
   that also navigates by wheel or swipe (frontend-slides does) skips the phases on a scroll.
-- The phases of a step fragment are the narrated phases of the brief, 3 to 5 per slide; their
-  marks go on the wrapper as `data-anim-phases`.
+- The phases of a step fragment are the narrated phases of the brief; their marks go on the
+  wrapper as `data-anim-phases`. A phase mark is a settled moment between narrated steps:
+  nothing visible is mid-motion there. Three to five per slide (six when the slide narrates six
+  steps), ascending, the last at the hold start. The scaffolder derives them from phase starts;
+  a hand-built fragment sets them by looking at the frames.
 - Step costs nothing extra in the fragment: the file is the same as under `once`.
   `integrate_fragment.py --control step` sets the wrapper and puts the small step-host snippet
   in the deck head; the click rides on the deck's own navigation (the snippet takes a key only
@@ -228,15 +259,17 @@ For each chosen slide:
    archetype recipe, phases table copied from the spec, verification seconds = each phase `t`
    plus `rest`.
 
-Ask the user only when the answer changes the drawing:
-- order is unclear (bullets could be parallel or sequential)
-- direction is unclear ("A and B integrate" - who calls whom?)
-- grouping is unclear (which items belong together)
-- the slide has more than ~12 items: which to keep, or split into two illustrations?
-- the image on the slide is the real content and cannot be read
+Nothing here is a question to the user after the intake message. Where the source leaves the
+drawing open, take the reading the slide supports best, state it in the brief ("Assumed steps
+are sequential") and add a line to Decisions in `anim/triage.md`:
+- order unclear (bullets could be parallel or sequential): follow the bullet order
+- direction unclear ("A and B integrate"): neutral lines, no arrowheads
+- grouping unclear: group by the slide's own layout (columns, indentation)
+- more than ~12 items: split into two illustrations
+- the image is the real content and cannot be read: trace it, tag "traced from <source> figure"
 
-Otherwise state the assumption in the brief ("Assumed steps are sequential") and continue.
-Batch all questions for all slides into one message.
+When one of these is the first fragment's slide, the two readings go into the intake message
+as stills instead.
 
 ## 5. Handoff
 
@@ -245,7 +278,7 @@ Layout next to the deck:
 ```
 anim/
   outline.json              (from extract_slides.py)
-  triage.md                 Look and Control header, one row per slide
+  triage.md                 Look and Control header, one row per slide, Decisions
   BRIEF.md                  shared fields: stage, look, control, theme tokens, fonts, gate, min text
   release-process/
     spec.yaml
@@ -258,12 +291,16 @@ anim/
 ```
 
 - The main thread writes `outline.json`, the triage table, every `spec.yaml` and `brief.md`,
-  and the shared `BRIEF.md`. Specs are cheap; write them all before building any fragment.
+  and the shared `BRIEF.md`. The first fragment is built before the intake message; after the
+  answer, write the remaining specs (cheap) before building any further fragment.
 - Then build the illustrations. With a harness that runs parallel subagents, launch **one
   subagent per illustration, all in one message**; otherwise build them one after another from
   the same briefs. Each builder is given: its folder,
-  `BRIEF.md`, the contract, and the instruction to run `scaffold_from_spec.py`, refine,
-  run `check_fragment.py` and `render-phases.sh`, look at every PNG, and report path, viewBox,
+  `BRIEF.md`, the contract, and the instruction to run `scaffold_from_spec.py` (plain archetype
+  forms only; a triangle, donut, bar chart or timeline with event text is hand-built from the
+  spec, with the scaffold as timing skeleton at most), refine,
+  run `check_fragment.py --stage-width <host stage>`, `render-phases.sh` and
+  `verify_facts.py --spec`, look at every PNG, and report path, viewBox,
   cycle, phase seconds and anything unverified.
 - Builders write only inside their own folder, scratch files included (a shared scratch
   directory lets one builder overwrite another's helper scripts). They never touch the deck.
@@ -272,6 +309,6 @@ anim/
   with a shared profile the second call exits silently without output.
 - Speaker notes can carry structure the slide lacks (who proposes and who decides, which step
   matters). Use it for groups and emphasis, and cite it in the spec's header comment.
-- A caller's brief that already names the slides counts as approval of the triage table.
+- A caller's brief that already names the slides counts as the answer to the intake message.
 - Integration (`integrate_fragment.py`, one call per fragment) and the final in-browser check
   stay in the main thread, sequentially, because they edit the same deck file.
