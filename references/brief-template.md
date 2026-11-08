@@ -34,7 +34,7 @@ e.g. "box `build` at x 40 y 120 w 220 h 120; wire build->test along y 180".>
 - **Cycle:** <seconds> (the pass length: 4 to 10 s for once and step, 8 to 15 s for loop, including the hold)
 - **Phases (marks):** <start seconds of every phase after the first, e.g. 2, 4.5, 7; the last is the hold start> (becomes `data-anim-phases`)
 - **Resting frame:** <what the still shows: final state, which labels, which colours>
-- **Control:** once | step | loop (the deck's choice from intake, the same for every fragment; loop only on request; a different value needs a reason in `anim/triage.md`)
+- **Control:** once | step | loop (the deck's choice from intake, the same for every fragment; loop only on request; a different value needs a reason in `anim/triage.md`; under step the presenter uses the keyboard or a clicker, since a wheel or swipe skips phases)
 
 ## Theme
 - **Look:** match | lean (one choice per deck; see input-stage.md "Look")

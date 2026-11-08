@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Turn a Markdown deck into one self-contained HTML slide deck.
+"""Fallback host: turn a Markdown deck into one plain, self-contained HTML slide deck.
+
+This is a fallback for integration when no deck skill is available (the user's own deck
+skill, or frontend-slides); it is not a designed deck. The output reads like a document
+(full-width title, body as bullets, images as they come) until a deck skill or a designer
+styles it. When a deck skill is installed, build the deck with it instead and integrate
+fragments into that deck.
 
 Usage:
     md_to_deck.py deck.md [-o deck.html] [--title T] [--stage W H] [--theme light|dark]
@@ -337,7 +343,10 @@ def build(path, title=None, stage=(1920, 1080), theme="dark"):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap = argparse.ArgumentParser(description=(
+        "Fallback host: turn a Markdown deck into one plain, self-contained HTML slide deck "
+        "for integrating anim-slides fragments when no deck skill is available. Not a designed "
+        "deck; use a deck skill (your own, or frontend-slides) first when one is installed."))
     ap.add_argument("source", help="Markdown deck (.md)")
     ap.add_argument("-o", "--output", help="output HTML (default: <source>.html next to the source)")
     ap.add_argument("--title", help="page title (default: the first heading)")

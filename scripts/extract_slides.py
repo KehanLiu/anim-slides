@@ -10,7 +10,8 @@ or on #/## headings when there are none) and writes a JSON outline:
 
     {"source": "deck.pptx", "stage": [1920, 1080], "aspect": "16:9", "slides": [
       {"index": 3, "title": "Release process", "bullets": [...], "notes": "...",
-       "text": "...", "has_image": true, "image_count": 1,
+       "text": "...", "has_image": true, "image_count": 1, "hidden_pictures": 0,
+       "layout_pictures": 1,
        "tables": [[["Old", "New"], ["manual", "CI"]]], "connectors": 4,
        "builds": 4, "suggested_archetype": "pipeline", "confidence": 0.6,
        "reason": "cues: arrows, numbered steps"}], "builds": 4}
@@ -18,6 +19,16 @@ or on #/## headings when there are none) and writes a JSON outline:
 `tables` (rows of cell strings), `connectors` (connector lines and arrow
 shapes), `title_guessed` (no title placeholder; the title is the largest-font
 or first short text) and `mermaid` appear only when present.
+
+`image_count` counts the slide's own pictures (`p:pic`) that can be seen;
+`hidden_pictures` (pptx, always present) those marked hidden (`cNvPr hidden="1"`,
+on the picture or an enclosing group) or placed fully outside the slide.
+`layout_pictures` (pptx, always present) counts the visible pictures (`p:pic`,
+and `p:sp` filled with `a:blipFill`) of the slide's own layout part, which show
+on the slide (a cover photo often lives there); the master's are not counted, a
+layout placeholder is not counted, and a slide with `showMasterSp="0"` gets 0.
+`has_image` follows `image_count` only. HTML and Markdown sources report 0 for
+both new fields.
 
 `builds` (per slide, always present, 0 when none) counts the click builds the
 source deck already has; the top-level `builds` is the deck total. A deck that
@@ -65,10 +76,13 @@ def collapse(s):
 
 
 def make_slide(title="", bullets=(), notes="", text="", image_count=0, tables=None,
-               connectors=0, segments=None, branching=False, title_guessed=False, builds=0):
+               connectors=0, segments=None, branching=False, title_guessed=False, builds=0,
+               hidden_pictures=0, layout_pictures=0):
     slide = {"title": collapse(title), "bullets": [collapse(b) for b in bullets if collapse(b)],
              "notes": collapse(notes), "text": collapse(text),
-             "has_image": image_count > 0, "image_count": image_count, "builds": builds}
+             "has_image": image_count > 0, "image_count": image_count,
+             "hidden_pictures": hidden_pictures, "layout_pictures": layout_pictures,
+             "builds": builds}
     tables = [t for t in (tables or []) if t]
     if tables:
         slide["tables"] = [[[collapse(c) for c in row] for row in t] for t in tables]
@@ -82,17 +96,112 @@ def make_slide(title="", bullets=(), notes="", text="", image_count=0, tables=No
 
 
 # ---------------------------------------------------------------- pptx ----
-def pptx_stage(path):
-    with zipfile.ZipFile(path) as z:
-        try:
-            root = ET.fromstring(z.read("ppt/presentation.xml"))
-        except KeyError:
-            return None
+def pptx_size(z):
+    """Slide size in EMU (cx, cy), or None."""
+    try:
+        root = ET.fromstring(z.read("ppt/presentation.xml"))
+    except KeyError:
+        return None
     sz = root.find("p:sldSz", NS)
     if sz is None:
         return None
     cx, cy = int(sz.get("cx", 0)), int(sz.get("cy", 0))
-    return [1920, round(1920 * cy / cx)] if cx and cy else None
+    return (cx, cy) if cx and cy else None
+
+
+def pptx_stage(path):
+    with zipfile.ZipFile(path) as z:
+        size = pptx_size(z)
+    return [1920, round(1920 * size[1] / size[0])] if size else None
+
+
+def _xfrm(el, path):
+    """(x, y, cx, cy, chx, chy, chcx, chcy) of el's a:xfrm under path, ints, or None."""
+    x = el.find(path, NS)
+    if x is None:
+        return None
+    off, ext = x.find("a:off", NS), x.find("a:ext", NS)
+    if off is None or ext is None:
+        return None
+    vals = [off.get("x"), off.get("y"), ext.get("cx"), ext.get("cy")]
+    cho, che = x.find("a:chOff", NS), x.find("a:chExt", NS)
+    if cho is not None and che is not None:
+        vals += [cho.get("x"), cho.get("y"), che.get("cx"), che.get("cy")]
+    try:
+        return [int(v) for v in vals]
+    except (TypeError, ValueError):
+        return None
+
+
+def _pictures(root, size, blip_shapes=False, skip_placeholders=False):
+    """(visible, hidden) picture counts in a slide or layout part. A picture is `p:pic`
+    (and, with blip_shapes, a `p:sp` whose spPr is an `a:blipFill`). Hidden: `cNvPr
+    hidden="1"` on it or an enclosing group, or its box (mapped through group transforms)
+    fully outside the slide. A picture without a position counts as visible."""
+    counts = [0, 0]
+
+    def walk(el, tf, hidden):
+        for ch in el:
+            tag = ch.tag
+            if tag == P + "grpSp":
+                c = ch.find("p:nvGrpSpPr/p:cNvPr", NS)
+                g = _xfrm(ch, "p:grpSpPr/a:xfrm")
+                sub = tf
+                if g and len(g) == 8:
+                    sx = g[2] / g[6] if g[6] else 1.0
+                    sy = g[3] / g[7] if g[7] else 1.0
+                    sub = (lambda t, g=g, sx=sx, sy=sy:
+                           tf((g[0] + (t[0] - g[4]) * sx, g[1] + (t[1] - g[5]) * sy,
+                               t[2] * sx, t[3] * sy)))
+                walk(ch, sub, hidden or (c is not None and c.get("hidden") in ("1", "true")))
+                continue
+            if tag == P + "pic":
+                nv, sppr = "p:nvPicPr", "p:spPr"
+            elif blip_shapes and tag == P + "sp" and ch.find("p:spPr/a:blipFill", NS) is not None:
+                nv, sppr = "p:nvSpPr", "p:spPr"
+            else:
+                walk(ch, tf, hidden)
+                continue
+            if skip_placeholders and ch.find(nv + "/p:nvPr/p:ph", NS) is not None:
+                continue
+            c = ch.find(nv + "/p:cNvPr", NS)
+            gone = hidden or (c is not None and c.get("hidden") in ("1", "true"))
+            box = _xfrm(ch, sppr + "/a:xfrm")
+            if not gone and box and size:
+                x, y, cx, cy = tf(tuple(box[:4]))
+                gone = x + cx <= 0 or y + cy <= 0 or x >= size[0] or y >= size[1]
+            counts[1 if gone else 0] += 1
+    walk(root, lambda t: t, False)
+    return tuple(counts)
+
+
+def _rel_target(z, names, part, kind):
+    """Zip name of the first relationship of `kind` (a Type suffix) from part, or None."""
+    folder, base = part.rsplit("/", 1)
+    rels = "%s/_rels/%s.rels" % (folder, base)
+    if rels not in names:
+        return None
+    for rel in ET.fromstring(z.read(rels)).findall("r:Relationship", NS):
+        if rel.get("Type", "").endswith("/" + kind) and rel.get("TargetMode") != "External":
+            t = rel.get("Target", "")
+            t = t.lstrip("/") if t.startswith("/") else os.path.normpath(os.path.join(folder, t))
+            t = t.replace(os.sep, "/")
+            return t if t in names else None
+    return None
+
+
+def pptx_layout_pictures(z, names, slide_name, slide_root, size, cache):
+    """Visible pictures on the slide's own layout (not the master); 0 when the slide hides
+    master/layout shapes (showMasterSp="0")."""
+    if slide_root.get("showMasterSp") in ("0", "false"):
+        return 0
+    layout = _rel_target(z, names, slide_name, "slideLayout")
+    if layout is None:
+        return 0
+    if layout not in cache:
+        cache[layout] = _pictures(ET.fromstring(z.read(layout)), size, blip_shapes=True,
+                                  skip_placeholders=True)[0]
+    return cache[layout]
 
 
 def _para_text(p):
@@ -154,12 +263,10 @@ def _table_rows(tbl):
 
 def pptx_slide(root):
     title, shapes, tables, text = "", [], [], []
-    pics = conns = 0
+    conns = 0
     starts, ends = [], []
     for el in root.iter():
-        if el.tag == P + "pic":
-            pics += 1
-        elif el.tag == P + "cxnSp":
+        if el.tag == P + "cxnSp":
             conns += 1
             c = el.find("p:nvCxnSpPr/p:cNvCxnSpPr", NS)
             if c is not None:
@@ -193,7 +300,7 @@ def pptx_slide(root):
         title, guessed = _guess_title(shapes), True
     bullets = [t for sh in shapes for t in sh["paras"]]
     branching = len(starts) != len(set(starts)) or len(ends) != len(set(ends))
-    return title, bullets, text, tables, pics, conns, branching, guessed, pptx_builds(root)
+    return title, bullets, text, tables, conns, branching, guessed, pptx_builds(root)
 
 
 def pptx_builds(root):
@@ -229,9 +336,12 @@ def read_pptx(path):
     with zipfile.ZipFile(path) as z:
         names = set(z.namelist())
         order = _slide_order(z, names)
+        size, layouts = pptx_size(z), {}
         for name in order:
             root = ET.fromstring(z.read(name))
-            title, bullets, text, tables, pics, conns, branching, guessed, builds = pptx_slide(root)
+            title, bullets, text, tables, conns, branching, guessed, builds = pptx_slide(root)
+            pics, hidden = _pictures(root, size)
+            on_layout = pptx_layout_pictures(z, names, name, root, size, layouts)
             notes = []
             rels = "%s/_rels/%s.rels" % tuple(name.rsplit("/", 1))
             if rels in names:
@@ -246,7 +356,8 @@ def read_pptx(path):
                                      for t in _paragraphs(sp) if t]
             segments = [title] + text + notes
             slides.append(make_slide(title, bullets, " ".join(notes), " ".join(text), pics,
-                                     tables, conns, segments, branching, guessed, builds))
+                                     tables, conns, segments, branching, guessed, builds,
+                                     hidden, on_layout))
     return slides
 
 
@@ -871,7 +982,7 @@ def main(argv=None):
         print("%3d  %-36.36s %-9s %.2f" % (i, s["title"] or "(untitled)", arch or "-", conf),
               file=sys.stderr)
     keys = ["index", "title", "title_guessed", "bullets", "notes", "text", "has_image", "image_count",
-            "tables", "connectors", "mermaid", "builds", "suggested_archetype", "confidence", "reason"]
+            "hidden_pictures", "layout_pictures", "tables", "connectors", "mermaid", "builds", "suggested_archetype", "confidence", "reason"]
     slides = [{k: s[k] for k in keys if k in s} for s in slides]
     builds = sum(s.get("builds", 0) for s in slides)
     print("builds: %d click build%s in the source deck%s" % (

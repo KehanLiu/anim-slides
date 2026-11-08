@@ -16,15 +16,43 @@ source (pptx / html / md / mermaid)
 
 | Input | How to read it |
 |---|---|
-| `.pptx` | `python3 scripts/extract_slides.py deck.pptx -o anim/outline.json`. Text, bullets, notes and image counts per slide, plus a suggested archetype. Slide images are not interpreted: run `scripts/render_deck.py deck.pptx -o anim/render`, read the `sheet-NN.png` contact sheets for triage, and open `full/p-NN.png` (`--pages`) only for the candidates. A chart, graph or diagram picture is the slide's core content and must be redrawn (from its data, with credit) in the fragment, not dropped; an illustration that labels a column, lane, category or actor is kept (embedded beside the fragment or redrawn as a glyph); if it cannot be read, ask for the source. |
+| `.pptx` | `python3 scripts/extract_slides.py deck.pptx -o anim/outline.json`. Text, bullets, notes and image counts per slide, plus a suggested archetype. An image count that differs from the pictures in the render points at pictures on the slide layout (a cover photo on the layout). Slide images are not interpreted: run `scripts/render_deck.py deck.pptx -o anim/render`, read the `sheet-NN.png` contact sheets for triage, and open `full/p-NN.png` (`--pages`) only for the candidates. A chart, graph or diagram picture is the slide's core content and must be redrawn (from its data, with credit) in the fragment, not dropped; an illustration that labels a column, lane, category or actor is kept (embedded beside the fragment or redrawn as a glyph); if it cannot be read, ask for the source. The HTML deck to integrate into comes from a deck skill (see "Deck first" below); the pptx stays the triage source. |
 | HTML deck | `python3 scripts/extract_slides.py deck.html -o anim/outline.json`. Same JSON; slides are the deck's section elements. The stage is 1920x1080 unless you pass `--stage W H`. Measure slots in the real deck later ([layouts.md](layouts.md)). |
-| Markdown (`.md`, `.markdown`) | `python3 scripts/extract_slides.py doc.md -o anim/outline.json`. Same JSON; a slide is each `---`-separated part when the file uses rules, otherwise each `#`. remark decks: `???` becomes `notes`; `.class[...]`, `class:`/`layout:`/`background-*:` lines and `--` are stripped; `layout: true`/`exclude: true` slides are skipped; paragraphs and later headings become bullets. To get an HTML deck to integrate into, run `scripts/md_to_deck.py deck.md -o deck.html` first. Each `#` / `##` section. HTML comments become `notes`; mermaid fences go to `mermaid`. Each section that describes a process, a set of dependencies, a sequence of dates or a before/after is a candidate. Numbered lists and tables are strong signals. |
+| Markdown (`.md`, `.markdown`) | `python3 scripts/extract_slides.py doc.md -o anim/outline.json`. Same JSON; a slide is each `---`-separated part when the file uses rules, otherwise each `#`. remark decks: `???` becomes `notes`; `.class[...]`, `class:`/`layout:`/`background-*:` lines and `--` are stripped; `layout: true`/`exclude: true` slides are skipped; paragraphs and later headings become bullets. The HTML deck to integrate into comes from a deck skill first (see "Deck first" below); only when none is installed, run `scripts/md_to_deck.py deck.md -o deck.html` as a fallback host and tell the user it is not a designed deck. Each `#` / `##` section. HTML comments become `notes`; mermaid fences go to `mermaid`. Each section that describes a process, a set of dependencies, a sequence of dates or a before/after is a candidate. Numbered lists and tables are strong signals. |
 | Plain docs (other formats) | No extractor. Read the file and apply the same signals. |
 | Mermaid blocks | Map directly with the tables in [spec-format.md](spec-format.md) "Mermaid mapping". One block = one candidate. |
 | Pasted text / a single slide | Skip triage; go to section 4. |
 
-A `.pptx` is not edited in place. The target is an HTML deck: convert it with a slides skill
+A `.pptx` is not edited in place. The target is an HTML deck: convert it with a deck skill
 first (or in parallel), then integrate fragments into that HTML.
+
+### Deck first
+
+Two jobs, two skills. The deck skill owns the deck: layout, typography, slide design, the
+brand. anim-slides owns the animated figures, which take the deck's colours and fonts under
+the match look (`scripts/host_theme.py` on the deck the skill produced). So a source that is
+not an HTML deck yet goes to a deck skill before triage, in this order: the user's own or
+organisation's deck skill; `frontend-slides` when installed (pick the aesthetic preview closest
+to the source's brand unless the user wants a new look); only when neither exists,
+`scripts/md_to_deck.py` as a fallback. Its output is a plain host for integration (full-width
+title, the body as bullets, images as they come), not a design; say so to the user in one
+sentence, because the deck will read like a document until a deck skill or a designer styles
+it. Converting a pptx to Markdown and then to `md_to_deck.py` throws away the pptx's own
+layout; keep the pptx as the source for `extract_slides.py` and `render_deck.py` either way.
+
+When the deck skill builds the HTML deck, ask it (or do it right after) to wrap each candidate
+slide's body in a fixed-size slot between markers, with the id and marker names `md_to_deck.py`
+uses (there the slot is an empty sibling of the marked body; here it holds the body):
+
+```html
+<!-- s4-body --><div id="s4-slot" style="width:1680px;height:610px">...</div><!-- /s4-body -->
+```
+
+`measure_slot.py deck.html --slide 4 --selector '#s4-slot'` then measures exactly (on an
+absolutely positioned layout, measuring without `--selector` returned junk), and
+`integrate_fragment.py --anchor '<!-- s4-body -->' --replace-until '<!-- /s4-body -->'`
+replaces the body cleanly. The deck skill's own web-font link (Google Fonts, Fontshare) is the
+deck's load, not one anim-slides adds; `bundle_deck.py --fetch` inlines it at hand-over.
 
 ## 2. Outline JSON
 
@@ -67,7 +95,7 @@ first (or in parallel), then integrate fragments into that HTML.
 | `connectors` | pptx only: count of connector lines and arrow shapes. Counts as a pipeline cue, or graph when they branch. |
 | `title_guessed` | `true` when there was no title placeholder and the title came from the largest-font box or first short paragraph. |
 | `aspect` | Top level: `"16:9"` or `"4:3"`. |
-| `builds` | Per slide (always present, 0 when none) and as a deck total at the top level: click builds the source already has. pptx: click-triggered effects in the slide's animation timeline (`p:cTn nodeType="clickEffect"`). HTML: elements with class `fragment` (reveal.js), `data-fragment-index`, `build`/`build-item`, `substep` (impress.js), and `.step` nested inside a slide. Markdown: remark `--` incremental separators. A total above 0 makes `step` the recommended control (below). |
+| `builds` | Per slide (always present, 0 when none) and as a deck total at the top level: click builds the source already has. pptx: click-triggered effects in the slide's animation timeline (`p:cTn nodeType="clickEffect"`). HTML: elements with class `fragment` (reveal.js), `data-fragment-index`, `build`/`build-item`, `substep` (impress.js), and `.step` nested inside a slide. Markdown: remark `--` incremental separators. A total above 0 is the one case where `step` is mentioned to the user (below); the default stays `once`. |
 | `mermaid` | Markdown only, and only when present: a list of strings, the body of each mermaid fence in the section. A recognised diagram type sets the suggestion with confidence 0.9. |
 | `suggested_archetype` | One of the seven archetypes or `null` (= keep as text). A heuristic. |
 | `confidence` | 0 to 1. Below 0.4 treat as a guess. |
@@ -135,7 +163,10 @@ Settle this once per deck, right after triage, before any fragment is built:
 - **match** (default for branded, corporate and course decks): fragments take the host's
   palette and fonts. `python3 scripts/host_theme.py deck.html --mode match -o anim/host-theme.css`
   reads the deck's CSS variables and most used colours and writes the `--anim-theme-*` block;
-  check its table against a slide, then `--apply` it to the deck head (markers, idempotent).
+  check its table against a slide and once against the deck's own variables (muted text,
+  secondary background, accent glow): where the derivation picked a computed mix instead of
+  the deck's variable, correct the block by hand. Then `--apply` it to the deck head
+  (markers, idempotent).
 - **lean** (talks, pitches, decks with no brand rules): fragments keep the lean palette and the
   animated slides get a dark ground. `--mode lean` writes a `.anim-lean` block; add that class
   to each slide that carries a fragment.
@@ -150,19 +181,18 @@ If the user named a look already, skip the question and note the choice in `BRIE
 
 ### Control: once or step
 
-Settle this once per deck, in the same message as the look, with a recommended default:
+One control per deck. The default is **once**: each slide's figure plays one calm pass when
+the slide appears and rests. It is not a question to put to the user; `step` (the entrance
+draws on, then each click lands the next phase; clicks past the last phase go to the next
+slide) is used only when the user asks for click-through.
 
-> How should the figures play?
-> - **once**: each slide's figure plays one calm pass when the slide appears and rests.
-> - **step**: the entrance draws on, then each click lands the next phase; clicks that would go
->   past the last phase go to the next slide.
->
-> Recommended: <once | step>, because <reason>.
-
-- Recommend **step** when the source deck already builds by click: `outline.json` reports
-  `builds` above 0 (reveal.js `.fragment`, PowerPoint click animations, impress.js substeps,
-  the deck's own keyboard build steps). The presenter is used to clicking through the slide.
-  Otherwise recommend **once**.
+- Do not recommend step unprompted. When `outline.json` reports `builds` above 0 (reveal.js
+  `.fragment`, PowerPoint click animations, impress.js substeps, the deck's own keyboard build
+  steps) the presenter is used to clicking through slides: mention it in one line in the same
+  message as the look ("your deck builds by click; the figures can do the same (step), say so
+  if you want it") and carry on with once unless they do.
+- A step deck is presented with the keyboard or a clicker. Step listens to keys only; a deck
+  that also navigates by wheel or swipe (frontend-slides does) skips the phases on a scroll.
 - The phases of a step fragment are the narrated phases of the brief, 3 to 5 per slide; their
   marks go on the wrapper as `data-anim-phases`.
 - Step costs nothing extra in the fragment: the file is the same as under `once`.

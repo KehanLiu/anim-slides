@@ -2,6 +2,37 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.9.1 - 2026-11-08
+
+- **Deck first.** Intake now starts with "Get an HTML deck first": an HTML deck proceeds; a
+  pptx, Markdown, remark deck or document goes through a deck skill before triage (the user's
+  own, else `frontend-slides`, picking the preview closest to the source's brand). The pptx
+  stays the source for `extract_slides.py` and `render_deck.py`; integration and the match look
+  target the deck the skill produced. New hard rule: anim-slides styles fragments, never the
+  deck. Driver: a pptx extracted to Markdown and run through `md_to_deck.py` came out "super
+  ugly, only the charts on slide 4 are good"; the fragments were fine, the host was a plain dump.
+- `md_to_deck.py` is documented as a fallback host for when no deck skill is installed, not a
+  designed deck (docstring, `--help`, SKILL.md, `references/input-stage.md`, README); the agent
+  says so to the user in one sentence. No behaviour change.
+- `references/input-stage.md`: new "Deck first" section on the division of labour (deck skill
+  owns layout, typography and slide design; anim-slides owns the animated figures). New lesson
+  in `references/lessons.md`.
+- **Rules from a real deck-first run** (pptx to frontend-slides to anim-slides, 4 slides, match
+  look, step): ask the deck skill for a fixed-size `#sN-slot` between `<!-- sN-body -->`
+  markers (exact `measure_slot.py --selector`, clean `--anchor`/`--replace-until`);
+  `render-phases.sh --page --no-script` only for timed frames, never `rest` (`.visible` both
+  gates and shows the slide in frontend-slides decks); check slide text shows without the deck
+  script and in print, keying `.reveal` entrances also on the active class; a deck skill's
+  web-font link is the deck's load and `bundle_deck.py --fetch` inlines it; step listens to
+  keys only, so present with the keyboard or a clicker; on white match grounds raise faded
+  opacities to 0.55 to 0.65; compare the `host_theme.py` block with the deck's own variables
+  once; a picture count that differs between `outline.json` and the render points at layout
+  pictures. SKILL.md, `references/` (input-stage, style, fragment-contract, brief-template,
+  lessons).
+- Scripts: `extract_slides.py` reports pictures placed on the slide layout; `host_theme.py`
+  reads frontend-slides' variable names (`--bg-primary`, `--text-primary`, `--text-secondary`,
+  `--accent-glow`, `--slide-bg`).
+
 ## 0.9.0 - 2026-11-08
 
 - **Step mode is CSS only; GSAP is retired.** A `step` fragment is now the same file as a
@@ -18,13 +49,13 @@ All notable changes to this project. Versions match `metadata.version` in `SKILL
   step, inserts the snippet once and sets its gate. The control is a deck-wide switch at
   integration, reversible without touching fragments; `check_page.py` requires the snippet when
   a step wrapper is present.
-- **One control per deck, asked at intake.** Next to the match-or-lean look, intake asks once:
-  play once, or step through phases by click, with a recommended default. Recorded in the
-  `anim/triage.md` header and each brief's Control field; a slide that differs needs a reason.
+- **One control per deck.** `once` by default for the whole deck; `step` only when the user
+  asks for click-through (a source that builds by click earns a one-line mention, not a
+  recommendation). Recorded in the `anim/triage.md` header and each brief's Control field; a
+  slide that differs needs a reason.
 - `extract_slides.py`: a per-slide `builds` count and a deck total: click effects in pptx
   timing, reveal.js `.fragment` and `data-fragment-index`, `.build`/`.build-item`, impress.js
-  `.substep`, nested `.step` build steps, remark `--`. A deck that already builds by click gets
-  `step` recommended.
+  `.substep`, nested `.step` build steps, remark `--`; the signal for mentioning `step`.
 
 ## 0.8.0 - 2026-11-07
 

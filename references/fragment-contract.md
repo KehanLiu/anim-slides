@@ -179,9 +179,12 @@ still, the PDF page and the last frame of the pass are one and the same picture.
   mid-segment lands on that segment's mark). Several step
   wrappers on one slide advance together. Under reduced motion nothing animates and every key
   passes through; printing shows the resting frame. `animSlides.gate` may be set after the
-  snippet (default `.visible`).
-  `once` versus `step` is decided once per deck at intake, not per fragment: a deck that
-  already builds by click (the extractor's `builds`) is recommended `step`, others `once`.
+  snippet (default `.visible`). The snippet listens to keys only: a deck that also navigates
+  by wheel or swipe (frontend-slides does) moves to the next slide on a scroll and skips the
+  remaining phases, so present a step deck with the keyboard or a clicker.
+  `once` versus `step` is decided once per deck at intake, not per fragment: `once` unless
+  the user asks for click-through; a deck that already builds by click (the extractor's
+  `builds`) only earns a one-line mention that step is available.
   Because the file is identical, the switch is a re-run of `integrate_fragment.py --control`.
 
 ## 7b. Edge paths (scaffolded fragments)

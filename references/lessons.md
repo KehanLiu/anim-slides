@@ -94,16 +94,53 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
   colours and fonts only; the boxes become rings and labels on lines (style.md, "Under a host
   theme"), and the brief names what the fragment replaces.
 - `render-phases.sh --page --no-script` shows blank frames on decks whose own script both adds
-  the gate class and fills images; render from a scratch copy that marks every slide current
-  and disables animation (what print mode does), never from an edited deck.
+  the gate class and shows the slide. In frontend-slides decks `.visible` is both the fragment
+  gate and the class that shows the slide; the `rest` render strips it, and the slide stays up
+  only because the deck's script also sets `.active`. Rule that held: `--no-script` for timed
+  mark or phase frames, never for `rest`. If a deck still renders blank, render from a scratch
+  copy that marks every slide current and disables animation (what print mode does), never
+  from an edited deck.
 - `.step` divs inside a `.slide` are build steps (stairs, reveals), not slides;
   `extract_slides.py` treats `.step` as a slide only at impress.js top level and counts nested
   ones as `builds`.
 - Whether a click advances the figure is a presenter habit, not something the deck's content
-  reveals. Ask once per deck at intake (`once` or `step`), recommend `step` when the source
-  already builds by click (`builds` in `outline.json`), and keep it the same on every slide so
-  the presenter always knows what a click does. Step mode lives in the host snippet, so the
+  reveals. The default is `once` for the whole deck; `step` only when the user asks (when the
+  source builds by click, `builds` in `outline.json`, mention in one line that step exists,
+  nothing more: the owner of this skill found an unasked step deck annoying). Keep it the same
+  on every slide so the presenter always knows what a click does. Step mode lives in the host snippet, so the
   choice can change at integration without rebuilding fragments.
 - A rebuilt figure can be accurate and still wrong: a staircase re-plotted as a glowing line
   chart with brackets and arrows was rejected as "too much". Keep the slide's figure form and
   add one movement; the checker measures how many things move and glow at once and catches the rest.
+- A 4-slide pptx was extracted to Markdown, run through `md_to_deck.py`, and two slides were
+  animated. The user's verdict: "super ugly, only the charts on slide 4 are good". The
+  fragments were fine; the host was a Markdown dump (full-width title, a bullet list, a row of
+  raw image thumbnails), and the pptx's own designed layout was gone before anim-slides started.
+  Deck first: a source that is not an HTML deck yet goes through a deck skill (the user's own,
+  else `frontend-slides`) before triage; `md_to_deck.py` is a last resort, named as a plain host
+  to the user, and the pptx stays the triage source.
+- Deck first on a frontend-slides deck (the same 4 slides, pptx to frontend-slides to
+  anim-slides, match look, step control). It worked: the fragments dropped into a 1680x610 and
+  a 1680x700 slot without size changes, `verify_facts.py` passed, and the user, who had called
+  the `md_to_deck.py` attempt "super ugly", judged the fragments fine. What it took:
+  - `--no-script` for timed frames only, never for `rest` (see the blank-frames entry above).
+  - The deck's entrance animations show `.reveal` text only under `.slide.visible`, so rest
+    renders and print showed empty slides. Key the reveals also on `.slide.active` and add a
+    print rule; check headings and body text without the deck script and in print. The class
+    name `.reveal` also matches reveal.js detection in `host_theme.py`'s slide selectors
+    (harmless in this run).
+  - Without `--selector`, `measure_slot.py` returned junk on the absolutely positioned layout.
+    A fixed-size `<div id="sN-slot">` between `<!-- sN-body -->` markers made measuring exact
+    and `integrate_fragment.py --anchor`/`--replace-until` painless; ask the deck skill for it.
+  - The deck's Google Fonts / Fontshare link is the deck's load. The lean working deck fails
+    `check_page.py`'s external check on it; `bundle_deck.py --fetch` inlined 9 fonts and the
+    bundled deck passed with 0 fail.
+  - Step listens to keys only; frontend-slides also navigates by wheel and swipe, so a scroll
+    skips phases. Tell the presenter to use the keyboard or a clicker.
+  - On the white match ground a fade level of 0.35 in the light line colour vanished; 0.6
+    read (style.md, "Under a host theme").
+  - `host_theme.py` mapped muted to a computed mix instead of the deck's `--text-secondary`;
+    compare the derived block with the deck's variables once and correct by hand.
+  - `extract_slides.py` missed a cover photo placed on slide layout 4 and reported a picture
+    that does not show on the rendered slide. A picture count that differs between
+    `outline.json` and the render means: look at the layout's pictures.

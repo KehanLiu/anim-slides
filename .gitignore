@@ -8,3 +8,4 @@ anim/*/contact.png
 *.bak
 _site/
 gallery/
+.local/

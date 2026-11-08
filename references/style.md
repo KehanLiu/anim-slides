@@ -64,7 +64,10 @@ hairline brackets drawn in its blue and its font, not its panels redrawn in SVG.
 the before/after pair: if the resting frame looks like the old slide with the same boxes, the
 fragment has copied the host's style instead of adopting its colours. On a white ground the
 glow is the accent copy at about 30 % opacity with blur, lines go darker (`--anim-line` around
-`#C3CFDC` on white), and the one accent is the brand's primary colour.
+`#C3CFDC` on white), and the one accent is the brand's primary colour. Fade levels tuned
+for the dark ground do not transfer: a faded or secondary element at about 0.35 opacity in
+the light line colour vanishes on white. On light grounds raise faded and secondary
+opacities to 0.55 to 0.65, and check the faintest element in a rest render.
 
 ## Anatomy by archetype
 

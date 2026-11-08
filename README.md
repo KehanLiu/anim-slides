@@ -25,6 +25,11 @@ illustrating, writes a spec and a brief for each, builds a self-contained animat
 fragment, renders phase frames with headless Chrome and looks at them, and inlines the result
 into your deck.
 
+It animates figures; it does not design decks. **Deck first:** a PowerPoint or Markdown source
+is turned into a designed HTML deck by a deck skill (your own, or e.g. `frontend-slides`)
+before anim-slides adds the figures. `scripts/md_to_deck.py` is only a fallback host for when
+no deck skill is installed: it makes a plain HTML deck to integrate into, not a design.
+
 ## Pool
 
 The skill ships a pool of 22 finished, checked fragments across 16 fields, at least one per
@@ -74,8 +79,8 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
 - **Three control modes, one CSS fragment.** `once` (default) plays the pass when the slide appears;
   `step` plays the same fragment in phases, the entrance with the slide and each click landing
   the next phase, through a small host script with no library; `loop` for kiosks and
-  galleries. At intake the skill asks one question per deck, once or step, and recommends
-  `step` when your source deck already builds by click.
+  galleries. Once is the default for the whole deck; ask for step if you want to click
+  through the phases.
 - **Less by rule.** The fragment is the slide's own figure in its own form plus one movement.
   The checker measures how many things move and how many glow at the same instant, so "too much" fails before you see it.
 - **Shareable.** The skill adds no CDN or network loads, and `bundle_deck.py` turns the deck
@@ -159,7 +164,7 @@ they load the skill.
 With the skill installed, ask your agent in plain words:
 
 - "Make the pipeline slide in `deck.html` an animated illustration."
-- "Convert `talk.pptx` to HTML and animate the process and architecture slides."
+- "Convert `talk.pptx` to HTML with frontend-slides, then animate the process and architecture slides."
 - "Here is our release procedure (paste). Turn it into an animated diagram for slide 7."
 - "Animate this Mermaid flowchart for a 1200x600 slot."
 

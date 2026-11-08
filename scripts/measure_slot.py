@@ -30,7 +30,7 @@ Output on stdout, one item per line:
   x y w h                       the box in stage pixels (origin: the stage's top-left)
   viewBox 0 0 VW VH             same aspect ratio, rounded to tens
   --rendered-width W --stage-width SW    flags for check_fragment.py / scaffold_from_spec.py
-Details (which slide, which candidate, the scale) go to stderr.
+Details (which slide, which candidate, the window's display factor) go to stderr.
 
 How: a temp copy of the page gets a <base> and a small script that measures on load and writes
 JSON into <pre id="anim-measure">; Chrome's --dump-dom prints the DOM and the JSON is read back.
@@ -259,7 +259,10 @@ def main():
     x0, y0, x1, y1 = res['box']
     x, y, w, h = round(x0), round(y0), round(x1 - x0), round(y1 - y0)
     sw, sh = res['stage']
-    print(f'{res["desc"]}: stage {sw}x{sh}, scale {res["scale"]:.3f}, measured against the {res["container"]}',
+    k = res['scale']  # how the deck letterboxes the stage into the browser window; undone above
+    shown = '' if abs(k - 1) < 0.0005 else \
+        f' (the window shows it at {round(sw * k)} px wide, factor {k:.3f}; results are in stage px)'
+    print(f'{res["desc"]}: stage {sw}x{sh}{shown}, measured against the {res["container"]}',
           file=sys.stderr)
     print(f'box: {res["how"]}', file=sys.stderr)
     for o in res.get('others', []):

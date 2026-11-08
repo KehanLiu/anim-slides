@@ -284,7 +284,7 @@ def derive_match(deck, slide_sel):
 
     # bg: slide background, then a slide-bg-like var, then body, then most used background
     r = (from_rule(slide_sels, ('background', 'background-color'), 'slide')
-         or (lambda v: v and (v[1], v[0]))(deck.var_color(r'^(slide-?bg|slide-?background|r-background-color|bg|background|surface-?0)$'))
+         or (lambda v: v and (v[1], v[0]))(deck.var_color(r'^(slide-?bg|slide-?background|bg-?primary|r-background-color|bg|background|surface-?0)$'))
          or from_rule(['body', 'html', ':root'], ('background', 'background-color'), 'body'))
     if not r:
         bgs = sorted(counts, key=lambda c: -total(c, 'background'))
@@ -295,7 +295,7 @@ def derive_match(deck, slide_sel):
     dark = luminance(bg) < 0.2
 
     r = (from_rule(slide_sels, ('color',), 'slide') or from_rule(['body', 'html', ':root'], ('color',), 'body')
-         or (lambda v: v and (v[1], v[0]))(deck.var_color(r'^(ink|fg|text|text-?color|foreground|r-main-color|body-?color|color-?text)$')))
+         or (lambda v: v and (v[1], v[0]))(deck.var_color(r'^(text-?primary|ink|fg|text|text-?color|foreground|r-main-color|body-?color|color-?text)$')))
     if not r or contrast(r[0], bg) < 3:
         fgs = sorted((c for c in counts if contrast(c, bg) >= 4.5), key=lambda c: -total(c, 'color'))
         r = (fgs[0], 'most used colour in color') if fgs and total(fgs[0], 'color') else \
@@ -308,11 +308,11 @@ def derive_match(deck, slide_sel):
         v = deck.var_color(pattern, ok=lambda c: c not in near and ok(c))
         return (v[1], v[0]) if v else (fallback, why)
 
-    tok['panel'], src['panel'] = var_or(r'^(panel|surface|surface-?[12]|card|card-?bg|bg-?2|bg-?alt|subtle-?bg)$',
+    tok['panel'], src['panel'] = var_or(r'^(panel|bg-?secondary|bg-?card|surface|surface-?[12]|card|card-?bg|bg-?2|bg-?alt|subtle-?bg)$',
                                         mix(bg, fg, 0.05), 'bg mixed 5% toward fg')
     tok['line'], src['line'] = var_or(r'^(line|lines|border|border-?color|rule|divider|hairline|grid|stroke)$',
                                       mix(bg, fg, 0.22), 'bg mixed 22% toward fg')
-    tok['muted'], src['muted'] = var_or(r'^(muted|text-?muted|grey|gray|dim|subtle|secondary|text-?2|ink-?2|fg-?2|meta)$',
+    tok['muted'], src['muted'] = var_or(r'^(text-?secondary|text-?muted|muted|grey|gray|dim|subtle|secondary|text-?2|ink-?2|fg-?2|meta)$',
                                         mix(fg, bg, 0.4), 'fg mixed 40% toward bg',
                                         ok=lambda c: contrast(c, bg) >= 3)
 
@@ -320,7 +320,7 @@ def derive_match(deck, slide_sel):
     sat = [c for c in counts if saturated(c) and contrast(c, bg) >= 1.6
            and min(contrast(c, x) for x in near) > 1.15]
     rank = sorted(sat, key=lambda c: -(total(c) * chroma(c) ** 2))
-    named = deck.var_color(r'^(accent|primary|brand|highlight|r-link-color|link)$', ok=saturated)
+    named = deck.var_color(r'^(accent|accent-?primary|primary|brand|highlight|r-link-color|link)$', ok=saturated)
     def readable(c):  # on a light ground a dark saturated colour reads as text, so it must differ from fg
         return contrast(c, bg) >= 3 and (dark or contrast(c, fg) >= 1.8)
     if named:
@@ -349,7 +349,7 @@ def derive_match(deck, slide_sel):
     acc = tok['accent']
     rest = sorted((c for c in rank if c != acc and hue_dist(c, acc) >= 40),
                   key=lambda c: contrast(c, bg) < 3)  # readable ones first, rank kept within
-    named2 = deck.var_color(r'^(accent-?2|secondary-?accent|accent-?alt|highlight-?2)$', ok=saturated)
+    named2 = deck.var_color(r'^(accent-?2|accent-?secondary|secondary-?accent|accent-?alt|highlight-?2|accent-?glow)$', ok=saturated)
     if named2:
         tok['accent-2'], src['accent-2'] = named2[1], named2[0]
     elif rest:
@@ -383,12 +383,19 @@ def derive_match(deck, slide_sel):
             f = m.group(1) if m else ''
         if f:
             tok['font'], src['font'] = clean_font(f), f'{d[0]} {{{d[1]}}}'
+    if 'font' not in tok:  # no font rule: a declared font variable (body text first, then display)
+        name = next((n for n in ('--font-body', '--font-sans', '--font-text', '--font',
+                                 '--font-display', '--font-heading')
+                     if deck.resolve(deck.vars.get(n, '')).strip()), None)
+        if name:
+            tok['font'], src['font'] = clean_font(deck.resolve(deck.vars[name])), name
     if 'font' not in tok:
         tok['font'], src['font'] = 'inherit', 'default (no font-family found)'
-    mono = deck.vars.get('--mono') or next((v for n, v in deck.vars.items() if re.search(r'mono|code', n)), None)
-    if mono:
-        tok['mono'] = clean_font(deck.resolve(mono))
-        src['mono'] = next(n for n, v in deck.vars.items() if v == mono)
+    mono_name = next((n for n in ('--font-mono', '--mono', '--font-code') if n in deck.vars), None) \
+        or next((n for n in deck.vars if re.search(r'mono|code', n)), None)
+    if mono_name:
+        tok['mono'] = clean_font(deck.resolve(deck.vars[mono_name]))
+        src['mono'] = mono_name
     else:
         fams = [deck.resolve(v) for _, ds in deck.rules for p, v in ds if p == 'font-family']
         hit = next((f for f in fams if re.search(r'mono|courier|consolas|menlo|code', f, re.I)), None)
