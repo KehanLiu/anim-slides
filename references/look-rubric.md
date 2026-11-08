@@ -113,7 +113,9 @@ presenter would fix, 1 = a viewer would call the slide ugly, wrong or unchanged)
 9 Fidelity: every label and number in the after image appears on the before slide (shortened
   is fine, reworded or invented is not); example values are tagged "illustrative"; icons or
   pictures that labelled items on the before slide are kept or redrawn; a callout or question
-  the slide asks its audience is content too (dropped = 3 at most). 1 = invented content or
+  the slide asks its audience is content too (dropped = 3 at most). For any Fidelity score
+  under 4, quote the words you read on the before slide next to the words on the after slide,
+  so the builder can verify the complaint. 1 = invented content or
   meaningful pictures dropped.
 10 Host fit: the whole after slide looks designed: title, figure, margins and footer form one
   composition in the deck's look; the figure replaced the old cards or text. 1 = a dumped
