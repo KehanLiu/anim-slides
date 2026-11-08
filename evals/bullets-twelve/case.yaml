@@ -1,0 +1,11 @@
+schema_version: "1.1"
+name: bullets-twelve
+expected_outcome: |
+  Mode B with the user absent ("just do it"), so no question is asked and the defaults are
+  recorded under Decisions in anim/triage.md. Slide 2 holds twelve unrelated facts (no order,
+  no relation): it is triaged as text with the reason "list of unrelated items" and keeps its
+  bullets; no pipeline, graph or timeline is forced onto it. Slide 3 (four ordered steps of
+  colour change) is the slide that gets a fragment, replacing its four step cards with a lean
+  pipeline. Slides 1, 4 and 5 stay text. The run ends with anim/review/index.html.
+context:
+  scaffold_script: place-files.sh

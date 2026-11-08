@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riverbend composting pilot</title>
+<style>:root {
+  --bg: #14212B;
+  --ink: #EEF3F5;
+  --muted: #9FB2BC;
+  --accent: #F2B544;
+  --line: #2E4250;
+  --card: #1B2C38;
+  --font: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%); transform-origin: center; }
+.slide { position: absolute; inset: 0; box-sizing: border-box; padding: 96px 120px;
+  background: var(--bg); color: var(--ink); font-family: var(--font);
+  opacity: 0; visibility: hidden; transition: opacity .35s ease; overflow: hidden; }
+.slide.visible { opacity: 1; visibility: visible; }
+.slide h1 { font-size: 88px; line-height: 1.05; margin: 0 0 28px; letter-spacing: -0.01em; }
+.slide h2 { font-size: 60px; line-height: 1.1; margin: 0 0 48px; }
+.slide p, .slide li { font-size: 34px; line-height: 1.45; }
+.slide .kicker { font-size: 26px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+.slide .sub { font-size: 36px; color: var(--muted); }
+.slide.title { display: flex; flex-direction: column; justify-content: center; }
+.slide.quote { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.slide.quote blockquote { font-size: 64px; line-height: 1.25; margin: 0 0 32px; max-width: 1400px; }
+.slide.quote cite { font-size: 30px; color: var(--muted); font-style: normal; }
+.slide ul { margin: 0; padding-left: 1.1em; }
+.slide li { margin-bottom: 14px; }
+.flow { display: flex; align-items: stretch; gap: 18px; margin-top: 40px; }
+.card { flex: 1; background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 28px 24px; }
+.card .num { display: inline-block; width: 46px; height: 46px; border-radius: 50%; background: var(--accent);
+  color: var(--bg); font-weight: 700; font-size: 26px; text-align: center; line-height: 46px; margin-bottom: 16px; }
+.card h3 { font-size: 32px; margin: 0 0 10px; }
+.card p { font-size: 24px; line-height: 1.35; margin: 0; color: var(--muted); }
+.arrow { align-self: center; font-size: 44px; color: var(--accent); }
+table.data { border-collapse: collapse; width: 100%; font-size: 28px; }
+table.data th { text-align: left; background: var(--card); color: var(--accent); padding: 18px 20px; border-bottom: 3px solid var(--accent); }
+table.data td { padding: 16px 20px; border-bottom: 1px solid var(--line); vertical-align: top; }
+@media print {
+  html, body { overflow: visible; height: auto; background: none; }
+  .stage { position: static; transform: none !important; }
+  .slide { position: relative; opacity: 1; visibility: visible; page-break-after: always; }
+}
+.chart{margin-top:10px}
+</style>
+</head>
+<body>
+<div class="stage">
+
+<section class="slide title" id="s1">
+  <div class="kicker">Riverbend Borough &middot; Council briefing</div>
+  <h1>Turning kitchen scraps into soil</h1>
+  <p class="sub">Community composting pilot, first year</p>
+</section>
+
+<section class="slide" id="s2">
+  <h2>From green bin to garden bed</h2>
+  <div class="flow">
+    <div class="card"><span class="num">1</span><h3>Collect</h3><p>Green bins emptied every Tuesday</p></div>
+    <span class="arrow">&rarr;</span>
+    <div class="card"><span class="num">2</span><h3>Sort</h3><p>Volunteers pull out plastic and glass</p></div>
+    <span class="arrow">&rarr;</span>
+    <div class="card"><span class="num">3</span><h3>Pile</h3><p>Windrows at the depot reach 55&ndash;65 &deg;C</p></div>
+    <span class="arrow">&rarr;</span>
+    <div class="card"><span class="num">4</span><h3>Turn</h3><p>Turned weekly for eight weeks</p></div>
+    <span class="arrow">&rarr;</span>
+    <div class="card"><span class="num">5</span><h3>Cure</h3><p>Rests three months, then screened</p></div>
+  </div>
+</section>
+
+<section class="slide" id="s3">
+  <h2>Why the council is backing it</h2>
+  <ul>
+    <li>Food waste is a third of household rubbish in the 2024 bin audit</li>
+    <li>Landfill gate fees rose again this year</li>
+    <li>Residents asked for it in the 2025 neighbourhood survey</li>
+  </ul>
+</section>
+
+<section class="slide" id="s4">
+  <h2>Tonnes diverted from landfill per quarter</h2>
+  <div class="chart">
+    <svg viewBox="0 0 1500 620" width="1500" height="620" role="img" aria-label="bar chart">
+      <line x1="110" y1="540.0" x2="1460" y2="540.0" stroke="var(--line)" stroke-width="1"/>
+      <text x="94" y="548.0" font-size="24" text-anchor="end" fill="var(--ink)">0</text>
+      <line x1="110" y1="415.0" x2="1460" y2="415.0" stroke="var(--line)" stroke-width="1"/>
+      <text x="94" y="423.0" font-size="24" text-anchor="end" fill="var(--ink)">15</text>
+      <line x1="110" y1="290.0" x2="1460" y2="290.0" stroke="var(--line)" stroke-width="1"/>
+      <text x="94" y="298.0" font-size="24" text-anchor="end" fill="var(--ink)">30</text>
+      <line x1="110" y1="165.0" x2="1460" y2="165.0" stroke="var(--line)" stroke-width="1"/>
+      <text x="94" y="173.0" font-size="24" text-anchor="end" fill="var(--ink)">45</text>
+      <line x1="110" y1="40.0" x2="1460" y2="40.0" stroke="var(--line)" stroke-width="1"/>
+      <text x="94" y="48.0" font-size="24" text-anchor="end" fill="var(--ink)">60</text>
+      <rect x="169.4" y="390.0" width="151.2" height="150.0" fill="var(--accent)"/>
+      <text x="245.0" y="376.0" font-size="28" font-weight="700" text-anchor="middle" fill="var(--ink)">18</text>
+      <text x="245.0" y="584" font-size="26" text-anchor="middle" fill="var(--ink)">Q1 2025</text>
+      <rect x="439.4" y="323.3" width="151.2" height="216.7" fill="var(--accent)"/>
+      <text x="515.0" y="309.3" font-size="28" font-weight="700" text-anchor="middle" fill="var(--ink)">26</text>
+      <text x="515.0" y="584" font-size="26" text-anchor="middle" fill="var(--ink)">Q2 2025</text>
+      <rect x="709.4" y="256.7" width="151.2" height="283.3" fill="var(--accent)"/>
+      <text x="785.0" y="242.7" font-size="28" font-weight="700" text-anchor="middle" fill="var(--ink)">34</text>
+      <text x="785.0" y="584" font-size="26" text-anchor="middle" fill="var(--ink)">Q3 2025</text>
+      <rect x="979.4" y="198.3" width="151.2" height="341.7" fill="var(--accent)"/>
+      <text x="1055.0" y="184.3" font-size="28" font-weight="700" text-anchor="middle" fill="var(--ink)">41</text>
+      <text x="1055.0" y="584" font-size="26" text-anchor="middle" fill="var(--ink)">Q4 2025</text>
+      <rect x="1249.4" y="148.3" width="151.2" height="391.7" fill="var(--accent)"/>
+      <text x="1325.0" y="134.3" font-size="28" font-weight="700" text-anchor="middle" fill="var(--ink)">47</text>
+      <text x="1325.0" y="584" font-size="26" text-anchor="middle" fill="var(--ink)">Q1 2026</text>
+      <line x1="110" y1="540" x2="1460" y2="540" stroke="var(--ink)" stroke-width="2"/>
+    </svg>
+  </div>
+</section>
+
+<section class="slide quote" id="s5">
+  <blockquote>&ldquo;My tomatoes have never been this happy.&rdquo;</blockquote>
+  <cite>Allotment holder, Mill Lane</cite>
+</section>
+
+<section class="slide" id="s6">
+  <h2>Pilot streets</h2>
+  <table class="data">
+    <thead><tr><th>Area</th><th>Households</th><th>Sign-up rate</th><th>Bins collected per week</th></tr></thead>
+    <tbody>
+      <tr><td>Mill Lane</td><td>420</td><td>68 %</td><td>290</td></tr>
+      <tr><td>Station Road</td><td>610</td><td>54 %</td><td>330</td></tr>
+      <tr><td>Orchard Close</td><td>180</td><td>81 %</td><td>145</td></tr>
+      <tr><td>Harbour View</td><td>350</td><td>47 %</td><td>165</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div>
+<script>
+(function () {
+  var W = 1920, H = 1080;
+  var slides = [].slice.call(document.querySelectorAll('section.slide'));
+  var stage = document.querySelector('.stage');
+  var cur = 1;
+  function fit() {
+    var s = Math.min(window.innerWidth / W, window.innerHeight / H);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  function show(n) {
+    n = Math.max(1, Math.min(slides.length, n || 1));
+    slides.forEach(function (el, i) { el.classList.toggle('visible', i === n - 1); });
+    cur = n;
+    if (location.hash !== '#' + n) history.replaceState(null, '', '#' + n);
+  }
+  window.addEventListener('hashchange', function () { show(parseInt(location.hash.slice(1), 10)); });
+  window.addEventListener('keydown', function (e) {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].indexOf(e.key) >= 0) { show(cur + 1); e.preventDefault(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].indexOf(e.key) >= 0) { show(cur - 1); e.preventDefault(); }
+    else if (e.key === 'Home') show(1);
+    else if (e.key === 'End') show(slides.length);
+  });
+  window.addEventListener('resize', fit);
+  fit();
+  show(parseInt(location.hash.slice(1), 10) || 1);
+})();
+</script>
+</body>
+</html>

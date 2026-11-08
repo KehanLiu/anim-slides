@@ -2,6 +2,33 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.11.0 - 2026-11-08
+
+Self-test: "no ugly slides, no matter the input". Driver: the owner asked how the skill can
+test itself, and pointed at frontend-slides' quality floor (design recipes, a banned list,
+screenshots).
+
+- **Rendered-look lint:** `scripts/check_look.py` opens a fragment (or `--page DECK --slide N`)
+  in headless Chrome at rest and at every phase mark and fails on clipped or overlapping
+  labels, text under its contrast floor against the real ground, text-holding boxes, too many
+  hues, text under the size floor; warns on faint lines, labels on fills, missing fonts, a rest
+  frame that differs from the last mark, empty or crammed slots. Runs on every pool entry in
+  CI. First findings: an unfilled tag in cache-compare (fixed); the light-theme status colours
+  under 4.5:1 on white (README example and `host_theme.py` defaults darkened).
+- **Blind review:** `references/look-rubric.md`: ten scored items with 5/3/1 anchors, a verdict
+  rule and a verbatim prompt for a fresh reviewer that sees only before/after PNGs; calibrated
+  on the Markdown-dump deck (rebuild), the glowing line chart (rebuild), two bare-prompt runs
+  and a frontend-slides rebuild. Phase 2 step 8 and the hard rule "Reviewed blind".
+- **Eval corpus:** `evals/` with twelve trap cases in the `claude plugin eval` format (twelve
+  unrelated bullets, dense table, chart as picture, long German words, CJK labels, faint light
+  theme, 4:3 stage, 15-event timeline, 20-node graph, icon columns, switch an animated deck to
+  step), each with verifiable graders; `evals/README.md`.
+- **Pool first:** Phase 2 starts from the pool entry of the matching archetype and adapts it;
+  scratch builds only when no entry has the shape (frontend-slides' template floor).
+- `extract_slides.py`: HTML stage read from the deck's CSS, viewport meta or reveal.js config
+  (`stage_source`), so a 4:3 deck is no longer reported as 16:9; Chinese and Japanese cue words
+  and dates for archetype suggestions.
+
 ## 0.10.0 - 2026-11-08
 
 - **"Show, don't tell" restructure** of SKILL.md, modelled on frontend-slides: Phase 0 reads the

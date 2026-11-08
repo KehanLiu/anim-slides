@@ -283,6 +283,17 @@ This skill grew out of building about a dozen animated illustrations for a lectu
 hand, in autumn 2026. The repeated loop (brief, build, render phases, look, fix, integrate) and
 the gotchas it surfaced are written up in `docs/design-notes-2026-11-01.md`.
 
+## Self-test
+
+`evals/` holds trap decks (long German words, CJK labels, a faint light theme, a 4:3 stage, a
+15-event timeline, a 20-node graph, a chart that is only a picture, icon columns, an already
+animated deck) with graders, in the format `claude plugin eval` reads. Run
+`claude plugin eval . --allow-tools Write,Edit,Bash --scaffold` from the skill folder (billed;
+`--runs 1` for a quick pass), or run one case by hand as `evals/README.md` describes. Inside a
+run the skill checks itself twice: `scripts/check_look.py` measures the rendered figure
+(clipping, overlap, contrast, boxes, colours, density), and a fresh reviewer that sees only the
+before/after images scores it with `references/look-rubric.md` before "done".
+
 ## License
 
 MIT, see `LICENSE`.

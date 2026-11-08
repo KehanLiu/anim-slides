@@ -1,0 +1,10 @@
+schema_version: "1.1"
+name: stage-4x3
+expected_outcome: |
+  Mode C on slide 2 of a 4:3 deck (1600 x 1200 stage). The agent measures the free box of the
+  slide with measure_slot.py (not assuming 1920 x 1080), builds a fragment whose viewBox
+  aspect matches that box (about 4:3 or the measured slot, not 16:9), runs check_fragment.py
+  with --stage-width 1600 so the text floor scales, and renders the integrated slide at 1600 x
+  1200 to confirm nothing is clipped. The five stages keep their wording and order.
+context:
+  scaffold_script: place-files.sh

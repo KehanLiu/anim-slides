@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.10.0"
+  version: "0.11.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
@@ -113,9 +113,13 @@ cheap; write them all before building), then builds.
 1. **Spec.** `anim/<name>/spec.yaml` per `references/spec-format.md`: nodes, edges, groups,
    phases with second marks, cycle (4 to 10 s), control from intake. Reuse the source's words.
    Under about 12 nodes; split otherwise.
-2. **Pool.** Read `<skill-dir>/pool/index.yaml` (and `$ANIM_POOL/index.yaml` if set). A close
-   match (same archetype, similar story) is copied to `anim/<name>/`, renamed and adapted; same
-   archetype only: open it as the quality bar. Never ship a pool fragment unchanged.
+2. **Pool first.** Read `<skill-dir>/pool/index.yaml` (and `$ANIM_POOL/index.yaml` if set).
+   The pool is the template library and the quality floor: start from the entry of the same
+   archetype whose shape is closest (chain, snake, lanes, columns, layers, dots, line), copy it
+   to `anim/<name>/`, rename the prefix and adapt labels, node count, timing, marks and viewBox
+   to the spec. Build from the scaffolder or by hand only when no entry has the shape the
+   slide needs (a triangle, a donut, a map), and then keep the closest entry open as the bar
+   for stroke weights, type sizes and spacing. Never ship a pool fragment unchanged.
 3. **Slot and brief.** `python3 <skill-dir>/scripts/measure_slot.py deck.html --slide N --selector '#sN-slot'`
    prints the box, a viewBox and the checker flags (without `--selector` an absolutely
    positioned layout returns junk; `references/layouts.md` has the manual way). Fill
@@ -136,6 +140,12 @@ cheap; write them all before building), then builds.
 5. **Check by looking.**
    - `python3 <skill-dir>/scripts/check_fragment.py anim/<name>/<name>.html --name <name> --rendered-width <px> --stage-width <host stage width>`.
      Pass `--stage-width`: the text floor defaults to a 1920 stage (18 px; 12 px at 1280).
+   - `python3 <skill-dir>/scripts/check_look.py anim/<name>/<name>.html --rendered-width <px> [--stage-width W] [--slot W H] [--theme anim/host-theme.css]`
+     renders the fragment in headless Chrome at rest and at every phase mark and fails on
+     clipped or overlapping labels, text under its contrast floor on the real ground, more than
+     three text-holding boxes, more than six hues, or text under the size floor; read every WARN
+     (faint lines, labels on fills, rest differs from the last mark, missing fonts). A box that
+     is the meaning gets `<!-- anim-look: boxes-ok -->` before the `<svg>`.
    - `<skill-dir>/scripts/render-phases.sh anim/<name> <W> <H> <marks...> <pass> rest`, then
      open every PNG. Fix clipping, overlaps, unreadable text, empty panels; iterate at least
      once. The resting frame must read as a complete still (PDF shows only that).
@@ -158,8 +168,19 @@ cheap; write them all before building), then builds.
    print rule; when the rest render still differs from the running deck, take the final
    screenshot from the running deck. `python3 <skill-dir>/scripts/check_page.py deck.html`
    (paired markers, gated fragments, print guard; a deck skill's font link is the deck's load).
+   `python3 <skill-dir>/scripts/check_look.py --page deck.html --slide N` per animated slide
+   measures the fragment on the slide's own ground and stage width; a contrast FAIL on a light
+   ground means faded opacities or status colours must be raised (`references/style.md`,
+   "Under a host theme").
    Open the deck in a real browser once: headless frames never prove smoothness. Audit with
    the checklist at the end of `references/motion-rules.md`.
+8. **Review by a fresh pair of eyes.** Render `sN-before.png` (`anim/render/full/p-NN.png`),
+   `sN-after.png` (rest) and the mark frames of every animated slide, plus one un-animated
+   slide of the integrated deck as `context-after.png`. Spawn ONE fresh reviewer for the whole
+   deck with only the prompt in `references/look-rubric.md` section 3 and the labelled image
+   paths: no brief, spec, triage or conversation. A score below 3 on any item blocks done:
+   fix the named defects, re-render, review again with a new reviewer. At most two rounds;
+   defects left go into the hand-over and the Decisions section of `anim/triage.md`.
 
 ## Phase 3: Deliver by showing
 
@@ -214,6 +235,9 @@ cheap; write them all before building), then builds.
   listens to keys only: present it with the keyboard or a clicker.
 - **No network loads.** None in fragments, no new ones in the deck; loads the deck already has
   stay. Work on a lean deck; bundle only at hand-over when it will be shared.
+- **Reviewed blind.** A fresh reviewer that sees only the before/after PNGs scores every
+  animated slide with `references/look-rubric.md`; no item below 3, or the remaining defects
+  are named in the hand-over. Passing the checkers is not the same as looking right.
 - **Deliver by showing.** The before/after review page (`review_page.py`) is part of done.
 
 ## Files
@@ -226,6 +250,7 @@ cheap; write them all before building), then builds.
 - `references/motion-rules.md` — timing, easing, choreography, audit checklist
 - `references/style.md` — the visual style and its checklist
 - `references/accuracy.md` — accuracy rules and the `verify_facts.py` gate
+- `references/look-rubric.md` — the look rubric and blind-reviewer prompt; calibration examples
 - `references/lessons.md` — gotchas from real runs
 - `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions and `builds`
 - `scripts/render_deck.py` — contact sheets plus full-size pages for candidates; hidden slides rendered and marked
@@ -233,6 +258,7 @@ cheap; write them all before building), then builds.
 - `scripts/md_to_deck.py` — fallback host when no deck skill is installed; not a designed deck
 - `scripts/scaffold_from_spec.py` — spec validation and skeleton fragment for the plain archetype forms
 - `scripts/check_fragment.py` — static contract checks
+- `scripts/check_look.py` — render-time look lint (headless Chrome): clipping, overlap, contrast, boxes, hues, density, text floor, fonts, rest vs last mark; fragment or `--page DECK --slide N`
 - `scripts/verify_facts.py` — provenance gate against the source slide (`--self-test`)
 - `scripts/render-phases.sh` — phase PNGs and contact sheet with headless Chrome; `--page` for a host page
 - `scripts/measure_slot.py` — free box of a slide with viewBox and checker flags
@@ -242,6 +268,7 @@ cheap; write them all before building), then builds.
 - `scripts/review_page.py` — before/after review page for delivery
 - `scripts/snippets/observer.html`, `scripts/snippets/step-host.html` — host helpers (scroll gate; step mode)
 - `pool/` — finished, checked fragments with thumbnails and specs; `pool/index.yaml` lists them
+- `evals/` — self-test corpus: trap decks with graders (`claude plugin eval . --allow-tools Write,Edit,Bash --scaffold`); see `evals/README.md`
 
 ## Related skills (use them when your harness has them; none is required)
 - A deck skill (the user's own, frontend-slides, reveal.js, Slidev) builds the deck in Mode A.

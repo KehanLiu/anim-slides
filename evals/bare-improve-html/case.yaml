@@ -1,0 +1,16 @@
+schema_version: "1.1"
+name: bare-improve-html
+expected_outcome: |
+  Mode B on a six-slide HTML deck. Phase 1 runs in order: extract_slides.py and
+  render_deck.py, anim/triage.md drafted with a row for every slide (Slide, Title, Decision,
+  Archetype, Replaces, Why), the first fragment (the process slide 2 or the chart slide 4)
+  built, checked and rendered as stills under match and lean BEFORE anything is asked, then
+  exactly one intake message that carries the proposal (2 or 3 of 6 slides: slide 2 process,
+  slide 4 chart redrawn from its five values, optionally slide 6 table), the stills, look
+  (match suggested for this branded deck) and control "once" without offering step (builds =
+  0), plus the hand-over question. Title (1), reasons list (3) and quote (5) are triaged as
+  text with a reason and are not touched. No second question follows. If the run continues
+  (answer or defaults taken), the fragments are integrated with --control once, the defaults
+  are recorded under Decisions, and anim/review/index.html is produced.
+context:
+  scaffold_script: place-files.sh

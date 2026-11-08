@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: already-animated-switch
+expected_outcome: |
+  Mode E: the deck already carries the db-failover fragment (integrated with --control once
+  from anim/db-failover/db-failover.html). The agent does not rebuild, re-spec or restyle
+  anything and asks nothing: it runs integrate_fragment.py deck.html anim/db-failover/db-
+  failover.html --name db-failover --control step (once per fragment; here one), which sets
+  data-anim-control="step" on the wrapper and inserts the step host into the head exactly
+  once. The fragment markup is otherwise unchanged. check_page.py passes afterwards, and the
+  reply says step listens to keys (keyboard or clicker).
+context:
+  scaffold_script: place-files.sh

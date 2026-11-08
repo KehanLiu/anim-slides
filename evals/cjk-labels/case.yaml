@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: cjk-labels
+expected_outcome: |
+  Mode B with the user absent (no question; defaults recorded under Decisions). Slide 3, a
+  five-stage rice timeline in Chinese (育秧, 插秧, 分蘖, 抽穗, 收割 with months 三月 to 十月), gets a
+  timeline fragment. Its labels render as real Chinese glyphs: the font stack that reaches the
+  fragment (through the match theme or the fragment) names a CJK-capable family such as
+  PingFang SC, Noto Sans CJK SC or Microsoft YaHei, so no tofu boxes appear in the rest
+  render; labels are legible (at or above the floor) and the Chinese text is verbatim. Title,
+  facts list, poem quote and end slide stay text. anim/review/index.html exists.
+context:
+  scaffold_script: place-files.sh

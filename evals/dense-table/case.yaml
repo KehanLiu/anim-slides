@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: dense-table
+expected_outcome: |
+  Mode C, single slide, no triage and no question. The 8 x 5 table of long cells either
+  becomes a compare fragment that keeps all eight row labels and all four options (rows stay
+  rows, columns separated by space or a hairline, no filled cards, no chips), or is split
+  across two figures, or stays a table with the reason written in the brief. Every text in the
+  fragment renders at or above the text floor (18 px on the 1920 stage); nothing is clipped or
+  overlapping in the rest render; long cells wrap onto lines rather than being shrunk or cut.
+  The "illustrative" note on the rates survives as an illustrative tag.
+context:
+  scaffold_script: place-files.sh

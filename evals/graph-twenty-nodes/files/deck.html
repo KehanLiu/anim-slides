@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alder Lake food web</title>
+<style>:root {
+  --bg: #F4F8F3;
+  --ink: #1E2B22;
+  --muted: #5B6E60;
+  --accent: #2F8F5B;
+  --line: #C9D8CC;
+  --card: #E4EEE6;
+  --font: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+}
+
+html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%); transform-origin: center; }
+.slide { position: absolute; inset: 0; box-sizing: border-box; padding: 96px 120px;
+  background: var(--bg); color: var(--ink); font-family: var(--font);
+  opacity: 0; visibility: hidden; transition: opacity .35s ease; overflow: hidden; }
+.slide.visible { opacity: 1; visibility: visible; }
+.slide h1 { font-size: 88px; line-height: 1.05; margin: 0 0 28px; letter-spacing: -0.01em; }
+.slide h2 { font-size: 60px; line-height: 1.1; margin: 0 0 48px; }
+.slide p, .slide li { font-size: 34px; line-height: 1.45; }
+.slide .kicker { font-size: 26px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+.slide .sub { font-size: 36px; color: var(--muted); }
+.slide.title { display: flex; flex-direction: column; justify-content: center; }
+.slide.quote { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.slide.quote blockquote { font-size: 64px; line-height: 1.25; margin: 0 0 32px; max-width: 1400px; }
+.slide.quote cite { font-size: 30px; color: var(--muted); font-style: normal; }
+.slide ul { margin: 0; padding-left: 1.1em; }
+.slide li { margin-bottom: 14px; }
+.flow { display: flex; align-items: stretch; gap: 18px; margin-top: 40px; }
+.card { flex: 1; background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 28px 24px; }
+.card .num { display: inline-block; width: 46px; height: 46px; border-radius: 50%; background: var(--accent);
+  color: var(--bg); font-weight: 700; font-size: 26px; text-align: center; line-height: 46px; margin-bottom: 16px; }
+.card h3 { font-size: 32px; margin: 0 0 10px; }
+.card p { font-size: 24px; line-height: 1.35; margin: 0; color: var(--muted); }
+.arrow { align-self: center; font-size: 44px; color: var(--accent); }
+table.data { border-collapse: collapse; width: 100%; font-size: 28px; }
+table.data th { text-align: left; background: var(--card); color: var(--accent); padding: 18px 20px; border-bottom: 3px solid var(--accent); }
+table.data td { padding: 16px 20px; border-bottom: 1px solid var(--line); vertical-align: top; }
+@media print {
+  html, body { overflow: visible; height: auto; background: none; }
+  .stage { position: static; transform: none !important; }
+  .slide { position: relative; opacity: 1; visibility: visible; page-break-after: always; }
+}
+.sub.small{font-size:26px;margin:-30px 0 10px}
+#s2{padding:70px 120px}
+</style>
+</head>
+<body>
+<div class="stage">
+
+<section class="slide title" id="s1">
+  <div class="kicker">Freshwater ecology field course</div>
+  <h1>Who eats whom in Alder Lake</h1>
+  <p class="sub">Food web from the 2025 summer survey</p>
+</section>
+
+<section class="slide" id="s2">
+  <h2>The Alder Lake food web</h2>
+  <p class="sub small">Each line joins a food (lower row) to its feeder (higher row). Bottom row: producers and detritus.</p>
+  <svg viewBox="0 0 1680 800" width="1680" height="800" class="web" role="img" aria-label="Alder Lake food web">
+    <g stroke="var(--muted)" stroke-width="2" opacity=".7">
+      <line x1="336" y1="718" x2="240" y2="592"/>
+      <line x1="336" y1="718" x2="960" y2="592"/>
+      <line x1="672" y1="718" x2="480" y2="592"/>
+      <line x1="672" y1="718" x2="720" y2="592"/>
+      <line x1="672" y1="718" x2="1440" y2="592"/>
+      <line x1="1008" y1="718" x2="480" y2="592"/>
+      <line x1="1008" y1="718" x2="1120" y2="422"/>
+      <line x1="1344" y1="718" x2="1200" y2="592"/>
+      <line x1="1344" y1="718" x2="960" y2="592"/>
+      <line x1="1344" y1="718" x2="720" y2="592"/>
+      <line x1="240" y1="548" x2="840" y2="422"/>
+      <line x1="240" y1="548" x2="1120" y2="422"/>
+      <line x1="720" y1="548" x2="560" y2="422"/>
+      <line x1="720" y1="548" x2="840" y2="422"/>
+      <line x1="960" y1="548" x2="280" y2="422"/>
+      <line x1="960" y1="548" x2="1120" y2="422"/>
+      <line x1="1200" y1="548" x2="420" y2="252"/>
+      <line x1="480" y1="548" x2="840" y2="252"/>
+      <line x1="1440" y1="548" x2="560" y2="422"/>
+      <line x1="1440" y1="548" x2="280" y2="422"/>
+      <line x1="280" y1="378" x2="1400" y2="422"/>
+      <line x1="560" y1="378" x2="1400" y2="422"/>
+      <line x1="840" y1="378" x2="420" y2="252"/>
+      <line x1="840" y1="378" x2="1260" y2="252"/>
+      <line x1="1120" y1="378" x2="560" y2="82"/>
+      <line x1="1120" y1="378" x2="1120" y2="82"/>
+      <line x1="1400" y1="378" x2="1120" y2="82"/>
+      <line x1="1400" y1="378" x2="840" y2="252"/>
+      <line x1="420" y1="208" x2="560" y2="82"/>
+      <line x1="420" y1="208" x2="1120" y2="82"/>
+    </g>
+    <g><rect x="246" y="718" width="180" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="336" y="748" font-size="22" text-anchor="middle" fill="var(--ink)">Phytoplankton</text></g>
+    <g><rect x="594" y="718" width="156" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="672" y="748" font-size="22" text-anchor="middle" fill="var(--ink)">Green algae</text></g>
+    <g><rect x="949" y="718" width="118" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="1008" y="748" font-size="22" text-anchor="middle" fill="var(--ink)">Pondweed</text></g>
+    <g><rect x="1285" y="718" width="118" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="1344" y="748" font-size="22" text-anchor="middle" fill="var(--ink)">Detritus</text></g>
+    <g><rect x="162" y="548" width="156" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="240" y="578" font-size="22" text-anchor="middle" fill="var(--ink)">Zooplankton</text></g>
+    <g><rect x="434" y="548" width="93" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="480" y="578" font-size="22" text-anchor="middle" fill="var(--ink)">Snails</text></g>
+    <g><rect x="630" y="548" width="180" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="720" y="578" font-size="22" text-anchor="middle" fill="var(--ink)">Mayfly larvae</text></g>
+    <g><rect x="876" y="548" width="168" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="960" y="578" font-size="22" text-anchor="middle" fill="var(--ink)">Midge larvae</text></g>
+    <g><rect x="1085" y="548" width="230" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="1200" y="578" font-size="22" text-anchor="middle" fill="var(--ink)">Freshwater shrimp</text></g>
+    <g><rect x="1381" y="548" width="118" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="1440" y="578" font-size="22" text-anchor="middle" fill="var(--ink)">Tadpoles</text></g>
+    <g><rect x="196" y="378" width="168" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="280" y="408" font-size="22" text-anchor="middle" fill="var(--ink)">Water beetle</text></g>
+    <g><rect x="457" y="378" width="206" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="560" y="408" font-size="22" text-anchor="middle" fill="var(--ink)">Dragonfly nymph</text></g>
+    <g><rect x="794" y="378" width="93" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="840" y="408" font-size="22" text-anchor="middle" fill="var(--ink)">Minnow</text></g>
+    <g><rect x="1080" y="378" width="80" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="1120" y="408" font-size="22" text-anchor="middle" fill="var(--ink)">Roach</text></g>
+    <g><rect x="1366" y="378" width="68" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="1400" y="408" font-size="22" text-anchor="middle" fill="var(--ink)">Frog</text></g>
+    <g><rect x="380" y="208" width="80" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="420" y="238" font-size="22" text-anchor="middle" fill="var(--ink)">Perch</text></g>
+    <g><rect x="794" y="208" width="93" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="840" y="238" font-size="22" text-anchor="middle" fill="var(--ink)">Turtle</text></g>
+    <g><rect x="1188" y="208" width="143" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="1260" y="238" font-size="22" text-anchor="middle" fill="var(--ink)">Kingfisher</text></g>
+    <g><rect x="526" y="38" width="68" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="560" y="68" font-size="22" text-anchor="middle" fill="var(--ink)">Pike</text></g>
+    <g><rect x="1080" y="38" width="80" height="44" rx="10" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><text x="1120" y="68" font-size="22" text-anchor="middle" fill="var(--ink)">Heron</text></g>
+  </svg>
+</section>
+
+<section class="slide" id="s3">
+  <h2>Why the pike matters</h2>
+  <ul>
+    <li>Removing the top predator lets roach numbers climb</li>
+    <li>More roach means less zooplankton</li>
+    <li>Less zooplankton means greener, cloudier water</li>
+  </ul>
+</section>
+
+<section class="slide title" id="s4">
+  <h1>Field notebooks out</h1>
+</section>
+
+</div>
+<script>
+(function () {
+  var W = 1920, H = 1080;
+  var slides = [].slice.call(document.querySelectorAll('section.slide'));
+  var stage = document.querySelector('.stage');
+  var cur = 1;
+  function fit() {
+    var s = Math.min(window.innerWidth / W, window.innerHeight / H);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  function show(n) {
+    n = Math.max(1, Math.min(slides.length, n || 1));
+    slides.forEach(function (el, i) { el.classList.toggle('visible', i === n - 1); });
+    cur = n;
+    if (location.hash !== '#' + n) history.replaceState(null, '', '#' + n);
+  }
+  window.addEventListener('hashchange', function () { show(parseInt(location.hash.slice(1), 10)); });
+  window.addEventListener('keydown', function (e) {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].indexOf(e.key) >= 0) { show(cur + 1); e.preventDefault(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].indexOf(e.key) >= 0) { show(cur - 1); e.preventDefault(); }
+    else if (e.key === 'Home') show(1);
+    else if (e.key === 'End') show(slides.length);
+  });
+  window.addEventListener('resize', fit);
+  fit();
+  show(parseInt(location.hash.slice(1), 10) || 1);
+})();
+</script>
+</body>
+</html>

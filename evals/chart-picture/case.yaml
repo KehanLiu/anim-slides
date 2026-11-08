@@ -1,0 +1,11 @@
+schema_version: "1.1"
+name: chart-picture
+expected_outcome: |
+  Mode C on slide 3, whose chart is a PNG picture (seven yearly bars of hard coral cover: 2018
+  32 %, 2019 30 %, 2020 24 %, 2021 21 %, 2022 23 %, 2023 26 %, 2024 28 %). The agent opens the
+  picture, reads the values and redraws the chart as a bar chart fragment (bars stay bars, not
+  a line or a text summary) with exactly those values, or tags the figure "traced from coral-
+  cover.png figure" where it estimated. verify_facts.py runs against the source; the img
+  element is replaced by the fragment; text at or above the floor.
+context:
+  scaffold_script: place-files.sh

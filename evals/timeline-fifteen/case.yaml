@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: timeline-fifteen
+expected_outcome: |
+  Mode B, user absent. Slide 3 lists fifteen dated vaccine milestones (1796 to 2020). The
+  timeline fragment does not cram fifteen dots on one axis: it splits into two slides or two
+  figures (for example 1796 to 1945 and 1955 to 2020; same story split in two may sit on
+  adjacent slides) or groups events under eras with at most about 12 marks per figure, and the
+  split or grouping is recorded under Decisions in anim/triage.md. Every one of the 15 years
+  still appears across the figures with its wording. Each fragment has 3 to 6 phase marks
+  (data-anim-phases). The run ends with anim/review/index.html.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>稻田的一年</title>
+<style>:root {
+  --bg: #FFFDF6;
+  --ink: #2A2522;
+  --muted: #6E655E;
+  --accent: #B8860B;
+  --line: #D9CFC2;
+  --card: #F1EADF;
+  --font: 'PingFang SC', 'Noto Sans CJK SC', 'Noto Sans SC', 'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
+}
+
+html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%); transform-origin: center; }
+.slide { position: absolute; inset: 0; box-sizing: border-box; padding: 96px 120px;
+  background: var(--bg); color: var(--ink); font-family: var(--font);
+  opacity: 0; visibility: hidden; transition: opacity .35s ease; overflow: hidden; }
+.slide.visible { opacity: 1; visibility: visible; }
+.slide h1 { font-size: 88px; line-height: 1.05; margin: 0 0 28px; letter-spacing: -0.01em; }
+.slide h2 { font-size: 60px; line-height: 1.1; margin: 0 0 48px; }
+.slide p, .slide li { font-size: 34px; line-height: 1.45; }
+.slide .kicker { font-size: 26px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+.slide .sub { font-size: 36px; color: var(--muted); }
+.slide.title { display: flex; flex-direction: column; justify-content: center; }
+.slide.quote { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.slide.quote blockquote { font-size: 64px; line-height: 1.25; margin: 0 0 32px; max-width: 1400px; }
+.slide.quote cite { font-size: 30px; color: var(--muted); font-style: normal; }
+.slide ul { margin: 0; padding-left: 1.1em; }
+.slide li { margin-bottom: 14px; }
+.flow { display: flex; align-items: stretch; gap: 18px; margin-top: 40px; }
+.card { flex: 1; background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 28px 24px; }
+.card .num { display: inline-block; width: 46px; height: 46px; border-radius: 50%; background: var(--accent);
+  color: var(--bg); font-weight: 700; font-size: 26px; text-align: center; line-height: 46px; margin-bottom: 16px; }
+.card h3 { font-size: 32px; margin: 0 0 10px; }
+.card p { font-size: 24px; line-height: 1.35; margin: 0; color: var(--muted); }
+.arrow { align-self: center; font-size: 44px; color: var(--accent); }
+table.data { border-collapse: collapse; width: 100%; font-size: 28px; }
+table.data th { text-align: left; background: var(--card); color: var(--accent); padding: 18px 20px; border-bottom: 3px solid var(--accent); }
+table.data td { padding: 16px 20px; border-bottom: 1px solid var(--line); vertical-align: top; }
+@media print {
+  html, body { overflow: visible; height: auto; background: none; }
+  .stage { position: static; transform: none !important; }
+  .slide { position: relative; opacity: 1; visibility: visible; page-break-after: always; }
+}
+.tl{list-style:none;display:flex;justify-content:space-between;padding:0;margin-top:120px;position:relative}
+.tl::before{content:'';position:absolute;left:0;right:0;top:78px;height:4px;background:var(--line)}
+.tl li{display:flex;flex-direction:column;align-items:center;width:300px;position:relative}
+.tl .when{font-size:30px;color:var(--muted);margin-bottom:20px}
+.tl .dot{width:28px;height:28px;border-radius:50%;background:var(--accent);margin-bottom:28px}
+.tl strong{font-size:48px;margin-bottom:12px}
+.tl em{font-style:normal;font-size:28px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="stage">
+
+<section class="slide title" id="s1">
+  <div class="kicker">小学科学课</div>
+  <h1>稻田的一年</h1>
+  <p class="sub">一粒米是怎样长成的</p>
+</section>
+
+<section class="slide" id="s2">
+  <h2>你知道吗？</h2>
+  <ul>
+    <li>世界上一半以上的人以稻米为主食</li>
+    <li>水稻从播种到收割大约要四到六个月</li>
+    <li>稻田里的水可以帮助抑制杂草</li>
+  </ul>
+</section>
+
+<section class="slide" id="s3">
+  <h2>水稻的一年：五个阶段</h2>
+  <ol class="tl">
+    <li><span class="when">三月</span><span class="dot"></span><strong>育秧</strong><em>在苗床里培育秧苗</em></li>
+    <li><span class="when">五月</span><span class="dot"></span><strong>插秧</strong><em>把秧苗移栽到水田</em></li>
+    <li><span class="when">六月</span><span class="dot"></span><strong>分蘖</strong><em>一株长出多个分枝</em></li>
+    <li><span class="when">八月</span><span class="dot"></span><strong>抽穗</strong><em>稻穗从叶鞘中长出</em></li>
+    <li><span class="when">十月</span><span class="dot"></span><strong>收割</strong><em>稻谷成熟，金黄一片</em></li>
+  </ol>
+</section>
+
+<section class="slide quote" id="s4">
+  <blockquote>谁知盘中餐，粒粒皆辛苦。</blockquote>
+  <cite>李绅《悯农》</cite>
+</section>
+
+<section class="slide title" id="s5">
+  <h1>谢谢！</h1>
+</section>
+
+</div>
+<script>
+(function () {
+  var W = 1920, H = 1080;
+  var slides = [].slice.call(document.querySelectorAll('section.slide'));
+  var stage = document.querySelector('.stage');
+  var cur = 1;
+  function fit() {
+    var s = Math.min(window.innerWidth / W, window.innerHeight / H);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  function show(n) {
+    n = Math.max(1, Math.min(slides.length, n || 1));
+    slides.forEach(function (el, i) { el.classList.toggle('visible', i === n - 1); });
+    cur = n;
+    if (location.hash !== '#' + n) history.replaceState(null, '', '#' + n);
+  }
+  window.addEventListener('hashchange', function () { show(parseInt(location.hash.slice(1), 10)); });
+  window.addEventListener('keydown', function (e) {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].indexOf(e.key) >= 0) { show(cur + 1); e.preventDefault(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].indexOf(e.key) >= 0) { show(cur - 1); e.preventDefault(); }
+    else if (e.key === 'Home') show(1);
+    else if (e.key === 'End') show(slides.length);
+  });
+  window.addEventListener('resize', fit);
+  fit();
+  show(parseInt(location.hash.slice(1), 10) || 1);
+})();
+</script>
+</body>
+</html>

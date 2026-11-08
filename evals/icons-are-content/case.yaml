@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: icons-are-content
+expected_outcome: |
+  Mode B, user absent. Slide 3 compares three actors (voter, poll worker, observer); each
+  column is labelled by an inline SVG actor icon. The compare fragment keeps those icons: it
+  embeds them beside the fragment or redraws each as a line glyph above its column, so every
+  column still has its actor picture. Dropping them is a defect (Keep the slide's visuals).
+  Cards and bullets are replaced by a lean three-column compare with the same words. Slide 5
+  (five-step count) is the other candidate; slides 3 and 5 are not adjacent. anim/triage.md
+  names what each fragment replaces.
+context:
+  scaffold_script: place-files.sh

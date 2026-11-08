@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: light-theme-faint
+expected_outcome: |
+  Mode B, user absent, look match (asked for explicitly). The host defines --line: #E6E6E6 on
+  a white ground, which is too faint for figure lines. The match theme raises the line colour
+  to readable contrast (around #C3CFDC or darker; never #E6E6E6 or lighter), keeps the brand
+  blue #1F5FBF as the one accent, raises faded and secondary opacities to about 0.55 to 0.65,
+  and puts no glow on any line or arrow (glow only on the one active element). Slides 2
+  (process cards) and 4 (ordinance vs resolution) get fragments that replace the cards; the
+  faintest element is checked in a rest render.
+context:
+  scaffold_script: place-files.sh

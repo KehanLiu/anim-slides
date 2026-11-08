@@ -77,9 +77,9 @@ Set the `--anim-theme-*` variables once on `:root` (or on a slide) in the host p
   --anim-theme-fg: #14181f;
   --anim-theme-muted: #5b6474;
   --anim-theme-accent: #0a6cff;
-  --anim-theme-accent-2: #d9480f;
-  --anim-theme-ok: #2b8a3e;
-  --anim-theme-warn: #e67700;
+  --anim-theme-accent-2: #c2410c;
+  --anim-theme-ok: #1b7a36;
+  --anim-theme-warn: #b35a00;
   --anim-theme-danger: #c92a2a;
   --anim-theme-font: 'Inter', system-ui, sans-serif;
   --anim-theme-mono: 'JetBrains Mono', ui-monospace, monospace;

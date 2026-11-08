@@ -9,3 +9,5 @@ anim/*/contact.png
 _site/
 gallery/
 .local/
+# claude plugin eval output
+evals/results/

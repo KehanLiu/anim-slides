@@ -47,6 +47,15 @@ building.
 
 The stage defaults to 1920x1080. For .pptx without --stage it is derived from
 the deck's slide size, scaled to a width of 1920 (a 4:3 deck gives 1920x1440).
+For HTML without --stage it is read from the deck, first hit wins: CSS custom
+properties (--W/--H, --stage-w/--stage-h, --slide-width/--slide-height) on
+:root/html/body/.deck; a top-level rule for the slide container (.slide,
+section, .deck-stage, .stage, .step) with px width and height; a numeric
+viewport meta width (16:9 assumed); reveal.js Reveal.initialize({width,
+height}). `stage_source` says which: css-vars, slide-rule, viewport, reveal,
+pptx, flag (--stage, always wins) or default.
+Cue words include Chinese and Japanese equivalents (matched without word
+boundaries, since CJK text has no spaces); 2020年, 3月, 三月 count as dates.
 The .pptx is read with zipfile + xml.etree (no dependencies); for a legacy .ppt
 convert it first with `soffice --headless --convert-to pptx deck.ppt`. A
 one-line summary per slide goes to stderr; the JSON goes to stdout unless -o is
@@ -532,6 +541,95 @@ def read_html(path):
     return [html_slide(n) for n in leaves]
 
 
+STAGE_VARS = (("--w", "--h"), ("--stage-w", "--stage-h"), ("--slide-width", "--slide-height"))
+STAGE_VAR_SCOPES = {":root", "html", "body", ".deck"}
+STAGE_RULE_NAMES = (".slide", "section", ".deck-stage", ".stage", ".step")
+
+
+def _css_rules(css):
+    """(selector list, declarations) for top-level rules; @media/@supports/@keyframes blocks are
+    skipped (a print or narrow-screen rule is not the authored stage)."""
+    css = re.sub(r"/\*.*?\*/", " ", css, flags=re.S)
+    out, depth, start, skip_from = [], 0, 0, None
+    for m in re.finditer(r"[{}]", css):
+        if m.group() == "{":
+            prelude = css[start:m.start()].rsplit(";", 1)[-1].strip()  # after any @import ...;
+            if depth == 0 and prelude.startswith("@"):
+                skip_from = 0
+            if skip_from is None:
+                sel = prelude
+            depth += 1
+        else:
+            depth -= 1
+            if skip_from is None and depth == 0:
+                out.append(([x.strip().lower() for x in sel.split(",")], css[start:m.start()]))
+            if depth == 0:
+                skip_from = None
+        start = m.end()
+    return out
+
+
+def _decls(body):
+    d = {}
+    for part in body.split(";"):
+        if ":" in part:
+            k, v = part.split(":", 1)
+            d[k.strip().lower()] = v.strip().lower().replace("!important", "").strip()
+    return d
+
+
+def _px(v, unit_required=True):
+    m = re.fullmatch(r"(\d+(?:\.\d+)?)(px)?", v or "")
+    if not m or (unit_required and not m.group(2)):
+        return None
+    n = int(round(float(m.group(1))))
+    return n if 200 <= n <= 10000 else None
+
+
+def html_stage(raw):
+    """Authored stage size of an HTML deck: ([W, H], source) or (None, "default").
+    Order: CSS custom properties on :root/html/body/.deck, an explicit px width+height rule
+    for the slide container, a numeric viewport meta width (16:9 assumed), reveal.js
+    Reveal.initialize({width, height})."""
+    css = " ".join(re.findall(r"<style[^>]*>(.*?)</style>", raw, re.S | re.I))
+    rules = _css_rules(css)
+    for wk, hk in STAGE_VARS:
+        for sels, body in rules:
+            if not STAGE_VAR_SCOPES.intersection(sels):
+                continue
+            d = _decls(body)
+            wv, hv = _px(d.get(wk), False), _px(d.get(hk), False)
+            if wv and hv:
+                return [wv, hv], "css-vars"
+    for name in STAGE_RULE_NAMES:
+        for sels, body in rules:
+            # the selector's last compound must be the container itself (e.g. `.slide`,
+            # `section.slide`, `.reveal .slides section`), not a variant like `.slide.title`
+            if not any(re.fullmatch(r"(?:.*[\s>])?[a-z]*%s" % re.escape(name), sel) for sel in sels):
+                continue
+            d = _decls(body)
+            wv, hv = _px(d.get("width")), _px(d.get("height"))
+            if wv and hv:
+                return [wv, hv], "slide-rule"
+    for m in re.finditer(r"<meta\b[^>]*>", raw, re.I):
+        tag = m.group()
+        if re.search(r"name\s*=\s*['\"]?viewport", tag, re.I):
+            vw = re.search(r"content\s*=\s*['\"][^'\"]*\bwidth\s*=\s*(\d+)", tag, re.I)
+            wv = _px(vw.group(1), False) if vw else None
+            if wv:
+                return [wv, int(round(wv * 9 / 16))], "viewport"
+    for script in re.findall(r"<script[^>]*>(.*?)</script>", raw, re.S | re.I):
+        for m in re.finditer(r"Reveal\.(?:initialize|configure)\s*\(\s*\{(.*?)\}\s*\)", script, re.S):
+            wv = re.search(r"\bwidth['\"]?\s*:\s*(\d+)(?!\s*%)", m.group(1))
+            hv = re.search(r"\bheight['\"]?\s*:\s*(\d+)(?!\s*%)", m.group(1))
+            if wv or hv:  # reveal.js defaults to 960x700 for the one left out
+                wn = _px(wv.group(1), False) if wv else 960
+                hn = _px(hv.group(1), False) if hv else 700
+                if wn and hn:
+                    return [wn, hn], "reveal"
+    return None, "default"
+
+
 # ------------------------------------------------------------------ md ----
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*([\w-]*)")
 # remark slide properties: only recognised in the leading lines of a slide
@@ -822,35 +920,66 @@ def md_slide(chunk):
 
 
 # ----------------------------------------------------------- heuristics ----
-def w(pattern, flags=0):
-    return re.compile(r"(?<![\w-])(?:%s)(?![\w-])" % pattern, flags)
+# a word character that is not CJK: Chinese/Japanese text has no spaces, so a cue word next to a
+# CJK character still stands on its own (Hangul keeps word status; Korean separates words)
+WORD = r"[^\W぀-ヿ㐀-䶿一-鿿豈-﫿]"
 
 
+def w(pattern, flags=0, cjk=None):
+    """Whole-word cue; `cjk` adds Chinese/Japanese alternatives matched without word boundaries."""
+    rx = r"(?<!%s|-)(?:%s)(?!%s|-)" % (WORD, pattern, WORD)
+    if cjk:
+        rx += "|(?:%s)" % cjk
+    return re.compile(rx, flags)
+
+
+def c(pattern):
+    """CJK-only cue (no word boundaries)."""
+    return re.compile(pattern)
+
+
+CN_NUM = "十[一二]|[一二三四五六七八九十]|1[0-2]|0?[1-9]"
+CJK_MONTH = r"(?<![\d一二三四五六七八九十])(?:%s)月" % CN_NUM
+CJK_CHAR = r"[぀-ヿ㐀-䶿一-鿿]"
 YEAR = re.compile(r"(?<![\d.,$€£])(?:19|20)\d{2}(?![\d%]|,\d|\s?(?:words?|characters?|chars|people|users"
-                  r"|scientists|pages?|km|kg|mb|gb|ms|px|euros?|eur|usd|dollars?|€|\$))")
+                  r"|scientists|pages?|km|kg|mb|gb|ms|px|euros?|eur|usd|dollars?|€|\$|人|字|页|頁|名|位"
+                  r"|公里|千米|公斤|千克|元|円|美元|欧元))")
 RULES = {  # archetype -> [(cue label, regex)]; regexes run on the lowercased text unless cased
-    "pipeline": [("arrows", re.compile(r"->|→|=>|⇒|⟶")), ("'then'", w("then")),
-                 ("numbered steps", re.compile(r"(?:^|\s)(?:\d+[.)]|step\s*\d+)\s", re.M)),
-                 ("'step'", w(r"steps?|stages?|phases?"))],
-    "graph": [("dependency verbs", w(r"depends on|depend on|requires?|calls|uses|imports")),
+    "pipeline": [("arrows", re.compile(r"->|→|=>|⇒|⟶")),
+                 ("'then'", w("then", cjk="然后|接着|随后|最后|次に")),
+                 ("numbered steps", re.compile(r"(?:^|\s)(?:\d+[.)]|step\s*\d+)\s"
+                                               r"|(?:^|\s)\d+[.)、．](?=" + CJK_CHAR + ")"
+                                               r"|第[一二三四五六七八九十\d]+步", re.M)),
+                 ("'step'", w(r"steps?|stages?|phases?", cjk="流程|步骤|過程|过程|工序|手順|工程"))],
+    "graph": [("dependency verbs", w(r"depends on|depend on|requires?|calls|uses|imports",
+                                     cjk="依赖|依存|调用|呼び出|连接|接続")),
+              ("structure words", c("关系|架构|组件|構成|コンポーネント")),
               ("decision wording", re.compile(r"(?<![\w-])if\b[^.;:?!]{0,80}?\b(?:positive|negative|yes|no"
                                               r"|true|false|fails?|passes?|succeeds?|accepted|rejected)\b")),
               ("'either'", w("either")), ("'OR'", ("cased", w("OR")))],
     "timeline": [("years", YEAR), ("quarters", w("q[1-4]")),
                  ("dates", re.compile(r"\d{4}-\d{2}-\d{2}|(?<![\w])(?:jan|feb|mar|apr|may|jun|jul"
-                                      r"|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2}(?!\d)")),
+                                      r"|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2}(?!\d)"
+                                      r"|(?:19|20)\d{2}年\d{1,2}月|(?<!\d)\d{1,2}月\d{1,2}[日号]")),
                  ("months", w(r"january|february|march|april|june|july|august|september|october|november"
-                              r"|december|jan|feb|mar|apr|jun|jul|aug|sept?|oct|nov|dec")),
-                 ("'roadmap'", w("roadmaps?")), ("'milestone'", w("milestones?")),
-                 ("'timeline'", w("timelines?|chronology"))],
-    "compare": [("'vs'", w(r"vs\.?|versus")), ("before/after", w("before|after")),
+                              r"|december|jan|feb|mar|apr|jun|jul|aug|sept?|oct|nov|dec", cjk=CJK_MONTH)),
+                 ("'roadmap'", w("roadmaps?", cjk="路线图|ロードマップ")),
+                 ("'milestone'", w("milestones?", cjk="里程碑|マイルストーン")),
+                 ("'timeline'", w("timelines?|chronology", cjk="时间线|时间轴|時間軸|年表|历程|日程")),
+                 ("'phase'", c("阶段|段階"))],
+    "compare": [("'vs'", w(r"vs\.?|versus", cjk=r"对比|比较|比較|优缺点|(?<=\s)対(?=\s)|(?<=\d)対(?=\d)")),
+                ("before/after", w("before|after", cjk="之前|之后|以前|以后|前後")),
                 ("old/new", w("old|new"))],
-    "layers": [("'layer'", w("layers?|layered")), ("'tier'", w("tiers?")), ("'stack'", w("stacks?")),
+    "layers": [("'layer'", w("layers?|layered", cjk="分层|层(?!面)|層|レイヤー")),
+               ("'tier'", w("tiers?")), ("'stack'", w("stacks?", cjk="架构")),
                ("'on top of'", w("on top of"))],
-    "states": [("'state'", w("(?<!united )states?")), ("'mode'", w("modes?")), ("'transition'", w("transitions?"))],
+    "states": [("'state'", w("(?<!united )states?", cjk="状态|状態")), ("'mode'", w("modes?")),
+               ("'transition'", w("transitions?", cjk="切换|转换|遷移")), ("'phase'", c("阶段"))],
+    # chart has no English keyword (numbers with units drive it below); CJK trend words do count
+    "chart": [("trend words", c("数据|增长|下降|百分比|趋势|占比|推移|割合"))],
 }
-UNIT_NUM = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)?\s?(?:%|ms|s|sec|min|h|hrs?|days?|gb|mb|kb|tb"
-                      r"|k|m|bn|x|users|req/s|rps|€|\$|eur|usd|fps)(?![a-z])"
+UNIT_NUM = re.compile(r"(?<![.])(?<!" + WORD + r")\d+(?:[.,]\d+)?\s?(?:%|ms|s|sec|min|h|hrs?|days?|gb|mb|kb|tb"
+                      r"|k|m|bn|x|users|req/s|rps|€|\$|eur|usd|fps|万|亿|億|元|円|倍|吨|噸|公斤|千克|千米|公里)(?![a-z])"
                       r"|[$€£]\s?\d+(?:[.,]\d+)?")
 # a citation segment is dropped before cue counting (its years are not a timeline)
 CITATION = re.compile(r"\bdoi\b|\bet al\b|\[online\]|\bvol\.\s?\d|\bpp\.\s?\d|\bisbn\b|^\s*(?:source|sources"
@@ -861,7 +990,7 @@ AUTHOR_YEAR = re.compile(r"\b[A-Z][A-Za-z'’-]+,\s+[A-Z][\w.'’ -]{0,30},?\s*\
                          r"|\([A-Z][^()]{1,60},\s*(?:19|20)\d{2}[a-z]?\)")
 CITE_SPAN = re.compile(r"\S*(?:https?://|www\.)\S*|\b(?:accessed|retrieved|viewed)\b:?(?:\s+on)?\s*"
                        r"(?:[\w,]+\s+){0,3}(?:19|20)\d{2}", re.I)
-SENTENCE = re.compile(r"(?<=[.;!?])\s+(?=[A-Z(\[])")
+SENTENCE = re.compile(r"(?<=[.;!?])\s+(?=[A-Z(\[])|(?<=[。！？；])")
 
 
 def decite(segments):
@@ -959,22 +1088,27 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     ext = os.path.splitext(args.source)[1].lower()
-    stage = None
+    stage, stage_source = None, "default"
     if ext == ".pptx":
         slides, stage = read_pptx(args.source), pptx_stage(args.source)
+        stage_source = "pptx" if stage else "default"
     elif ext == ".ppt":
         ap.error("legacy .ppt: convert first with  soffice --headless --convert-to pptx %s" % args.source)
     elif ext in (".html", ".htm"):
         slides = read_html(args.source)
+        with open(args.source, encoding="utf-8", errors="replace") as f:
+            stage, stage_source = html_stage(f.read())
     elif ext in (".md", ".markdown"):
         slides = read_md(args.source)
     else:
         ap.error("unsupported input type: %s (want .pptx, .html or .md)" % ext)
-    stage = list(args.stage) if args.stage else (stage or [1920, 1080])
+    if args.stage:
+        stage, stage_source = list(args.stage), "flag"
+    stage = stage or [1920, 1080]
     g = math.gcd(*stage) or 1
     aspect = "%d:%d" % (stage[0] // g, stage[1] // g)
     aspect = {"8:5": "16:10"}.get(aspect, aspect)
-    print("stage %dx%d (%s)%s" % (*stage, aspect, "" if aspect == "16:9" else
+    print("stage %dx%d (%s, from %s)%s" % (*stage, aspect, stage_source, "" if aspect == "16:9" else
           ": not 16:9, see layouts.md before picking a viewBox"), file=sys.stderr)
 
     for i, s in enumerate(slides, 1):
@@ -991,7 +1125,7 @@ def main(argv=None):
               "wants to click through (default stays once)" % (builds, "" if builds == 1 else "s"),
               file=sys.stderr)
     out = {"source": os.path.basename(args.source), "stage": stage, "aspect": aspect,
-           "slides": slides, "builds": builds}
+           "stage_source": stage_source, "slides": slides, "builds": builds}
     data = json.dumps(out, indent=2, ensure_ascii=False)
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:

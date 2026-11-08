@@ -3,7 +3,9 @@
 #  1. check_fragment.py on every pool fragment at its viewBox width
 #  2. scaffold_from_spec.py on every pool/*/spec.yaml, into a temp folder
 #  3. build_gallery.py into a temp folder
-#  4. python3 -m py_compile scripts/*.py
+#  4. check_look.py on every pool fragment (rendered in headless Chrome, dark theme);
+#     skipped with a notice when no Chrome/Chromium is found (set CHROME=/path to force one)
+#  5. python3 -m py_compile scripts/*.py
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 pool="${1:-$root/pool}"
@@ -45,6 +47,24 @@ done
 
 echo "== build_gallery.py"
 "$py" "$root/scripts/build_gallery.py" --pool "$pool" -o "$tmp/site" || fail=1
+
+echo "== check_look.py"
+for dir in "$pool"/*/; do
+  name="$(basename "$dir")"
+  frag="$dir$name.html"
+  [ -f "$frag" ] || continue
+  width="$(sed -n 's/.*<svg[^>]*viewBox="[-0-9. ]*[ ,][-0-9.]*[ ,]\([0-9.]*\)[ ,].*/\1/p' "$frag" | head -1)"
+  [ -n "$width" ] || continue  # reported by the check_fragment.py step
+  rc=0; out="$("$py" "$root/scripts/check_look.py" "$frag" --rendered-width "${width%.*}" 2>&1)" || rc=$?
+  if [ "$rc" = 3 ]; then
+    echo "notice: no Chrome/Chromium found, check_look.py skipped (set CHROME=/path/to/chrome)"; break
+  elif [ "$rc" = 0 ]; then
+    echo "ok   $name ($(echo "$out" | tail -1))"
+  else
+    echo "$out" | grep -E '^(FAIL|error)' || echo "$out" | tail -3
+    echo "FAIL $name"; fail=1
+  fi
+done
 
 echo "== py_compile"
 "$py" -m py_compile "$root"/scripts/*.py && echo "ok" || fail=1

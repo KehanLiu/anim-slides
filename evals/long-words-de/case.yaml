@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: long-words-de
+expected_outcome: |
+  Mode C on slide 3, a six-step pipeline with long German compounds
+  (Nachbarschaftsbeteiligung, Entwässerungsgenehmigung, Schlussabnahmebescheinigung). The
+  fragment keeps every label whole and correctly spelt (umlauts intact): it wraps at a
+  compound boundary with a hyphen, uses a two-row snake, or widens the viewBox, but never
+  clips, overlaps neighbouring labels, breaks a word at an arbitrary letter, or shrinks text
+  below the 18 px floor. The sub-labels (authorities) stay as mono muted sub-labels. The agent
+  may answer in German.
+context:
+  scaffold_script: place-files.sh

@@ -52,7 +52,7 @@ LEAN = {'bg': '#0F1E27', 'panel': '#0D1820', 'line': '#2A3D49', 'fg': '#E6EDF0',
         'muted': '#93A7B2', 'accent': '#34D1BF', 'accent-2': '#FF8A3D', 'ok': '#8ED7AD',
         'warn': '#FFD15C', 'danger': '#FF6B6B', 'font': 'inherit',
         'mono': 'ui-monospace,SFMono-Regular,Menlo,monospace'}
-LIGHT_STATUS = {'ok': '#1E8E3E', 'warn': '#B26A00', 'danger': '#C62828'}
+LIGHT_STATUS = {'ok': '#1B7A36', 'warn': '#B35A00', 'danger': '#C62828'}  # >= 4.5:1 on white at 18 px
 NAMED = {'white': 'FFFFFF', 'black': '000000', 'red': 'FF0000', 'green': '008000',
          'blue': '0000FF', 'gray': '808080', 'grey': '808080', 'orange': 'FFA500',
          'yellow': 'FFFF00', 'navy': '000080', 'teal': '008080', 'silver': 'C0C0C0'}
@@ -363,7 +363,7 @@ def derive_match(deck, slide_sel):
         tok['accent-2'] = rest[0]
         src['accent-2'] = f'second saturated hue ({total(rest[0])} uses){var_name(deck, rest[0])}'
     else:
-        tok['accent-2'], src['accent-2'] = '#FF8A3D' if dark else '#D9622B', 'default (no second hue)'
+        tok['accent-2'], src['accent-2'] = '#FF8A3D' if dark else '#C2410C', 'default (no second hue)'
 
     status = {'ok': (r'^(ok|success|green|positive|good)$', (80, 170)),
               'warn': (r'^(warn|warning|amber|yellow|orange|caution)$', (30, 62)),

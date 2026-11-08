@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Library financing options</title>
+<style>:root {
+  --bg: #FBF8F2;
+  --ink: #2A2522;
+  --muted: #6E655E;
+  --accent: #C2552D;
+  --line: #D9CFC2;
+  --card: #F1EADF;
+  --font: Georgia, 'Times New Roman', serif;
+}
+
+html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+.stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%); transform-origin: center; }
+.slide { position: absolute; inset: 0; box-sizing: border-box; padding: 96px 120px;
+  background: var(--bg); color: var(--ink); font-family: var(--font);
+  opacity: 0; visibility: hidden; transition: opacity .35s ease; overflow: hidden; }
+.slide.visible { opacity: 1; visibility: visible; }
+.slide h1 { font-size: 88px; line-height: 1.05; margin: 0 0 28px; letter-spacing: -0.01em; }
+.slide h2 { font-size: 60px; line-height: 1.1; margin: 0 0 48px; }
+.slide p, .slide li { font-size: 34px; line-height: 1.45; }
+.slide .kicker { font-size: 26px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 24px; }
+.slide .sub { font-size: 36px; color: var(--muted); }
+.slide.title { display: flex; flex-direction: column; justify-content: center; }
+.slide.quote { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.slide.quote blockquote { font-size: 64px; line-height: 1.25; margin: 0 0 32px; max-width: 1400px; }
+.slide.quote cite { font-size: 30px; color: var(--muted); font-style: normal; }
+.slide ul { margin: 0; padding-left: 1.1em; }
+.slide li { margin-bottom: 14px; }
+.flow { display: flex; align-items: stretch; gap: 18px; margin-top: 40px; }
+.card { flex: 1; background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 28px 24px; }
+.card .num { display: inline-block; width: 46px; height: 46px; border-radius: 50%; background: var(--accent);
+  color: var(--bg); font-weight: 700; font-size: 26px; text-align: center; line-height: 46px; margin-bottom: 16px; }
+.card h3 { font-size: 32px; margin: 0 0 10px; }
+.card p { font-size: 24px; line-height: 1.35; margin: 0; color: var(--muted); }
+.arrow { align-self: center; font-size: 44px; color: var(--accent); }
+table.data { border-collapse: collapse; width: 100%; font-size: 28px; }
+table.data th { text-align: left; background: var(--card); color: var(--accent); padding: 18px 20px; border-bottom: 3px solid var(--accent); }
+table.data td { padding: 16px 20px; border-bottom: 1px solid var(--line); vertical-align: top; }
+@media print {
+  html, body { overflow: visible; height: auto; background: none; }
+  .stage { position: static; transform: none !important; }
+  .slide { position: relative; opacity: 1; visibility: visible; page-break-after: always; }
+}
+table.dense{font-size:19px;table-layout:fixed}
+table.dense th{font-size:21px;padding:10px 12px}
+table.dense td{padding:8px 12px;line-height:1.25}
+table.dense td:first-child{font-weight:700;width:190px;color:var(--accent)}
+#s3{padding:64px 90px}
+#s3 h2{margin-bottom:24px;font-size:52px}
+.note{font-size:20px !important;color:var(--muted);margin-top:14px}
+</style>
+</head>
+<body>
+<div class="stage">
+
+<section class="slide title" id="s1">
+  <div class="kicker">Lakeside County &middot; Board of Supervisors</div>
+  <h1>Financing the new library</h1>
+  <p class="sub">Four ways to borrow $38 million</p>
+</section>
+
+<section class="slide" id="s2">
+  <h2>What the board decides tonight</h2>
+  <ul>
+    <li>Which bond type staff should prepare</li>
+    <li>Whether to place a measure on the March ballot</li>
+    <li>Who sits on the oversight committee</li>
+  </ul>
+</section>
+
+<section class="slide" id="s3">
+  <h2>Four bond options side by side</h2>
+  <table class="data dense">
+    <thead><tr><th></th><th>General obligation bond</th><th>Revenue bond</th><th>Green bond</th><th>Lease-revenue bond</th></tr></thead>
+    <tbody>
+      <tr><td>Repaid from</td><td>Property tax levy backed by the county's full taxing power</td><td>Library caf&eacute;, room hire and parking income only</td><td>Property tax levy, proceeds ring-fenced for certified green works</td><td>Annual lease payments from the general fund to a financing authority</td></tr>
+      <tr><td>Voter approval</td><td>Required: two-thirds majority at a regular election</td><td>Not required; a board resolution is enough</td><td>Required, same as general obligation</td><td>Not required; lease approved by the board</td></tr>
+      <tr><td>Indicative rate</td><td>About 3.4 % over 20 years</td><td>About 4.6 %, higher because income is uncertain</td><td>About 3.3 %, small discount from impact investors</td><td>About 4.0 %, priced between the two</td></tr>
+      <tr><td>Issuance cost</td><td>Lowest: standard documents, one rating</td><td>Higher: feasibility study and revenue covenants</td><td>Moderate: adds a second-party green review</td><td>Moderate: lease and authority documents</td></tr>
+      <tr><td>Reporting duty</td><td>Annual disclosure to bondholders</td><td>Annual disclosure plus quarterly revenue reports</td><td>Annual disclosure plus a yearly impact report on energy savings</td><td>Annual disclosure plus a lease compliance certificate</td></tr>
+      <tr><td>Time to funds</td><td>Six to eight months, depends on the election date</td><td>Three to four months</td><td>Seven to nine months including green certification</td><td>Four to five months</td></tr>
+      <tr><td>Main risk</td><td>Measure fails at the ballot and the project waits a year</td><td>Caf&eacute; and parking income falls short of debt service</td><td>Building misses certification and loses the green label</td><td>Lease payments compete with other general fund costs every year</td></tr>
+      <tr><td>Typical buyers</td><td>Local banks and retail investors</td><td>Institutional investors seeking yield</td><td>ESG funds and retail investors</td><td>Institutional investors and money market funds</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Rates are illustrative planning figures, not quotes.</p>
+</section>
+
+<section class="slide quote" id="s4">
+  <blockquote>Staff recommend the green bond, with the general obligation bond as fallback.</blockquote>
+  <cite>Finance department</cite>
+</section>
+
+<section class="slide title" id="s5">
+  <h1>Discussion</h1>
+</section>
+
+</div>
+<script>
+(function () {
+  var W = 1920, H = 1080;
+  var slides = [].slice.call(document.querySelectorAll('section.slide'));
+  var stage = document.querySelector('.stage');
+  var cur = 1;
+  function fit() {
+    var s = Math.min(window.innerWidth / W, window.innerHeight / H);
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+  }
+  function show(n) {
+    n = Math.max(1, Math.min(slides.length, n || 1));
+    slides.forEach(function (el, i) { el.classList.toggle('visible', i === n - 1); });
+    cur = n;
+    if (location.hash !== '#' + n) history.replaceState(null, '', '#' + n);
+  }
+  window.addEventListener('hashchange', function () { show(parseInt(location.hash.slice(1), 10)); });
+  window.addEventListener('keydown', function (e) {
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].indexOf(e.key) >= 0) { show(cur + 1); e.preventDefault(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].indexOf(e.key) >= 0) { show(cur - 1); e.preventDefault(); }
+    else if (e.key === 'Home') show(1);
+    else if (e.key === 'End') show(slides.length);
+  });
+  window.addEventListener('resize', fit);
+  fit();
+  show(parseInt(location.hash.slice(1), 10) || 1);
+})();
+</script>
+</body>
+</html>

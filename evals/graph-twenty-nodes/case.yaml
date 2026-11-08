@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: graph-twenty-nodes
+expected_outcome: |
+  Mode C on slide 2, an inline-SVG food web with 20 species and 30 feeding links drawn as
+  boxes and crossing lines. The fragment does not redraw 20 boxed nodes as spaghetti: it
+  splits the web into two figures (e.g. the bottom-up chain and the predator side) or groups
+  species by trophic level with hairline brackets, keeping each figure under about 12 nodes,
+  with the split or grouping stated as an assumption in the brief. Nodes are rings or labels,
+  not filled boxes; no species from the source disappears without being inside a named group;
+  check_fragment.py passes and the rest render is legible.
+context:
+  scaffold_script: place-files.sh
