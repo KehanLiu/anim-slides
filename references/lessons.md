@@ -198,3 +198,22 @@ Rules that followed (0.10.0, modelled on frontend-slides' "show, don't tell"):
   the owner asked why frontend-slides was not the base. Rule since 0.11.0: with a deck skill
   installed the fallback is never used or offered; the intake deck question is full deck or
   lighter path only.
+
+## Deck-first run on a 12-slide corporate deck (2026-11-08)
+
+Under 0.11.0: frontend-slides built the deck from the pptx, three fragments, blind review "ship".
+- **Worked:** a frontend-slides preset recoloured to the source's palette gave a deck that read
+  as the source; the three fragments from the earlier run were reused unchanged; the blind
+  review's verdict was "ship".
+- **Gaps, fixed after the run:** `check_page.py` failed on the deck skill's own Google Fonts
+  link (now one WARN; any other external load still FAILs); `bundle_deck.py` left
+  `<link rel="preconnect">` to font hosts after inlining (now dropped when the host is gone);
+  frontend-slides' own density question and three style previews broke "ask once" (now folded
+  into the intake message, the closest preset chosen and named); the deck skill knew nothing
+  about slots (the main thread passes W x H and position in its brief; padding, not margin,
+  because a child margin collapses through the slot and shifts `measure_slot.py`'s box); the
+  review page's Deck column was empty for the nine un-animated slides (Mode A renders every
+  slide into `anim/review/after/`); the default mint `--anim-theme-ok` added a second hue on a
+  single-accent orange deck (map it to the line colour or accent); fragment-mode `check_look`
+  font WARNs are expected on a deck-skill deck (the `--page` run is the font check); the blind
+  review images had no named place (`anim/review/blind/`).

@@ -33,8 +33,8 @@ Two jobs, two skills. The deck skill owns the deck: layout, typography, slide de
 brand. anim-slides owns the animated figures, which take the deck's colours and fonts under
 the match look (`scripts/host_theme.py` on the deck the skill produced). So a source that is
 not an HTML deck yet goes to a deck skill before triage, in this order: the user's own or
-organisation's deck skill; `frontend-slides` when installed (pick the aesthetic preview closest
-to the source's brand unless the user wants a new look); only when neither exists,
+organisation's deck skill; `frontend-slides` when installed (the style preset closest to the
+source's brand unless the user wants a new look); only when neither exists,
 `scripts/md_to_deck.py` as a fallback. Its output is a plain host for integration (full-width
 title, the body as bullets, images as they come), not a design; say so to the user in one
 sentence, because the deck will read like a document until a deck skill or a designer styles
@@ -53,8 +53,17 @@ self-contained HTML per slide at 1280x720 or the source stage (title, fragment, 
 takeaway). It suits a user who keeps presenting from PowerPoint or wants to see the figures
 before committing to a new deck. The default is the full deck.
 
-When the deck skill builds the HTML deck, ask it (or do it right after) to give each candidate
-slide a fixed-size slot div and to put the markers **inside** it, round its content, with the
+"Ask once" covers the deck skill too. `frontend-slides`, for example, asks for content density
+and shows three style previews; in Mode A those questions are folded into the ONE intake
+message and recorded in the Decisions section of `anim/triage.md`: density is speaker-led
+unless the source is a reading deck (dense text meant to be read without a speaker); style is
+the preset or template closest to the source's own look, chosen and named in the intake
+message, and previews are generated only when the user asks for a new look. The deck skill is
+then run with those answers in its brief; it does not ask the user itself.
+
+The deck skill knows nothing about slots, so the main thread passes the request in the deck
+skill's brief: these slides get a slot of W x H at this position. Ask it (or do it right
+after) to give each candidate slide a fixed-size slot div and to put the markers **inside** it, round its content, with the
 id and marker names `md_to_deck.py` uses (there the slot is an empty sibling of the marked
 body):
 
@@ -63,7 +72,9 @@ body):
 ```
 
 Markers outside the div (round it) make `--replace-until` delete the sized div with the body;
-the fragment then has no box to fill.
+the fragment then has no box to fill. Inner spacing goes on the slot as padding, never as a
+margin on its first or last child: a child's margin collapses through the slot and shifts the
+box `measure_slot.py` reports.
 
 `measure_slot.py deck.html --slide 4 --selector '#s4-slot'` then measures exactly (on an
 absolutely positioned layout, measuring without `--selector` returned junk), and
@@ -191,8 +202,11 @@ Settle this once per deck, in the intake message:
   reads the deck's CSS variables and most used colours and writes the `--anim-theme-*` block;
   check its table against a slide and once against the deck's own variables (muted text,
   secondary background, accent glow): where the derivation picked a computed mix instead of
-  the deck's variable, correct the block by hand. Then `--apply` it to the deck head
-  (markers, idempotent).
+  the deck's variable, correct the block by hand. On a single-accent deck map
+  `--anim-theme-ok` to the line colour or the accent unless a slide gives "ok" a meaning (the
+  default mint adds a second hue, and a blind reviewer flagged it on an orange deck); keep
+  `--anim-theme-warn`/`--anim-theme-danger` only where the source uses them. Then `--apply`
+  it to the deck head (markers, idempotent).
 - **lean** (talks, pitches, decks with no brand rules): fragments keep the lean palette and the
   animated slides get a dark ground. `--mode lean` writes a `.anim-lean` block; add that class
   to each slide that carries a fragment.

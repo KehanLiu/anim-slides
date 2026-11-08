@@ -28,6 +28,14 @@ screenshots).
 - `extract_slides.py`: HTML stage read from the deck's CSS, viewport meta or reveal.js config
   (`stage_source`), so a 4:3 deck is no longer reported as 16:9; Chinese and Japanese cue words
   and dates for archetype suggestions.
+- **Follow-up** (deck-first run on a 12-slide corporate deck): `check_page.py` reports a link to
+  a web-font host (Google Fonts, Fontshare, Typekit, Bunny) as one WARN, not FAIL; other
+  external loads still FAIL. `bundle_deck.py` drops preconnect/dns-prefetch links to hosts no
+  longer referenced. SKILL.md and input-stage.md: Mode A folds the deck skill's own questions
+  (density, style) into the one intake message; the main thread passes slots to the deck skill
+  (padding, not margin); Mode A renders every slide for the review page, `--title` passed;
+  `--anim-theme-ok` mapped to line or accent on a single-accent match deck; fragment-mode font
+  WARNs on a deck-skill deck are expected; blind-review files under `anim/review/blind/`.
 
 ## 0.10.0 - 2026-11-08
 

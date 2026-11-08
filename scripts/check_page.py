@@ -15,7 +15,8 @@ Checks:
   external   script src, link href, img/source/video/audio/iframe/embed src, srcset, poster,
              object data, <use>/<image> href, @import and url() in <style> and style="" that
              point to http(s):// or protocol-relative (//host) URLs. FAIL unless
-             --allow-external. file:// URLs always FAIL; missing local files FAIL; present
+             --allow-external, except stylesheet/preconnect links and url()s to a web-font host
+             (Google Fonts, Fontshare, Typekit, Bunny): one WARN, the deck's own load. file:// URLs always FAIL; missing local files FAIL; present
              local files WARN (the page is not one file yet: run bundle_deck.py).
   markers    every <!-- anim:NAME:start --> has one end marker after it and a matching
              anim-style:NAME pair; no name is used twice (markers or data-anim).
@@ -41,6 +42,14 @@ import re
 import sys
 
 EXT = re.compile(r'^(?:https?:)?//', re.I)
+# web-font hosts: a deck skill's own font link is the deck's load (WARN, not FAIL)
+FONT_HOSTS = ('fonts.googleapis.com', 'fonts.gstatic.com', 'api.fontshare.com', 'cdn.fontshare.com',
+              'use.typekit.net', 'fonts.bunny.net')
+
+
+def font_host(u):
+    m = re.match(r'^(?:https?:)?//([^/:?#]+)', u, re.I)
+    return bool(m) and m.group(1).lower() in FONT_HOSTS
 
 
 class Report:
@@ -218,6 +227,9 @@ def main():
             rel = re.search(r'''\brel\s*=\s*["']?([^"'>]+)''', attrs, re.I)
             rel = rel.group(1).lower() if rel else ''
             if not re.search(r'stylesheet|icon|preload|modulepreload|manifest', rel):
+                hm = re.search(r'''\shref\s*=\s*["']?([^"'\s>]+)''', attrs, re.I)
+                if re.search(r'preconnect|dns-prefetch', rel) and hm and font_host(hm.group(1)):
+                    refs.append((hm.group(1), t.start() + hm.start(), '<link preconnect>'))
                 continue
         for m in attr_re.finditer(attrs):
             an, val = m.group(1).lower(), m.group(2) or m.group(3) or m.group(4) or ''
@@ -241,11 +253,15 @@ def main():
             if not any(s0 <= m.start() < e0 for s0, e0 in imports):
                 refs.append((m.group(1), off + m.start(), 'url()'))
     n_ext = n_local = 0
+    fonts = []   # (url, line) to web-font hosts
     for u, pos, what in refs:
         if not u or u.startswith(('data:', '#', 'blob:', 'about:', 'javascript:')) or u.startswith('var('):
             continue
         ln = line_of(pos)
-        if EXT.match(u):
+        if EXT.match(u) and font_host(u):
+            n_ext += 1
+            fonts.append((u, ln))
+        elif EXT.match(u):
             n_ext += 1
             (R.warn if a.allow_external else R.fail)('external', f'{what} {u}', ln)
         elif u.lower().startswith('file:'):
@@ -257,6 +273,10 @@ def main():
                 R.fail('external', f'{what} {u}: local file not found', ln)
             else:
                 R.warn('external', f'{what} {u}: local file, the page is not one file yet (bundle_deck.py)', ln)
+    if fonts:
+        hosts = sorted({re.match(r'^(?:https?:)?//([^/:?#]+)', u, re.I).group(1).lower() for u, _ in fonts})
+        R.warn('external', 'web font link (the deck\'s own load; bundle with bundle_deck.py --fetch for hand-over): '
+               f'{", ".join(hosts)}, {len(fonts)} reference(s)', fonts[0][1])
     if n_ext == 0 and n_local == 0:
         R.ok('external', 'no external or local resources: the page is self-contained')
     elif n_ext == 0:

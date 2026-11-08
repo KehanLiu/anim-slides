@@ -42,8 +42,8 @@ next to the user's deck, `anim/<name>/` one per fragment.
 
 **Mode A, deck first.** anim-slides adds figures to an HTML deck; it does not design one. The
 deck comes from, in order: (a) the user's own or organisation's deck skill; (b) `frontend-slides`
-when installed (pick the aesthetic preview closest to the source's brand unless the user wants
-a new look); (c) only when neither exists, `scripts/md_to_deck.py` (a plain host, not a design:
+when installed (the style preset closest to the source's brand unless the user wants a new
+look); (c) only when neither exists, `scripts/md_to_deck.py` (a plain host, not a design:
 say so in one sentence). A `deck.md` or an `md_to_deck.py` deck already lying in the folder is
 not a choice the user made: with a deck skill installed the fallback is never used and never
 offered, not as "keep the existing host" either; the intake's deck question is full deck or
@@ -54,7 +54,11 @@ slides only (one self-contained HTML per slide at 1280x720 or the source stage: 
 one-line takeaway), for a user who keeps presenting from PowerPoint or wants to see what the
 skill does first. Default is the full deck. The `.pptx` stays the source for
 `extract_slides.py` and `render_deck.py`; integration and the match look target the deck the
-skill produced. Details: `references/input-stage.md` "Deck first".
+skill produced. The deck skill's own questions are folded into the ONE intake message and
+recorded in Decisions: density is speaker-led unless the source is a reading deck; style is
+the preset or template closest to the source's own look, chosen and named (no style previews
+unless the user asks for a new look). The deck skill is run with those answers; it does not
+ask the user itself. Details: `references/input-stage.md` "Deck first".
 
 **Slot markers.** Ask the deck skill (or do it right after it) to give each candidate slide a
 fixed-size slot `<div id="sN-slot">` and to put the markers **inside** it, round its content:
@@ -62,6 +66,9 @@ fixed-size slot `<div id="sN-slot">` and to put the markers **inside** it, round
 `measure_slot.py --selector '#sN-slot'` is then exact and
 `integrate_fragment.py --anchor '<!-- sN-body -->' --replace-until '<!-- /sN-body -->'`
 replaces the content and keeps the sized div. Markers round the div would delete it.
+The deck skill knows nothing about slots: the main thread tells it, in its brief, "these
+slides get a slot of W x H at this position; inner spacing with padding, not margin", because
+a child's margin collapses through the slot and shifts `measure_slot.py`'s box.
 
 ## Phase 1: Show first, ask once
 
@@ -80,7 +87,9 @@ replaces the content and keeps the sized div. Markers round the div would delete
    and `--mode lean -o anim/lean-theme.css`. Compare the match block once with the deck's own
    CSS variables (muted text, secondary background, accent); on a deck without variables the
    accent may be picked by usage count, so check it against what the deck actually highlights.
-   Correct by hand where needed.
+   Correct by hand where needed. On a single-accent deck map `--anim-theme-ok` to the line
+   colour or the accent unless a slide gives "ok" a meaning (the default mint is a second hue);
+   keep `warn`/`danger` only where the source uses them.
 4. **Build the first fragment before asking anything**: the most representative illustrate
    slide, through Phase 2's steps (spec, slot, brief, build, check). Render it integrated into
    its slide at rest under match and under lean (`render-phases.sh --theme FILE ...` or
@@ -94,7 +103,8 @@ replaces the content and keeps the sized div. Markers round the div would delete
    - **look**: match (default for branded or corporate decks) or lean (talks, pitches);
    - **control**: once, stated in one line; add "your deck builds by click; the figures can do
      the same (step), say so if you want it" only when `outline.json` reports `builds` above 0;
-   - Mode A only: the deck-first note and its cost, and the lighter path;
+   - Mode A only: the deck-first note and its cost, the lighter path, and the deck skill's
+     density and style answers (Phase 0, Mode A);
    - **hand-over**: will the file be shared or presented from another machine (then it is
      bundled to one offline file)?
 
@@ -148,7 +158,9 @@ cheap; write them all before building), then builds.
      clipped or overlapping labels, text under its contrast floor on the real ground, more than
      three text-holding boxes, more than six hues, or text under the size floor; read every WARN
      (faint lines, labels on fills, rest differs from the last mark, missing fonts). A box that
-     is the meaning gets `<!-- anim-look: boxes-ok -->` before the `<svg>`.
+     is the meaning gets `<!-- anim-look: boxes-ok -->` before the `<svg>`. On a deck-skill
+     deck the fragment-mode font WARNs are expected (its web fonts are not installed locally)
+     and can be ignored: the `--page` run in step 7 is the real font check.
    - `<skill-dir>/scripts/render-phases.sh anim/<name> <W> <H> <marks...> <pass> rest`, then
      open every PNG. Fix clipping, overlaps, unreadable text, empty panels; iterate at least
      once. The resting frame must read as a complete still (PDF shows only that).
@@ -170,7 +182,8 @@ cheap; write them all before building), then builds.
    on the current-slide class): key those reveals also on the deck's active class and add a
    print rule; when the rest render still differs from the running deck, take the final
    screenshot from the running deck. `python3 <skill-dir>/scripts/check_page.py deck.html`
-   (paired markers, gated fragments, print guard; a deck skill's font link is the deck's load).
+   (paired markers, gated fragments, print guard): check_page warns on the deck's web-font
+   link and fails on any other external load.
    `python3 <skill-dir>/scripts/check_look.py --page deck.html --slide N` per animated slide
    measures the fragment on the slide's own ground and stage width; a contrast FAIL on a light
    ground means faded opacities or status colours must be raised (`references/style.md`,
@@ -184,6 +197,8 @@ cheap; write them all before building), then builds.
    paths: no brief, spec, triage or conversation. A score below 3 on any item blocks done:
    fix the named defects, re-render, review again with a new reviewer. At most two rounds;
    defects left go into the hand-over and the Decisions section of `anim/triage.md`.
+   Files: `anim/review/blind/sN-before.png`, `sN-after.png`, `sN-mark-<seconds>.png`,
+   `context-after.png`.
 
 ## Phase 3: Deliver by showing
 
@@ -191,12 +206,13 @@ cheap; write them all before building), then builds.
    (inlines stylesheets, scripts, fonts and images), then `check_page.py deck.bundled.html`
    and one `render-phases.sh --page deck.bundled.html --slide N ... rest`. Do not read the
    bundled file.
-2. Render the resting frame of every animated slide of the integrated deck into
+2. Render the resting frame of every animated slide of the integrated deck (in Mode A every
+   slide: the whole deck is new, and the review page's Deck column is empty for the rest) into
    `anim/review/after/` (`render-phases.sh --page deck.html --slide N <W> <H> rest --out anim/review/after/sN`,
    one folder per slide; `review_page.py --help` lists the other names it accepts), and make sure the source renders
    of those slides are in `anim/render/full/` (`render_deck.py --pages`).
-3. `python3 <skill-dir>/scripts/review_page.py --deck deck.html --before anim/render/full --after anim/review/after --triage anim/triage.md -o anim/review/index.html`
-   (optional `--only animated`, `--previous DIR`, `--title`, `--link-images`). Open it and the
+3. `python3 <skill-dir>/scripts/review_page.py --deck deck.html --before anim/render/full --after anim/review/after --triage anim/triage.md --title "<deck name>" -o anim/review/index.html`
+   (optional `--only animated`, `--previous DIR`, `--link-images`). Open it and the
    deck.
 4. Send a few lines: N of M slides animated; the review page path; the deck path (the bundled
    one if shared); the two switches for later, one line each:

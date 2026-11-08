@@ -14,7 +14,8 @@ Relative paths resolve against the deck's folder (inside inlined CSS: against th
 Remote URLs (http(s)://, //host) are left alone and listed unless --fetch is given, which
 downloads and inlines them (pinned CDN libraries such as reveal.js). Assets over
 --max-asset-mb are skipped with a warning. HTML comments (the anim: / anim-style: markers) and
-inline script bodies are never touched. Prints a summary (inlined, missing local files, md_to_deck.py image placeholders, external
+inline script bodies are never touched. <link rel=preconnect|dns-prefetch> hints whose host no
+longer appears in the bundled file (font hosts after inlining) are dropped. Prints a summary (inlined, missing local files, md_to_deck.py image placeholders, external
 references left); then run check_page.py on the output.
 """
 import argparse
@@ -43,6 +44,7 @@ class Bundler:
         self.inlined = {}      # kind -> count
         self.remaining = []    # (url, reason)
         self.bytes_in = 0
+        self.dropped_hints = 0  # preconnect/dns-prefetch links to hosts no longer referenced
 
     # -------------------------------------------------------------- loading
     def resolve(self, url, ctx):
@@ -231,7 +233,22 @@ class Bundler:
             self.remaining.append((m.group(2), f'<{m.group(1)}> cannot be inlined'))
         while '\x00' in src:
             src = re.sub(r'\x00(\d+)\x00', lambda m: keep[int(m.group(1))], src)
-        return src
+        return self.drop_hints(src)
+
+    def drop_hints(self, src):
+        """Remove <link rel=preconnect|dns-prefetch> whose host no longer appears in the file
+        (e.g. the Google Fonts hints after the font CSS and files were inlined)."""
+        hint = re.compile(r'''[ \t]*<link\b[^>]*\brel\s*=\s*["']?(?:preconnect|dns-prefetch)\b[^>]*>[ \t]*\n?''', re.I)
+        rest = hint.sub('', re.sub(r'<!--.*?-->', '', src, flags=re.S))
+
+        def one(m):
+            hm = re.search(r'''\shref\s*=\s*["']?(?:https?:)?//([^/"'\s>:?#]+)''', m.group(0), re.I)
+            if not hm or re.search(r'(?:https?:)?//' + re.escape(hm.group(1)) + r'(?=[/"\'\s>:?#)]|$)', rest, re.I):
+                return m.group(0)
+            self.dropped_hints += 1
+            return ''
+        parts = re.split(r'(<!--.*?-->)', src, flags=re.S)
+        return ''.join(p if p.startswith('<!--') else hint.sub(one, p) for p in parts)
 
 
 def main():
@@ -257,7 +274,9 @@ def main():
     missing = [u for u, why in left if why == 'local file not found']
     left = [(u, why) for u, why in left if why != 'local file not found']
     print(f'bundled {a.deck} -> {a.output}: {n_in:,} -> {n_out:,} bytes; inlined {inl}; '
-          f'{kept} anim markers kept')
+          f'{kept} anim markers kept'
+          + (f'; dropped {b.dropped_hints} preconnect/dns-prefetch link(s) to hosts no longer referenced'
+             if b.dropped_hints else ''))
     if missing:
         rel = [os.path.relpath(u, b.base) for u in missing]
         print(f'missing: {len(rel)} local file(s) referenced by the deck but not found (left as they are): '
