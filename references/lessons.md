@@ -97,7 +97,13 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
   the gate class and fills images; render from a scratch copy that marks every slide current
   and disables animation (what print mode does), never from an edited deck.
 - `.step` divs inside a `.slide` are build steps (stairs, reveals), not slides;
-  `extract_slides.py` treats `.step` as a slide only at impress.js top level.
+  `extract_slides.py` treats `.step` as a slide only at impress.js top level and counts nested
+  ones as `builds`.
+- Whether a click advances the figure is a presenter habit, not something the deck's content
+  reveals. Ask once per deck at intake (`once` or `step`), recommend `step` when the source
+  already builds by click (`builds` in `outline.json`), and keep it the same on every slide so
+  the presenter always knows what a click does. Step mode lives in the host snippet, so the
+  choice can change at integration without rebuilding fragments.
 - A rebuilt figure can be accurate and still wrong: a staircase re-plotted as a glowing line
   chart with brackets and arrows was rejected as "too much". Keep the slide's figure form and
   add one movement; the checker measures how many things move and glow at once and catches the rest.

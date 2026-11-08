@@ -43,11 +43,13 @@ first (or in parallel), then integrate fragments into that HTML.
       "text": "Release process Tag a commit on main CI builds and tests ...",
       "has_image": true,
       "image_count": 1,
+      "builds": 4,
       "suggested_archetype": "pipeline",
       "confidence": 0.6,
       "reason": "cues: arrows, numbered steps"
     }
-  ]
+  ],
+  "builds": 4
 }
 ```
 
@@ -65,6 +67,7 @@ first (or in parallel), then integrate fragments into that HTML.
 | `connectors` | pptx only: count of connector lines and arrow shapes. Counts as a pipeline cue, or graph when they branch. |
 | `title_guessed` | `true` when there was no title placeholder and the title came from the largest-font box or first short paragraph. |
 | `aspect` | Top level: `"16:9"` or `"4:3"`. |
+| `builds` | Per slide (always present, 0 when none) and as a deck total at the top level: click builds the source already has. pptx: click-triggered effects in the slide's animation timeline (`p:cTn nodeType="clickEffect"`). HTML: elements with class `fragment` (reveal.js), `data-fragment-index`, `build`/`build-item`, `substep` (impress.js), and `.step` nested inside a slide. Markdown: remark `--` incremental separators. A total above 0 makes `step` the recommended control (below). |
 | `mermaid` | Markdown only, and only when present: a list of strings, the body of each mermaid fence in the section. A recognised diagram type sets the suggestion with confidence 0.9. |
 | `suggested_archetype` | One of the seven archetypes or `null` (= keep as text). A heuristic. |
 | `confidence` | 0 to 1. Below 0.4 treat as a guess. |
@@ -104,7 +107,12 @@ Budget:
   top of the list up to the budget; mark the rest **maybe** and show them to the user.
 
 Write the triage to `anim/triage.md` before building, every slide on its own row, and keep it
-with the work folder:
+with the work folder. The header records the two per-deck choices (next sections):
+
+```markdown
+Look: match (branded course deck)
+Control: step (source builds by click: outline.json builds = 14)
+```
 
 | Slide | Title | Decision | Archetype | Replaces | Why |
 |---|---|---|---|---|---|
@@ -139,6 +147,34 @@ licenses filled cards or pills because the deck has them.
 Build the first fragment, render it under both (`render-phases.sh --theme anim/host-theme.css`
 and `--theme anim/lean-theme.css`), and show the two stills to the user with one sentence each.
 If the user named a look already, skip the question and note the choice in `BRIEF.md`.
+
+### Control: once or step
+
+Settle this once per deck, in the same message as the look, with a recommended default:
+
+> How should the figures play?
+> - **once**: each slide's figure plays one calm pass when the slide appears and rests.
+> - **step**: the entrance draws on, then each click lands the next phase; clicks that would go
+>   past the last phase go to the next slide.
+>
+> Recommended: <once | step>, because <reason>.
+
+- Recommend **step** when the source deck already builds by click: `outline.json` reports
+  `builds` above 0 (reveal.js `.fragment`, PowerPoint click animations, impress.js substeps,
+  the deck's own keyboard build steps). The presenter is used to clicking through the slide.
+  Otherwise recommend **once**.
+- The phases of a step fragment are the narrated phases of the brief, 3 to 5 per slide; their
+  marks go on the wrapper as `data-anim-phases`.
+- Step costs nothing extra in the fragment: the file is the same as under `once`.
+  `integrate_fragment.py --control step` sets the wrapper and puts the small step-host snippet
+  in the deck head; the click rides on the deck's own navigation (the snippet takes a key only
+  while a phase remains, otherwise the deck gets it). Switching later is a re-run with the
+  other `--control`.
+- One mode per deck, so the presenter always knows what a click does. A slide that differs
+  needs a reason in its triage row. `loop` is not part of this question; it is only for a
+  kiosk, gallery or hero on request.
+- If the user named a control already, skip the question. Record the choice in the triage
+  header, in `BRIEF.md` and in each brief's Control field.
 
 ## 4. Slide -> spec -> brief
 
@@ -179,7 +215,8 @@ Layout next to the deck:
 ```
 anim/
   outline.json              (from extract_slides.py)
-  BRIEF.md                  shared fields: stage, theme tokens, fonts, gate, min text
+  triage.md                 Look and Control header, one row per slide
+  BRIEF.md                  shared fields: stage, look, control, theme tokens, fonts, gate, min text
   release-process/
     spec.yaml
     brief.md

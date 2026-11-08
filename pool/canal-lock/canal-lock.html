@@ -76,7 +76,7 @@
 /* flow shown while the levels differ */
 @keyframes canal-lock-flow{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.12%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.04%{opacity:1}61.27%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.17%{opacity:0}100%{opacity:0}}
 /* march, linear, over the pass (seen only while the flow shows) */
-@keyframes canal-lock-flow-dash{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-456}}
+@keyframes canal-lock-flow-dash{0%{stroke-dashoffset:0}63.17%{stroke-dashoffset:-288}100%{stroke-dashoffset:-288}}
 /* lower gates: open until 2.31 s */
 @keyframes canal-lock-lo-open{0%{opacity:1}24.32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25.89%{opacity:0}100%{opacity:0}}
 /* lower gates: closed from 2.31 s */
@@ -135,7 +135,7 @@
 
 @media (prefers-reduced-motion: reduce) { .anim-canal-lock * { animation: none !important; } }
 </style>
-<div class="anim anim-canal-lock" data-anim="canal-lock" data-anim-cycle="9.5" data-anim-control="once">
+<div class="anim anim-canal-lock" data-anim="canal-lock" data-anim-cycle="9.5" data-anim-phases="1.9,2.75,5.85,6.9,8.5" data-anim-control="once">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cross-section of a canal lock: a boat enters the chamber at the lower level, the lower gates close, a filling valve lets water in from the upper canal, the chamber and boat rise, the upper gates open and the boat leaves one level higher.">
 <defs><clipPath id="canal-lock-clip"><rect x="0" y="0" width="1680" height="441"/></clipPath></defs>
 <g class="canal-lock-scene">

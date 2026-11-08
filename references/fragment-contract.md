@@ -12,7 +12,8 @@ One file `<name>.html` containing exactly two top-level things, in this order:
 <style>
   /* every selector scoped under .anim-<name>; every keyframe named <name>-... */
 </style>
-<div class="anim anim-<name>" data-anim="<name>" data-anim-cycle="8" data-anim-control="once">
+<div class="anim anim-<name>" data-anim="<name>" data-anim-cycle="8" data-anim-control="once"
+     data-anim-phases="2,4.5,7">
   <svg viewBox="0 0 W H" width="100%" height="100%" role="img" aria-label="one-sentence description">
     <!-- the illustration -->
   </svg>
@@ -20,11 +21,18 @@ One file `<name>.html` containing exactly two top-level things, in this order:
 ```
 
 - `<name>` is kebab-case, 2 to 24 characters, unique within the deck: `deploy-pipeline`, `db-failover`, `rag-flow`.
-- `data-anim-control` is `once` (default; also assumed when the attribute is absent), `loop` or
-  `step` (section 7). `data-anim-cycle` is the pass length in seconds: 4 to 10 for `once`, 8 to 15
-  for `loop`, the timeline length for `step`.
+- `data-anim-control` is `once` (default; also assumed when the attribute is absent), `step` or
+  `loop` (section 7). `data-anim-cycle` is the pass length in seconds: 4 to 10 for `once` and
+  `step`, 8 to 15 for `loop`.
+- `data-anim-phases` lists the phase stop marks in seconds, comma-separated: strictly
+  ascending, each above 0 and at most the pass length. Segment k runs from mark k-1 (0 for the
+  first) to mark k; the last mark is where the hold starts (the figure is complete and nothing moves after it, so
+  the frame at the last mark is the resting frame). The marks
+  are the start seconds of every phase after the first. Required under `step`, validated under
+  `once` when present; the scaffolder always writes it, so a fragment can switch control
+  without a rebuild.
 - Exactly one `<svg>`. HTML text outside the SVG is not allowed; captions belong to the slide.
-- Nothing else: no `<script>` (except the `step` variant, see section 7), no `<link>`, no `<image>`,
+- Nothing else: no `<script>` (under any control), no `<link>`, no `<image>`,
   no `<img>`, `<iframe>`, `<object>`, `<embed>` or `<foreignObject>`, no `href`/`xlink:href`/`src`
   that points outside the fragment (only `#id` references), no `url(...)` to external files,
   no `@import`, no `@font-face`.
@@ -118,7 +126,7 @@ still, the PDF page and the last frame of the pass are one and the same picture.
   10 px at reveal.js 960, since the floor never goes below 10) and pass the stage as
   `check_fragment.py --stage-width W` (or the floor itself as `--min-text`). `check_fragment.py --rendered-width` computes the rendered size.
   The checker enforces the 18 px body floor, warns on titles under 22 px, and checks that
-  `data-anim-cycle` lies in the range of the control (once 4 to 10 s, loop 8 to 15 s).
+  `data-anim-cycle` lies in the range of the control (once and step 4 to 10 s, loop 8 to 15 s).
 - Strokes 2 to 3 px at rendered size, round caps and joins, corner radius 4 to 8.
 - At most three things moving at once; roughly one third of the elements active at a time.
 - **One pass (`once`, the default):** 4 to 10 s shaped as a single staggered reveal, the action,
@@ -148,30 +156,33 @@ still, the PDF page and the last frame of the pass are one and the same picture.
   slide becomes current: reveal.js `section.present`, the `.visible` toggle of frontend-slides
   decks and `scripts/snippets/observer.html` all remove the gate when the slide is left and add
   it again on return, so a presenter who goes back sees the pass once more, then the still.
-  Use `once` for every slide illustration unless the user asks otherwise.
+  Use `once` for every slide illustration unless the deck's control is `step` or the user asks
+  for a loop.
 - `loop`: CSS keyframes, `infinite`, no script. Only when the user asks for a continuous loop
   (a kiosk screen, a gallery card, a hero banner); 8 to 15 s with a hold before the reset.
-- `step`: the presenter advances phases with a key. The fragment adds one inline
-  `<script type="module">` after the `<svg>` that builds a paused GSAP timeline with one
-  `addLabel('<phase>')` per phase (the first at 0) and registers it under its name. It must work
-  whether or not the host script has run yet, so it registers through the early-registration
-  queue exactly as `scripts/snippets/step-host.html` documents:
-  ```js
-  var A = window.animSlides = window.animSlides || {};
-  if (A.register) A.register('<name>', tl); else (A.q = A.q || []).push(['<name>', tl]);
-  ```
-  The deck host script (shipped as `scripts/snippets/step-host.html`) goes in `<head>`, after GSAP
-  and before any fragment, as a classic script. It drains `animSlides.q` when it loads; if GSAP is
-  missing it turns `register` into a harmless push onto that queue and leaves step control off.
-  Hosts set the gate with `animSlides.gate = '<selector>'` after the snippet and never reassign
-  `window.animSlides` itself. On Right/Space/PageDown and Left/PageUp the host tweens the
-  timeline of the fragment inside the gate to the next or previous label (`tl.tweenTo`), `p`
-  pauses or resumes, and at the last or first phase the key passes to the deck. GSAP is loaded once in the
-  deck head as an inline copy (the delivered page must stay self-contained and open offline;
-  a CDN URL only when the user's deck already uses one), never inside the fragment.
-  `once` with a caption strip is the default up to about 6 narrated phases: the captions
-  cross-fade per phase during the pass and the last caption stays. Choose `step` only when the
-  brief says so, the presenter must drive the phases, and the host can load GSAP.
+- `step`: the presenter lands each phase with a click. **The fragment is the same file as
+  under `once`**: the same CSS keyframes, full-pass tracks, iteration count 1, fill
+  `forwards`/`both`, the 100 % keyframe equal to the resting frame, gated on the gate class, no
+  script. Only the wrapper differs: `data-anim-control="step"` and a required
+  `data-anim-phases` (section 1). The host plays the pass in segments:
+  `scripts/snippets/step-host.html`, a small plain script between the markers
+  `<!-- anim-slides:step-host:start -->` and `<!-- anim-slides:step-host:end -->`, sits once
+  in `<head>` before any fragment (`integrate_fragment.py --control step` puts it there, sets
+  the gate and replaces it on a later run). Through the Web Animations API it holds every CSS
+  animation inside a step wrapper paused at 0. When the slide first becomes current it plays
+  segment 1 by itself, so the figure draws on with the slide. Each forward key (Right, Space,
+  PageDown) plays the next segment and stops on its mark; during a segment a forward key jumps
+  to that mark. A backward key (Left, PageUp) snaps to the previous mark without motion. At the
+  last mark a forward key passes to the deck, at the first mark a backward key passes to the
+  deck, so the snippet consumes a key only while a phase remains. The phase reached is kept
+  when the presenter leaves the slide and comes back (as reveal.js fragments do; leaving
+  mid-segment lands on that segment's mark). Several step
+  wrappers on one slide advance together. Under reduced motion nothing animates and every key
+  passes through; printing shows the resting frame. `animSlides.gate` may be set after the
+  snippet (default `.visible`).
+  `once` versus `step` is decided once per deck at intake, not per fragment: a deck that
+  already builds by click (the extractor's `builds`) is recommended `step`, others `once`.
+  Because the file is identical, the switch is a re-run of `integrate_fragment.py --control`.
 
 ## 7b. Edge paths (scaffolded fragments)
 
@@ -190,6 +201,8 @@ A fragment is done when all four hold:
    - `once`: FAIL on any `infinite` in the style, on a gated animation without fill-mode
      `forwards`/`both`, on an iteration count above 1, on `data-anim-cycle` outside 4 to 10 s;
      WARN when a track's last opacity differs from the resting frame's.
+   - `step`: the `once` checks, plus a required `data-anim-phases` (ascending, above 0, at most
+     the pass); under `once` the attribute is validated when present.
    - `loop`: `data-anim-cycle` 8 to 15 s.
    - all controls, measured by sampling the pass every 20 ms (duration, positive delay,
      iteration count and fill mode resolved per animation):
@@ -208,8 +221,8 @@ A fragment is done when all four hold:
        2: "N glows visible at once at t=X s; one glowing element at most". A stroke-only glow
        (a `<line>`, `<polyline>` or a `fill="none"` path) warns: "lines and arrows never glow".
      - an info line gives the number of distinct animation names (not a check).
-2. `scripts/render-phases.sh <dir> <W> <H> <t1> <t2> ... <pass> rest` produced PNGs (for `once`
-   include one time at or past the pass length: it must be identical to `rest`) (in the temp folder it prints) and every PNG was
+2. `scripts/render-phases.sh <dir> <W> <H> <t1> <t2> ... <pass> rest` produced PNGs (under
+   `step` render each phase mark; for `once` and `step` include one time at or past the pass length: it must be identical to `rest`) (in the temp folder it prints) and every PNG was
    **looked at** (image viewing tool), not inferred from the source. Fix clipping, overlap, unreadable
    text, empty panels. Iterate at least once.
 3. The resting frame PNG reads as a complete still.

@@ -40,6 +40,10 @@ Cycle column, played when the slide becomes current, ending on the resting frame
 `.visible` ancestor, and under `prefers-reduced-motion`, each shows that resting frame: the
 finished state of the story.
 
+Every entry also carries `data-anim-phases` (stop marks in seconds, listed as `phases` in
+`index.yaml`), so it can be integrated in step mode (`integrate_fragment.py --control step`)
+without changes: the host plays the same CSS pass segment by segment, one key press per mark.
+
 ## Preview
 
 `render-phases.sh` takes a fragment folder or file and writes PNGs to a temp folder it prints:

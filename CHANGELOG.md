@@ -2,6 +2,30 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.9.0 - 2026-11-08
+
+- **Step mode is CSS only; GSAP is retired.** A `step` fragment is now the same file as a
+  `once` fragment (CSS keyframes, full-pass tracks, iteration count 1, 100 % keyframe =
+  resting frame, no script). New wrapper attribute `data-anim-phases="2,4.5,7"` lists the
+  phase stop marks; the scaffolder always writes it and all 22 pool entries carry it.
+  `scripts/snippets/step-host.html` is a small plain script in the deck head that drives the
+  fragment's CSS animations through the Web Animations API: the entrance plays with the slide,
+  each forward key lands the next phase, back snaps to the previous mark, keys pass to the deck
+  at either end, the phase is kept on return, reduced motion and print show the resting frame.
+  Breaking for anyone with a GSAP step fragment: rebuild it as a `once` fragment with
+  `data-anim-phases` and integrate with `--control step`.
+- **`integrate_fragment.py --control once|step`** sets the control on the wrapper and, for
+  step, inserts the snippet once and sets its gate. The control is a deck-wide switch at
+  integration, reversible without touching fragments; `check_page.py` requires the snippet when
+  a step wrapper is present.
+- **One control per deck, asked at intake.** Next to the match-or-lean look, intake asks once:
+  play once, or step through phases by click, with a recommended default. Recorded in the
+  `anim/triage.md` header and each brief's Control field; a slide that differs needs a reason.
+- `extract_slides.py`: a per-slide `builds` count and a deck total: click effects in pptx
+  timing, reveal.js `.fragment` and `data-fragment-index`, `.build`/`.build-item`, impress.js
+  `.substep`, nested `.step` build steps, remark `--`. A deck that already builds by click gets
+  `step` recommended.
+
 ## 0.8.0 - 2026-11-07
 
 - **Plays once.** The default control is `once`: one pass of 4 to 10 s when the slide becomes

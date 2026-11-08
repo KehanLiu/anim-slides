@@ -5,7 +5,10 @@ Seven layouts cover almost every slide illustration. Pick one, write the spec
 Timing and easing values are in [motion-rules.md](motion-rules.md); hard limits in
 [fragment-contract.md](fragment-contract.md) section 6. Each **Pass** is for the default `once`
 control: the motion story plays one time when the slide becomes current and its hold is the
-resting frame. A requested `loop` (kiosk, gallery, hero) stretches the same story to 8 to 15 s.
+resting frame. Under `step` (a per-deck choice at intake) the same pass is played in click
+segments: put the `data-anim-phases` marks at the ends of the narrated phases each recipe lists,
+3 to 5 per slide, where nothing is mid-move. A requested `loop` (kiosk, gallery, hero) stretches
+the same story to 8 to 15 s.
 
 ## Decision table
 

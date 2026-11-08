@@ -31,9 +31,10 @@ e.g. "box `build` at x 40 y 120 w 220 h 120; wire build->test along y 180".>
 |---|---|---|---|---|---|
 | 0.0 | ... | ... | ... | ... | ... |
 
-- **Cycle:** <seconds> (the pass length: 4 to 10 s for once, 8 to 15 s for loop, including the hold)
+- **Cycle:** <seconds> (the pass length: 4 to 10 s for once and step, 8 to 15 s for loop, including the hold)
+- **Phases (marks):** <start seconds of every phase after the first, e.g. 2, 4.5, 7; the last is the hold start> (becomes `data-anim-phases`)
 - **Resting frame:** <what the still shows: final state, which labels, which colours>
-- **Control:** once | loop | step (once is the default; loop only on request; step only for 4+ narrated phases)
+- **Control:** once | step | loop (the deck's choice from intake, the same for every fragment; loop only on request; a different value needs a reason in `anim/triage.md`)
 
 ## Theme
 - **Look:** match | lean (one choice per deck; see input-stage.md "Look")
@@ -90,12 +91,13 @@ Packet: circle r 10 on the wire path.
 | 2.0 | build | build chip "ok" | build | packet commit->build | - |
 | 3.5 | test | test chip "ok" | test | packet build->test | - |
 | 5.0 | staging | staging chip "ok" | staging | packet test->staging | - |
-| 6.5 | release | production chip "live" | production | packet staging->production | "released" |
-| 8.0 | hold | - | all chips | - | - |
+| 6.0 | release | production chip "live" | production | packet staging->production | "released" |
+| 7.0 | hold | - | all chips | - | - |
 
-The last 0.4 s of the hold fades everything except the boxes back to the empty state.
+The hold from 7 s to 8 s is the finished state and stays (it is the resting frame).
 
 - **Cycle:** 8 s
+- **Phases (marks):** 1, 2, 3.5, 5, 6, 7
 - **Resting frame:** all five boxes, all chips "ok"/"live", production outlined in `--anim-ok`.
 - **Control:** once
 
@@ -106,8 +108,8 @@ The last 0.4 s of the hold fades everything except the boxes back to the empty s
 - **Font hints:** system
 
 ## Verification plan
-- Seconds: 0 1 2 3.5 5 6.5 8 rest
+- Seconds: 0 1 2 3.5 5 6 7 8 rest
 - 0: boxes entering; 1: packet at commit; 3.5: build chip "ok", packet leaving build for test;
-  6.5: packet reaching production; 8: production highlighted, all chips; rest: all chips, no
-  packet.
+  6: packet leaving staging for production; 7: production highlighted, all chips; 8 and rest:
+  identical, all chips, no packet.
 ```

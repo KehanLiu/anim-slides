@@ -21,12 +21,17 @@ Checks:
              anim-style:NAME pair; no name is used twice (markers or data-anim).
   gate       inside each anim-style block, every rule that sets an animation (outside
              @keyframes, reduced-motion and print blocks) is prefixed by the gate.
+  step       every data-anim-control="step" wrapper carries data-anim-phases, and <head> holds
+             the step host (<!-- anim-slides:step-host:start --> ... :end, from
+             integrate_fragment.py --control step); FAIL otherwise. A step host without step
+             wrappers is OK (it ignores once fragments). An older script-driven host
+             (animSlides.register) FAILs: fragments are CSS only.
   print      each fragment has a print guard: an @media print rule (or an html.print-pdf /
              html.reveal-print rule) that sets animation: none on .anim-NAME, so a PDF export
              shows the resting frame. OK or WARN per fragment.
   leftovers  preview / render artefacts: --virtual-time-budget, the render-phases pause style
              (animation-play-state:paused !important), <base href="file://...">, preview- names,
-             scaffold "refine by hand" notes.
+             scaffold "refine by hand" notes. The step host's own paused rule is not a leftover.
 
 Prints OK / WARN / FAIL with line numbers. Exit code 1 on any FAIL. Standard library only.
 """
@@ -298,6 +303,33 @@ def main():
     if not names:
         R.warn('markers', 'no anim-slides fragment found in the page')
 
+    # ---- step control
+    HS, HE = '<!-- anim-slides:step-host:start -->', '<!-- anim-slides:step-host:end -->'
+    steps = [m for m in re.finditer(r'<[a-z][\w-]*\b[^>]*\sdata-anim-control\s*=\s*["\']step["\'][^>]*>', nocomment, re.I)]
+    head_end = raw.lower().find('</head')
+    h0 = raw.find(HS)
+    host = h0 >= 0 and raw.find(HE, h0) > h0
+    for m in steps:
+        nm = re.search(r'''\sdata-anim\s*=\s*["']([\w-]+)''', m.group(0))
+        nm = nm.group(1) if nm else '?'
+        ph = re.search(r'''\sdata-anim-phases\s*=\s*["']([^"']*)["']''', m.group(0))
+        if not ph or not ph.group(1).strip():
+            R.fail('step', f'{nm}: data-anim-control="step" without data-anim-phases (the stop marks in seconds); '
+                   'add it to the fragment and re-run integrate_fragment.py --control step', line_of(m.start()))
+        else:
+            R.ok('step', f'{nm}: step control, stops at {ph.group(1)} s')
+    if steps and not host:
+        R.fail('step', f'{len(steps)} step fragment(s) but no step host ({HS} ... end) in the page: the '
+               'fragments would sit paused at 0; run integrate_fragment.py --control step', line_of(steps[0].start()))
+    elif steps and head_end >= 0 and h0 > head_end:
+        R.fail('step', 'the step host is outside <head>; it must come before the first fragment', line_of(h0))
+    elif host and not steps:
+        R.ok('step', 'step host present, no step fragment (it ignores once fragments)')
+    for m in re.finditer(r'animSlides\.register\b', raw):
+        R.fail('step', 'older script-driven step code (animSlides.register): fragments are CSS only now; '
+               'remove it and the old host, then re-run integrate_fragment.py --control step', line_of(m.start()))
+        break
+
     # ---- gate
     want = None if a.gate is None else a.gate.strip()
     if want is None and names:
@@ -325,7 +357,7 @@ def main():
         for o, c in css_parts:
             rules += list(animated_rules(parse_css(strip_css_comments(c), o)))
         if not rules:
-            R.ok('gate', f'{nm}: no CSS animations (step mode or static)')
+            R.ok('gate', f'{nm}: no CSS animations (static)')
             continue
         root = f'.anim-{nm}'
         prefixes, bad = set(), []
@@ -373,8 +405,11 @@ def main():
         (r'(?<![\w-])preview-[\w-]+', 'WARN', 'preview- artefact name'),
     ]
     found = False
+    lraw = raw   # the step host's own pause rule is intended: blank its block for this scan
+    for m in re.finditer(re.escape(HS) + '.*?' + re.escape(HE), raw, re.S):
+        lraw = lraw[:m.start()] + blank(m) + lraw[m.end():]
     for pat, lvl, why in leftovers:
-        for m in re.finditer(pat, raw, re.I):
+        for m in re.finditer(pat, lraw, re.I):
             found = True
             (R.fail if lvl == 'FAIL' else R.warn)('leftovers', f'{why}: {m.group(0)[:60]!r}', line_of(m.start()))
     if not found:

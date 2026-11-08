@@ -94,7 +94,7 @@
 
 @media (prefers-reduced-motion: reduce) { .anim-latency-trace * { animation: none !important; } }
 </style>
-<div class="anim anim-latency-trace" data-anim="latency-trace" data-anim-cycle="10" data-anim-control="once">
+<div class="anim anim-latency-trace" data-anim="latency-trace" data-anim-cycle="10" data-anim-phases="4.5,6,7.5,9" data-anim-control="once">
 <svg viewBox="0 0 800 500" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="p99 latency of a web service spikes above its SLO after a deploy, an alert fires, and a rollback brings it back to baseline">
   <defs>
     <clipPath id="latency-trace-clip"><rect class="latency-trace-cliprect" x="110" y="146" width="630" height="268"/></clipPath>

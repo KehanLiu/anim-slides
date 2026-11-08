@@ -71,8 +71,11 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
 - **Plays once, when shown.** A fragment plays one calm pass (4 to 10 s) when its slide becomes
   current and ends on the resting frame, which is the finished state; nothing loops or pulses
   while you talk, and PDF export and reduced-motion users get a complete still.
-- **Three control modes.** `once` (default, CSS only); `loop` for kiosks and galleries; `step`
-  (GSAP timeline with labels) when the presenter wants to advance phases with a key.
+- **Three control modes, one CSS fragment.** `once` (default) plays the pass when the slide appears;
+  `step` plays the same fragment in phases, the entrance with the slide and each click landing
+  the next phase, through a small host script with no library; `loop` for kiosks and
+  galleries. At intake the skill asks one question per deck, once or step, and recommends
+  `step` when your source deck already builds by click.
 - **Less by rule.** The fragment is the slide's own figure in its own form plus one movement.
   The checker measures how many things move and how many glow at the same instant, so "too much" fails before you see it.
 - **Shareable.** The skill adds no CDN or network loads, and `bundle_deck.py` turns the deck

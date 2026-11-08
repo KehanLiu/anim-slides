@@ -18,7 +18,11 @@ Controls (references/fragment-contract.md section 7):
         data-anim-cycle 4-10 s, no `infinite`, every gated animation fills forwards/both,
         the 100 % keyframe equals the resting frame
   loop  continuous loop, only when asked for (kiosk, gallery, hero): cycle 8-15 s
-  step  presenter-driven GSAP timeline, one module script
+  step  the presenter steps through the same one-pass fragment: the once rules plus
+        data-anim-phases="<s>,<s>,..." on the wrapper (stop marks in seconds, strictly
+        ascending, each > 0 and <= data-anim-cycle); the deck's step-host snippet drives it.
+        On a once or loop wrapper data-anim-phases is optional and validated when present.
+No control allows a <script> inside the fragment.
 All controls: motion concurrency (things moving at the same instant, a staggered reveal counts
 as one: WARN > 3, FAIL > 6) and
 glow concurrency (glow elements visible at the same instant: WARN > 1, FAIL > 2; a stroke-only
@@ -381,13 +385,38 @@ def main():
             R.fail('structure', f'data-anim-control="{ctl}" must be once, loop or step', wrapper['line'])
             ctl = 'once'
         control = control or ctl
-        lo, hi = {'once': (4, 10), 'loop': (8, 15)}.get(control, (None, None))
+        lo, hi = {'once': (4, 10), 'step': (4, 10), 'loop': (8, 15)}.get(control, (None, None))
         if lo and cyc and re.fullmatch(r'\d+(\.\d+)?', cyc.strip()) and not lo <= float(cyc) <= hi:
             R.fail('structure', f'data-anim-cycle="{cyc}" outside {lo} to {hi} s for control={control} '
                    '(contract section 6)' + (' (data-anim-control absent, so once is assumed; set '
                    'data-anim-control="once" and shorten the pass, or "loop" only for a kiosk/gallery/hero)'
                    if ctl_implicit else ''), wrapper['line'])
     control = control or 'once'
+
+    # data-anim-phases: stop marks for step control (required there, validated wherever present)
+    phases = wrapper['attrs'].get('data-anim-phases') if wrapper else None
+    phase_marks = None
+    if wrapper and phases is None and control == 'step':
+        R.fail('structure', 'control=step needs data-anim-phases="<s>,<s>,..." on the wrapper: the stop '
+               'marks in seconds (segment k runs from mark k-1, 0 for the first, to mark k)', wrapper['line'])
+    elif wrapper and phases is not None:
+        toks = [t.strip() for t in phases.split(',')]
+        cyc = wrapper['attrs'].get('data-anim-cycle', '').strip()
+        cycv = float(cyc) if re.fullmatch(r'\d+(\.\d+)?', cyc) else None
+        if not all(re.fullmatch(r'\d+(\.\d+)?|\.\d+', t) for t in toks):
+            R.fail('structure', f'data-anim-phases="{phases}" must be comma-separated seconds, e.g. "2,4.5,7"',
+                   wrapper['line'])
+        else:
+            marks = [float(t) for t in toks]
+            if any(m <= 0 for m in marks):
+                R.fail('structure', f'data-anim-phases="{phases}": every mark must be > 0 (0 is the implicit start)',
+                       wrapper['line'])
+            if any(b <= a for a, b in zip(marks, marks[1:])):
+                R.fail('structure', f'data-anim-phases="{phases}" must be strictly ascending', wrapper['line'])
+            if cycv is not None and marks[-1] > cycv + 1e-9:
+                R.fail('structure', f'data-anim-phases="{phases}": mark {marks[-1]:g} is past the pass '
+                       f'(data-anim-cycle="{cyc}")', wrapper['line'])
+            phase_marks = marks
 
     svgs = [e for e in E if e['tag'] == 'svg']
     vbw = None
@@ -419,20 +448,10 @@ def main():
     # ------------------------------------------------------------------ forbidden
     nf0 = len(R.items)
     scripts = mk.scripts
-    if control == 'step':
-        mods = [s for s in scripts if s['attrs'].get('type') == 'module']
-        if len(scripts) != 1 or len(mods) != 1:
-            R.fail('forbidden', f'step control needs exactly one <script type="module">, found {len(scripts)} script(s)')
-        for s in scripts:
-            if 'src' in s['attrs']:
-                R.fail('forbidden', '<script src> not allowed; inline the module', s['line'])
-            if not s['after_svg']:
-                R.fail('forbidden', 'the module script must come after the </svg>', s['line'])
-            if f"register('{name}'" not in s['body'] and f'register("{name}"' not in s['body']:
-                R.warn('forbidden', f'script does not call window.animSlides.register("{name}", tl)', s['line'])
-    else:
-        for s in scripts:
-            R.fail('forbidden', f'<script> not allowed with control={control}', s['line'])
+    for s in scripts:
+        R.fail('forbidden', f'<script> not allowed in a fragment (control={control})'
+               + ('; step is driven by the deck\'s step-host snippet, the fragment stays CSS only'
+                  if control == 'step' else ''), s['line'])
     for e in E:
         if e['tag'] in ('link', 'image', 'img', 'iframe', 'object', 'embed', 'foreignobject'):
             R.fail('forbidden', f'<{e["tag"]}> not allowed', e['line'])
@@ -450,7 +469,7 @@ def main():
                 R.fail('forbidden', f'url({m.group(2)[:40]}) points outside the fragment',
                        line_of(base + m.start()) if base else line_of(m.start()))
     if len(R.items) == nf0:
-        R.ok('forbidden', 'no external resources' + (', one module script' if control == 'step' else ', no script'))
+        R.ok('forbidden', 'no external resources, no script')
 
     # ------------------------------------------------------------------ namespacing
     nf0 = len(R.items)
@@ -565,8 +584,7 @@ def main():
         if anim_rules and not any(r[3] for r in anim_rules):
             R.fail('gating', f'no animation rule is gated by "{gate}"')
         elif not anim_rules:
-            (R.ok if control == 'step' else R.warn)('gating', 'no CSS animations found'
-                                                   + (' (step control: GSAP drives motion)' if control == 'step' else ''))
+            R.warn('gating', 'no CSS animations found')
         if len(R.items) == nf0:
             R.ok('gating', f'{len(anim_rules)} animation rule(s), all under "{gate}"')
     else:
@@ -803,7 +821,7 @@ def main():
             if not d or (cycle and d < 0.75 * cycle):
                 continue   # short decorative loop (pulse, spinner), not the story track
             # loop: one second before the loop restarts (the hold); once: the end of the pass
-            p = 100.0 if control == 'once' else max(50.0, 100 * (1 - 1 / d))
+            p = 100.0 if control in ('once', 'step') else max(50.0, 100 * (1 - 1 / d))
             for nm in names:
                 prop = 'visibility' if why.startswith('visibility') else 'opacity'
                 v = visible_at(keyframes[nm], prop, p, 0.0)
@@ -811,7 +829,7 @@ def main():
                     late = (nm, p)
         if late:
             shown_late.append((e, why, late))
-        elif not tracks and i not in unsure and control != 'step' and has_text(i):
+        elif not tracks and i not in unsure and has_text(i):
             never_shown.append((e, why))
 
     def describe(e):
@@ -826,7 +844,7 @@ def main():
                'reveals it', e['line'])
     # a finite animation with fill forwards/both that ends at opacity 0 leaves the element
     # invisible for as long as the slide is shown
-    for s, v, ln, g, ctx in (anim_rules if control != 'once' else []):   # once: see the control section
+    for s, v, ln, g, ctx in (anim_rules if control == 'loop' else []):   # once/step: see the control section
         if ctx or re.search(r'\binfinite\b', v) or not re.search(r'\b(forwards|both)\b', v):
             continue
         for nm in set(re.findall(r'(?<![\w-])([A-Za-z_][\w-]*)', v)) & set(keyframes):
@@ -837,10 +855,11 @@ def main():
     if len(R.items) == nf0:
         R.ok('resting-frame', 'no element that the story shows at its end is hidden in the resting frame')
 
-    # ------------------------------------------------------------------ control: once
+    # ------------------------------------------------------------------ control: once / step
     # once (default): one pass, then hold the finished state. No infinite, every gated animation
-    # fills forwards/both, and each track ends (100 %) on the resting frame.
-    if control == 'once':
+    # fills forwards/both, and each track ends (100 %) on the resting frame. step is the same
+    # fragment, paused at the data-anim-phases marks by the deck's step host.
+    if control in ('once', 'step'):
         nf0 = len(R.items)
         why = (' (data-anim-control absent, so once is assumed)' if ctl_implicit else '')
         fix = ('use animation-iteration-count 1 (drop infinite) with animation-fill-mode forwards and make '
@@ -848,7 +867,7 @@ def main():
                'gallery or hero loop (contract section 7)')
         inf = [m.start() for m in re.finditer(r'\binfinite\b', css)]
         if inf:
-            R.fail('control', f'control=once{why}: {len(inf)} "infinite" in the style; the fragment must play '
+            R.fail('control', f'control={control}{why}: {len(inf)} "infinite" in the style; the fragment must play '
                    f'once and rest: {fix}', line_of(style_pos + inf[0]))
         fill_rules = set()
         for sel, body, pos, ctx in walk_rules(tree):
@@ -867,10 +886,10 @@ def main():
                 if float(n) > 1:
                     many.append((s, ln, n))
         if nofill:
-            R.fail('control', f'control=once{why}: {len(nofill)} gated animation(s) without fill-mode forwards/both '
+            R.fail('control', f'control={control}{why}: {len(nofill)} gated animation(s) without fill-mode forwards/both '
                    f'(first: {nofill[0][0][:50]}); after the pass the element snaps back: {fix}', nofill[0][1])
         for s, ln, n in many[:3]:
-            R.fail('control', f'control=once: iteration count {n} on {s[:50]}; one pass only', ln)
+            R.fail('control', f'control={control}: iteration count {n} on {s[:50]}; one pass only', ln)
         # each track's last opacity must equal the resting opacity
         ends = []
         for i, tracks in anims.items():
@@ -890,7 +909,8 @@ def main():
             R.warn('control', f'{describe(e)}: keyframes {nm} end at opacity {end:g} but the resting frame has '
                    f'{restn:g}; the 100 % keyframe must equal the resting frame', e['line'])
         if len(R.items) == nf0:
-            R.ok('control', 'once: no infinite, gated animations fill forwards/both, tracks end on the resting frame')
+            R.ok('control', f'{control}: no infinite, gated animations fill forwards/both, tracks end on the resting frame'
+                 + (f'; stops at {phases} s' if control == 'step' and phases else ''))
     elif control == 'loop':
         R.ok('control', 'loop: continuous; use only when a loop was asked for (kiosk, gallery, hero)')
 
@@ -1009,6 +1029,18 @@ def main():
             if tr['iters'] != math.inf:
                 horizon = max(horizon, tr['delay'] + tr['dur'] * tr['iters'])
     horizon = horizon or 10.0
+    # step stops at the last mark: anything that still changes after it never plays there
+    if control == 'step' and phase_marks:
+        last = 0.0
+        for ts in tracks.values():
+            for tr in ts:
+                ends = [b for a, b, k in kf_moving(tr['name'])]
+                if ends and tr['iters'] != math.inf:
+                    last = max(last, tr['delay'] + tr['dur'] * (tr['iters'] - 1 + max(ends)))
+        if last > phase_marks[-1] + 0.05:
+            R.warn('control', f'step: the last mark is {phase_marks[-1]:g} s but the figure still changes until '
+                   f'{round(last, 2):g} s; the presenter never sees that part and the slide does not reach the resting '
+                   f'frame; end data-anim-phases on {round(last, 2):g} (or the pass, {horizon:g})', wrapper['line'])
     STEPS = [round(k * 0.02, 2) for k in range(int(horizon / 0.02) + 1)]
     mov_cache = {}
     moving_at = []

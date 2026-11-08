@@ -11,14 +11,17 @@ Usage:
                     raised so every text meets --min-text there; the self-check uses it too
   --stage-width     width of the deck stage in CSS px (default 1920); sets the default --min-text
   --min-text        minimum rendered text size in px (default 18 * stage-width / 1920)
-  --control         override the spec's control (once | loop | step); once re-times a loop or step
-                    spec into a single pass of at most 10 s
+  --control         override the spec's control (once | loop | step); once and step re-time a loop
+                    spec into a single pass of at most 10 s, loop re-times a once or step spec
   --no-check        do not run check_fragment.py on the output
 
 The output is a skeleton that satisfies references/fragment-contract.md: a layout per archetype
-(references/archetypes.md), phase timing from the spec, gated keyframes (once: one pass that
-ends on the resting frame and holds it; loop: an infinite cycle) or a paused GSAP timeline (step). Refine it by hand (see the scaffold comment at the top of the output), then run
-render-phases.sh and look at every PNG.
+(references/archetypes.md), phase timing from the spec and gated CSS keyframes, no script.
+once: one pass that ends on the resting frame and holds it; step: the same file with
+data-anim-control="step", which the host plays segment by segment between the data-anim-phases
+marks; loop: an infinite cycle. data-anim-phases (always written) lists the start second of every
+phase after the first, the hold's start last. Refine it by hand (see the scaffold comment at the
+top of the output), then run render-phases.sh and look at every PNG.
 Specs are YAML or JSON. PyYAML is used when installed; without it a built-in reader covers the
 plain subset the examples use (block and flow collections, quoted and plain scalars, comments).
 """
@@ -49,14 +52,11 @@ KEYS = {
     'event': {'id', 'at', 'label'},
 }
 ID_RE = re.compile(r'[a-z][a-z0-9]*(-[a-z0-9]+)*')
-# name: (CSS timing function, GSAP ease)
-EASE = {'enter': ('cubic-bezier(0.16,1,0.3,1)', 'expo.out'),
-        'exit': ('cubic-bezier(0.3,0,1,1)', 'power2.in'),
-        'move': ('cubic-bezier(0.45,0,0.55,1)', 'power2.inOut'),
-        'linear': ('linear', 'none')}
-STEP = 1.2     # step mode: timeline seconds between phase labels
+# name: CSS timing function
+EASE = {'enter': 'cubic-bezier(0.16,1,0.3,1)', 'exit': 'cubic-bezier(0.3,0,1,1)',
+        'move': 'cubic-bezier(0.45,0,0.55,1)', 'linear': 'linear'}
 RESET = 0.4    # loop mode: the last seconds of the cycle fade back to the empty state
-CYCLE = {'once': (4, 10, 8), 'loop': (8, 15, 12)}   # control: (min s, max s, default s)
+CYCLE = {'once': (4, 10, 8), 'loop': (8, 15, 12)}   # timing mode: (min s, max s, default s); step uses once
 HOLD = {'once': 1.2, 'loop': 2.0}                   # seconds the final state is held before the end
 
 
@@ -346,18 +346,20 @@ def validate(sp, args):
     spec_control = sp.get('control', 'once')
     need(spec_control in ('once', 'loop', 'step'), f'control {spec_control!r} must be once, loop or step')
     S.control = args.control or spec_control
-    retime = S.control != spec_control and S.control in CYCLE
-    S.cycle = sp.get('cycle', CYCLE.get(spec_control, CYCLE['once'])[2])
-    if retime:          # --control override: the spec's timing was written for another control
-        S.cycle = min(max(S.cycle if isinstance(S.cycle, (int, float)) else 0, CYCLE[S.control][0]),
-                      CYCLE[S.control][1])
-    if S.control in CYCLE:
-        lo, hi, _ = CYCLE[S.control]
-        need(isinstance(S.cycle, (int, float)) and lo <= S.cycle <= hi,
-             f'cycle must be {lo}-{hi} s for control {S.control}'
-             + (' (control defaults to once: one pass, then hold; write control: loop only for a kiosk, '
-                'gallery or hero loop)' if 'control' not in sp and isinstance(S.cycle, (int, float))
-                and S.cycle > hi else ''))
+    # timing mode: step is the once pass, played segment by segment by the host (data-anim-phases)
+    S.mode = 'loop' if S.control == 'loop' else 'once'
+    spec_mode = 'loop' if spec_control == 'loop' else 'once'
+    retime = S.mode != spec_mode
+    S.cycle = sp.get('cycle', CYCLE[spec_mode][2])
+    if retime:          # --control override: the spec's timing was written for the other mode
+        S.cycle = min(max(S.cycle if isinstance(S.cycle, (int, float)) else 0, CYCLE[S.mode][0]),
+                      CYCLE[S.mode][1])
+    lo, hi, _ = CYCLE[S.mode]
+    need(isinstance(S.cycle, (int, float)) and lo <= S.cycle <= hi,
+         f'cycle must be {lo}-{hi} s for control {S.control}'
+         + (' (control defaults to once: one pass, then hold; write control: loop only for a kiosk, '
+            'gallery or hero loop)' if 'control' not in sp and isinstance(S.cycle, (int, float))
+            and S.cycle > hi else ''))
     size = args.viewbox or sp.get('size') or DEFAULT_SIZE[S.arch]
     need(isinstance(size, (list, tuple)) and len(size) == 2
          and all(isinstance(v, int) and v > 0 for v in size), 'size must be [W, H], positive integers')
@@ -484,27 +486,27 @@ def validate(sp, args):
     if not phases:
         phases = derive_phases(S)
     elif retime:
-        phases = retime_phases(S, [dict(p) for p in phases], spec_control)
+        phases = retime_phases(S, [dict(p) for p in phases])
     S.phases = check_phases(S, phases, err)
     if err:
         die('\n  '.join(['invalid phases:'] + err))
     return S
 
 
-def retime_phases(S, phases, spec_control):
-    """--control override to once or loop: fit the spec's phases into the new pass, ending with a
-    hold phase. Seconds from a timed spec keep their proportions; step ordinals are spread evenly."""
-    lo, hi, _ = CYCLE[S.control]
-    hold = HOLD[S.control]
+def retime_phases(S, phases):
+    """--control override between loop and once/step: fit the spec's phases into the new pass,
+    ending with a hold phase. Phase seconds keep their proportions where the gaps allow."""
+    lo, hi, _ = CYCLE[S.mode]
+    hold = HOLD[S.mode]
     has_hold = phases[-1].get('label') == 'hold'
     body = phases[:-1] if has_hold and len(phases) > 1 else phases
     n = len(body)
     ts = [float(p.get('t') or 0) for p in body]
     h0 = float(phases[-1].get('t') or 0) if has_hold and len(phases) > 1 else (ts[-1] + hold if ts else hold)
     new = None
-    if spec_control in CYCLE and h0 > 0:
+    if h0 > 0:
         k = (S.cycle - hold) / h0
-        if S.control == 'once':
+        if S.mode == 'once':
             k = min(k, (hi - hold) / h0)
         new = [round(t * k, 2) for t in ts]
         if any(b - a < 0.8 - 1e-6 for a, b in zip(new, new[1:])):
@@ -519,7 +521,7 @@ def retime_phases(S, phases, spec_control):
         p['t'] = t
     end = dict(phases[-1]) if has_hold and len(phases) > 1 else {'label': 'hold'}
     end['t'] = h_t
-    S.cycle = round(min(hi, max(lo, h_t + hold)), 1) if S.control == 'once' else S.cycle
+    S.cycle = round(min(hi, max(lo, h_t + hold)), 1) if S.mode == 'once' else S.cycle
     warn(f'control overridden to {S.control}: phases re-timed into a {f1(S.cycle)} s pass with a hold')
     return body + [end]
 
@@ -545,20 +547,17 @@ def topo_order(S):
 def derive_phases(S):
     order = topo_order(S) if S.arch in ('graph', 'states') else [n['id'] for n in S.nodes]
     if not order:
-        return ([{'t': 0, 'label': 'setup'}, {'t': S.cycle - HOLD[S.control], 'label': 'hold'}]
-                if S.control in CYCLE else [{'t': 0, 'label': 'start'}, {'t': 1, 'label': 'end'}])
-    timed = S.control in CYCLE
-    n, hold, cyc = len(order), HOLD.get(S.control, 2.0), S.cycle
-    top = CYCLE.get(S.control, (0, 15))[1]
-    st = 0
-    while timed:
+        return [{'t': 0, 'label': 'setup'}, {'t': S.cycle - HOLD[S.mode], 'label': 'hold'}]
+    n, hold, cyc = len(order), HOLD[S.mode], S.cycle
+    top = CYCLE[S.mode][1]
+    while True:
         st = round((cyc - hold) / n * 2) / 2
         if (n - 1) * st > cyc - hold - 0.8:
             st = math.floor((cyc - hold) / n * 10) / 10
         if st >= 0.8 or cyc >= top:
             break
         cyc += 1
-    if timed and st < 0.8:
+    if st < 0.8:
         die(f'{n} nodes do not fit a {top} s {S.control} pass at 0.8 s per phase; split the spec or write phases')
     if cyc != S.cycle:
         warn(f'derived phases need cycle {cyc} s (was {S.cycle})')
@@ -566,13 +565,12 @@ def derive_phases(S):
     phases, seen = [], set()
     for i, nid in enumerate(order):
         flow = [e['id'] for e in S.edges if e['to'] == nid and e['from'] in seen][:3]
-        phases.append({'t': round(i * st, 2) if timed else i, 'label': nid,
+        phases.append({'t': round(i * st, 2), 'label': nid,
                        'show': [nid], 'active': [nid], 'flow': flow})
         seen.add(nid)
-    if timed:
-        sinks = [x for x in order if not any(e['from'] == x for e in S.edges)]
-        label = 'hold' if 'hold' not in order else 'hold-end'
-        phases.append({'t': cyc - hold, 'label': label, 'active': sinks[-1:]})
+    sinks = [x for x in order if not any(e['from'] == x for e in S.edges)]
+    label = 'hold' if 'hold' not in order else 'hold-end'
+    phases.append({'t': cyc - hold, 'label': label, 'active': sinks[-1:]})
     return phases
 
 
@@ -608,32 +606,29 @@ def check_phases(S, phases, err):
     if err:
         return out
     err += twice
-    if S.control in CYCLE:
-        ts = [p['t'] for p in out]
-        if ts[0] != 0:
-            err.append('the first phase must have t: 0')
-        for a, b in zip(ts, ts[1:]):
-            gap = round(b - a, 3)            # 11.2 - 10.4 is 0.7999... in floats
-            least = 0.5 if S.control == 'once' else 0.8   # a once pass is short: a 0.5 s beat still reads
-            if gap < least:
-                err.append(f'phase gap {a} -> {b} is under {least} s (or not increasing)')
-            elif gap < 1:
-                warn(f'phase gap {a} -> {b} is under 1 s')
-        last_ok = S.cycle - (0.8 if S.control == 'once' else 1)
-        if ts[-1] > last_ok + 1e-6:
-            err.append(f'phase t {ts[-1]} is after cycle - {f1(S.cycle - last_ok)} ({f1(last_ok)}): '
-                       + ('the pass needs a final hold of 0.8 to 1.5 s' if S.control == 'once' else
-                          'the loop needs a hold before it restarts'))
-        if out[-1]['label'] != 'hold':
-            warn(f'the last phase is not labelled hold; the {"pass" if S.control == "once" else "loop"} '
-                 'has no explicit hold')
-        elif out[-1]['show'] or out[-1]['flow']:
-            warn('the hold phase should have no show and no flow')
-        if S.control == 'once' and S.cycle - ts[-1] > 1.5 + 1e-6:
-            warn(f'the final hold lasts {f1(S.cycle - ts[-1])} s (aim 0.8 to 1.5 s); shorten cycle to '
-                 f'{f1(ts[-1] + 1.2)}')
-    elif any(p['t'] != i for i, p in enumerate(out)):
-        warn('step control: phase t values are taken as 0, 1, 2 ... in list order')
+    ts = [p['t'] for p in out]
+    if ts[0] != 0:
+        err.append('the first phase must have t: 0')
+    for a, b in zip(ts, ts[1:]):
+        gap = round(b - a, 3)            # 11.2 - 10.4 is 0.7999... in floats
+        least = 0.5 if S.mode == 'once' else 0.8   # a once pass is short: a 0.5 s beat still reads
+        if gap < least:
+            err.append(f'phase gap {a} -> {b} is under {least} s (or not increasing)')
+        elif gap < 1:
+            warn(f'phase gap {a} -> {b} is under 1 s')
+    last_ok = S.cycle - (0.8 if S.mode == 'once' else 1)
+    if ts[-1] > last_ok + 1e-6:
+        err.append(f'phase t {ts[-1]} is after cycle - {f1(S.cycle - last_ok)} ({f1(last_ok)}): '
+                   + ('the pass needs a final hold of 0.8 to 1.5 s' if S.mode == 'once' else
+                      'the loop needs a hold before it restarts'))
+    if out[-1]['label'] != 'hold':
+        warn(f'the last phase is not labelled hold; the {"pass" if S.mode == "once" else "loop"} '
+             'has no explicit hold')
+    elif out[-1]['show'] or out[-1]['flow']:
+        warn('the hold phase should have no show and no flow')
+    if S.mode == 'once' and S.cycle - ts[-1] > 1.5 + 1e-6:
+        warn(f'the final hold lasts {f1(S.cycle - ts[-1])} s (aim 0.8 to 1.5 s); shorten cycle to '
+             f'{f1(ts[-1] + 1.2)}')
     if len(out) > 8:
         warn(f'{len(out)} phases (more than 8 usually means two stories)')
     known = set(S.node) | set(S.group) | set(S.edge) | {x['id'] for x in S.series + S.events}
@@ -1887,37 +1882,35 @@ LAYOUTS = {'pipeline': layout_pipeline, 'graph': layout_graph, 'timeline': layou
 
 # ============================================================================ timing
 class Timing:
-    """Phase times for all controls. once/loop (timed): seconds from the spec; once ends on the
-    final state (no reset), loop fades back to empty in the last RESET s. step: one label per
-    STEP s, with each phase's tweens placed in the STEP before its label so tweenTo(label) plays them."""
+    """Phase times in seconds from the spec, for every control (step uses the once pass). once and
+    step end on the final state (no reset); loop fades back to empty in the last RESET s."""
 
     def __init__(self, S):
-        self.timed = S.control in CYCLE
-        self.once = S.control == 'once'
+        self.once = S.mode == 'once'
         n = len(S.phases)
-        if self.timed:
-            self.t = [float(p['t']) for p in S.phases]
-            self.end = float(S.cycle)
-            self.rst = self.end if self.once else S.cycle - RESET
-            self.act = list(self.t)
-            self.win = [(self.t[i + 1] if i + 1 < n else self.rst) - self.t[i] for i in range(n)]
-            self.draw_end = self.t[-1] if n > 1 else self.rst
-        else:
-            self.t = [i * STEP for i in range(n)]
-            self.end = self.rst = self.t[-1]
-            self.act = [0.0] + [t - STEP + 0.1 for t in self.t[1:]]
-            self.win = [STEP - 0.2] * n
-            self.draw_end = self.end
+        self.t = [float(p['t']) for p in S.phases]
+        self.end = float(S.cycle)
+        self.rst = self.end if self.once else S.cycle - RESET
+        self.act = list(self.t)
+        self.win = [(self.t[i + 1] if i + 1 < n else self.rst) - self.t[i] for i in range(n)]
+        self.draw_end = self.t[-1] if n > 1 else self.rst
         self.n = n
 
+    def marks(self, S):
+        """data-anim-phases: the start of every phase after the first, so the hold's start is the last
+        mark; without a hold phase (or with a single phase) the end of the motion closes the list.
+        One decimal, strictly ascending, each > 0 and <= the pass."""
+        ms = [round(t, 1) for t in self.t[1:]]
+        if not ms or S.phases[-1]['label'] != 'hold':
+            ms.append(round(self.rst, 1))
+        out = []
+        for m in ms:
+            if 0 < m <= self.end and (not out or m > out[-1]):
+                out.append(m)
+        return ','.join(f1(m) for m in out) or f1(self.end)
+
     def xtime(self, frac):
-        if self.timed:
-            return frac * self.draw_end
-        if self.n < 2:
-            return 0.0
-        pos = frac * (self.n - 1)
-        i = max(1, math.ceil(pos - 1e-9))
-        return self.act[i] + (pos - (i - 1)) * self.win[i]
+        return frac * self.draw_end
 
     def phase_at(self, t):
         return max([i for i in range(self.n) if self.act[i] <= t + 1e-6] or [0])
@@ -1950,7 +1943,7 @@ def build_anims(S, T, scene, anim):
     entry = {}
 
     def stagger(k, m):
-        return 0 if m < 2 else k * min(0.08, (0.45 if T.timed else 0.25) / (m - 1))
+        return 0 if m < 2 else k * min(0.08, 0.45 / (m - 1))
 
     for i, p in enumerate(S.phases):
         for k, x in enumerate(p['show']):
@@ -1968,7 +1961,7 @@ def build_anims(S, T, scene, anim):
     for e in S.edges:
         if e['id'] not in entry:
             a, b = max(entry[e['from']], entry[e['to']])
-            entry[e['id']] = (a + (0.3 if T.timed else 0.15), b)
+            entry[e['id']] = (a + 0.3, b)
     ch = scene.get('chart')
     if ch:
         for s in ch['series']:
@@ -1981,7 +1974,7 @@ def build_anims(S, T, scene, anim):
 
     named = {x for p in S.phases for x in p['show']}
     for key, (t, i) in entry.items():
-        if key not in rid or (not T.timed and i == 0):
+        if key not in rid:
             continue
         if T.once and i == 0 and key not in named and t < 0.8:
             continue    # once: the static frame is simply there; only the story enters (concurrency)
@@ -2000,8 +1993,7 @@ def build_anims(S, T, scene, anim):
             j = i
             while j + 1 < T.n and on[j + 1]:
                 j += 1
-            if T.timed or i > 0:
-                anim.add(el, 'opacity', T.act[i], 0.25 if T.timed else 0.2, 0, 1)
+            anim.add(el, 'opacity', T.act[i], 0.25, 0, 1)
             if j + 1 < T.n:
                 anim.add(el, 'opacity', T.act[j + 1], 0.2, 1, 0, 'exit')
             i = j + 1
@@ -2036,7 +2028,7 @@ def build_anims(S, T, scene, anim):
         for eid in p['flow']:
             pos[eid] = max([pos[f] + 1 for f in pos if S.edge[f]['to'] == S.edge[eid]['from']], default=0)
         depth = max(pos.values(), default=0) + 1
-        lo, hi = (0.6, 1.0) if T.timed else (0.3, 0.8)
+        lo, hi = 0.6, 1.0
         if T.once:
             lo = min(lo, max(0.3, T.win[i] / depth - 0.15))   # short once phases: the hop fits its phase
         hop = max(lo, min(hi, T.win[i] / depth - 0.3))
@@ -2052,8 +2044,8 @@ def build_anims(S, T, scene, anim):
         n, cur, last = len(S.nodes), 101.0, 0.0     # 101: fully hidden, no round-cap dot
         for i, nd in sorted(enumerate(S.nodes), key=lambda x: entry[x[1]['id']][0]):
             v = 100 - 100 * i / max(1, n - 1)
-            t, ph = entry[nd['id']]
-            if v < cur and (T.timed or ph > 0):
+            t = entry[nd['id']][0]
+            if v < cur:
                 t0 = max(last, t - 0.6)
                 anim.add(f'{N}-progress', 'stroke-dashoffset', t0, max(0.2, t - t0), cur, v, 'move')
                 last = t
@@ -2062,19 +2054,14 @@ def build_anims(S, T, scene, anim):
         anim.rest_over[f'{N}-progress'] = {'stroke-dashoffset': 0}
     if ch:
         pw = ch['R'] - ch['L']
-        if T.timed:
-            anim.add(f'{N}-clip-r', 'width', 0, T.draw_end, '0px', f'{f1(pw)}px', 'linear')
-        else:
-            for i in range(1, T.n):
-                anim.add(f'{N}-clip-r', 'width', T.act[i], T.win[i], f'{f1(pw * (i - 1) / (T.n - 1))}px',
-                         f'{f1(pw * i / (T.n - 1))}px', 'linear')
+        anim.add(f'{N}-clip-r', 'width', 0, T.draw_end, '0px', f'{f1(pw)}px', 'linear')
         for s in ch['series']:
             sid = rid[s['s']['id']]
             if not s['drawn']:
                 continue
-            anim.add(sid + '-end', 'opacity', T.xtime(1) - (0.3 if T.timed else 0), 0.3, 0, 1)
-            if not T.timed or T.once:     # once: the head dot appears at the end instead of riding
-                anim.add(sid + '-dot', 'opacity', T.act[-1] if not T.timed else T.xtime(1) - 0.3, 0.2, 0, 1)
+            anim.add(sid + '-end', 'opacity', T.xtime(1) - 0.3, 0.3, 0, 1)
+            if T.once:     # once: the head dot appears at the end instead of riding
+                anim.add(sid + '-dot', 'opacity', T.xtime(1) - 0.3, 0.2, 0, 1)
                 continue
             step = max(1, math.ceil(len(s['pts']) / 30))
             idx = list(range(0, len(s['pts']), step))
@@ -2138,49 +2125,10 @@ def css_keyframes(el, segs, T, marks, final=None):
         props, ease = stops[t]
         body = ' '.join(f'{k}: {v};' for k, v in props.items())
         if ease:
-            body += f' animation-timing-function: {EASE[ease][0]};'
+            body += f' animation-timing-function: {EASE[ease]};'
         pct = f'{t / T.end * 100:.2f}'.rstrip('0').rstrip('.')
         out.append(f'  {pct}% {{ {body} }}  /* {f1(t)}s{" " + marks[t] if t in marks else ""} */')
     return '\n'.join(out + ['}'])
-
-
-GSAP_PROP = {'opacity': 'opacity', 'stroke-dashoffset': 'strokeDashoffset',
-             'offset-distance': 'offsetDistance', 'width': 'width'}
-
-
-def js_val(v):
-    return json.dumps(v) if isinstance(v, str) else f1(v)
-
-
-def gsap_script(S, T, anim):
-    N = S.name
-    L = ['<script type="module">',
-         '// step control: a paused GSAP timeline, one label per phase; scripts/snippets/step-host.html',
-         '// tweens to the next/previous label. Tweens of phase i end just before its label.',
-         'const gsap = window.gsap;',
-         f'const root = document.querySelector(\'[data-anim="{N}"]\');',
-         'if (gsap && root) {',
-         '  const tl = gsap.timeline({ paused: true });',
-         '  // the first tween per element and property renders immediately, so rewinding to the',
-         '  // first label restores its from-state (later ones would revert to the resting frame)',
-         "  const T = (id, from, to, at, first) => tl.fromTo(root.querySelector('#' + id), from,",
-         '    Object.assign({ immediateRender: !!first, lazy: false }, to), at);']
-    for i, p in enumerate(S.phases):
-        L.append(f"  tl.addLabel('{p['label']}', {f1(T.t[i])});")
-    items = sorted(((t0, el, prop, dur, v0, v1, ease) for el, segs in anim.segs.items()
-                    for prop, t0, dur, v0, v1, ease in segs if prop in GSAP_PROP), key=lambda x: x[0])
-    seen = set()
-    for t0, el, prop, dur, v0, v1, ease in items:
-        k, first = GSAP_PROP[prop], (el, prop) not in seen
-        seen.add((el, prop))
-        L.append(f"  T('{el}', {{ {k}: {js_val(v0)} }}, {{ {k}: {js_val(v1)}, duration: {f1(dur)}, "
-                 f"ease: '{EASE[ease][1]}' }}, {f1(t0)}{', 1' if first else ''});")
-    L += [f'  tl.set({{}}, {{}}, {f1(T.end)});   // timeline reaches the last label',
-          '  tl.progress(1);   // show the resting frame until the host seeks to the first label',
-          '  var A = window.animSlides = window.animSlides || {};',
-          f"  if (A.register) A.register('{N}', tl); else (A.q = A.q || []).push(['{N}', tl]);",
-          '}', '</script>']
-    return '\n'.join(L)
 
 
 def text_lines(x, y, h, lines, anchor='middle'):
@@ -2604,25 +2552,24 @@ def css(S, F, T, anim, scene, rid):
         out.append(f'/* ---- edge paths: the one copy packets read (offset-path: var(--...)); keep in step with each wire d ---- */')
         out.append(f'{A} {{\n' + '\n'.join(f'  --{rid[e["id"]]}: path("{path_d(scene["edges"][e["id"]])}");'
                                              for e in S.edges) + '\n}')
-    if T.timed:
-        marks = {}
-        for i, p in enumerate(S.phases):
-            marks[round(T.t[i], 2)] = p['label']
-        if T.once:
-            marks[round(T.end, 2)] = 'end = resting frame'
-            out.append(f'/* ---- motion: one pass of {f1(T.end)} s per element, gated on .visible; plays once when the '
-                       'slide becomes current, then holds the 100 % stop (= resting frame) ---- */')
-            for el in anim.segs:
-                out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear 1 both; }}')
-        else:
-            marks[round(T.rst, 2)] = 'reset'
-            out.append(f'/* ---- motion: one full-cycle track per element, gated on .visible (cycle {f1(T.end)} s) ---- */')
-            for el in anim.segs:
-                out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear infinite; }}')
-        for el, segs in anim.segs.items():
-            out.append(css_keyframes(el, segs, T, marks, anim.rest(el)))
+    marks = {}
+    for i, p in enumerate(S.phases):
+        marks[round(T.t[i], 2)] = p['label']
+    if T.once:
+        marks[round(T.end, 2)] = 'end = resting frame'
+        how = ('plays once when the slide becomes current' if S.control == 'once' else
+               'the host plays it segment by segment between the data-anim-phases marks')
+        out.append(f'/* ---- motion: one pass of {f1(T.end)} s per element, gated on .visible; {how}, '
+                   'then holds the 100 % stop (= resting frame) ---- */')
+        for el in anim.segs:
+            out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear 1 both; }}')
     else:
-        out.append('/* step control: the module script below drives the motion with GSAP */')
+        marks[round(T.rst, 2)] = 'reset'
+        out.append(f'/* ---- motion: one full-cycle track per element, gated on .visible (cycle {f1(T.end)} s) ---- */')
+        for el in anim.segs:
+            out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear infinite; }}')
+    for el, segs in anim.segs.items():
+        out.append(css_keyframes(el, segs, T, marks, anim.rest(el)))
     out.append(f'@media (prefers-reduced-motion: reduce) {{ {A} * {{ animation: none !important; }} }}')
     return '\n'.join(out)
 
@@ -2728,7 +2675,7 @@ def main():
 
     words = ', '.join(n['label'] for n in S.nodes) or ', '.join(s['label'] for s in S.series)
     aria = escape(f'{S.title + ": " if S.title else ""}{S.arch} of {words}', quote=True)
-    cyc = f1(T.end if T.timed else T.end + STEP)
+    cyc = f1(T.end)
     refine = ('<!-- scaffold: refine by hand -\n'
               f'  generated by scripts/scaffold_from_spec.py from {os.path.basename(args.spec)} '
               f'({S.arch}, {S.control}, {S.W}x{S.H}, rendered {rw:g}px)\n'
@@ -2742,13 +2689,11 @@ def main():
               f'    edge change its d (and its -hl copy, if any) and that one --{S.name}-e-... line\n-->')
     html = [refine, '<style>', css(S, F, T, anim, scene, rid), '</style>',
             f'<div class="anim anim-{S.name}" data-anim="{S.name}" data-anim-cycle="{cyc}" '
-            f'data-anim-control="{S.control}">',
+            f'data-anim-phases="{T.marks(S)}" data-anim-control="{S.control}">',
             f'<svg viewBox="0 0 {S.W} {S.H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" '
             f'role="img" aria-label="{aria}">']
     html += ['  ' + x for x in body]
     html.append('</svg>')
-    if not T.timed:
-        html.append(gsap_script(S, T, anim))
     html.append('</div>')
     os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
     with open(args.output, 'w', encoding='utf-8') as fh:

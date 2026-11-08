@@ -12,12 +12,21 @@ or on #/## headings when there are none) and writes a JSON outline:
       {"index": 3, "title": "Release process", "bullets": [...], "notes": "...",
        "text": "...", "has_image": true, "image_count": 1,
        "tables": [[["Old", "New"], ["manual", "CI"]]], "connectors": 4,
-       "suggested_archetype": "pipeline", "confidence": 0.6,
-       "reason": "cues: arrows, numbered steps"}]}
+       "builds": 4, "suggested_archetype": "pipeline", "confidence": 0.6,
+       "reason": "cues: arrows, numbered steps"}], "builds": 4}
 
 `tables` (rows of cell strings), `connectors` (connector lines and arrow
 shapes), `title_guessed` (no title placeholder; the title is the largest-font
 or first short text) and `mermaid` appear only when present.
+
+`builds` (per slide, always present, 0 when none) counts the click builds the
+source deck already has; the top-level `builds` is the deck total. A deck that
+builds by click is the signal to recommend the `step` control at intake.
+pptx: click-triggered effects in `p:timing` (`p:cTn nodeType="clickEffect"`).
+HTML: elements with class `fragment` (reveal.js), `data-fragment-index`,
+`build`/`build-item`, `substep` (impress.js substep plugin), and `.step` nested
+inside a slide (a deck's own build steps; a top-level impress.js `.step` is the
+slide itself). Markdown: remark `--` incremental separators.
 
 The archetype is one of pipeline, graph, timeline, states, compare, layers,
 chart (see references/archetypes.md) or null when no structural cue is found.
@@ -56,10 +65,10 @@ def collapse(s):
 
 
 def make_slide(title="", bullets=(), notes="", text="", image_count=0, tables=None,
-               connectors=0, segments=None, branching=False, title_guessed=False):
+               connectors=0, segments=None, branching=False, title_guessed=False, builds=0):
     slide = {"title": collapse(title), "bullets": [collapse(b) for b in bullets if collapse(b)],
              "notes": collapse(notes), "text": collapse(text),
-             "has_image": image_count > 0, "image_count": image_count}
+             "has_image": image_count > 0, "image_count": image_count, "builds": builds}
     tables = [t for t in (tables or []) if t]
     if tables:
         slide["tables"] = [[[collapse(c) for c in row] for row in t] for t in tables]
@@ -184,7 +193,17 @@ def pptx_slide(root):
         title, guessed = _guess_title(shapes), True
     bullets = [t for sh in shapes for t in sh["paras"]]
     branching = len(starts) != len(set(starts)) or len(ends) != len(set(ends))
-    return title, bullets, text, tables, pics, conns, branching, guessed
+    return title, bullets, text, tables, pics, conns, branching, guessed, pptx_builds(root)
+
+
+def pptx_builds(root):
+    """Click builds on a slide: each click step of the animation timeline starts with a
+    `p:cTn nodeType="clickEffect"` (with-previous and after-previous effects ride on it, and
+    effects that start with the slide are not counted)."""
+    timing = root.find("p:timing", NS)
+    if timing is None:
+        return 0
+    return sum(1 for c in timing.iter(P + "cTn") if c.get("nodeType") == "clickEffect")
 
 
 def _guess_title(shapes):
@@ -212,7 +231,7 @@ def read_pptx(path):
         order = _slide_order(z, names)
         for name in order:
             root = ET.fromstring(z.read(name))
-            title, bullets, text, tables, pics, conns, branching, guessed = pptx_slide(root)
+            title, bullets, text, tables, pics, conns, branching, guessed, builds = pptx_slide(root)
             notes = []
             rels = "%s/_rels/%s.rels" % tuple(name.rsplit("/", 1))
             if rels in names:
@@ -227,7 +246,7 @@ def read_pptx(path):
                                      for t in _paragraphs(sp) if t]
             segments = [title] + text + notes
             slides.append(make_slide(title, bullets, " ".join(notes), " ".join(text), pics,
-                                     tables, conns, segments, branching, guessed))
+                                     tables, conns, segments, branching, guessed, builds))
     return slides
 
 
@@ -368,7 +387,26 @@ def html_slide(n):
                 for tr in t.iter() if tr.tag == "tr"]
         tables.append([r for r in rows if any(collapse(c) for c in r)])
     return make_slide(title, bullets, notes, node_text(n), images, tables,
-                      segments=[title] + bullets + [notes, node_text(n)])
+                      segments=[title] + bullets + [notes, node_text(n)],
+                      builds=html_builds(n))
+
+
+BUILD_CLASSES = {"fragment", "build", "build-item", "substep"}
+
+
+def html_builds(n):
+    """Click builds inside one slide container: reveal.js `.fragment` and
+    `data-fragment-index`, `.build`/`.build-item`, impress.js `.substep`, and `.step`
+    elements nested in the slide (a deck's own keyboard builds). Each element counts once."""
+    count = 0
+    notes = {id(x) for d in n.iter() if d.tag == "aside" and "notes" in d.classes for x in d.iter()}
+    for d in n.iter():
+        if d is n or id(d) in notes:
+            continue
+        cls = set(d.classes)
+        if cls & BUILD_CLASSES or "data-fragment-index" in d.attrs or "step" in cls:
+            count += 1
+    return count
 
 
 def read_html(path):
@@ -484,21 +522,25 @@ def md_chunks(text):
             lines = lines[end + 1:]
     tags = _tag_fences(lines)
     use_rule = any(ln.strip() == "---" and t is None for ln, t in zip(lines, tags))
-    raw, cur = [], []
+    raw, cur, incs, inc = [], [], [], 0
     for ln, t in zip(lines, tags):
         if t is None and use_rule and ln.strip() == "---":
             raw.append(cur)
-            cur = []
+            incs.append(inc)
+            cur, inc = [], 0
             continue
         if t is None and not use_rule and re.match(r"#{1,2}\s", ln) and any(x.strip() for x, _ in cur):
             raw.append(cur)
-            cur = []
+            incs.append(inc)
+            cur, inc = [], 0
         if t is None and ln.strip() == "--":
+            inc += 1
             continue
         cur.append((ln, t))
     raw.append(cur)
+    incs.append(inc)
     chunks = []
-    for pairs in raw:
+    for pairs, inc in zip(raw, incs):
         props, i = {}, 0
         while i < len(pairs):
             ln, t = pairs[i]
@@ -519,7 +561,7 @@ def md_chunks(text):
         notes += [(c.strip(), None) for c in comments if c.strip()]
         if not any(ln.strip() for ln, _ in body) and not any(ln.strip() for ln, _ in notes):
             continue
-        chunks.append({"body": body, "notes": notes, "props": props})
+        chunks.append({"body": body, "notes": notes, "props": props, "builds": inc})
     return chunks
 
 
@@ -661,7 +703,7 @@ def md_slide(chunk):
                  for ln in raw_body)
     visible = " ".join([title] + bullets + text)
     slide = make_slide(title, bullets, notes, visible, images, tables,
-                       segments=[title] + raw_body + text + [notes])
+                       segments=[title] + raw_body + text + [notes], builds=chunk.get("builds", 0))
     if mermaid:
         slide["mermaid"] = mermaid
     return slide
@@ -829,9 +871,14 @@ def main(argv=None):
         print("%3d  %-36.36s %-9s %.2f" % (i, s["title"] or "(untitled)", arch or "-", conf),
               file=sys.stderr)
     keys = ["index", "title", "title_guessed", "bullets", "notes", "text", "has_image", "image_count",
-            "tables", "connectors", "mermaid", "suggested_archetype", "confidence", "reason"]
+            "tables", "connectors", "mermaid", "builds", "suggested_archetype", "confidence", "reason"]
     slides = [{k: s[k] for k in keys if k in s} for s in slides]
-    out = {"source": os.path.basename(args.source), "stage": stage, "aspect": aspect, "slides": slides}
+    builds = sum(s.get("builds", 0) for s in slides)
+    print("builds: %d click build%s in the source deck%s" % (
+        builds, "" if builds == 1 else "s", " (recommend control step)" if builds else ""),
+        file=sys.stderr)
+    out = {"source": os.path.basename(args.source), "stage": stage, "aspect": aspect,
+           "slides": slides, "builds": builds}
     data = json.dumps(out, indent=2, ensure_ascii=False)
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:

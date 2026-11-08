@@ -9,7 +9,9 @@ what can be read from the fragment) and writes:
 
   DIR/index.html          every fragment live in a filterable grid, light/dark retheme toggle;
                           a once fragment plays one pass when its card scrolls into view and then
-                          rests on its finished state; each card has a Replay button
+                          rests on its finished state; each card has a Replay button and, when
+                          the fragment carries data-anim-phases, a Step button that plays it
+                          mark by mark the way a step-mode host does
   DIR/<name>/index.html   one page per fragment: large live view, copy button, spec.yaml
   DIR/<name>/<name>.html  the fragment itself, plus thumb.png and spec.yaml when present
 
@@ -181,6 +183,8 @@ def load_pool(pool):
         e['cycle'] = _scalar(m.group(1)) if m else e.get('cycle')
         m = re.search(r'data-anim-control="(\w+)"', src)
         e['control'] = m.group(1) if m else 'once'
+        m = re.search(r'data-anim-phases="([\d.,\s]+)"', src)
+        e['phases'] = ','.join(x.strip() for x in m.group(1).split(',') if x.strip()) if m else ''
         e['archetype'] = e.get('archetype') or 'other'
         e['tags'] = [str(t) for t in (e.get('tags') or [])]
         spec = os.path.join(pool, n, 'spec.yaml')
@@ -275,7 +279,8 @@ header.top .wrap{display:flex;align-items:center;gap:12px;min-height:56px}
 .lead *{animation-delay:var(--lead,0s) !important}
 .card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
 .card h2{font-size:16px;margin:0;font-family:var(--code);font-weight:500;display:flex;align-items:center;gap:8px}
-.card h2 .btn{margin-left:auto;font-family:var(--sans,inherit);font-size:12px;padding:2px 9px}
+.card h2 .acts{margin-left:auto;display:flex;gap:6px}
+.card h2 .btn{font-family:var(--sans,inherit);font-size:12px;padding:2px 9px}
 .card h2 a{color:var(--text)}
 .meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
 .pill{border-radius:6px;padding:1px 7px;background:color-mix(in srgb,var(--anim-theme-accent) 16%,transparent);
@@ -329,9 +334,10 @@ JS = r"""
     if(t.id==='theme')setTheme(root.getAttribute('data-theme')==='light'?'dark':'light');
     if(t.id==='rest'){var on=t.getAttribute('aria-pressed')!=='true';t.setAttribute('aria-pressed',on);
       root.classList.toggle('resting',on);t.textContent=on?'Play animations':'Show resting frames';
-      document.querySelectorAll('.fit').forEach(function(f){gate(f,!on&&f._inview!==false)})}
-    if(t.dataset.replay){var f=document.getElementById(t.dataset.replay);gate(f,false);
+      document.querySelectorAll('.fit').forEach(function(f){unstep(f);gate(f,!on&&f._inview!==false)})}
+    if(t.dataset.replay){var f=document.getElementById(t.dataset.replay);unstep(f);gate(f,false);
       void f.offsetWidth;gate(f,!root.classList.contains('resting'))}
+    if(t.dataset.step)step(document.getElementById(t.dataset.step),t);
     if(t.dataset.copy){var src=document.getElementById(t.dataset.copy).value;
       var done=function(){toast('Fragment HTML copied')};
       if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(src).then(done,fallback)}else fallback();
@@ -342,6 +348,22 @@ JS = r"""
       filter()}
   });
   function gate(f,on){if(f)f.classList.toggle('visible',on)}
+  // Step: drive the card's CSS animations by its data-anim-phases marks, as a step-mode host does.
+  // The first click pauses everything at 0; each click plays to the next mark and pauses there;
+  // after the last mark the next click goes back to 0. Replay and the resting toggle leave step mode.
+  function anims(f){return f&&f.getAnimations?f.getAnimations({subtree:true}):[]}
+  function seek(f,s,play){anims(f).forEach(function(a){a.pause();a.currentTime=s*1000;if(play)a.play()})}
+  function unstep(f){if(!f)return;clearTimeout(f._stepT);f._step=null;
+    var b=document.querySelector('[data-step="'+f.id+'"]');if(b)b.textContent='Step'}
+  function step(f,b){if(!f)return;
+    var m=(f.dataset.phases||'').split(',').map(Number).filter(function(x){return x>0});if(!m.length)return;
+    clearTimeout(f._stepT);
+    if(f._step==null||f._step>=m.length){root.classList.remove('resting');
+      var r=document.getElementById('rest');if(r){r.setAttribute('aria-pressed','false');r.textContent='Show resting frames'}
+      gate(f,false);void f.offsetWidth;gate(f,true);f._played=true;seek(f,0,false);f._step=0}
+    else{var from=f._step?m[f._step-1]:0,to=m[f._step];f._step++;seek(f,from,true);
+      f._stepT=setTimeout(function(){seek(f,to,false)},(to-from)*1000)}
+    b.textContent='Step '+f._step+'/'+m.length}
   function toast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;
     el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('on')},1600)}
   // play only what is on screen: the fragments are gated on a .visible ancestor. A once fragment
@@ -440,12 +462,14 @@ def build_index(entries, title, repo_url):
             lead_cls, lead = ' lead', f';--lead:-{0.4 * cyc:.2f}s'
         else:
             lead_cls, lead = '', ''
+        step_btn = (f'<button class="btn" type="button" data-step="fit-{n}" aria-label="Step through {esc(n)} '
+                    f'phase by phase">Step</button>' if e['phases'] else '')
         cards.append(f"""<article class="card" data-archetype="{esc(e['archetype'])}" data-domain="{esc(e.get('domain') or '')}" data-text="{esc(text)}">
-  <a class="stage" href="{n}/index.html" aria-label="Open {esc(n)}"><div class="fit visible{lead_cls}" id="fit-{n}" data-ctl="{esc(e['control'])}" style="{fit_style(e)}{lead}">
+  <a class="stage" href="{n}/index.html" aria-label="Open {esc(n)}"><div class="fit visible{lead_cls}" id="fit-{n}" data-ctl="{esc(e['control'])}" data-phases="{esc(e['phases'])}" style="{fit_style(e)}{lead}">
 {e['src']}
   </div></a>
   <div class="body">
-    <h2><a href="{n}/index.html">{esc(n)}</a><button class="btn" type="button" data-replay="fit-{n}" aria-label="Replay {esc(n)}">Replay</button></h2>
+    <h2><a href="{n}/index.html">{esc(n)}</a><span class="acts">{step_btn}<button class="btn" type="button" data-replay="fit-{n}" aria-label="Replay {esc(n)}">Replay</button></span></h2>
     <div class="meta">{meta_pills(e)}</div>
     <p class="story">{esc(e.get('story') or '')}</p>
     <div class="tags">{tags}</div>
@@ -513,12 +537,13 @@ def build_detail(e, title, repo_url):
 <nav class="crumbs"><a href="../index.html">All fragments</a> / {esc(n)}</nav>
 <h1>{esc(n)}</h1>
 <p class="story">{esc(e.get('story') or '')}</p>
-<div class="bigstage"><div class="fit visible" id="live" data-ctl="{esc(e['control'])}" style="{fit_style(e, '72vh')}">
+<div class="bigstage"><div class="fit visible" id="live" data-ctl="{esc(e['control'])}" data-phases="{esc(e['phases'])}" style="{fit_style(e, '72vh')}">
 {e['src']}
 </div></div>
 <div class="actions">
   <button class="btn primary" type="button" data-copy="frag-src">Copy fragment HTML</button>
   <button class="btn" type="button" data-replay="live">Replay</button>
+  {'<button class="btn" type="button" data-step="live">Step</button>' if e['phases'] else ''}
   <a class="btn" href="{n}.html" download>Download {esc(n)}.html</a>
 </div>
 <textarea class="sr" id="frag-src" aria-hidden="true" tabindex="-1">{esc(e['src'])}</textarea>

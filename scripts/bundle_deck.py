@@ -12,7 +12,7 @@ Keep the working deck lean (linked files, readable diffs) and bundle only at the
   - url() in <style> blocks and style="" attributes, fonts in @font-face included
 Relative paths resolve against the deck's folder (inside inlined CSS: against that CSS file).
 Remote URLs (http(s)://, //host) are left alone and listed unless --fetch is given, which
-downloads and inlines them (pinned CDN libraries such as reveal.js or GSAP). Assets over
+downloads and inlines them (pinned CDN libraries such as reveal.js). Assets over
 --max-asset-mb are skipped with a warning. HTML comments (the anim: / anim-style: markers) and
 inline script bodies are never touched. Prints a summary (inlined, missing local files, md_to_deck.py image placeholders, external
 references left); then run check_page.py on the output.

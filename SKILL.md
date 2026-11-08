@@ -1,19 +1,19 @@
 ---
 name: anim-slides
-description: Turn boring slides into animation-rich HTML. Builds self-contained animated SVG illustrations (CSS keyframes, optional GSAP step-through) that replace text blocks and screenshots in any HTML slide deck, and creates them directly from documentation of processes, dependencies, timelines or architectures. Use when the user wants to animate a PPT/PPTX or HTML deck, "make this slide less boring", draw a process/pipeline/dependency graph/timeline/comparison as an animation, or turn a Mermaid diagram or a written procedure into an animated illustration. Not for generating a whole deck from scratch (use a slides skill first) and not for video.
+description: Turn boring slides into animation-rich HTML. Builds self-contained animated SVG illustrations (CSS keyframes, optional click-driven step mode) that replace text blocks and screenshots in any HTML slide deck, and creates them directly from documentation of processes, dependencies, timelines or architectures. Use when the user wants to animate a PPT/PPTX or HTML deck, "make this slide less boring", draw a process/pipeline/dependency graph/timeline/comparison as an animation, or turn a Mermaid diagram or a written procedure into an animated illustration. Not for generating a whole deck from scratch (use a slides skill first) and not for video.
 license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.8.0"
+  version: "0.9.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 
 # anim-slides
 
 Animated SVG illustrations for slide decks, from existing slides or from documentation.
-Output is always a **fragment**: one HTML file with a `<style>` and one `<svg>`, no scripts
-(unless step mode), no external files, themed by CSS variables, that drops into any deck.
+Output is always a **fragment**: one HTML file with a `<style>` and one `<svg>`, no scripts,
+no external files, themed by CSS variables, that drops into any deck.
 `references/fragment-contract.md` is the contract. Read it before building anything.
 
 ## When to use
@@ -46,6 +46,15 @@ Decide which of the three entry points applies:
   first fragment both ways (`render-phases.sh --theme anim/host-theme.css ...`) and show the
   two stills before building the rest, unless the user already named a look. Only colours and
   fonts change between the two: the shape rules of `references/style.md` hold in both.
+  In the same message settle the **control** once for the whole deck, with a recommended
+  default: **once** ("each slide's figure plays one calm pass when the slide appears and
+  rests") or **step** ("the entrance draws on, then each click lands the next phase; clicks
+  that would go past the last phase go to the next slide"). Recommend `step` when
+  `outline.json` reports `builds` above 0 (the source already builds by click: reveal.js
+  fragments, PowerPoint click animations, impress.js substeps, the deck's own build steps),
+  otherwise `once`. The phases of a step fragment are the brief's narrated phases (3 to 5 per
+  slide); step costs nothing extra in the fragment, and the click rides on the deck's own
+  navigation. Write Look and Control in the header of `anim/triage.md`.
 - **Markdown or remark deck with no HTML yet**: `python3 <skill-dir>/scripts/md_to_deck.py deck.md -o deck.html`
   makes a self-contained HTML deck (one `<section>` per slide, `.visible` gating, print layout,
   `<!-- sN-body -->` markers round each slide's body); fetch the images the Markdown references
@@ -59,10 +68,11 @@ state the assumption in the brief and continue.
 
 ### 1. Spec
 Write `anim/<name>/spec.yaml` following `references/spec-format.md`: name, archetype, nodes,
-edges, groups, phases with second marks, cycle (the pass length), control (`once` default: one
-calm pass of 4 to 10 s when the slide becomes current, ending on the resting frame; `loop`
-only when the user asks for a continuous loop; `step` only when the presenter must drive the
-phases, the story has more, and the host can load GSAP). Reuse the
+edges, groups, phases with second marks, cycle (the pass length), control (the deck's choice
+from intake: `once`, one calm pass of 4 to 10 s when the slide becomes current, ending on the
+resting frame; `step`, the same pass cut at the phase marks so each click lands the next
+phase; `loop` only when the user asks for a continuous loop). The fragment file is the same
+under `once` and `step`; the phase marks become `data-anim-phases`. Reuse the
 source's own words as labels. Keep a spec under about 12 nodes; split otherwise.
 
 ### 1b. Check the pool
@@ -114,11 +124,14 @@ has them; integration always stays in the main thread.
 Never trust `--virtual-time-budget`, and never trust reading the source instead of the PNG.
 
 ### 5. Integrate
-`python3 <skill-dir>/scripts/integrate_fragment.py deck.html anim/<name>/<name>.html --name <name> --anchor '<unique string in the slide>' [--replace-until '<string>'] [--gate 'section.present'] --backup`
+`python3 <skill-dir>/scripts/integrate_fragment.py deck.html anim/<name>/<name>.html --name <name> --anchor '<unique string in the slide>' [--replace-until '<string>'] [--gate 'section.present'] [--control once|step] --backup`
 hoists the style into the head, inserts the fragment between `<!-- anim:<name>:start -->` and `<!-- anim:<name>:end -->`
 markers (the style between `anim-style` markers; re-running replaces both copies), rewrites the gate for the host deck, and prefixes any
-class that slipped through. For plain pages copy `<skill-dir>/scripts/snippets/observer.html` into the page; for
-step mode copy `scripts/snippets/step-host.html` into the head after a single GSAP script tag.
+class that slipped through. For plain pages copy `<skill-dir>/scripts/snippets/observer.html` into the page.
+`--control` sets the deck's control on the wrapper; `--control step` also puts
+`scripts/snippets/step-host.html` (a small plain script, no library) into the head once and
+sets its gate from `--gate`. The control is a deck-wide switch at integration: re-run with
+the other value to change it, the fragments stay as they are.
 The anchor and the until-string are kept; what lies between them is replaced. The gate is the
 host's "current slide" marker: `section.present` for reveal.js, `.visible` for plain pages
 (`scripts/snippets/observer.html`) and for decks from `md_to_deck.py`. In `md_to_deck.py` decks
@@ -139,7 +152,7 @@ the CLI `--print-to-pdf` on `?print-pdf` is unreliable).
 ### 5b. Hand-over
 Ask the user whether the deck will be shared or presented from another machine. If yes, bundle
 it last: `python3 <skill-dir>/scripts/bundle_deck.py deck.html -o deck.bundled.html --fetch` inlines
-every local stylesheet, script, font and image as data: URIs (GSAP for `step` mode included) so
+every local stylesheet, script, font and image as data: URIs so
 one file opens offline; then `python3 <skill-dir>/scripts/check_page.py deck.bundled.html --gate section.present`
 confirms no external loads, paired markers, gated fragments and the print guard per fragment
 (it detects the host's gate, `section.present` or `.visible`; `--gate` overrides). Do not read the bundled file; verify it with the checker and
@@ -172,8 +185,8 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
   left in place, is not an illustration; if nothing else is possible, the brief says why.
 - Animate only under the gate (`.visible` when authoring). The ungated state is the finished
   state.
-- No `<script>`, `<link>`, `<image>`, `@import`, `@font-face` inside a fragment (step mode adds
-  exactly one module script).
+- No `<script>`, `<link>`, `<image>`, `@import`, `@font-face` inside a fragment, in any
+  control. Step mode lives in the host snippet, not in the fragment.
 - Text at or above 18 px at rendered size, titles 22 px and up.
 - Never add CDN or network loads. Work on a lean deck; bundle to one self-contained file only
   at hand-over when the user wants to share (`bundle_deck.py`, then `check_page.py`).
@@ -184,9 +197,13 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
   stays rows) plus one movement; no invented chart forms, no extra brackets, arrows or
   storylines, one glowing element at most and never a glowing line. When in doubt, leave it
   out (`references/style.md`, principle 0).
+- One control per deck. Ask once at intake, `once` or `step`, with a recommended default
+  (`step` when the source builds by click, else `once`), so the presenter always knows what a
+  click does. A slide that differs needs a reason in `anim/triage.md`.
 - Plays once. One pass of 4 to 10 s when the slide becomes current, iteration count 1 with
   fill forwards, the 100 % keyframe equal to the resting frame, nothing looping or pulsing
-  while the slide is up. At most three things moving at once, `linear` only for continuous
+  while the slide is up (under `step` the same pass plays in click segments). At most three
+  things moving at once, `linear` only for continuous
   loops, exits about 65 % of entrance length, reduced-motion block present.
 
 ## Files
@@ -198,7 +215,7 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `references/layouts.md` — measuring a slot; generic 16:9 layouts and viewBoxes
 - `references/motion-rules.md` — timing, easing, choreography, audit checklist
 - `references/lessons.md` — gotchas collected while building fragments
-- `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions
+- `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions and click `builds` per slide
 - `scripts/render_deck.py` — source deck to contact sheets (12 slides each) plus full-size pages for candidates
 - `scripts/host_theme.py` — host glue: `--anim-theme-*` block derived from the deck's CSS (match) or the lean palette (lean)
 - `scripts/md_to_deck.py` — Markdown or remark deck to a self-contained HTML deck to integrate into
@@ -209,14 +226,13 @@ Run the checklist at the end of `references/motion-rules.md` before shipping.
 - `references/accuracy.md` — accuracy rules: numbers from the source, labels in its words, figures redrawn at scale
 - `scripts/render-phases.sh` — phase PNGs and contact sheet with headless Chrome
 - `scripts/measure_slot.py` — free box of a slide in stage pixels, with viewBox and checker flags
-- `scripts/check_page.py` — page-level checks: no external loads, paired markers, gated fragments, print guard
+- `scripts/check_page.py` — page-level checks: no external loads, paired markers, gated fragments, print guard, step snippet present when a step wrapper is
 - `scripts/bundle_deck.py` — inline local (and with `--fetch`, remote) assets into one self-contained file
-- `scripts/integrate_fragment.py` — idempotent inlining into a deck, gate rewrite, prefix safety net
-- `scripts/snippets/observer.html`, `scripts/snippets/step-host.html` — host-side helpers
+- `scripts/integrate_fragment.py` — idempotent inlining into a deck, gate rewrite, prefix safety net, `--control once|step`
+- `scripts/snippets/observer.html`, `scripts/snippets/step-host.html` — host-side helpers (scroll gate; step mode, plain script, no library)
 - `pool/` — finished, checked fragments, at least one per archetype, with thumbnails and specs; `pool/index.yaml` lists them (step 1b)
 
 ## Related skills (use them when your harness has them; none is required)
 - A motion-design skill for deeper timing and easing guidance.
-- GSAP timeline and plugin skills when building a step-mode fragment.
 - A slides skill (frontend-slides, reveal.js, Slidev or similar) to produce the deck itself; a
   pptx skill to read PowerPoint sources beyond what `scripts/extract_slides.py` extracts.

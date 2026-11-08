@@ -13,8 +13,8 @@ name: deploy-pipeline          # kebab-case 2-24 chars, becomes the fragment nam
 archetype: pipeline            # pipeline | graph | timeline | states | compare | layers | chart
 title: "Build to production"   # optional, drawn as a title row if present
 size: [1680, 440]              # viewBox W H; optional, archetype default if absent
-control: once                  # once (default) | loop | step
-cycle: 8                       # pass length in seconds: once 4-10, loop 8-15; ignored in step
+control: once                  # once (default) | step | loop
+cycle: 8                       # pass length in seconds: once and step 4-10, loop 8-15
 nodes:
   - id: build                  # kebab-case, unique; rendered id <name>-n-build
     label: Build
@@ -33,8 +33,8 @@ groups:
   - id: ci
     label: CI
 phases:
-  - t: 0                       # seconds into the pass (once, loop) or ordinal (step)
-    label: trigger             # kebab-case, becomes a GSAP label in step mode
+  - t: 0                       # seconds into the pass; every later phase's t is a data-anim-phases mark
+    label: trigger             # kebab-case, a comment next to the keyframe stop
     show: [build]              # node/edge/group ids that enter during this phase
     active: [build]            # ids highlighted during this phase
     flow: ["build>test"]       # edges that carry a moving packet, written from>to
@@ -56,8 +56,8 @@ events:                        # chart archetype only
 | `archetype` | yes | - | One of the seven in [archetypes.md](archetypes.md). Picks layout and motion recipe. |
 | `title` | no | none | One line, max ~48 chars. Drawn as a title row at the top of the viewBox. Omit when the slide already has a title (usual case). |
 | `size` | no | per archetype (below) | `[W, H]`, positive integers, viewBox units. Match the slot's aspect ratio ([layouts.md](layouts.md)). |
-| `control` | no | `once` | `once` = CSS keyframes that play one pass when the slide becomes current and hold the finished state; `loop` = the same keyframes repeated forever, only when the user asks for a continuous loop (kiosk, gallery, hero); `step` = paused GSAP timeline, one label per phase. |
-| `cycle` | no | `8` (once), `12` (loop) | The **pass length** in seconds: 4 to 10 for `once`, 8 to 15 for `loop` (contract section 6). Becomes `data-anim-cycle`. Ignored in `step`. |
+| `control` | no | `once` | `once` = CSS keyframes that play one pass when the slide becomes current and hold the finished state; `step` = the same file with `data-anim-control="step"`: the presenter drives it, the host script plays the pass segment by segment between the `data-anim-phases` marks (below), no script in the fragment; `loop` = the same keyframes repeated forever, only when the user asks for a continuous loop (kiosk, gallery, hero). |
+| `cycle` | no | `8` (once, step), `12` (loop) | The **pass length** in seconds: 4 to 10 for `once` and `step`, 8 to 15 for `loop` (contract section 6). Becomes `data-anim-cycle`. |
 | `domain` | no | none | Metadata only (e.g. `biology`, `finance`), used by `pool/index.yaml`; no effect on layout. |
 | `illustrative` | no | `false` | `true` draws the standard outlined "illustrative" tag at the top right; use it whenever the values are examples. |
 | `lanes` | no | `false` | Graph only. `true` draws `groups` as full-width horizontal swimlanes (lane name in a left column) with nodes placed by rank inside their lane; ungrouped nodes go in an unlabelled last lane. Ignored with a warning when there are no groups. |
@@ -133,8 +133,8 @@ Phases are the story. Each phase is a moment at which things enter, light up or 
 
 | Field | Req | Default | Meaning / rules |
 |---|---|---|---|
-| `t` | yes | - | `once`: seconds, `0 <= t <= cycle - 0.8`; `loop`: seconds, `0 <= t <= cycle - 1`. Both: strictly increasing, first phase `t: 0`, gaps >= 0.8 s (`once`: >= 0.5 s, warning under 1 s). `step`: ordinals 0, 1, 2 ... in order; a timed spec run with `--control step` keeps its phases in list order (seconds become ordinals) and a `hold` phase becomes one extra key press. `--control once` / `--control loop` on a spec written for another control re-times the phases into the new pass, keeping their proportions. |
-| `label` | yes | - | Kebab-case, unique among phases. Becomes `tl.addLabel(label)` in step mode and a comment next to the keyframe stop in once and loop mode. |
+| `t` | yes | - | Seconds. `once`, `step`: `0 <= t <= cycle - 0.8`; `loop`: `0 <= t <= cycle - 1`. All: strictly increasing, first phase `t: 0`, gaps >= 0.8 s (`once`, `step`: >= 0.5 s, warning under 1 s). `--control step` on a once spec (or `once` on a step spec) changes only the wrapper attribute; `--control loop` on a once or step spec, or `once`/`step` on a loop spec, re-times the phases into the new pass, keeping their proportions. |
+| `label` | yes | - | Kebab-case, unique among phases. Becomes a comment next to the keyframe stop. |
 | `show` | no | `[]` | Ids (node, group, edge as `from>to`, series, event) that enter at `t`. Each id enters at most once across all phases. |
 | `active` | no | `[]` | Ids highlighted from this phase until the next phase. Must be visible at this phase. Keep to 1-3 (contract: about a third of elements active at most). |
 | `flow` | no | `[]` | Edge ids `from>to` that carry a packet starting at `t`. Edge must exist and both endpoints be visible. Max 3 per phase (contract: three things moving at once). |
@@ -160,8 +160,26 @@ Timing semantics:
   ~0.4 s of the cycle is the reset to the empty state before the next round.
 - The state at the start of the hold is the resting frame (contract section 5), and under
   `once` also the 100 % keyframe of every track.
-- `step`: phase *i* is the state after the presenter's *i*-th key press; phase 0 is shown on
-  arrival. No hold is needed, but the last phase must still be the full final state.
+- `step`: exactly the `once` pass. The host plays segment 1 (phase 0) when the slide becomes
+  current and pauses on the first mark; each key press plays the next phase and pauses on its
+  mark; the hold's start, the last mark, is the finished figure. So the same hold rule applies,
+  and every phase's motion must finish before the next phase's `t` (a mark is a still frame).
+
+## Phase marks (`data-anim-phases`)
+
+The scaffold always writes `data-anim-phases="m1,m2,..."` on the wrapper, for `once`, `step` and
+`loop`: the `t` of every phase after the first, in order, rounded to one decimal, so the hold's
+start is the last mark. Without a hold phase the end of the motion (the pass length; `loop`: the
+start of the reset) closes the list, and a single phase gives just that end. Marks are strictly
+ascending, each > 0 and <= `cycle`. Segment *k* runs from mark *k-1* (0 for the first) to mark
+*k*, and is one phase. Under `once` and `loop` the attribute is ignored, so any fragment that
+carries it can be switched to `step` at integration time (`integrate_fragment.py --control step`)
+without touching the file. After refining keyframes by hand, move a mark that no longer sits
+between two phases' motion (nothing may be mid-motion at a mark; render each mark with
+`render-phases.sh` and look).
+
+Example: phases at `0, 1.5, 3, 4.5, 6` and a hold at `6.8`, cycle 8 ->
+`data-anim-cycle="8" data-anim-phases="1.5,3,4.5,6,6.8"`.
 
 ## Series and events (chart only)
 
@@ -183,9 +201,9 @@ time and each event tag appears as the trace reaches it.
 The scaffold refuses a spec when any of these fail; fix the spec, not the fragment.
 
 1. `name`, every id and every phase label are kebab-case and within length.
-2. `archetype` and `control` are known values (`once`, `loop`, `step`); `cycle` is 4-10 for
+2. `archetype` and `control` are known values (`once`, `step`, `loop`); `cycle` is 4-10 for
    `once` (the default, so a spec without `control` and with `cycle: 12` is refused with a hint)
-   and 8-15 for `loop`.
+   and `step`, and 8-15 for `loop`.
 3. All ids are unique across nodes, groups, series and events.
 4. Every `group`, `from`, `to` and every id in `show` / `active` / `flow` resolves.
 5. Archetype-specific node fields are present where required and absent elsewhere
@@ -216,8 +234,8 @@ Where the schema leaves a drawing decision open, `scripts/scaffold_from_spec.py`
   not fade in under `once`; a chart's head dot appears at the end instead of riding the line.
 - **glow**: only one ring glows, the outcome (the first node active in the last phase, else the
   last highlighted node); wires, brackets, rules and chart series get a plain accent copy.
-- **step mode**: phases are placed 1.2 s apart on the GSAP timeline, each phase's tweens run in
-  the 1.2 s before its label, and `data-anim-cycle` holds the timeline length.
+- **step mode**: the once output, byte for byte, except `data-anim-control="step"` and the motion
+  comment; the phase marks come from the phase starts (above). No GSAP, no script.
 - **`active` on series or events** is ignored; highlight them by order of entry instead.
 - **fonts**: with `--rendered-width` the base sizes are raised until every text meets
   `--min-text` at that width; the scaffold warns when a label may then overflow its box.
@@ -238,7 +256,7 @@ Most sources describe structure, not timing. Default rule:
 Example: 5 nodes, cycle 8 -> step 1.5 -> phases at 0, 1.5, 3, 4.5, 6, hold at 6.8, pass ends at 8.
 (`loop`, cycle 12 -> step 2.0 -> phases at 0, 2, 4, 6, 8, hold at 10.)
 
-For `step` control use the same order with `t: 0, 1, 2 ...` and no hold.
+`step` control uses the same timing as `once` (hold included).
 
 ## Keeping a spec small
 

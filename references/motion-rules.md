@@ -9,8 +9,9 @@ Personality: calm and precise. No overshoot, no bounce, no elastic. The viewer i
 speaker; motion points at things, it does not perform. **It plays once:** when the slide becomes
 current the story runs one pass and then rests on its finished state (control `once`, the
 default). Repeating the same animation on one slide is noise, so nothing pulses, marches or
-restarts while the slide is up. A continuous `loop` is only for a kiosk, a gallery or a hero
-when the user asks for one.
+restarts while the slide is up. Under `step` (the deck's choice at intake) it is the same pass,
+played in segments: the entrance draws on with the slide and each click lands the next phase.
+A continuous `loop` is only for a kiosk, a gallery or a hero when the user asks for one.
 
 ## Durations
 
@@ -35,9 +36,25 @@ One pass of 4 to 10 s (`data-anim-cycle`), shaped as one staggered reveal:
 | hold | last 0.8-1.5 s | nothing moves; the finished state (= 100 % keyframe = resting frame) is shown and stays, with the last caption |
 
 Phases keep their second marks from the spec; keyframe percentage = seconds / pass * 100.
+The start seconds of every phase after the first go on the wrapper as `data-anim-phases`.
 At most three things move at any moment, and no element moves twice unless the story needs it:
 a packet that travels one path once is fine, a pulse that repeats is not. A highlight that moves
 from step to step is one focus changing place, not repetition.
+
+## A step pass
+
+`step` uses the `once` pass unchanged; the host stops it at the `data-anim-phases` marks
+(contract section 7), so the fragment needs nothing extra. What makes segments work:
+
+- **A phase is a narrated step:** one mark per thing the presenter says next, 3 to 5 per slide,
+  the same phases as the brief and the spec. Do not add marks for motion that is not narrated.
+- **Marks sit at settled moments:** at a mark nothing is mid-move, mid-fade or mid-hop, so the
+  frame the presenter stops on reads as a still. End each phase's motion 0.1 to 0.2 s before
+  the next mark.
+- **Segment 1 is the entrance:** it plays when the slide appears, so it carries the static frame
+  rising in plus the first phase; the presenter talks over it, then clicks.
+- **The last mark is the hold start:** after it nothing moves, so the frame there equals the
+  resting frame and a click past it goes to the next slide.
 
 ## Easing
 
@@ -115,8 +132,11 @@ every 20 ms:
   tells the story without motion.
 - A once pass needs no pause key: it ends on its own and rests. A presenter who goes back to the
   slide sees it once more (the gate is removed and re-added).
-- `loop` longer than 5 s: the host deck should offer a pause key; if it cannot, use `once` or
-  `step` (contract section 7).
+- A step pass waits at each mark for the presenter's click; going back to the slide keeps the
+  phase reached. Under reduced motion the host shows the resting frame and every key goes to
+  the deck.
+- `loop` longer than 5 s: the host deck should offer a pause key; if it cannot, use `once`
+  (contract section 7).
 - Ambient motion (glows, slow drifts) stays under 20 % of the visual energy of the primary story.
 
 ## Audit checklist
@@ -144,4 +164,7 @@ Run before shipping each fragment. Every "no" is a fix.
     rendered phase?
 14. Concurrency: at most three things (or one staggered series) moving at any instant, never
     more than 8? At most one glow visible at a time, and no glowing arrow, wire, line or series?
-15. `loop` only: if longer than 5 s, does the host offer a pause key (or is `once`/`step` used)?
+15. `step` only: does the wrapper carry `data-anim-phases` with one mark per narrated phase
+    (3 to 5), each at a settled moment, the last at the hold start, and is the step-host
+    snippet in the deck head? `loop` only: if longer than 5 s, does the host offer a pause key
+    (or is `once` used)?
