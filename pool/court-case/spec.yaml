@@ -6,6 +6,7 @@
 # colour changes at each hand-off, and owner brackets with hand-off chevrons sit under the axis.
 name: court-case
 archetype: timeline
+verb: reveal
 domain: civics-law
 size: [1680, 600]
 control: once

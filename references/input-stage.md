@@ -7,7 +7,7 @@ illustration with a spec and a brief, ready for parallel building.
 ```
 source (pptx / html / md / mermaid)
   -> outline.json            scripts/extract_slides.py (pptx / html / md)
-  -> triage                  which slides get an illustration; picture idea and form
+  -> triage                  which slides get an illustration; picture idea, form, verb
   -> spec.yaml per pick      references/spec-format.md
   -> brief.md per pick       references/brief-template.md
   -> <name>.html per pick    one builder each (subagent or sequential)
@@ -102,7 +102,11 @@ deck's load, not one anim-slides adds; `bundle_deck.py --fetch` inlines it at ha
       "builds": 4,
       "suggested_archetype": "pipeline",
       "confidence": 0.6,
-      "reason": "cues: arrows, numbered steps"
+      "reason": "cues: arrows, numbered steps",
+      "idea_cues": [],
+      "order_only": true,
+      "suggested_verb": "reveal",
+      "verb_cues": []
     }
   ],
   "builds": 4
@@ -130,8 +134,10 @@ deck's load, not one anim-slides adds; `bundle_deck.py --fetch` inlines it at ha
 | `reason` | Short human-readable signal that produced the suggestion. |
 | `idea_cues` | Evidence for the picture idea: each `{cue, evidence}` names a shape the source states (falling/rising-quantities, returns, trade-off, contains, split-merge, handover, before-after, share-of-whole) with the matched words. Verify them in the source. |
 | `order_only` | Pipeline suggestions only. `true`: nothing beyond order was found, so a row is right. `false`: the numbering may be only the layout; write the picture idea before choosing a row. |
+| `suggested_verb` | One of the twenty verbs in [motion-verbs.md](motion-verbs.md), or `reveal`. An order-only slide gets `reveal`, never `travel`. A heuristic from the claim words, like `suggested_archetype`. |
+| `verb_cues` | Evidence for the verb, in the shape of `idea_cues`: a list of `{cue, evidence}` (the verb a cue points to and the matched claim words), the first entry being the suggested verb. An empty list means the verb is only the family's default. `suggested_verb` is null on a slide with no archetype and no cue. Verify them in the source. |
 
-The suggestion is a starting point. The model decides, using the rules below.
+The suggestions are evidence to weigh, not a decision. The model decides, using the rules below.
 
 ## 3. Triage
 
@@ -149,6 +155,11 @@ Illustrate when the content is:
 For each illustrate row whose content is prose, bullets, cards or a table, write the picture
 idea and read the form off [archetypes.md](archetypes.md) "Picture idea and form" before naming
 the archetype. A slide with its own figure keeps that figure's form.
+
+The `Verb` column holds the main motion. Write the slide's claim as one sentence with a real
+verb in it and pick the verb from [motion-verbs.md](motion-verbs.md) section 1; on a slide with
+its own figure the verb says how that figure moves. `travel` is written only with the
+traveller's name in the row ("travel: the bill"); an order-only row is `reveal`.
 
 Keep as text:
 - quotes, testimonials, a single statement or key message
@@ -183,16 +194,19 @@ Control: once (source builds by click: outline.json builds = 14; step mentioned,
 - Slide 9: steps assumed sequential (bullets are numbered).
 ```
 
-| Slide | Title | Decision | Idea | Form | Archetype | Replaces | Why |
-|---|---|---|---|---|---|---|---|
-| 3 | Release process | illustrate | order only | row | pipeline | the four step cards | 4 ordered steps, speaker stresses QA gate |
-| 5 | From bill to law | illustrate | the bill crosses from one chamber to the other and back | boundary line crossed | timeline | the bullet column | the slide names both chambers and the return for amendment |
-| 7 | Our values | text | - | - | - | - | single statement |
+| Slide | Title | Decision | Idea | Form | Verb | Archetype | Replaces | Why |
+|---|---|---|---|---|---|---|---|---|
+| 3 | Release process | illustrate | order only | row | reveal | pipeline | the four step cards | 4 ordered steps, speaker stresses QA gate |
+| 5 | From bill to law | illustrate | the bill crosses from one chamber to the other and back | boundary line crossed | travel: the bill | timeline | the bullet column | the slide names both chambers and the return for amendment |
+| 7 | Our values | text | - | - | - | - | - | - | single statement |
 
-**Forms across the deck.** After the table is drafted, read down the Form column. When the
-same form appears on consecutive animated slides or on more than about a third of them,
-re-read those slides for what else they say, and record the outcome in Decisions: a changed
-form, or the repeat kept with its reason ("slides 4, 9, 12: each source states order only").
+**Forms and verbs across the deck.** After the table is drafted, read down the Form column.
+When the same form appears on consecutive animated slides or on more than about a third of
+them, re-read those slides for what else they say, and record the outcome in Decisions: a
+changed form, or the repeat kept with its reason ("slides 4, 9, 12: each source states order
+only"). Then read down the Verb column: when one main verb covers more than a third of the
+deck's fragments (and at least three), each repeat needs a reason from the source in its row;
+re-read the `reveal` and `travel` repeats first ([motion-verbs.md](motion-verbs.md) section 7).
 A repeat is fine when the content truly has the same shape; this is not variety for its own sake.
 
 A **text** row needs a reason from the "keep as text" list above; a row without one is a
@@ -271,9 +285,11 @@ slide) is used only when the user asks for click-through.
 
 For each chosen slide:
 
-1. **Picture idea, form, archetype**, in that order, with [archetypes.md](archetypes.md)
-   "Picture idea and form" (the triage row's `Idea` and `Form`). Override the extractor's
-   suggestion when the content says otherwise.
+1. **Picture idea, form, verb, archetype**, in that order, with [archetypes.md](archetypes.md)
+   "Picture idea and form" and [motion-verbs.md](motion-verbs.md) section 1 (the triage row's
+   `Idea`, `Form` and `Verb`). The spec's `verb:` field takes the row's verb; `verb: travel`
+   also needs `traveller:` with the `name` the source gives. Override the extractor's
+   suggestions when the content says otherwise.
 2. **Extract nodes** from the source's items, in the source's order where the form has one; the
    form adds no node. Reuse the slide's own words as labels; shorten to
    <= 24 chars by dropping articles and verbs of saying, never by inventing new terms. Move
@@ -288,8 +304,9 @@ For each chosen slide:
    ([layouts.md](layouts.md)). The slide's bullets usually move to a caption or speaker notes;
    the fragment replaces the bullet block or the image.
 7. **Write the brief** from [brief-template.md](brief-template.md): composition from the
-   archetype recipe, phases table copied from the spec, verification seconds = each phase `t`
-   plus `rest`.
+   archetype recipe, the verb with its claim sentence and its mechanism from
+   [motion-verbs.md](motion-verbs.md) section 5, phases table copied from the spec,
+   verification seconds = each phase `t` plus `rest`.
 
 Nothing here is a question to the user after the intake message. Where the source leaves the
 drawing open, take the reading the slide supports best, state it in the brief ("Assumed steps
@@ -329,10 +346,13 @@ anim/
 - Then build the illustrations. With a harness that runs parallel subagents, launch **one
   subagent per illustration, all in one message**; otherwise build them one after another from
   the same briefs. Each builder is given: its folder,
-  `BRIEF.md`, the contract, and the instruction to run `scaffold_from_spec.py` (plain archetype
-  forms only; a funnel, ring, scene, triangle, donut, bar chart, timeline with event text or any
-  other form the scaffolder does not emit is hand-built from the spec, with the scaffold as
-  timing skeleton at most), refine,
+  `BRIEF.md`, the contract, the brief's verb and mechanism, and the instruction to run
+  `scaffold_from_spec.py` (plain archetype forms only; a funnel, ring, scene, triangle, donut,
+  bar chart, timeline with event text or any other form the scaffolder does not emit is
+  hand-built from the spec, with the scaffold as timing skeleton at most). The scaffolder draws
+  a moving traveller only for `travel` (a token trip for `cycle`); for any other verb it emits
+  the static frame and timing skeleton, and the builder builds the verb's motion by hand from
+  its mechanism. A travelling marker is used only for `travel`. Then refine,
   run `check_fragment.py --stage-width <host stage>`, `render-phases.sh` and
   `verify_facts.py --spec`, look at every PNG, and report path, viewBox,
   cycle, phase seconds and anything unverified.

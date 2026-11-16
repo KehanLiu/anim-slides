@@ -6,6 +6,8 @@
 # are the log lines, so the fragment has no caption strip.
 name: job-states
 archetype: states
+verb: travel
+traveller: { name: the job }
 size: [1200, 600]
 control: once
 cycle: 9.8

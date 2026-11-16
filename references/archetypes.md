@@ -1,9 +1,12 @@
 # Archetypes
 
-The seven archetypes below are build families: recipes for composition and motion, not the
-menu of pictures. The picture comes first: write the slide's picture idea, read its form off
-the table in "Picture idea and form", write the spec ([spec-format.md](spec-format.md)), then
-build with the family the table names. Timing and easing values are in
+The seven archetypes below are build families: recipes for composition and timing, not the
+menu of pictures and not the motion. The picture comes first: write the slide's picture idea,
+read its form and verb off the table in "Picture idea and form", write the spec
+([spec-format.md](spec-format.md)), then build with the family the table names. The family
+gives the frame, the spacing and the phase timing; the motion comes from the verb and its
+mechanism ([motion-verbs.md](motion-verbs.md)). A packet, token or head dot belongs to
+`travel` (and to `cycle` or `trace` where the recipe says so), not to the family. Timing and easing values are in
 [motion-rules.md](motion-rules.md); hard limits in [fragment-contract.md](fragment-contract.md)
 section 6. Each **Pass** is for the default `once`
 control: the motion story plays one time when the slide becomes current and its hold is the
@@ -18,34 +21,37 @@ For each slide whose content is prose, bullets, cards or a text table, write one
 choosing anything: what does this slide say beyond the order of its items? What changes,
 shrinks, grows, returns, competes, contains, splits or crosses a boundary? That sentence is the
 **picture idea** (triage column `Idea`, brief field `Picture idea:`); the **form** follows from
-it. Read the section's claim, not its formatting: a numbered list is a cue about the layout of
-the text, not the shape of the idea. A slide that already has a figure, chart or
+it, and the **verb** (triage column `Verb`) from the claim sentence
+([motion-verbs.md](motion-verbs.md) section 1). Read the section's claim, not its formatting: a
+numbered list is a cue about the layout of the text, not the shape of the idea. A slide that already has a figure, chart or
 meaning-carrying illustration keeps that figure's form (stairs stay stairs, bars stay bars, a table of values stays rows);
 this step does not apply to it.
 
-| Picture idea | Form | Build family | Pool entry for craft |
-|---|---|---|---|
-| order only: A, then B, then C, nothing more | a row of rings on one line | `pipeline` | `deploy-pipeline`; `er-patient-flow` (two-row snake) |
-| it returns: the end feeds the start | a closed ring | `states` | `water-cycle`, `phase-changes` |
-| it narrows: fewer pass each stage | a tapering funnel, dots at scale | `pipeline` | `sales-funnel` |
-| it accumulates or matures: each level rests on the one below | stairs or a stack built bottom-up | `layers` | `bloom-taxonomy` |
-| a level or quantity changes | a fill level, a bar, a gauge | `states` / `chart` | `canal-lock`, `cloud-spend` |
-| two things pull against each other | two sides, a balance | `compare` | `funding-options`, `photosynth-respiration` |
-| one thing contains another | rings inside rings | `layers` | none; hand-built |
-| one splits into several, or several merge | fan-out, fan-in | `graph` | `loan-decision`, `service-deps` |
-| actors exchange something | lanes, one token handed between them | `graph` | `hiring-lanes` |
-| a handover across a boundary | a drawn boundary line the token crosses | `timeline` / `graph` | `court-case` |
-| the same thing before and after | the thing in place, the old state as a ghost | `states` / `compare` | `canal-lock` (dashed ghost level), `cache-compare` |
-| a physical mechanism the source describes | a scene: the thing itself, in cross-section | `states` / `pipeline` | `canal-lock`, `water-cycle` |
-| a place or a route | a map or a path with stations | `pipeline` | `parcel-route` |
-| a hierarchy | a tree | `graph` | none; `service-deps` for rank spacing |
-| a spectrum or scale | points on one axis | `timeline` | `roadmap` |
+| Picture idea | Form | Verb | Build family | Pool entry for craft |
+|---|---|---|---|---|
+| order only: A, then B, then C, nothing more | a row of rings on one line | `reveal` | `pipeline` | `deploy-pipeline`; `er-patient-flow` (two-row snake) |
+| it returns: the end feeds the start | a closed ring | `cycle` | `states` | `water-cycle`, `phase-changes` |
+| it narrows: fewer pass each stage | a tapering funnel, dots at scale | `thin` | `pipeline` | `sales-funnel` |
+| it accumulates or matures: each level rests on the one below | stairs or a stack built bottom-up | `stack`, `accumulate` | `layers` | `bloom-taxonomy` |
+| a level or quantity changes | a fill level, a bar, a gauge | `grow`, `count` | `states` / `chart` | `canal-lock`, `cloud-spend` |
+| two things pull against each other | two sides, a balance | `balance`, `race` | `compare` | `funding-options`, `photosynth-respiration` |
+| one thing contains another | rings inside rings | `nest`, `zoom` | `layers` | none; hand-built |
+| one splits into several, or several merge | fan-out, fan-in | `split`, `merge` | `graph` | `loan-decision`, `service-deps` |
+| actors exchange something | lanes, one token handed between them | `travel` (the thing exchanged) | `graph` | `hiring-lanes` |
+| a handover across a boundary | a drawn boundary line the token crosses | `travel` (the thing handed over) | `timeline` / `graph` | `court-case` |
+| the same thing before and after | the thing in place, the old state as a ghost | `transform`, `wipe`, `switch` | `states` / `compare` | `canal-lock` (dashed ghost level), `cache-compare` |
+| a physical mechanism the source describes | a scene: the thing itself, in cross-section | `drive`, `open` | `states` / `pipeline` | `canal-lock`, `water-cycle` |
+| a place or a route | a map or a path with stations | `travel`, `trace` | `pipeline` | `parcel-route` |
+| a hierarchy | a tree | `reveal` (root down), `nest` | `graph` | none; `service-deps` for rank spacing |
+| a spectrum or scale | points on one axis | `sort`, `trace` | `timeline` | `roadmap` |
 
-**Order only is a correct answer.** When the source says only order, draw the row and write
-"order only" as the idea. The form may come from structure the source states; the content may
-not grow: no node, label, number, arrow direction or actor the source does not state. A funnel
+**Order only is a correct answer.** When the source says only order, draw the row, write
+"order only" as the idea and `reveal` as the verb: the row builds in reading order and the
+highlight moves on, with no traveller, since a list of steps is not a journey (the travel test,
+[motion-verbs.md](motion-verbs.md) section 1). The form may come from structure the source
+states; the content may not grow: no node, label, number, arrow direction or actor the source does not state. A funnel
 needs the source's quantities or its stated narrowing; a cycle needs the source to say it
-returns; a scene needs the source to describe the physical thing ([accuracy.md](accuracy.md)).
+returns; a traveller needs the source to name it and its places; a scene needs the source to describe the physical thing ([accuracy.md](accuracy.md)).
 Every form plays one calm pass and rests on the finished frame ([motion-rules.md](motion-rules.md)).
 
 The pool entry is the bar for craft (stroke weights, type sizes, spacing, technique), not a
@@ -100,18 +106,23 @@ them above and below the line.
 
 **Motion story.**
 - Setup (0-1 s): the line draws on; rings and labels fade in left to right, stagger 80 ms.
-- Action: one glowing dot hops ring to ring (`offset-path` on the line's `d`, 0.8-1 s per hop);
-  the receiving ring turns active (`--anim-accent` with glow), the previous one settles to `--anim-ok`.
+- Action: the highlight moves on ring to ring, about 0.8-1 s per step: the receiving ring
+  turns active (`--anim-accent` with glow), the previous one settles to `--anim-ok`. Under
+  `travel` only, the traveller the source names (a labelled chip or glyph, not a bare dot) hops
+  with it (`offset-path` on the line's `d`). Other verbs (`thin` on a funnel, `grow` in a
+  ring) use their own mechanism on this timing.
 - Resolution: last ring `--anim-ok`, its status word shows the outcome; a rollback, if any,
-  sends the dot along the dotted arc in `--anim-danger` or `--anim-warn`.
+  draws the dotted arc on in `--anim-danger` or `--anim-warn` (under `travel` the traveller
+  takes it).
 - Hold 0.8-1.5 s on all steps done; that end state is the resting frame.
 
-**Techniques:** the dot with `offset-path`; line draw-on with `pathLength="100"`; status words
-as stacked `<text>` cross-fades; highlight by stroke token change.
+**Techniques:** line draw-on with `pathLength="100"`; highlight by stroke token change; status
+words as stacked `<text>` cross-fades; the traveller with `offset-path` (`travel` only).
 **Pass:** 7-10 s (once).
 
 **Mistakes.**
-- Dots on every segment at once: only the current hop moves.
+- A dot added to an order-only row: `reveal` has no traveller.
+- Travellers on every segment at once: only the current hop moves.
 - Spacing set by the longest label: keep the even spacing, shorten the label, use `sub` for detail.
 - Feedback arc drawn through the labels or over the caption: keep it between y 296 and 360.
 
@@ -130,14 +141,16 @@ dependency. Groups: rect around members with 20 padding and 32 extra on top for 
 
 **Motion story.**
 - Setup: groups fade in first (element duration), then rank 0 nodes.
-- Action: rank by rank, nodes enter and their incoming edges draw on; one packet per edge being
-  explained, max 3 at once. The node being discussed is active, everything else at 60 % opacity.
+- Action: rank by rank, nodes enter and their incoming edges draw on; the node being discussed
+  is active, everything else at 60 % opacity. Under `split` or `merge` the fan opens from, or
+  closes on, its one node. Under `travel` only, one traveller per edge being explained, max 3
+  at once.
 - Resolution: whole graph visible, the critical node (most incoming edges, or the one the
   source stresses) stays active.
 - Hold: everything at full opacity.
 
-**Techniques:** draw-on per edge (`pathLength`), packets on the edge path, dimming via
-`opacity` on non-active nodes, arrowheads as small `<path>` (no `<marker>` with ids that
+**Techniques:** draw-on per edge (`pathLength`), dimming via `opacity` on non-active nodes,
+travellers on the edge path (`travel` only), arrowheads as small `<path>` (no `<marker>` with ids that
 collide; if you use `<marker>`, prefix its id).
 **Pass:** 8-10 s (once).
 
@@ -164,6 +177,9 @@ to label box.
 - Action: a progress line (`--anim-accent`) grows along the axis; as it reaches each marker,
   the marker fills and its label pops in (scale 0.92 to 1, enter curve). Past milestones settle
   to `--anim-ok`, the "now" milestone stays `--anim-accent`, future ones stay outlined.
+  This progress line is the family's own pass (`reveal` or `trace`); under `travel` (a
+  handover the source names, `court-case`) the named traveller crosses the axis or boundary
+  instead of a progress line.
 - Resolution: progress stops at "now" or at the last milestone.
 - Hold: all labels visible.
 
@@ -186,25 +202,29 @@ the phase times; labels via opacity + scale; `at` labels never move.
 rx 400, ry 190, first state at the left (angle 180 deg), clockwise in list order. For 3-4 states
 a single row (pipeline coordinates scaled) with return arcs above and below also works.
 Transitions as arcs bulging outward from the centre, arrowhead at the target, label (18 px mono)
-at the arc midpoint offset 20 away from the centre. A token (circle r 12, `--anim-accent`)
-marks the current state.
+at the arc midpoint offset 20 away from the centre. The current state carries the accent; a
+token (circle r 12, `--anim-accent`) marks it only under `travel` or `cycle` (a thing the
+source names that goes round).
 
 **Motion story.**
 - Setup: all states visible but dimmed; the initial state active.
-- Action: the token travels along each transition (`offset-path`, 0.8-1.2 s); on arrival the
-  target lights up and the transition label flashes to `--anim-accent`, the previous state dims.
-  Error transitions in `--anim-danger`.
+- Action: the highlight moves along the story path: each transition draws on (0.8-1.2 s),
+  then the target lights up and the transition label turns `--anim-accent`, the previous state
+  dims. Error transitions in `--anim-danger`. Under `cycle` the arc draws once around and
+  closes on its start; under `travel` or `cycle` with a named token, the token rides each
+  transition (`offset-path`) instead of the draw-on. Under `switch` the state changes in place.
 - Resolution: token at the terminal or "healthy" state.
 - Hold.
 
-**Techniques:** token with `offset-path` per transition (one element per hop, each with its own
-full-pass track); highlight by fill/stroke token change; labels as stacked `<text>`.
+**Techniques:** draw-on per transition; highlight by fill/stroke token change; labels as
+stacked `<text>`; the token with `offset-path` per transition (`travel`/`cycle` only, one
+element per hop, each with its own full-pass track).
 **Pass:** 7-10 s (once).
 
 **Mistakes.**
 - Showing every transition in one pass: show the story path, leave rare ones static.
 - Self-loops drawn as tiny circles that clip the label: use a 60-wide loop above the pill.
-- Two tokens at once: there is exactly one current state.
+- Two current states (or two tokens) at once: there is exactly one current state.
 
 ## compare
 
@@ -222,6 +242,8 @@ the caption, not in a panel.
 - Setup: both panels and headers in; left items appear (stagger 80 ms).
 - Action: right side items appear row by row, each row highlighting the pair it replaces
   (left dims to `--anim-muted`, right turns `--anim-ok`). A metric can count via stacked text.
+  Under `race`, `balance`, `wipe` or `transform` the verb's mechanism is the action and the
+  row-by-row reveal shrinks to the set.
 - Resolution: right panel outlined `--anim-ok` (or the winning side), left at 60 % opacity.
 - Hold.
 
@@ -250,13 +272,15 @@ down and an up edge do not overlap.
 
 **Motion story.**
 - Setup: bands build bottom-up (stagger 100 ms, rise 12 px), chips land 80 ms after their band.
-- Action: a request packet travels top to bottom through the named chips; each chip flashes
-  active on arrival. Then a response packet travels back up in `--anim-ok`.
+- Action: the highlight moves down through the named chips, each turning active in turn, then
+  back up in `--anim-ok`. Under `travel` only (the source names the request and its path) a
+  request traveller rides top to bottom and a response travels back up. Under `nest`, `zoom`
+  or `open` the verb's mechanism replaces the down-and-up pass.
 - Resolution: top chip active with the result.
 - Hold.
 
-**Techniques:** packets with `offset-path` on vertical paths; band entrance by `translateY` +
-opacity; highlight by stroke token change.
+**Techniques:** band entrance by `translateY` + opacity; highlight by stroke token change;
+travellers with `offset-path` on vertical paths (`travel` only).
 **Pass:** 7-10 s (once).
 
 **Mistakes.**
@@ -279,13 +303,13 @@ Event: vertical dashed line `--anim-muted` from plot top to bottom at the event'
 **Motion story.**
 - Setup: axes and gridlines in (element duration).
 - Action: series draw on left to right in step with the pass (the x range maps to the action
-  window); a dot rides the head of the line; each event's line and tag appear as the trace
-  reaches it.
+  window); each event's line and tag appear as the trace reaches it. This is `trace`; under it
+  a small dot may ride the head of the line. Bars and levels use `grow` instead.
 - Resolution: full trace, events tagged, the key value as a readout.
 - Hold.
 
-**Techniques:** draw-on with `pathLength="100"` (the head dot uses `offset-path` with the same
-`d`), cross-fading `<text>` readouts, for live-looking signals a scrolling trace group with
+**Techniques:** draw-on with `pathLength="100"` (a head dot, under `trace`, uses `offset-path`
+with the same `d`), cross-fading `<text>` readouts, for live-looking signals a scrolling trace group with
 `translateX` (`linear`, see `pool/latency-trace/latency-trace.html`).
 **Pass:** 7-10 s (once).
 

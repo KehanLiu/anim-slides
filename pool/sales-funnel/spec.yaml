@@ -8,6 +8,7 @@
 # evenly, not to scale), dot grids at exact scale, a count column and conversion brackets on the right.
 name: sales-funnel
 archetype: pipeline
+verb: thin
 domain: marketing
 size: [1680, 600]
 control: once

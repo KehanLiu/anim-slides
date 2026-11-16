@@ -5,6 +5,8 @@
 # resting frame that shows the outage (provider DOWN, Payments DEGRADED, healthy path in green).
 name: service-deps
 archetype: graph
+verb: travel
+traveller: { name: one traced request }
 size: [1680, 600]
 control: once
 cycle: 9.8

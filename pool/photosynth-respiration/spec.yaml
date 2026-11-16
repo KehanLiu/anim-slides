@@ -7,6 +7,7 @@
 # molecule packets on arcs, equation captions); re-scaffolding gives the row skeleton only.
 name: photosynth-respiration
 archetype: compare
+verb: switch
 domain: biology
 size: [1680, 600]
 control: once

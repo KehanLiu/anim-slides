@@ -2,8 +2,9 @@ schema_version: "1.1"
 name: prose-not-a-row
 expected_outcome: |
   Mode B with the user absent, so the defaults are recorded under Decisions in
-  anim/triage.md. Slides 2 to 5 are all written as numbered steps and the extractor calls
-  each one a pipeline, but only slide 5 (filing a petition) says nothing beyond order. Slide
+  anim/triage.md. Slides 2 to 5 are all written as numbered steps (the extractor now suggests
+  thin, cycle, balance and reveal for them, as evidence to weigh), but only slide 5 (filing a
+  petition) says nothing beyond order. Slide
   2 gives four falling counts (1,240 screened, 610 eligible, 402 enrolled, 351 completed):
   the figure shrinks with them (a tapering funnel, bars or dots in proportion), with the four
   counts verbatim. Slide 3 says each daughter cell re-enters G1: the figure closes back to G1

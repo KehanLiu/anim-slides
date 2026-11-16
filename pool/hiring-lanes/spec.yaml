@@ -9,6 +9,8 @@
 # taken, and a caption strip. Resting frame: offer v2 accepted.
 name: hiring-lanes
 archetype: graph
+verb: travel
+traveller: { name: the candidate's application }
 domain: HR / business process
 size: [1680, 600]
 control: once

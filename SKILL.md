@@ -79,12 +79,14 @@ a child's margin collapses through the slot and shifts `measure_slot.py`'s box.
    "hidden" and lists them on stderr); note hidden slides in the triage. A picture count in `outline.json` that differs from the
    render points at pictures on the slide layout.
 2. **Draft the triage** in `anim/triage.md` (`references/input-stage.md` section 3): every slide
-   with Slide, Title, Decision, Idea, Form, Archetype, Replaces, Why; no silent skips. On a
+   with Slide, Title, Decision, Idea, Form, Verb, Archetype, Replaces, Why; no silent skips. On a
    slide of prose, bullets, cards or a table, Idea is one sentence on what it says beyond the
    order of its items, Form follows from it, and the archetype is only the build family
-   (`references/archetypes.md` "Picture idea and form"); "order only" and a row is a valid
-   answer. Then read down the Form column for repeats (`references/input-stage.md` "Forms
-   across the deck"). Budget 3 to 8 per 30
+   (`references/archetypes.md` "Picture idea and form"); "order only", a row and `reveal` is a
+   valid answer. Verb is the main motion, picked from the claim sentence
+   (`references/motion-verbs.md` section 1); `travel` only with the traveller the source names.
+   Then read down the Form and Verb columns for repeats (`references/input-stage.md` "Forms and
+   verbs across the deck"). Budget 3 to 8 per 30
    slides, never two animated slides in a row; "add more animations" reads as the upper end of
    the budget, not beyond it; on a short deck the budget is a floor. Re-render candidates with
    `--pages N,...` and open `full/p-NN.png`: `extract_slides.py` cannot see inside pictures.
@@ -130,7 +132,8 @@ For each remaining illustrate row, the main thread writes spec and brief first (
 cheap; write them all before building), then builds.
 
 1. **Spec.** `anim/<name>/spec.yaml` per `references/spec-format.md`: nodes, edges, groups,
-   phases with second marks, cycle (4 to 10 s), control from intake. Reuse the source's words.
+   phases with second marks, cycle (4 to 10 s), control from intake, `verb:` from the triage
+   row (`traveller:` with its `name` for `travel`). Reuse the source's words.
    Under about 12 nodes; split otherwise.
 2. **Pool first, for craft.** Read `<skill-dir>/pool/index.yaml` (and `$ANIM_POOL/index.yaml`
    if set). The pool is the quality floor, not the menu of pictures: look an entry up by the
@@ -148,7 +151,10 @@ cheap; write them all before building), then builds.
    line charts, column compares, layer stacks, dot timelines. Funnels, rings, scenes,
    triangles, donuts, bars, timelines with event text and anything the spec format cannot
    express are hand-built from
-   the spec; do not force the scaffolder, use its output as the timing skeleton. Refine with
+   the spec; do not force the scaffolder, use its output as the timing skeleton. **The motion
+   is the verb's**: build it from its mechanism (`references/motion-verbs.md` section 5); the
+   scaffolder draws a moving traveller only for `travel` (a token trip for `cycle`) and leaves
+   other verbs to the builder. A travelling marker is used only for `travel`. Refine with
    `references/archetypes.md`, `references/motion-rules.md` and `references/style.md`.
    **Phase marks** (`data-anim-phases`): a phase mark is a settled moment between narrated
    steps: nothing visible is mid-motion there. Three to five per slide (six when the slide
@@ -174,6 +180,8 @@ cheap; write them all before building), then builds.
      once. The resting frame must read as a complete still (PDF shows only that).
    - `python3 <skill-dir>/scripts/verify_facts.py anim/<name>/<name>.html --source anim/outline.json --slide <N> --spec anim/<name>/spec.yaml`
      (or `--source doc.md`): 0 FAIL, every WARN decided (`references/accuracy.md`).
+   - The verb: with labels covered, the mark frames show the brief's verb happening (grew,
+     split, tipped, filled), not one picture with a dot in different places.
    Never trust `--virtual-time-budget`, and never trust reading the source instead of the PNG.
 6. **Integrate**, in the main thread, one call per fragment:
    `python3 <skill-dir>/scripts/integrate_fragment.py deck.html anim/<name>/<name>.html --name <name> --anchor '<!-- sN-body -->' --replace-until '<!-- /sN-body -->' [--gate 'section.present'] --control once --backup`.
@@ -247,10 +255,14 @@ cheap; write them all before building), then builds.
   bars) plus one movement. On a slide of prose, bullets, cards or a table the form follows the
   picture idea and may come only from structure the source states; the content never grows:
   no node, label, number, arrow direction, actor, bracket or storyline the source does not
-  state, and a source that states only order gets a row. One glowing
+  state, and a source that states only order gets a row and `reveal`. One glowing
   element at most, never a glowing line. The look follows `references/style.md` (no filled
   cards, chips or caption bars; rings and thin lines; one accent; at most two semantic
   colours) under match and lean alike: a host theme changes colours and fonts only.
+- **One verb per fragment.** The main motion is the verb of the slide's claim, written in the
+  triage row and the brief and carried as `data-anim-verb` on the wrapper; no dot travels
+  unless the source names what travels. One verb over a third of the deck needs a reason per
+  repeat.
 - **Accurate.** Every number and label traces to the source or is marked illustrative;
   `verify_facts.py --spec` passes before a figure is done (`references/accuracy.md`).
 - **Contract.** Prefix every class, id and keyframe with `<name>-`; colours and fonts only via

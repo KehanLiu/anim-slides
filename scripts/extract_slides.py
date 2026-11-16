@@ -15,7 +15,7 @@ or on #/## headings when there are none) and writes a JSON outline:
        "tables": [[["Old", "New"], ["manual", "CI"]]], "connectors": 4,
        "builds": 4, "suggested_archetype": "pipeline", "confidence": 0.6,
        "reason": "cues: arrows, numbered steps", "order_only": true,
-       "idea_cues": []}], "builds": 4}
+       "idea_cues": [], "suggested_verb": "reveal", "verb_cues": []}], "builds": 4}
 
 `tables` (rows of cell strings), `connectors` (connector lines and arrow
 shapes), `title_guessed` (no title placeholder; the title is the largest-font
@@ -59,9 +59,41 @@ to, passes to, across the boundary ...), before-after (before ... after, was
 ... now, from <number> to <number>), share-of-whole (percentages summing to
 about 100, 'share of', 'of all' ...). Numbered formatting alone is never a cue.
 `order_only` appears only when the suggestion is pipeline: true when no idea
-cue fired (order is all the source says, a row is right), false when one did;
-then the confidence is capped at 0.3 (except for a mermaid flowchart) and the
-reason names the cues.
+cue fired and the verb is `reveal` (order is all the source says, a row is
+right), false otherwise; with idea cues the confidence is capped at 0.3 (except
+for a mermaid flowchart) and the reason names the cues.
+
+`suggested_verb` (per slide, always present) is the main motion from
+references/motion-verbs.md section 1: grow, count, accumulate, thin, race,
+split, merge, sort, stack, nest, transform, wipe, switch, balance, drive, zoom,
+open, travel, trace, cycle, or the support move reveal; null only on a slide
+with no archetype and no verb cue (keep as text). `verb_cues` (always present,
+[] when none) is [{"cue": verb, "evidence": matched source words}] in priority
+order, first = the suggested verb; [] beside a verb means the family default
+(chart grow, timeline trace, states switch, compare wipe, layers stack,
+pipeline/graph reveal). Cues (English, German, Chinese/Japanese): numbers
+(falling counts -> thin, rising or 'from 4% to 11%' -> grow, shares summing to
+100% or 'of every' -> sort, 'faster than' or versus with numbers -> race, one
+headline figure -> count, 'adds up to' -> accumulate); 'became'/'turned into'
+-> transform; 'replaced'/'instead of'/before-after -> wipe; threshold, 'becomes
+law' -> switch; 'made of'/'consists of'/'breaks down into' -> split;
+'combines'/'merges'/'pooled' -> merge; 'inside'/'within'/'part of' -> nest;
+'closer look'/'underneath' -> zoom; 'cross-section'/'layers of' -> open; 'builds
+on'/'foundation'/'layers' -> stack; 'because'/'drives'/'the more ... the more'
+-> drive; trade-off/versus -> balance; 'returns'/'starts again'/'feeds back' -> cycle;
+'trend'/'over time' -> trace. `travel` needs a thing that changes place between
+named places: 'sent to', 'shipped', 'handed to', 'delivered', 'arrives at',
+'route', 'from Leeds to York'; numbering, arrows and connectors are never
+travel. A pipeline or graph whose only cues are order (arrows, numbering,
+'then', 'step', connectors) keeps confidence <= 0.3 with verb reveal (<= 0.6
+for travel); when a stronger verb (a quantity, cycle, trade-off, containment,
+before/after, split/merge) fired, the archetype becomes that verb's family
+(thin keeps pipeline as a funnel; cycle -> states; balance/race/wipe -> compare;
+nest/stack/open/zoom -> layers; split/merge -> graph; grow/sort/accumulate ->
+chart). A slide with its own chart (mermaid xychart, a pptx chart part, a
+picture beside chart or trend words) keeps its archetype and gets trace (3+
+time-axis marks) or grow; another mermaid diagram keeps its archetype and gets
+its text verb, else travel (sequence), switch (state) or reveal.
 
 The stage defaults to 1920x1080. For .pptx without --stage it is derived from
 the deck's slide size, scaled to a width of 1920 (a 4:3 deck gives 1920x1440).
@@ -386,6 +418,9 @@ def read_pptx(path):
             slides.append(make_slide(title, bullets, " ".join(notes), " ".join(text), pics,
                                      tables, conns, segments, branching, guessed, builds,
                                      hidden, on_layout))
+            # a native chart part on the slide: the verb then says how that chart moves
+            slides[-1]["_chart"] = any("chart" in (g.get("uri") or "")
+                                       for g in root.iter(A + "graphicData"))
     return slides
 
 
@@ -1040,11 +1075,12 @@ def mermaid_archetype(body):
     return (table[kind], "mermaid %s" % kind) if kind in table else None
 
 
-def suggest(slide):
+def _archetype(slide):
+    """(archetype, confidence, reason, cue labels) from keyword and shape cues."""
     for body in slide.get("mermaid", []):
         hit = mermaid_archetype(body)
         if hit:
-            return hit[0], 0.9, hit[1]
+            return hit[0], 0.9, hit[1], []
     segments = slide.get("_segments") or []
     if not segments:  # text already contains title and bullets; adding them again would double-count
         segments = [slide["text"], slide["notes"]]
@@ -1091,9 +1127,9 @@ def suggest(slide):
     if units >= 3 and best[0] <= 2:
         best = (2, units, "chart", ["%d numbers with units" % units])
     if best[2] is None:
-        return None, 0.0, "no structural cues"
+        return None, 0.0, "no structural cues", []
     conf = min(0.9, 0.3 + 0.15 * (best[0] - 1) + (0.15 if best[1] >= 4 else 0))
-    return best[2], round(conf, 2), "cues: " + ", ".join(best[3])
+    return best[2], round(conf, 2), "cues: " + ", ".join(best[3]), best[3]
 
 
 # ------------------------------------------------------------ idea cues ----
@@ -1206,6 +1242,237 @@ def idea_cues(slide):
     return cues
 
 
+# ---------------------------------------------------------- motion verbs ----
+# The main motion a fragment could make, read from the grammar of the slide's claim
+# (references/motion-verbs.md section 1). Like idea_cues: precision over recall, and each verb names
+# the source words it matched. Order (numbering, arrows, connectors, 'then', 'step') is never a verb
+# cue; a slide that states only order gets `reveal`. English, German and Chinese/Japanese cue words.
+VERBS = ("grow", "count", "accumulate", "thin", "race", "split", "merge", "sort", "stack", "nest",
+         "transform", "wipe", "switch", "balance", "drive", "zoom", "open", "travel", "trace", "cycle",
+         "reveal")
+VERB_RULES = {  # verb -> regex on the cased text (re.I); idea cues and quantities are added in verb_cues
+    "cycle": w(r"kreislauf|zyklus|zyklisch|wiederholt sich|beginnt (?:von vorne?|erneut|wieder)|von vorne"
+               r"|kehrt (?:\w+ )?zurück|zurück zu[mr]?|rückkopplung|schleife", re.I),
+    "thin": w(r"fewer|drop(?:s|ped)? out|drop-?outs?|attrition|funnel|narrows?|narrowing|shrinks?|shrank"
+              r"|weeds? out|filtered out|whittled|left over|remain(?:s|ing)?|surviv(?:e|es|ed|ing|ors?)"
+              r"|decays?|decayed|erod(?:es|ed|ing)|erosion|depreciat\w*|weniger|übrig|schwund|abbrecher"
+              r"|schrumpf\w*|abnahme|zerfall\w*|trichter", re.I, cjk="漏斗|流失|衰减|递减|残る|減って"),
+    "sort": w(r"of every \d+|out of every|ranked|rankings?|jede[rs]? (?:zweite|dritte|vierte|fünfte)"
+              r"|von (?:je )?100|rangliste", re.I, cjk="排名|ランキング"),
+    "sort-share": w(r"majority|minority|mehrheit|minderheit", re.I, cjk="多数|少数|過半数"),  # needs a %
+    "race": w(r"faster than|slower than|cheaper than|costlier than|longer than|shorter than|twice as"
+              r"|\d+(?:\.\d+)?\s?(?:x|times) (?:faster|slower|more|less|cheaper|longer|shorter)"
+              r"|outpaces?|overtakes?|schneller als|langsamer als|billiger als|doppelt so", re.I,
+              cjk=r"比.{1,8}?(?:快|慢|高|低|多|少)|倍速"),
+    "balance": w(r"pros and cons|for and against|supply and demand|outweighs?|equilibrium|in balance"
+                 r"|weigh(?:s|ed)? against|abwägung|zielkonflikt|auf kosten|einerseits|andererseits"
+                 r"|im gegensatz zu|vor- und nachteile|pro und contra|gegenüber", re.I,
+                 cjk="平衡|天秤|利弊|均衡"),
+    "switch": w(r"threshold|tipping point|cross(?:es|ed)? the (?:line|threshold|limit)|once (?:it|the \w+)"
+                r" (?:reaches|exceeds|passes|hits)|when (?:it|the \w+) (?:reaches|exceeds|hits)"
+                r"|turns? (?:red|green|amber|yellow)|status chang\w+|switch(?:es|ed)? (?:to|from|on|off)"
+                r"|becomes? (?:valid|binding|law|legal|active|eligible|ripe|void)|schwellenwert|schwelle"
+                r"|kipppunkt|umschalt\w*|wechselt (?:zu|auf|in)|tritt in kraft", re.I,
+                cjk="阈值|临界|閾値|切り替|生效"),
+    "transform": w(r"became|becomes|become|turn(?:s|ed)? into|transform(?:s|ed)? into|chang(?:es|ed) into"
+                   r"|evolv(?:es|ed) into|develop(?:s|ed) into|matur(?:es|ed) into|redefined|renamed"
+                   r"|metamorphos[ie]s|wurde zu[mr]?|wird zu[mr]?|verwandel(?:t|te|n)|umgewandelt"
+                   r"|entwickelt sich zu", re.I, cjk="变成|变为|转变为|演变为|に変わ|になった|へと変"),
+    "wipe": w(r"replac(?:es|ed|ing)|instead of|then and now|no longer|ersetzt|anstelle|stattdessen"
+              r"|früher\b.{1,60}?\bheute", re.I | re.S, cjk="取代|替换|代替|置き換|代わりに"),
+    "split": w(r"made (?:up )?of|consists? of|composed of|breaks? down into|broken down into|break-?down"
+               r"|splits?(?: up)? into|split in two|divided into|divides into|of which|besteht aus"
+               r"|bestehen aus|setzt sich (?:\w+ )?zusammen aus|aufgeteilt|teilt sich|zerfällt in"
+               r"|davon entfallen", re.I, cjk="分为|分成|由.{0,12}?组成|构成|で構成|に分かれ|内訳"),
+    "merge": w(r"joins (?:forces|with|together)|joined (?:with|by|forces)|join forces|combines|combining"
+               r"|combined (?:with|into)|combine (?:with|into)|merges?|merged"
+               r"|merging|pooled|pools? (?:their|its|the)|together they|converge[sd]?|converging"
+               r"|consolidat\w*|unite[sd]|fuse[sd]|flow together|zusammengeführt|zusammenlegen"
+               r"|zusammengelegt|vereint|vereinigt|fusion\w*|bündel\w*|fließen zusammen", re.I,
+               cjk="合并|汇合|汇聚|合流|统合|統合|結合|集約"),
+    "nest": w(r"inside|within(?! (?:\d|a few|the next|hours?|days?|weeks?|minutes?|seconds?|months?|years?"
+              r"|budget|reach|range|limits?))|(?<!as )part of|nested|contains|subsets?|jurisdiction"
+              r"|falls under|belongs to|innerhalb|enthält|enthalten|teil (?:von|des|der)|gehört zu"
+              r"|umfasst|verschachtelt", re.I, cjk="包含|内部|の中に|に含まれ|属于"),
+    "zoom": w(r"zoom(?:s|ed|ing)? in|close-?up|up close|closer look|look closer|under the microscope"
+              r"|magnified|down to the level of|underneath|beneath|below the surface|im detail"
+              r"|nahaufnahme|vergrößert|unter dem mikroskop", re.I, cjk="放大|特写|显微|拡大|顕微"),
+    "open": w(r"anatomy|cut-?away|cross-?sections?|exploded view|how the parts fit|inner workings"
+              r"|what is inside|under the hood|layers? of|querschnitt|schnittbild|innenleben"
+              r"|explosionszeichnung", re.I, cjk="剖面|解剖|断面|内部構造"),
+    "stack": w(r"on top of|builds? on|built on|rests? on|foundations?|prerequisites?|pyramid|strata|stratum"
+               r"|bottom-?up|maturity|each level|tiers?|layers?|layered|baut auf|aufbauend|grundlage"
+               r"|fundament|pyramide|stufen|schichten|ebenen", re.I,
+               cjk="基础|层次|分层|層|基盤|ピラミッド"),
+    "accumulate": w(r"adds? up(?: to)?|accumulat\w*|piles? up|builds? up|saved up|in total|a total of"
+                    r"|cumulative|sums? (?:up )?to|summier\w*|insgesamt|angespart|anhäuf\w*"
+                    r"|sammelt sich|kumuliert", re.I,
+                    cjk="累计|累积|积累|积少成多|合計|累積|貯ま"),
+    "grow": w(r"ris(?:es|ing)|rose|grows?|grew|growth|increas(?:es|ed|ing)|doubled?|tripled?|climb(?:s|ed)?"
+              r"|soar(?:s|ed)?|fell|falls|falling|declin(?:es|ed|ing)|drops|dropped|cut (?:by|to)"
+              r"|(?:up|down) (?:by|from|to) [$€£]?\d|more than|less than|steigt|stieg|gestiegen|wächst"
+              r"|wuchs|gewachsen|zunahme|verdoppelt|sinkt|sank|gesunken|fällt|gefallen|rückgang"
+              r"|mehr als|weniger als", re.I, cjk="增长|下降|上升|增加|减少|翻倍|増加|減少|上昇|低下"),
+    # a named thing changes place between named places; 'hand X to' and plain arrows are not enough
+    "travel": w(r"sent (?:back |on )?to|sends? (?:it |them |the \w+ )?to|shipped|ships? (?:to|from)"
+                r"|handed (?:over )?to|hands? (?:it |them )?over to|delivered|delivers? (?:to|it|the)"
+                r"|deliver(?:y|ies) to|arriv(?:es|ed|ing)? (?:at|in)|travel(?:s|led|ed)? (?:to|from"
+                r"|through|along)|carried (?:to|from)|carries (?:it |them )?to|transported|routed"
+                r"|routes?|itinerary|journey|migrat(?:es|ed|ing|ion)|dispatched|forwarded to"
+                r"|referred to(?! as)|transferred to|(?:is|are) taken to|flows? (?:from|to|into)"
+                r"|geschickt|gesendet|versandt|verschickt|geliefert|ausgeliefert|übergeben an|übergibt"
+                r"|kommt (?:\w+ )?an|angekommen|gelangt|transportiert|wandert|weitergeleitet"
+                r"|überwiesen|zugestellt", re.I,
+                cjk="发送|发往|送到|送往|运往|运送|送达|交给|传给|移交|转交|到达|抵达|届け|送ら|運ば|到着|配送|輸送"),
+    "drive": w(r"because|drives?|driven by|causes?|caused by|leads? to|led to|results? in|triggers?"
+               r"|the more\b.{1,60}?\bthe (?:more|less|fewer|higher|lower)|levers?|valves?|gears?"
+               r"|pump(?:s|ed)?|pulleys?|pistons?|weil|dadurch|führ(?:t|en) zu|verursach\w*|treibt"
+               r"|angetrieben|auslöser|je (?:mehr|höher|größer)\b.{1,60}?\bdesto", re.I | re.S,
+               cjk="因为|导致|驱动|引起|促使|越.{1,20}?越|ため|により|引き起こ"),
+    "trace": w(r"trends?|trajector(?:y|ies)|curves?|over time|over the (?:past|last|next) \d+"
+               r"|since (?:19|20)\d{2}|orbits?|coastline|verlauf|kurve|im zeitverlauf"
+               r"|seit (?:19|20)\d{2}", re.I, cjk="趋势|轨迹|曲线|推移|軌跡|曲線"),
+}
+# proper-noun places: "from Rotterdam to Lyon", "von Hamburg nach Wien"
+ROUTE = re.compile(r"\bfrom (?:the )?[A-ZÄÖÜ][\w-]+(?: [A-ZÄÖÜ][\w-]+)? (?:to|into) (?:the )?[A-ZÄÖÜ][\w-]+"
+                   r"|\bvon (?:der |dem )?[A-ZÄÖÜ][\w-]+ (?:nach|zu[mr]?) [A-ZÄÖÜ][\w-]+")
+FIGURE_WORDS = w(r"charts?|graphs?|plots?|figures?|diagrams?|histograms?|bars?|axis|axes|abbildung|diagramm"
+                 r"|grafik", re.I, cjk="图表|统计图|グラフ|図表")
+TIME_AXIS = w(r"q[1-4]|(?:19|20)\d{2}|january|february|march|april|june|july|august|september|october"
+              r"|november|december|monthly|yearly|annual|per year|per month|jahr|monat", re.I,
+              cjk=r"\d{4}年|" + CJK_MONTH)
+# main-verb priority when several fire: shape claims before mechanisms, quantities before routes,
+# `count` (one headline number) last
+VERB_ORDER = ("cycle", "thin", "sort", "race", "balance", "switch", "transform", "wipe", "split", "merge",
+              "nest", "zoom", "open", "stack", "accumulate", "grow", "travel", "drive", "trace", "count")
+# verbs that outweigh row cues (connectors, numbering) and the family their form is built with
+STRONG_VERBS = {"cycle": "states", "thin": "pipeline", "sort": "chart", "race": "compare",
+                "balance": "compare", "switch": "states", "transform": "states", "wipe": "compare",
+                "split": "graph", "merge": "graph", "nest": "layers", "zoom": "layers", "open": "layers",
+                "stack": "layers", "accumulate": "chart", "grow": "chart", "count": "chart"}
+FAMILY_VERB = {"chart": "grow", "timeline": "trace", "states": "switch", "compare": "wipe",
+               "layers": "stack", "graph": "reveal", "pipeline": "reveal"}
+ORDER_CUES = ("arrows", "'then'", "numbered steps", "'step'")
+
+
+def verb_cues(slide, ideas=None):
+    """[{"cue": verb, "evidence": matched source words}] in main-verb priority order; [] = order only."""
+    segments = slide.get("_segments") or [slide["title"], slide["text"], slide["notes"]]
+    cased = decite(segments)
+    ideas = {c["cue"]: c["evidence"] for c in (ideas if ideas is not None else idea_cues(slide))}
+    nq = len(quantities(cased)[0])
+    found = {}
+
+    def add(verb, words):
+        words = [collapse(x) for x in words if collapse(x)]
+        if words:
+            found.setdefault(verb, []).extend(words)
+
+    hits = {v: [m.group(0) for m in rx.finditer(cased)] for v, rx in VERB_RULES.items()}
+    add("cycle", ([ideas["returns"]] if "returns" in ideas else []) + hits["cycle"])
+    whole = "≈ 100%" in ideas.get("share-of-whole", "")  # falling shares of one whole are a sort
+    add("thin", [ideas["falling-quantities"]] if "falling-quantities" in ideas and not whole else [])
+    if nq >= 2 or "falling-quantities" in ideas:  # 'fewer', 'remain' need stated counts
+        add("thin", hits["thin"])
+    add("sort", ([ideas["share-of-whole"]] if "share-of-whole" in ideas else []) + hits["sort"])
+    if any(q[2] == "%" for q in quantities(cased)[0]):
+        add("sort", hits["sort-share"])
+    if nq >= 1:
+        add("race", hits["race"])
+    if "trade-off" in ideas and nq >= 2:  # two quantities under one clock: the gap is the point
+        add("race", [ideas["trade-off"]])
+    else:
+        add("balance", [ideas["trade-off"]] if "trade-off" in ideas else [])
+    add("balance", hits["balance"])
+    for v in ("switch", "transform", "wipe"):
+        add(v, hits[v])
+    if "before-after" in ideas:
+        add("grow" if FROM_TO.search(cased) and not any(rx.search(cased) for rx in BEFORE_AFTER)
+            else "wipe",
+            [ideas["before-after"]])
+    for v in ("split", "merge", "nest", "zoom", "open", "stack"):
+        add(v, hits[v])
+    if nq >= 1:
+        add("accumulate", hits["accumulate"])
+        add("grow", hits["grow"])
+    add("grow", [ideas["rising-quantities"]] if "rising-quantities" in ideas else [])
+    add("travel", hits["travel"] + [m.group(0) for m in ROUTE.finditer(cased)]
+        + ([ideas["handover"]] if "handover" in ideas else []))
+    add("drive", hits["drive"])
+    add("trace", hits["trace"])
+    if not found:
+        heads = [q[3] for q in quantities(cased)[0] if q[2] or q[1] >= 1000]
+        if 1 <= nq <= 2 and heads:
+            add("count", heads[:1])
+    out = []
+    for v in VERB_ORDER:
+        if v in found:
+            words = list(dict.fromkeys(found[v]))
+            out.append({"cue": v, "evidence": " / ".join(words[:4])})
+    return out
+
+
+def figure_kind(slide, arch):
+    """'chart' when the source already shows a chart (mermaid xychart, a pptx chart part, a picture
+    the text calls a chart), 'figure' for another mermaid diagram, else None."""
+    if any((mermaid_archetype(b) or ("", ""))[0] == "chart" for b in slide.get("mermaid", [])):
+        return "chart"
+    if slide.get("mermaid"):
+        return "figure"
+    if slide.get("_chart"):
+        return "chart"
+    text = slide["title"] + " " + slide["text"]
+    if slide.get("image_count") and (FIGURE_WORDS.search(text) or VERB_RULES["grow"].search(text)
+                                     or VERB_RULES["trace"].search(text)):
+        return "chart"  # a picture beside 'chart', 'rose', 'fell', 'trend' is most likely a chart
+    return None
+
+
+def suggest(slide):
+    """Archetype, confidence, reason, idea cues and motion verb for one slide, as outline fields."""
+    arch, conf, reason, labels = _archetype(slide)
+    ideas = idea_cues(slide)
+    vcues = verb_cues(slide, ideas)
+    verb = vcues[0]["cue"] if vcues else None
+    out = {"idea_cues": ideas}
+    fig = figure_kind(slide, arch)
+    order_cues = bool(labels) and all(l in ORDER_CUES or "connectors/arrows" in l for l in labels)
+    if fig == "chart" or (arch == "chart" and fig is None and verb not in STRONG_VERBS):
+        # a chart keeps its form: the verb says how it moves (a series draws on, or bars grow)
+        text = slide["title"] + " " + slide["text"]
+        if fig == "chart" or verb not in ("grow", "count", "accumulate", "thin", "race", "sort"):
+            verb = "trace" if verb == "trace" or len(TIME_AXIS.findall(text)) >= 3 else "grow"
+    elif fig == "figure":
+        if verb is None:  # a diagram keeps its form; its kind names the move
+            kinds = [b.split()[0] for b in slide["mermaid"] if b.split()]
+            verb = ("travel" if "sequenceDiagram" in kinds else
+                    "switch" if any(k.startswith("stateDiagram") for k in kinds) else "reveal")
+    elif arch in ("pipeline", "graph") and order_cues:
+        # numbering, arrows and connectors only say the text is laid out in order
+        if verb in STRONG_VERBS:
+            new = STRONG_VERBS[verb]
+            conf = round(min(0.6, 0.45 + 0.15 * (len(vcues) >= 2)), 2)
+            reason = "verb cue: %s (%s); the row cues (%s) are layout only" % (
+                verb, vcues[0]["evidence"], ", ".join(labels))
+            arch = new
+        else:
+            conf = min(conf, 0.6 if verb == "travel" else 0.3)
+            if verb is None:
+                verb = "reveal"
+                reason += "; order only: no claim beyond order, verb reveal"
+    elif arch is not None and verb is None:
+        verb = FAMILY_VERB.get(arch, "reveal")
+    if arch == "pipeline":  # a row: is order all the source says?
+        out["order_only"] = not ideas and verb == "reveal"
+        if ideas and not reason.startswith("mermaid"):
+            conf = min(conf, 0.3)
+            reason += "; idea cues: %s (the row may only be the layout)" % ", ".join(
+                dict.fromkeys(c["cue"] for c in ideas))
+    out.update(suggested_archetype=arch, confidence=conf, reason=reason,
+               suggested_verb=verb, verb_cues=vcues)
+    return out
+
+
 # ----------------------------------------------------------------- main ----
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -1240,21 +1507,12 @@ def main(argv=None):
           ": not 16:9, see layouts.md before picking a viewBox"), file=sys.stderr)
 
     for i, s in enumerate(slides, 1):
-        arch, conf, reason = suggest(s)
-        cues = idea_cues(s)
-        s.update(index=i, idea_cues=cues)
-        if arch == "pipeline":  # a row: is order all the source says?
-            s["order_only"] = not cues
-            if cues and not reason.startswith("mermaid"):
-                conf = min(conf, 0.3)
-                reason += "; idea cues: %s (the row may only be the layout)" % ", ".join(
-                    dict.fromkeys(c["cue"] for c in cues))
-        s.update(suggested_archetype=arch, confidence=conf, reason=reason)
-        print("%3d  %-36.36s %-9s %.2f" % (i, s["title"] or "(untitled)", arch or "-", conf),
-              file=sys.stderr)
+        s.update(index=i, **suggest(s))
+        print("%3d  %-36.36s %-9s %.2f  %s" % (i, s["title"] or "(untitled)", s["suggested_archetype"]
+              or "-", s["confidence"], s["suggested_verb"] or "-"), file=sys.stderr)
     keys = ["index", "title", "title_guessed", "bullets", "notes", "text", "has_image", "image_count",
             "hidden_pictures", "layout_pictures", "tables", "connectors", "mermaid", "builds", "suggested_archetype", "confidence", "reason", "order_only",
-            "idea_cues"]
+            "idea_cues", "suggested_verb", "verb_cues"]
     slides = [{k: s[k] for k in keys if k in s} for s in slides]
     builds = sum(s.get("builds", 0) for s in slides)
     if builds:

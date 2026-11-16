@@ -10,6 +10,8 @@
 # of each kind on the loop.
 name: water-cycle
 archetype: pipeline
+verb: cycle
+traveller: { name: water }
 domain: earth science
 size: [1680, 600]
 control: once

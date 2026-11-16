@@ -29,6 +29,9 @@ All controls: motion concurrency (things moving at the same instant, a staggered
 as one: WARN > 3, FAIL > 6) and
 glow concurrency (glow elements visible at the same instant: WARN > 1, FAIL > 2; a stroke-only
 glow warns: lines and arrows never glow).
+Verb: data-anim-verb on the wrapper names the main motion (references/motion-verbs.md): missing
+WARN, not one of the twenty verbs or reveal FAIL; WARN on offset-path motion under a verb other
+than travel or cycle, and on travel without any offset-path.
 
 Every finding is printed as OK / WARN / FAIL (INFO for notes) with a line hint. Exit code 1 on any FAIL.
 Standard library only.
@@ -38,6 +41,11 @@ import math
 import re
 import sys
 from html.parser import HTMLParser
+
+# references/motion-verbs.md: twenty verbs plus reveal; keep in step with scaffold_from_spec.py VERBS
+VERBS = ('grow', 'count', 'accumulate', 'thin', 'race', 'split', 'merge', 'sort', 'stack', 'nest',
+         'transform', 'wipe', 'switch', 'balance', 'drive', 'zoom', 'open', 'travel', 'trace', 'cycle',
+         'reveal')
 
 TOKENS = ['--anim-bg', '--anim-panel', '--anim-line', '--anim-fg', '--anim-muted',
           '--anim-accent', '--anim-accent-2', '--anim-ok', '--anim-warn', '--anim-danger',
@@ -457,6 +465,29 @@ def main():
     if not any(i[0] == 'FAIL' and i[1] == 'structure' for i in R.items):
         R.ok('structure', f'one <style>, wrapper div.anim.{wrap_cls}, one <svg> (viewBox width {vbw:g}), control={control}'
               + (' (default: no data-anim-control)' if ctl_implicit else ''))
+
+    # ------------------------------------------------------------------ verb (references/motion-verbs.md)
+    if wrapper:
+        verb = wrapper['attrs'].get('data-anim-verb')
+        uses_offset = bool(re.search(r'(?<![\w-])offset-path\s*:', css)) or any(
+            re.search(r'(?<![\w-])offset-path\s*:', e['attrs'].get('style', '')) for e in E)
+        if verb is None:
+            R.warn('verb', 'wrapper has no data-anim-verb="<verb>": name the main motion from '
+                   'references/motion-verbs.md (travel only when a named thing changes place)', wrapper['line'])
+        elif verb not in VERBS:
+            R.fail('verb', f'data-anim-verb="{verb}" is not a motion verb; use one of {", ".join(VERBS)}',
+                   wrapper['line'])
+        else:
+            n0 = len(R.items)
+            if uses_offset and verb not in ('travel', 'cycle'):
+                R.warn('verb', f'offset-path motion (a travelling marker) under data-anim-verb="{verb}": a '
+                       'marker on a path is travel; draw the verb\'s own change, or set travel and name '
+                       'the traveller', wrapper['line'])
+            if verb == 'travel' and not uses_offset:
+                R.warn('verb', 'data-anim-verb="travel" but no offset-path: nothing travels along a route',
+                       wrapper['line'])
+            if len(R.items) == n0:
+                R.ok('verb', f'data-anim-verb="{verb}"' + (' with offset-path motion' if uses_offset else ''))
 
     # ------------------------------------------------------------------ forbidden
     nf0 = len(R.items)

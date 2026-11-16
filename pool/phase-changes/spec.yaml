@@ -9,6 +9,8 @@
 # one token per transition coloured by energy, a legend and a caption strip from the phase notes.
 name: phase-changes
 archetype: states
+verb: travel
+traveller: { name: a sample of the substance }
 domain: chemistry
 size: [1680, 600]
 control: once

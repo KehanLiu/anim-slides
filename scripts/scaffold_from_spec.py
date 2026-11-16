@@ -22,6 +22,9 @@ data-anim-control="step", which the host plays segment by segment between the da
 marks; loop: an infinite cycle. data-anim-phases (always written) lists the start second of every
 phase after the first, the hold's start last. Refine it by hand (see the scaffold comment at the
 top of the output), then run render-phases.sh and look at every PNG.
+The spec's verb (references/motion-verbs.md) decides the motion: a marker rides the flow edges only
+under travel (or cycle with a traveller); under any other verb flow edges draw on as the active
+path. A verb no family draws gets the static frame and timing plus a note to build it by hand.
 Specs are YAML or JSON. PyYAML is used when installed; without it a built-in reader covers the
 plain subset the examples use (block and flow collections, quoted and plain scalars, comments).
 """
@@ -42,16 +45,51 @@ NODE_KINDS = ('process', 'data', 'actor', 'decision', 'external', 'store', 'mile
 EDGE_KINDS = ('flow', 'depends', 'data', 'event')
 KEYS = {
     'top': {'name', 'archetype', 'title', 'size', 'control', 'cycle', 'nodes', 'edges', 'groups', 'lanes',
-            'domain', 'illustrative',
+            'domain', 'illustrative', 'verb', 'traveller',
             'phases', 'series', 'events'},
     'node': {'id', 'label', 'sub', 'kind', 'group', 'at', 'side', 'layer'},
     'edge': {'from', 'to', 'label', 'kind'},
     'group': {'id', 'label'},
-    'phase': {'t', 'label', 'show', 'active', 'flow', 'note'},
+    'phase': {'t', 'label', 'show', 'active', 'flow', 'note', 'dim', 'mark', 'switch'},
     'series': {'id', 'label', 'points'},
     'event': {'id', 'at', 'label'},
 }
 ID_RE = re.compile(r'[a-z][a-z0-9]*(-[a-z0-9]+)*')
+# references/motion-verbs.md: the twenty verbs plus reveal (the support move that may be the main
+# verb of an order-only slide). Keep in step with check_fragment.py VERBS.
+VERBS = ('grow', 'count', 'accumulate', 'thin', 'race', 'split', 'merge', 'sort', 'stack', 'nest',
+         'transform', 'wipe', 'switch', 'balance', 'drive', 'zoom', 'open', 'travel', 'trace', 'cycle',
+         'reveal')
+TRAVEL_TEST = ('travel needs a thing the source names (a parcel, a patient, a request, a drop of water) '
+               'that changes place, between places the source names; a list of steps is not a journey: '
+               'steps only in order get reveal, steps that change a quantity, a state or a shape get the '
+               'verb of that change (references/motion-verbs.md section 1)')
+NOT_A_NAME = {'dot', 'a dot', 'the dot', 'packet', 'a packet', 'the packet', 'token', 'a token', 'the token',
+              'marker', 'a marker', 'ball', 'a ball'}
+SWITCH_STATES = ('ok', 'warn', 'danger', 'base')    # base = back to the plain mark
+# where section 5 of motion-verbs.md describes the mechanism of a verb the scaffold does not draw
+MECHANISM = {
+    'grow': 'Scale about a point: scaleY/scaleX on the fill about its baseline',
+    'count': 'Digit strip, paired with grow or accumulate',
+    'accumulate': 'Units, plus a scaleY level',
+    'thin': 'Units: opacity per unit in steps()',
+    'race': 'two bars on the same keyframes with different end values, then a Draw-on bracket',
+    'split': 'parts drawn touching as separate groups; translate opens the gaps',
+    'merge': 'translate inward, then a cross-fade to the outline of the whole',
+    'sort': 'Units: one translate track per unit',
+    'stack': 'a staggered rise per layer onto the one below',
+    'nest': 'Draw-on of the enclosing outlines, inside out',
+    'transform': 'Morph',
+    'wipe': 'Wipe and cutaway',
+    'switch': 'stacked copies cross-faded at the cause (or phase key switch:)',
+    'balance': 'Rotate about a pivot',
+    'drive': 'Rotate about a pivot, two coupled tracks',
+    'zoom': 'Scale about a point on one root group, cross-fade to the detail',
+    'open': 'Wipe and cutaway (cutaway) or translate per layer (exploded view)',
+    'trace': 'Draw-on',
+    'cycle': 'Draw-on of a closed path',
+    'travel': 'offset-path along a drawn route',
+}
 # name: CSS timing function
 EASE = {'enter': 'cubic-bezier(0.16,1,0.3,1)', 'exit': 'cubic-bezier(0.3,0,1,1)',
         'move': 'cubic-bezier(0.45,0,0.55,1)', 'linear': 'linear'}
@@ -370,6 +408,34 @@ def validate(sp, args):
     need(sp.get('domain') is None or isinstance(sp.get('domain'), str), 'domain must be a string')  # pool metadata only
     S.illustrative = sp.get('illustrative', False)
     need(S.illustrative in (True, False), 'illustrative must be true or false')
+    S.verb = sp.get('verb')
+    if S.verb is None:
+        warn('no verb: pick the main motion from references/motion-verbs.md (sections 1 and 2) and '
+             'write it as verb: <verb>; scaffolding as verb: reveal (no travelling packet)')
+        S.verb = 'reveal'
+    else:
+        need(S.verb in VERBS, f'verb {S.verb!r} is not a motion verb; use one of {", ".join(VERBS)} '
+             '(references/motion-verbs.md)')
+    tr = sp.get('traveller')
+    S.traveller = None
+    if tr is not None:
+        if need(isinstance(tr, dict) and not set(tr) - {'name', 'label'},
+                'traveller must be a mapping with name and an optional label'):
+            nm = tr.get('name')
+            if need(isinstance(nm, str) and nm.strip(), 'traveller: name is required (what moves, in the '
+                    "source's words)"):
+                need(nm.strip().lower() not in NOT_A_NAME, f'traveller name {nm!r} is not a name: write '
+                     'what moves, in the source\'s words (a parcel, the patient, one request)')
+            lb = tr.get('label')
+            need(lb is None or isinstance(lb, (str, int, float)), 'traveller: label must be short text')
+            S.traveller = dict(name=str(nm or ''), label=str(lb) if lb not in (None, '') else None)
+            hint(S.traveller['label'], 16, 'traveller.label')
+        if S.verb not in ('travel', 'cycle'):
+            warn(f'traveller is only drawn under verb travel or cycle (verb is {S.verb}); ignored')
+    if S.verb == 'travel' and tr is None:
+        need(False, 'verb: travel needs traveller: {name: ...}: ' + TRAVEL_TEST + '; "a dot" is not a name')
+    # a moving packet only when something really travels (or a token trip is the cycle)
+    S.packets = S.verb == 'travel' or (S.verb == 'cycle' and S.traveller is not None)
     S.lanes = sp.get('lanes', False)
     need(S.lanes in (True, False), 'lanes must be true or false')
     if S.lanes and S.arch != 'graph':
@@ -585,8 +651,21 @@ def check_phases(S, phases, err):
         p = {k: p.get(k) for k in KEYS['phase']}
         if p['label'] == 'hold' and p['active'] is None and out:
             p['active'] = list(out[-1]['active'])    # the hold keeps the final highlights (resting frame)
-        for k in ('show', 'active', 'flow'):
+        if p['label'] == 'hold' and p['dim'] is None and out:
+            p['dim'] = list(out[-1]['dim'])          # ... and the final dimming
+        for k in ('show', 'active', 'flow', 'dim', 'mark'):
+            if p[k] is not None and not isinstance(p[k], list):
+                err.append(f'{w}: {k} must be a list of ids')
+                p[k] = []
             p[k] = [str(x) for x in (p[k] or [])]
+        sw = p['switch'] or {}
+        if not isinstance(sw, dict):
+            err.append(f'{w}: switch must be a mapping {{node-id: {" | ".join(SWITCH_STATES)}}}')
+            sw = {}
+        for x, st in sw.items():
+            if st not in SWITCH_STATES:
+                err.append(f'{w}: switch {x}: state {st!r} must be one of {", ".join(SWITCH_STATES)}')
+        p['switch'] = {str(x): st for x, st in sw.items()}
         lab = p['label']
         if not (isinstance(lab, str) and ID_RE.fullmatch(lab)) or lab in labels:
             err.append(f'{w}: label {lab!r} must be kebab-case and unique')
@@ -634,6 +713,7 @@ def check_phases(S, phases, err):
     known = set(S.node) | set(S.group) | set(S.edge) | {x['id'] for x in S.series + S.events}
     visible = set(S.node) - set(shown_where)
     visible |= {x['id'] for x in S.series + S.events if x['id'] not in shown_where}
+    marked = {}
     for i, p in enumerate(out):
         for x in p['show'] + p['active'] + p['flow']:
             if x not in known:
@@ -657,7 +737,73 @@ def check_phases(S, phases, err):
             err.append(f'phases[{i}]: at most 3 flows per phase')
         if len(p['active']) > 3:
             warn(f'phases[{i}]: {len(p["active"])} active ids (keep to 1-3)')
+        for x in p['dim']:
+            if x not in S.node and x not in S.edge:
+                err.append(f'phases[{i}]: dim {x!r} must be a node id or an edge from>to')
+            elif x not in visible:
+                err.append(f'phases[{i}]: dim {x} is not visible yet')
+            elif x in p['active'] or x in p['mark']:
+                err.append(f'phases[{i}]: {x} is both dimmed and active or marked')
+        for x in p['mark']:
+            if x not in S.node:
+                err.append(f'phases[{i}]: mark {x!r} must be a node id')
+            elif x not in visible:
+                err.append(f'phases[{i}]: mark {x} is not visible yet')
+            elif x in marked:
+                err.append(f'phases[{i}]: {x} is already marked in phase {marked[x]} (a mark stays)')
+            marked.setdefault(x, i)
+        for x in p['switch']:
+            if x not in S.node:
+                err.append(f'phases[{i}]: switch {x!r} must be a node id')
+            elif x not in visible:
+                err.append(f'phases[{i}]: switch {x} is not visible yet')
+    if len(marked) > 3:
+        warn(f'{len(marked)} marks; a mark is for the one element the claim is about (three at most)')
     return out
+
+
+def has_cycle(S):
+    adj = {}
+    for e in S.edges:
+        adj.setdefault(e['from'], []).append(e['to'])
+    state = {}
+
+    def dfs(x):
+        state[x] = 1
+        for y in adj.get(x, []):
+            if state.get(y) == 1 or (y not in state and dfs(y)):
+                return True
+        state[x] = 2
+        return False
+    return any(x not in state and dfs(x) for x in list(adj))
+
+
+def verb_note(S):
+    """None when a scaffold family draws the spec's verb; else why not (the output is then the
+    static frame, captions, phase marks and timing, with no packet)."""
+    flows = any(p['flow'] for p in S.phases)
+    v = S.verb
+    if v == 'reveal':
+        return None
+    if v == 'travel':
+        return None if flows else 'no phase has a flow edge for the traveller to ride'
+    if v == 'cycle':
+        if not has_cycle(S):
+            return 'the edges form no closed loop'
+        return None if flows else 'no phase has a flow edge to draw the loop'
+    if v == 'trace':
+        if S.arch in ('chart', 'timeline') or flows:
+            return None
+        return f'{S.arch} has no line or route to draw on'
+    if v == 'switch':
+        if any(p['switch'] for p in S.phases):
+            return None
+        return 'no phase has a switch: key (switch: {node-id: ok | warn | danger | base})'
+    return f'no scaffold family draws {v}'
+
+
+def note(msg):
+    print(f'scaffold_from_spec: note: {msg}', file=sys.stderr)
 
 
 # ============================================================================ geometry
@@ -2001,9 +2147,12 @@ def build_anims(S, T, scene, anim):
     for key in sorted({x for p in S.phases for x in p['active']}):
         if key in rid and key not in {s['id'] for s in S.series + S.events}:
             runs([key in p['active'] for p in S.phases], rid[key] + '-hl')
+    switched = {x for p in S.phases for x in p['switch']}
     if S.arch in ('pipeline', 'timeline'):        # a step that was lit and moved on settles in --anim-ok
         scene['ok'] = set()
         for n in S.nodes:
+            if n['id'] in switched:               # an explicit switch: decides the node's state itself
+                continue
             on = [n['id'] in p['active'] for p in S.phases]
             if True not in on:
                 continue
@@ -2021,9 +2170,71 @@ def build_anims(S, T, scene, anim):
         nxt = notes[k + 1] if k + 1 < len(notes) else T.n
         runs([i <= j < nxt for j in range(T.n)], f'{N}-note{k}')
 
-    # packets
-    pk = 0
+    # switch: a status copy of the node per state, stacked in the state layer, cross-faded in place
+    sw = {}
     for i, p in enumerate(S.phases):
+        for x, st in p['switch'].items():
+            sw.setdefault(x, []).append((i, st))
+    scene['switch'] = []
+    for x, seq in sw.items():
+        for st in sorted({s for _, s in seq} - {'base'}):
+            on = []
+            for i in range(T.n):
+                cur = [s for j, s in seq if j <= i]
+                on.append(bool(cur) and cur[-1] == st)
+            el = f'{rid[x]}-sw-{st}'
+            runs(on, el)
+            scene['switch'].append((x, st, el))
+
+    # mark: a ring (or an underline on a row) drawn on around the node; it stays to the end
+    scene['marks'] = []
+    for i, p in enumerate(S.phases):
+        for x in p['mark']:
+            el = f'{rid[x]}-mk'
+            anim.add(el, 'stroke-dashoffset', T.act[i] + 0.1, 0.6, 101, 0, 'move')
+            scene['marks'].append((x, el))
+
+    # dim: a veil in the ground colour over the dimmed elements, one group per run of phases with
+    # the same dim set, so dimming many elements is one opacity change (motion concurrency)
+    scene['dims'] = []
+    i = 0
+    while i < T.n:
+        d = S.phases[i]['dim']
+        if not d:
+            i += 1
+            continue
+        j = i
+        while j + 1 < T.n and S.phases[j + 1]['dim'] == d:
+            j += 1
+        el = f'{N}-dim{len(scene["dims"])}'
+        runs([i <= k <= j for k in range(T.n)], el)
+        scene['dims'].append((el, list(d)))
+        i = j + 1
+
+    # flow without a traveller: the edge lights as the active path (accent, drawn on), no packet.
+    # It stays lit through its phase (and through a final hold that adds no flow of its own).
+    if not S.packets:
+        lit_e = sorted({x for p in S.phases for x in p['flow']})
+        scene['flowlit'] = []
+        for eid in lit_e:
+            on = [eid in p['flow'] for p in S.phases]
+            if (T.n > 1 and on[-2] and S.phases[-1]['label'] == 'hold' and not S.phases[-1]['flow']):
+                on[-1] = True
+            el = f'{rid[eid]}-fl'
+            runs(on, el)
+            k = 0
+            while k < T.n:                         # draw on at the start of each lit run
+                if on[k] and (k == 0 or not on[k - 1]):
+                    if k:
+                        anim.add(el, 'stroke-dashoffset', T.act[k] - 0.08, 0.05, 0, 101, 'linear')
+                    anim.add(el, 'stroke-dashoffset', T.act[k] + 0.05, 0.6, 101, 0, 'move')
+                k += 1
+            anim.rest_over[el]['stroke-dashoffset'] = 0
+            scene['flowlit'].append((eid, el))
+
+    # packets: only when something really travels (verb travel, or cycle with a traveller)
+    pk = 0
+    for i, p in enumerate(S.phases if S.packets else []):
         pos = {}
         for eid in p['flow']:
             pos[eid] = max([pos[f] + 1 for f in pos if S.edge[f]['to'] == S.edge[eid]['from']], default=0)
@@ -2391,6 +2602,10 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
                     txt += (f'<text class="{N}-t {N}-sub" x="{f1(b["x"] + b["w"])}" y="{f1(ty)}" '
                             f'text-anchor="end">{escape(n["sub"])}</text>')
             parts.append(txt)
+            for x, st, sel in scene.get('switch', []):
+                if x == n['id']:      # a row switches by its label colour
+                    stxt = txt.replace(f'{N}-lbl"', f'{N}-lbl {N}-st-{st}"').replace(f'{N}-sub"', f'{N}-sub {N}-ghost"')
+                    state.append(f'<g id="{sel}" class="{N}-swg"{anim.style(sel)}>{stxt}</g>')
             if not b.get('last'):
                 parts.append(f'<path class="{N}-rule" d="M {f1(b["x"])},{f1(b["y"] + b["h"])} H {f1(b["x"] + b["w"])}"/>')
             if on:
@@ -2410,6 +2625,10 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         if n['id'] in scene.get('ok', ()):
             state.append(f'<g id="{el}-ok" class="{N}-okg"{anim.style(el + "-ok")}>'
                          + mark_svg(b, f'{base} {N}-is-ok') + inner(S, F, n, b, k, 'ok') + '</g>')
+        for x, st, sel in scene.get('switch', []):
+            if x == n['id']:
+                state.append(f'<g id="{sel}" class="{N}-swg"{anim.style(sel)}>'
+                             + mark_svg(b, f'{base} {N}-is-{st}') + inner(S, F, n, b, k, st) + '</g>')
         if on:
             parts.append(hl_group(el, (mark_svg(b, f'{N}-glow') if n['id'] == glow_id else '')
                                   + mark_svg(b, f'{base} {N}-is-hl')
@@ -2449,6 +2668,52 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
                        f'd="{s["d"]}"{clip}/>{dot}<text id="{el}-end" class="{N}-t {N}-lbl {N}-f{k}" '
                        f'x="{f1(ex + 14)}" y="{f1(s["ly"])}"{anim.style(el + "-end")}>{escape(s["s"]["label"])}</text></g>')
 
+    # ---- dim: veils in the ground colour over the dimmed elements, under the state layer
+    for el, ids in scene.get('dims', []):
+        shapes = []
+        for x in ids:
+            if x in S.node:
+                b = scene['nodes'][x]
+                if b['shape'] == 'row':
+                    shapes.append(f'<rect x="{f1(b["x"])}" y="{f1(b["y"] + 2)}" width="{f1(b["w"])}" '
+                                  f'height="{f1(b["h"] - 4)}"/>')
+                    continue
+                shapes.append(f'<circle cx="{f1(b["cx"])}" cy="{f1(b["cy"])}" r="{f1(b["r"] + 4)}"/>')
+                for bx in [b.get('lbox')] + ([dict(x=b['at'][0] - 60, y=b['at'][1] - F['mono'], w=120,
+                                                    h=F['mono'] * 1.4)] if 'at' in b else []):
+                    if bx:
+                        shapes.append(f'<rect x="{f1(bx["x"] - 4)}" y="{f1(bx["y"] - 2)}" '
+                                      f'width="{f1(bx["w"] + 8)}" height="{f1(bx["h"] + 4)}"/>')
+            else:
+                e = S.edge[x]
+                c = scene['edges'][x]
+                shapes.append(f'<path class="{N}-veil-w" d="{path_d(c)}"/>')
+                shapes.append(f'<path class="{N}-veil-w" d="{arrow_d(c)}"/>')
+                if e['label']:
+                    lb = label_box(S, F, scene, e)
+                    shapes.append(f'<rect x="{f1(lb["x"])}" y="{f1(lb["y"])}" width="{f1(lb["w"])}" '
+                                  f'height="{f1(lb["h"])}"/>')
+        svg.append(f'<g id="{el}" class="{N}-dim"{anim.style(el)}><g class="{N}-veil">{"".join(shapes)}</g></g>')
+
+    # ---- flow without a traveller: the active path drawn on in accent
+    for eid, el in scene.get('flowlit', []):
+        state.append(f'<path id="{el}" class="{N}-wire-hl {N}-draw" d="{path_d(scene["edges"][eid])}" '
+                     f'pathLength="100"{anim.style(el)}/>')
+
+    # ---- mark: a ring drawn on around the node (an underline under a row)
+    for x, el in scene.get('marks', []):
+        b = scene['nodes'][x]
+        if b['shape'] == 'row':
+            rt = row_text(S.node[x], F, b['w'] - 16, b.get('stack'))
+            w = max([line_w(t, r, F) for t, r in rt if r == 'lbl'] or [text_w(S.node[x]['label'], F['lbl'])])
+            y = b['y'] + b['h'] - 6
+            d = f'M {f1(b["x"] + 16)},{f1(y)} H {f1(b["x"] + 16 + min(w, b["w"] - 24))}'
+            state.append(f'<path id="{el}" class="{N}-mark" d="{d}" pathLength="100"{anim.style(el)}/>')
+        else:
+            r = b['r'] + 10
+            state.append(f'<circle id="{el}" class="{N}-mark" cx="{f1(b["cx"])}" cy="{f1(b["cy"])}" r="{f1(r)}" '
+                         f'transform="rotate(-90 {f1(b["cx"])} {f1(b["cy"])})" pathLength="100"{anim.style(el)}/>')
+
     # ---- caption: plain centred text, cross-faded per phase (inside the state layer)
     if has_note:
         notes = [p['note'] for p in S.phases if p['note']]
@@ -2467,8 +2732,15 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
     for el, eid in scene.get('packets', []):
         e = S.edge[eid]
         r = 10 if S.arch == 'states' else 8
-        svg.append(f'<circle id="{el}" class="{N}-pkt{" " + N + "-pkt-event" if e["kind"] == "event" else ""}" '
-                   f'r="{r}"{anim.style(el, f"offset-path:var(--{rid[eid]})")}/>')
+        cls = f'{N}-pkt{" " + N + "-pkt-event" if e["kind"] == "event" else ""}'
+        lab = (S.traveller or {}).get('label')
+        if lab:     # the traveller's short label rides with the marker, upright (offset-rotate: 0deg)
+            svg.append(f'<g id="{el}" class="{N}-trav"{anim.style(el, f"offset-path:var(--{rid[eid]});offset-rotate:0deg")}>'
+                       f'<circle class="{cls}" r="{r}"/><text class="{N}-t {N}-mono {N}-tlbl" x="{r + 8}" '
+                       f'y="{f1(-r - 6)}">{escape(lab)}</text></g>')
+        else:
+            svg.append(f'<circle id="{el}" class="{cls}" '
+                       f'r="{r}"{anim.style(el, f"offset-path:var(--{rid[eid]})")}/>')
     return svg
 
 
@@ -2530,6 +2802,21 @@ def css(S, F, T, anim, scene, rid):
 {A} .{N}-arrow {{ fill: none; stroke: {ink}; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
 {A} .{N}-pkt {{ fill: var(--anim-accent); stroke: var(--anim-accent); stroke-width: 12; stroke-opacity: 0.3; }}
 {A} .{N}-pkt-event {{ fill: var(--anim-warn); stroke: var(--anim-warn); }}
+{A} .{N}-tlbl {{ fill: var(--anim-fg); paint-order: stroke; stroke: var(--anim-bg); stroke-width: 6px; stroke-linejoin: round; }}
+/* switch: status copies of a mark; mark: an accent ring drawn on; dim: a veil in the ground colour */
+{A} .{N}-is-warn {{ fill: none; stroke: var(--anim-warn); }}
+{A} .{N}-is-danger {{ fill: none; stroke: var(--anim-danger); }}
+{A} .{N}-dot.{N}-is-warn {{ fill: var(--anim-warn); }}
+{A} .{N}-dot.{N}-is-danger {{ fill: var(--anim-danger); }}
+{A} .{N}-in-warn, {A} .{N}-st-warn {{ fill: var(--anim-warn); }}
+{A} .{N}-in-danger, {A} .{N}-st-danger {{ fill: var(--anim-danger); }}
+{A} .{N}-st-ok {{ fill: var(--anim-ok); }}
+{A} path.{N}-in-warn {{ fill: none; stroke: var(--anim-warn); }}
+{A} path.{N}-in-danger {{ fill: none; stroke: var(--anim-danger); }}
+{A} .{N}-mark {{ fill: none; stroke: var(--anim-accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 100 120; stroke-dashoffset: 0; }}
+{A} .{N}-veil {{ opacity: 0.65; }}
+{A} .{N}-veil rect, {A} .{N}-veil circle {{ fill: var(--anim-bg); stroke: none; }}
+{A} .{N}-veil-w {{ fill: none; stroke: var(--anim-bg); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }}
 /* structure: hairlines, brackets, axes */
 {A} .{N}-rule {{ fill: none; stroke: var(--anim-line); stroke-width: 2; }}
 {A} .{N}-bracket {{ fill: none; stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
@@ -2548,7 +2835,7 @@ def css(S, F, T, anim, scene, rid):
 {A} .{N}-evl {{ fill: none; stroke: var(--anim-muted); stroke-width: 2; stroke-dasharray: 6 7; }}
 """
     out = [rules]
-    if S.edges:
+    if S.edges and scene.get('packets'):
         out.append(f'/* ---- edge paths: the one copy packets read (offset-path: var(--...)); keep in step with each wire d ---- */')
         out.append(f'{A} {{\n' + '\n'.join(f'  --{rid[e["id"]]}: path("{path_d(scene["edges"][e["id"]])}");'
                                              for e in S.edges) + '\n}')
@@ -2672,6 +2959,17 @@ def main():
     anim = Anim()
     rid = build_anims(S, T, scene, anim)
     body = emit(S, args, F, scene, T, anim, rid, fr)
+    vnote = verb_note(S)
+    if vnote:
+        note(f'verb {S.verb}: {vnote}. The output is the static frame, captions, phase marks and timing '
+             f'only, with no packet; build the {S.verb} motion by hand (references/motion-verbs.md '
+             f'section 5: {MECHANISM.get(S.verb, "Mechanisms")})')
+    if S.verb == 'travel' and S.traveller:
+        print(f'verb travel: the traveller is {S.traveller["name"]}'
+              + (f' (label {S.traveller["label"]!r} rides with the marker)' if S.traveller['label'] else ''))
+    elif any(p['flow'] for p in S.phases) and not S.packets:
+        print(f'verb {S.verb}: flow edges are drawn on as the active path, no packet '
+              '(packets need verb travel, or cycle with a traveller)')
 
     words = ', '.join(n['label'] for n in S.nodes) or ', '.join(s['label'] for s in S.series)
     aria = escape(f'{S.title + ": " if S.title else ""}{S.arch} of {words}', quote=True)
@@ -2679,17 +2977,22 @@ def main():
     refine = ('<!-- scaffold: refine by hand -\n'
               f'  generated by scripts/scaffold_from_spec.py from {os.path.basename(args.spec)} '
               f'({S.arch}, {S.control}, {S.W}x{S.H}, rendered {rw:g}px)\n'
-              f'  - {REFINE[S.arch]}\n'
+              f'  - verb {S.verb} (references/motion-verbs.md)'
+              + (f': HAND-BUILD the {S.verb} motion ({vnote}; section 5: {MECHANISM.get(S.verb, "Mechanisms")})\n'
+                 if vnote else '\n')
+              + f'  - {REFINE[S.arch]}\n'
               '  - lean style (references/style.md): rings, hairlines, one accent; glyphs per kind are placeholders\n'
               '  - aria-label: rewrite as one sentence that tells the story\n'
               '  - motion audit (references/motion-rules.md); render-phases.sh and LOOK at every PNG\n'
-              f'  - edge paths: each wire keeps its d attribute (SVG d cannot read a CSS variable in every\n'
-              f'    browser), and the same path is written ONCE more in <style> as --{S.name}-e-<from>-<to>;\n'
-              f'    every packet on that edge uses offset-path: var(--{S.name}-e-<from>-<to>). To reroute an\n'
-              f'    edge change its d (and its -hl copy, if any) and that one --{S.name}-e-... line\n-->')
+              + (f'  - edge paths: each wire keeps its d attribute (SVG d cannot read a CSS variable in every\n'
+                 f'    browser), and the same path is written ONCE more in <style> as --{S.name}-e-<from>-<to>;\n'
+                 f'    every packet on that edge reads it as its motion path. To reroute an\n'
+                 f'    edge change its d (and its -hl copy, if any) and that one --{S.name}-e-... line\n'
+                 if scene.get('packets') else '')
+              + '-->')
     html = [refine, '<style>', css(S, F, T, anim, scene, rid), '</style>',
             f'<div class="anim anim-{S.name}" data-anim="{S.name}" data-anim-cycle="{cyc}" '
-            f'data-anim-phases="{T.marks(S)}" data-anim-control="{S.control}">',
+            f'data-anim-phases="{T.marks(S)}" data-anim-control="{S.control}" data-anim-verb="{S.verb}">',
             f'<svg viewBox="0 0 {S.W} {S.H}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" '
             f'role="img" aria-label="{aria}">']
     html += ['  ' + x for x in body]

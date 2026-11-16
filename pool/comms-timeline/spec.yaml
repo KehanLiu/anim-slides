@@ -9,6 +9,7 @@
 # draw under the axis as each era begins.
 name: comms-timeline
 archetype: timeline
+verb: reveal
 domain: history
 title: "Milestones in long-distance communication"
 size: [1680, 520]

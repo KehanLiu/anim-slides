@@ -4,6 +4,7 @@
 # The published HTML was hand-polished after scaffolding (see pool/cloud-spend/cloud-spend.html).
 name: cloud-spend
 archetype: chart
+verb: trace
 title: "Monthly cloud spend"
 size: [1680, 600]
 control: once

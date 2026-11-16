@@ -6,6 +6,7 @@
 # caption per column); re-scaffolding gives the column skeleton only.
 name: funding-options
 archetype: compare
+verb: reveal
 domain: business
 size: [1680, 600]
 control: once

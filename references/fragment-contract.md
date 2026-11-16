@@ -13,7 +13,7 @@ One file `<name>.html` containing exactly two top-level things, in this order:
   /* every selector scoped under .anim-<name>; every keyframe named <name>-... */
 </style>
 <div class="anim anim-<name>" data-anim="<name>" data-anim-cycle="8" data-anim-control="once"
-     data-anim-phases="2,4.5,7">
+     data-anim-phases="2,4.5,7" data-anim-verb="grow">
   <svg viewBox="0 0 W H" width="100%" height="100%" role="img" aria-label="one-sentence description">
     <!-- the illustration -->
   </svg>
@@ -33,6 +33,13 @@ One file `<name>.html` containing exactly two top-level things, in this order:
   from phase starts; a hand-built fragment sets them by looking at the frames. Required under `step`, validated under
   `once` when present; the scaffolder always writes it, so a fragment can switch control
   without a rebuild.
+- `data-anim-verb` names the fragment's main motion, the verb chosen from the slide's claim:
+  one of the twenty in [motion-verbs.md](motion-verbs.md) (`grow`, `count`, `accumulate`,
+  `thin`, `race`, `split`, `merge`, `sort`, `stack`, `nest`, `transform`, `wipe`, `switch`,
+  `balance`, `drive`, `zoom`, `open`, `travel`, `trace`, `cycle`) or `reveal`. Hand-built
+  fragments carry it too. A marker moving along a path (`offset-path`) belongs to `travel` (or a
+  token trip under `cycle`); under any other verb the checker warns, and `travel` without one
+  warns as well. Missing warns (older fragments), an unknown value fails.
 - Exactly one `<svg>`. HTML text outside the SVG is not allowed; captions belong to the slide.
 - Nothing else: no `<script>` (under any control), no `<link>`, no `<image>`,
   no `<img>`, `<iframe>`, `<object>`, `<embed>` or `<foreignObject>`, no `href`/`xlink:href`/`src`
@@ -191,8 +198,10 @@ still, the PDF page and the last frame of the pass are one and the same picture.
 
 ## 7b. Edge paths (scaffolded fragments)
 
-The scaffold writes each wire's path once, as a CSS custom property on the fragment
-(`--<name>-e-<from>-<to>: path("...")`), and packets ride it with `offset-path: var(...)`.
+When a traveller rides (`verb: travel`, or `cycle` with a `traveller`), the scaffold writes each
+wire's path once, as a CSS custom property on the fragment
+(`--<name>-e-<from>-<to>: path("...")`), and the markers ride it with `offset-path: var(...)`.
+Under any other verb there are no markers and no such variables.
 The wire itself still needs its `d` attribute (Safari cannot read `d` from a variable), so a
 hand reroute changes `d`, its `-hl` highlight copy and that one variable.
 
@@ -209,6 +218,8 @@ A fragment is done when all four hold:
    - `step`: the `once` checks, plus a required `data-anim-phases` (ascending, above 0, at most
      the pass); under `once` the attribute is validated when present.
    - `loop`: `data-anim-cycle` 8 to 15 s.
+   - all controls, check `verb`: `data-anim-verb` missing WARN, not a verb FAIL; WARN on
+     `offset-path` motion under a verb other than `travel` or `cycle`, and on `travel` without it.
    - all controls, measured by sampling the pass every 20 ms (duration, positive delay,
      iteration count and fill mode resolved per animation):
      - motion concurrency: an element is moving while it sits between two consecutive keyframe

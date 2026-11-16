@@ -6,6 +6,7 @@
 # load meters, verdict strip); re-scaffolding gives the row skeleton only.
 name: cache-compare
 archetype: compare
+verb: race
 size: [1680, 600]
 control: once
 cycle: 10

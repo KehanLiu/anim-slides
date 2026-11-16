@@ -6,6 +6,8 @@
 name: er-patient-flow
 domain: health
 archetype: pipeline
+verb: travel
+traveller: { name: the patient }
 size: [1680, 560]
 control: once
 cycle: 10

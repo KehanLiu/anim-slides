@@ -7,6 +7,8 @@
 name: loan-decision
 domain: finance
 archetype: graph
+verb: travel
+traveller: { name: the loan application }
 size: [1680, 600]
 control: once
 cycle: 10

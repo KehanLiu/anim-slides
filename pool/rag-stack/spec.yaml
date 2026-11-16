@@ -6,6 +6,8 @@
 # badges, and packet hops timed so the holder of the packet is the one active chip.
 name: rag-stack
 archetype: layers
+verb: travel
+traveller: { name: the user's question }
 size: [1200, 640]
 control: once
 cycle: 9.8

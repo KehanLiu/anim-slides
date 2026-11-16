@@ -5,6 +5,8 @@
 # edge that is armed (marching, warn colour) during the canary instead of firing.
 name: deploy-pipeline
 archetype: pipeline
+verb: travel
+traveller: { name: the release commit, label: a1f9c3e }
 size: [1680, 440]
 control: once
 cycle: 9.8

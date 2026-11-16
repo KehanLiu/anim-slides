@@ -5,6 +5,7 @@
 # and the planned milestone is drawn dashed on a dotted axis segment.
 name: roadmap
 archetype: timeline
+verb: reveal
 size: [1680, 440]
 control: once
 cycle: 9.9
