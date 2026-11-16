@@ -29,21 +29,21 @@ this step does not apply to it.
 
 | Picture idea | Form | Verb | Build family | Pool entry for craft |
 |---|---|---|---|---|
-| order only: A, then B, then C, nothing more | a row of rings on one line | `reveal` | `pipeline` | `deploy-pipeline`; `er-patient-flow` (two-row snake) |
-| it returns: the end feeds the start | a closed ring | `cycle` | `states` | `water-cycle`, `phase-changes` |
+| order only: A, then B, then C, nothing more | a row of rings on one line | `reveal` | `pipeline` | `roadmap`, `funding-options` (they build with no traveller) |
+| it returns: the end feeds the start | a closed ring | `cycle` | `states` | `water-cycle` |
 | it narrows: fewer pass each stage | a tapering funnel, dots at scale | `thin` | `pipeline` | `sales-funnel` |
-| it accumulates or matures: each level rests on the one below | stairs or a stack built bottom-up | `stack`, `accumulate` | `layers` | `bloom-taxonomy` |
-| a level or quantity changes | a fill level, a bar, a gauge | `grow`, `count` | `states` / `chart` | `canal-lock`, `cloud-spend` |
-| two things pull against each other | two sides, a balance | `balance`, `race` | `compare` | `funding-options`, `photosynth-respiration` |
-| one thing contains another | rings inside rings | `nest`, `zoom` | `layers` | none; hand-built |
-| one splits into several, or several merge | fan-out, fan-in | `split`, `merge` | `graph` | `loan-decision`, `service-deps` |
+| it accumulates or matures: each level rests on the one below | stairs or a stack built bottom-up | `stack`, `accumulate` | `layers` | `bloom-taxonomy` (stack), `petition-threshold` (accumulate) |
+| a level or quantity changes | a fill level, a bar, a gauge | `grow`, `count` | `states` / `chart` | `canal-lock`, `compound-interest` |
+| two things pull against each other | two sides, a balance | `balance`, `race` | `compare` | `energy-balance` (balance), `mediation-vs-trial`, `cache-compare` (race) |
+| one thing contains another | rings inside rings | `nest`, `zoom` | `layers` | `number-sets`, `service-deps` (nest), `leaf-stomata` (zoom) |
+| one splits into several, or several merge | fan-out, fan-in | `split`, `merge` | `graph` | `mitosis` (split), `coalition-majority` (merge), `loan-decision` (a branch) |
 | actors exchange something | lanes, one token handed between them | `travel` (the thing exchanged) | `graph` | `hiring-lanes` |
 | a handover across a boundary | a drawn boundary line the token crosses | `travel` (the thing handed over) | `timeline` / `graph` | `court-case` |
-| the same thing before and after | the thing in place, the old state as a ghost | `transform`, `wipe`, `switch` | `states` / `compare` | `canal-lock` (dashed ghost level), `cache-compare` |
-| a physical mechanism the source describes | a scene: the thing itself, in cross-section | `drive`, `open` | `states` / `pipeline` | `canal-lock`, `water-cycle` |
-| a place or a route | a map or a path with stations | `travel`, `trace` | `pipeline` | `parcel-route` |
+| the same thing before and after | the thing in place, the old state as a ghost | `transform`, `wipe`, `switch` | `states` / `compare` | `oxbow-lake` (transform), `street-redesign` (wipe), `contract-formation`, `job-states`, `phase-changes` (switch) |
+| a physical mechanism the source describes | a scene: the thing itself, in cross-section | `drive`, `open` | `states` / `pipeline` | `breathing` (drive), `earth-layers` (open), `canal-lock` |
+| a place or a route | a map or a path with stations | `travel`, `trace` | `pipeline` | `parcel-route` (travel), `forgetting-curve` (trace) |
 | a hierarchy | a tree | `reveal` (root down), `nest` | `graph` | none; `service-deps` for rank spacing |
-| a spectrum or scale | points on one axis | `sort`, `trace` | `timeline` | `roadmap` |
+| a spectrum or scale | points on one axis | `sort`, `trace` | `timeline` | `blood-types` (sort), `roadmap` |
 
 **Order only is a correct answer.** When the source says only order, draw the row, write
 "order only" as the idea and `reveal` as the verb: the row builds in reading order and the

@@ -238,3 +238,32 @@ Write the verb in the triage table and the brief. When the same main verb covers
 third of a deck's fragments (and at least three), re-read those slides: each repeat needs a
 reason from the source in its triage row, and `travel` needs the traveller's name. A deck
 where every fragment is `travel` or `reveal` has drawn the layout of its text, not its ideas.
+
+## 8. A pool entry for each verb
+
+Open the entry for craft and technique, not to copy its picture (`pool/index.yaml`, field
+`verb`).
+
+| Verb | Pool entry |
+|---|---|
+| `grow` | `compound-interest`, `canal-lock` |
+| `count` | with `accumulate` in `petition-threshold`, with `sort` in `blood-types` |
+| `accumulate` | `petition-threshold` |
+| `thin` | `sales-funnel` |
+| `race` | `mediation-vs-trial`, `cache-compare` |
+| `split` | `mitosis` |
+| `merge` | `coalition-majority` |
+| `sort` | `blood-types` |
+| `stack` | `bloom-taxonomy` |
+| `nest` | `number-sets`, `service-deps` |
+| `transform` | `oxbow-lake` |
+| `wipe` | `street-redesign` |
+| `switch` | `contract-formation`, `job-states`, `phase-changes`, `photosynth-respiration` |
+| `balance` | `energy-balance` |
+| `drive` | `breathing` |
+| `zoom` | `leaf-stomata` |
+| `open` | `earth-layers` |
+| `travel` | `parcel-route`, `er-patient-flow`, `hiring-lanes` (each with a named traveller) |
+| `trace` | `forgetting-curve`, `cloud-spend` |
+| `cycle` | `water-cycle` |
+| `reveal` | `roadmap`, `funding-options` |

@@ -4,6 +4,52 @@ All notable changes to this project. Versions match `metadata.version` in `SKILL
 
 ## Unreleased
 
+Motion that carries the meaning. Driver: the owner's review, "we basically just build process
+diagrams and have a moving point from start to end". An audit found 17 of 22 pool entries
+were a point advancing along a line, six of seven archetypes were nodes, connectors and a
+marker, the spec could only say `show`, `active` and `flow`, and the style rules named the
+traveller "a glowing dot". Other agent skills for video and slides (Remotion, HyperFrames,
+Manim skills, frontend-slides, visual-explainer) and the research on explanatory animation
+(Tversky, Heer and Robertson, Bostock) point the same way: pick the motion from the claim.
+
+- **Motion verbs:** new `references/motion-verbs.md`: twenty verbs (grow, count, accumulate,
+  thin, race, split, merge, sort, stack, nest, transform, wipe, switch, balance, drive, zoom,
+  open, travel, trace, cycle) and three support moves (reveal, mark, dim), a table from the
+  grammar of the slide's claim to a verb, what each puts on screen, and the CSS/SVG
+  mechanism. One verb per fragment; the verb's move takes 40 to 60 % of the pass.
+- **The travel test:** a travelling marker belongs to `travel` (a thing the source names,
+  between places it names) and to the one trip of a `cycle`. Order-only slides build with
+  `reveal` and have no traveller.
+- **Spec, scaffolder, contract:** top-level `verb:` and `traveller:`; phase keys `dim`, `mark`
+  and `switch`; `flow` draws a packet only under `travel`; verbs the scaffolder cannot draw get
+  the static frame, the timing and a hand-build note, never a dot. Fragments carry
+  `data-anim-verb`. The triage has a `Verb` column, the brief `Verb:`, `Traveller:` and
+  `Mechanism:`; the brief's worked example is a savings jar that fills.
+- **Extractor:** `suggested_verb` and `verb_cues` per slide from the claim's wording;
+  connectors, numbering and "step" no longer make a confident pipeline (capped at 0.3 with
+  `reveal`); title slides get no suggestion.
+- **Rules:** `style.md` and `motion-rules.md` no longer prescribe the dot: the subject's own
+  object before a ring, one hero move with follow-through, a `change` duration class of 0.9
+  to 1.8 s, a `d` morph inside `@supports` over a cross-fade base, techniques for units, a
+  digit strip, a wipe and a cutaway.
+- **Pool, 22 to 37 entries:** fifteen new entries, one verb each, outside IT
+  (`compound-interest`, `petition-threshold`, `mediation-vs-trial`, `mitosis`,
+  `coalition-majority`, `blood-types`, `number-sets`, `oxbow-lake`, `street-redesign`,
+  `contract-formation`, `energy-balance`, `breathing`, `leaf-stomata`, `earth-layers`,
+  `forgetting-curve`); five dot entries reworked (`bloom-taxonomy` stacks, `job-states` and
+  `phase-changes` switch in place, `service-deps` closes a boundary around an outage,
+  `cache-compare` is a race of bars). Seven entries use a travelling marker, each with a
+  named traveller. Every entry has `verb` in `index.yaml`; the gallery filters by verb.
+- **Checks:** `scripts/check_verbs.py` (a verb on every fragment, a reason on each repeat over
+  a third of a deck, markers only under `travel` or `cycle`; `--pool` holds the pool to a
+  third, in CI). `check_fragment.py`: `verb` check, a declared staggered series of units
+  counts as one move (`data-anim-series`), `@supports` blocks are checked as a variant and a
+  morph must end on its resting `d`. `check_look.py` reads `inset()` and `polygon()` clips
+  from the browser.
+- **Evals:** `verbs-not-dots` and `arrows-are-not-travel`: lists and arrow-joined cards whose
+  claims are an accumulation, a balance, shares, a race, a split, with one real journey and
+  one order-only control each. Not yet run live.
+
 Picture first. Driver: on long documents and card decks the skill drew nearly every slide as
 a row "step 1, step 2, step 3". Selection went keyword, archetype, nearest pool entry; nothing
 asked what the idea looks like, and the review loop treated any other form as "too much".
