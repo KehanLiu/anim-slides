@@ -279,6 +279,7 @@ cheap; write them all before building), then builds.
 - `references/brief-template.md` — the brief every fragment starts from
 - `references/layouts.md` — measuring a slot; 16:9 layouts and viewBoxes
 - `references/motion-rules.md` — timing, easing, choreography, audit checklist
+- `references/motion-verbs.md` — the twenty motion verbs: from the slide's claim to a verb, what is on screen, the CSS/SVG mechanism
 - `references/style.md` — the visual style and its checklist
 - `references/accuracy.md` — accuracy rules and the `verify_facts.py` gate
 - `references/look-rubric.md` — the look rubric and blind-reviewer prompt; calibration examples
