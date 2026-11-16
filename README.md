@@ -32,29 +32,34 @@ no deck skill is installed: it makes a plain HTML deck to integrate into, not a 
 
 ## Pool
 
-The skill ships a pool of 22 finished, checked fragments across 16 fields, at least one per
-archetype. The agent starts from the closest one before building from scratch. See them all
+The skill ships a pool of 37 finished, checked fragments across 17 fields. Each is built on
+the motion its point calls for: a jar that fills, a balance that tips, a crowd that sorts
+itself, a river bend that becomes a lake, a boundary that closes around an outage. A dot
+travelling along a line appears only where a named thing really travels. The agent picks the
+motion from the slide's claim ([`references/motion-verbs.md`](references/motion-verbs.md)) and
+starts from the closest entry before building from scratch. See them all
 animating in the **[live gallery](https://kehanliu.github.io/anim-slides/)**. Resting frames:
 
 <table>
 <tr>
-<td><img src="pool/er-patient-flow/thumb.png" alt="er-patient-flow"><br><code>er-patient-flow</code></td>
-<td><img src="pool/photosynth-respiration/thumb.png" alt="photosynth-respiration"><br><code>photosynth-respiration</code></td>
-<td><img src="pool/water-cycle/thumb.png" alt="water-cycle"><br><code>water-cycle</code></td>
+<td><img src="pool/energy-balance/thumb.png" alt="energy-balance"><br><code>energy-balance</code> · balance</td>
+<td><img src="pool/petition-threshold/thumb.png" alt="petition-threshold"><br><code>petition-threshold</code> · accumulate</td>
+<td><img src="pool/blood-types/thumb.png" alt="blood-types"><br><code>blood-types</code> · sort</td>
 </tr>
 <tr>
-<td><img src="pool/loan-decision/thumb.png" alt="loan-decision"><br><code>loan-decision</code></td>
-<td><img src="pool/court-case/thumb.png" alt="court-case"><br><code>court-case</code></td>
-<td><img src="pool/canal-lock/thumb.png" alt="canal-lock"><br><code>canal-lock</code></td>
+<td><img src="pool/oxbow-lake/thumb.png" alt="oxbow-lake"><br><code>oxbow-lake</code> · transform</td>
+<td><img src="pool/earth-layers/thumb.png" alt="earth-layers"><br><code>earth-layers</code> · open</td>
+<td><img src="pool/canal-lock/thumb.png" alt="canal-lock"><br><code>canal-lock</code> · grow</td>
 </tr>
 <tr>
-<td><img src="pool/funding-options/thumb.png" alt="funding-options"><br><code>funding-options</code></td>
-<td><img src="pool/bloom-taxonomy/thumb.png" alt="bloom-taxonomy"><br><code>bloom-taxonomy</code></td>
-<td><img src="pool/phase-changes/thumb.png" alt="phase-changes"><br><code>phase-changes</code></td>
+<td><img src="pool/mitosis/thumb.png" alt="mitosis"><br><code>mitosis</code> · split</td>
+<td><img src="pool/street-redesign/thumb.png" alt="street-redesign"><br><code>street-redesign</code> · wipe</td>
+<td><img src="pool/er-patient-flow/thumb.png" alt="er-patient-flow"><br><code>er-patient-flow</code> · travel</td>
 </tr>
 </table>
 
 More in [`pool/README.md`](pool/README.md), including how to keep a private pool of your own.
+Five older entries next to their rebuilt versions: [`docs/motion-before-after/`](docs/motion-before-after/index.html).
 
 ## What you get
 
