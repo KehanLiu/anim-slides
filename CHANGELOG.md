@@ -48,7 +48,12 @@ Manim skills, frontend-slides, visual-explainer) and the research on explanatory
   from the browser.
 - **Evals:** `verbs-not-dots` and `arrows-are-not-travel`: lists and arrow-joined cards whose
   claims are an accumulation, a balance, shares, a race, a split, with one real journey and
-  one order-only control each. Not yet run live.
+  one order-only control each. Each was run once by a fresh agent: seven verbs on seven
+  slides and five on five, one marker per deck, `check_verbs.py` passing on both.
+- **Review and page:** two blind reviews of the new and reworked pool entries from contact
+  sheets, with the fixes applied; `docs/motion-before-after/` shows the five reworked entries
+  next to their old versions. `data-anim-verb` may name up to two supporting verbs after the
+  main one. Lessons from the work are in `references/lessons.md`.
 
 Picture first. Driver: on long documents and card decks the skill drew nearly every slide as
 a row "step 1, step 2, step 3". Selection went keyword, archetype, nearest pool entry; nothing

@@ -220,3 +220,40 @@ Under 0.11.0: frontend-slides built the deck from the pptx, three fragments, bli
   single-accent orange deck (map it to the line colour or accent); fragment-mode `check_look`
   font WARNs are expected on a deck-skill deck (the `--page` run is the font check); the blind
   review images had no named place (`anim/review/blind/`).
+
+## Motion vocabulary rebuild and two trap-deck runs (2026-11-16)
+
+- **What was wrong:** 17 of 22 pool entries, six of seven archetypes and the spec's only
+  motion word (`flow`) were a point advancing along a line, so every slide came out as a
+  process diagram with a moving dot. Naming the motion before the form fixed it: one verb per
+  fragment, chosen from the slide's claim ([motion-verbs.md](motion-verbs.md)).
+- **Two runs after the change:** `verbs-not-dots` (seven list slides) came out as accumulate,
+  balance, sort, transform, nest, travel (the blood sample) and reveal; `arrows-are-not-travel`
+  (cards joined by arrows) as grow, race, split, travel (the wallet) and reveal. One marker
+  per deck, on the slide where a named thing travels; `check_verbs.py` passed on both.
+- **Units need a declared series:** 20 to 100 units each on their own translate track count
+  one by one unless the group carries `data-anim-series`; without it builders move rigid
+  blocks, which reads as a reshape, not a sort.
+- **A morph is only checked since `@supports` is a variant:** a 100 % `d` that differs from
+  the resting `d` used to pass every check and show only in a render. Build the cross-fade
+  base first, then the `d` morph; render a copy with the `@supports` block removed.
+- **A counter must move with what it counts:** values that tick after the bar, the column or
+  the units have landed were the most repeated review defect. Step the number per row or per
+  landing, or show it once when the motion settles.
+- **The accent is for the outcome:** lighting each part in turn over a finished drawing reads
+  as a highlight stepping along, the dot's cousin. Let the part itself arrive, open or
+  change, and keep the accent for the answer.
+- **State changes need a shape, not only a colour and a word:** with labels covered a ticket
+  whose border changes colour shows nothing; a progress stroke that stops at a cross, a ring
+  that breaks, a wire that splits open do.
+- **A round trip rests on its start:** when the story returns to where it began, keep the
+  states it passed through on the rest frame (small fixed thumbnails), or the still says
+  nothing.
+- **Blind review on contact sheets:** tell the reviewer the real width of a frame; at a
+  480 px thumbnail every 20 px label looks too small and the finding drowns the real ones.
+- **Gaps seen in the runs, not yet fixed:** `check_look.py --page` scored slides that are
+  invisible at rest on a deck whose reveal is keyed on its own class (the runs re-ran it on a
+  copy, and one added the deck's `active` class to its CSS); `render_deck.py` output was
+  cropped on both decks; on a short deck the floor ("every qualifying slide gets a figure")
+  and "never two animated slides in a row" contradict each other, and both runs let the floor
+  win.
