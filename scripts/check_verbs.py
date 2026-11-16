@@ -69,7 +69,8 @@ def fragments_in_html(text):
         if name in out or not re.search(r'\bclass="[^"]*\banim\b', tag):
             continue
         v = VERB_ATTR_RE.search(tag)
-        out[name] = {'name': name, 'verb': v.group(1).strip().lower() if v else None, 'marker': False}
+        vs = v.group(1).strip().lower().split() if v else []
+        out[name] = {'name': name, 'verb': (vs[0] if vs else '') if v else None, 'support': vs[1:], 'marker': False}
     # a marker is an offset-path declared in a rule of that fragment
     for rule in re.finditer(r'([^{}]*)\{([^{}]*)\}', text):
         if 'offset-path' not in rule.group(2):
@@ -176,7 +177,8 @@ def check_deck(frags, rows, R, source):
             R.ok('repeat', f'{v} on {len(mine)} of {n} fragments, each with a reason in the triage')
 
     markers = [f for f in frags if f['marker'] or f['verb'] == 'travel']
-    stray = [f['name'] for f in markers if f['marker'] and f['verb'] in VERBS and f['verb'] not in MARKER_VERBS]
+    stray = [f['name'] for f in markers if f['marker'] and f['verb'] in VERBS
+             and not (set([f['verb']] + f.get('support', [])) & set(MARKER_VERBS))]
     if stray:
         R.fail('marker', f"travelling marker (offset-path) under a verb other than travel or cycle: "
                          f"{', '.join(stray)}; remove the marker or the verb is wrong")

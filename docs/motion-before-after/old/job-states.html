@@ -1,0 +1,150 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>job-states (old)</title><style>html,body{margin:0;background:#0F1E27}section{width:100vw;aspect-ratio:1200.0/600.0}</style></head>
+<body><section class="visible">
+<!-- job-states: states archetype, hand-tuned from pool/job-states/spec.yaml (scaffold, then rebuilt for layout and story).
+  Plays once, 9.8 s pass: queued > running (attempt 1) > failed > retry > queued > running (attempt 2) > succeeded
+  | one token per hop, event log fills in | final state from 8.7 s
+  Names, numbers and times are illustrative examples. -->
+<style>
+.anim-job-states {
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display: block; width: 100%; height: 100%;
+}
+.anim-job-states svg{display:block;width:100%;height:100%}
+/* lean style (references/style.md): states are rings with a line glyph and the label outside,
+   transitions are thin arcs with the label sitting on the arc, the job is a glowing dot,
+   the event log is plain mono lines with no panel */
+.anim-job-states .job-states-c-acc{--job-states-k:var(--anim-accent)}
+.anim-job-states .job-states-c-ok{--job-states-k:var(--anim-ok)}
+.anim-job-states .job-states-c-bad{--job-states-k:var(--anim-danger)}
+.anim-job-states .job-states-lbl{font-family:var(--anim-font);font-size:26px;font-weight:600;fill:var(--anim-fg)}
+.anim-job-states .job-states-sub{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted)}
+.anim-job-states .job-states-albl{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted)}
+.anim-job-states .job-states-albl-on{fill:var(--job-states-k)}
+.anim-job-states .job-states-arc{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round}
+.anim-job-states .job-states-arc-evt{stroke-dasharray:4 9}
+.anim-job-states .job-states-arw{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-job-states .job-states-arc-on{fill:none;stroke:var(--job-states-k);stroke-width:3;stroke-linecap:round}
+.anim-job-states .job-states-arw-on{fill:none;stroke:var(--job-states-k);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-job-states .job-states-ring{fill:var(--anim-bg);stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5}
+.anim-job-states .job-states-glyph{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-job-states .job-states-ring-on{fill:color-mix(in srgb,var(--job-states-k) 14%,var(--anim-bg));stroke:var(--job-states-k);stroke-width:3}
+.anim-job-states .job-states-glyph-on{stroke:var(--job-states-k)}
+.anim-job-states .job-states-halo{fill:none;stroke:var(--job-states-k);stroke-width:12;stroke-opacity:.3;filter:blur(6px)}
+.anim-job-states .job-states-tok{fill:var(--job-states-k);stroke:var(--job-states-k);stroke-width:12;stroke-opacity:.3;offset-rotate:0deg}
+.anim-job-states .job-states-title{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted);letter-spacing:.04em}
+.anim-job-states .job-states-ts{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted)}
+.anim-job-states .job-states-ev{font-family:var(--anim-mono);font-size:19px}
+.anim-job-states .job-states-t-fg{fill:var(--anim-fg)}
+.anim-job-states .job-states-t-rd{fill:var(--anim-danger)}
+.anim-job-states .job-states-t-gn{fill:var(--anim-ok)}
+.anim-job-states .job-states-gap{fill:var(--anim-bg)}
+/* resting frame = end of the story: job succeeded on attempt 2, full event log visible.
+   Layers that belong only to earlier phases rest at opacity 0. */
+.anim-job-states .job-states-on-exit,.anim-job-states .job-states-hot-done,.anim-job-states .job-states-att2,.anim-job-states .job-states-log0,.anim-job-states .job-states-log1,.anim-job-states .job-states-log2,.anim-job-states .job-states-log3,.anim-job-states .job-states-log4,.anim-job-states .job-states-log5{opacity:1}
+.anim-job-states .job-states-tk-h1,.anim-job-states .job-states-tk-h2,.anim-job-states .job-states-tk-h3,.anim-job-states .job-states-tk-h4,.anim-job-states .job-states-tk-h5,.anim-job-states .job-states-on-picked,.anim-job-states .job-states-on-error,.anim-job-states .job-states-on-retry,.anim-job-states .job-states-hot-queued,.anim-job-states .job-states-hot-running,.anim-job-states .job-states-hot-failed,.anim-job-states .job-states-att1{opacity:0}
+@keyframes job-states-tk-h1{0%,7.8%{opacity:0;offset-distance:0%}9.18%{opacity:1;offset-distance:0%}18.37%{opacity:1;offset-distance:100%}19.75%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h2{0%,29.84%{opacity:0;offset-distance:0%}31.22%{opacity:1;offset-distance:0%}40.41%{opacity:1;offset-distance:100%}41.79%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h3{0%,46.37%{opacity:0;offset-distance:0%}47.75%{opacity:1;offset-distance:0%}56.94%{opacity:1;offset-distance:100%}58.32%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h4{0%,59.23%{opacity:0;offset-distance:0%}60.61%{opacity:1;offset-distance:0%}69.79%{opacity:1;offset-distance:100%}71.17%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-tk-h5{0%,75.77%{opacity:0;offset-distance:0%}77.14%{opacity:1;offset-distance:0%}86.32%{opacity:1;offset-distance:100%}87.7%,100%{opacity:0;offset-distance:100%}}
+@keyframes job-states-on-picked{0%,9.18%{opacity:0}11.48%,20.2%{opacity:1}21.7%,60.61%{opacity:0}62.9%,71.63%{opacity:1}73.12%,100%{opacity:0}}
+@keyframes job-states-on-error{0%,31.22%{opacity:0}33.52%,42.24%{opacity:1}43.73%,100%{opacity:0}}
+@keyframes job-states-on-retry{0%,47.75%{opacity:0}50.05%,58.77%{opacity:1}60.26%,100%{opacity:0}}
+@keyframes job-states-on-exit{0%,77.14%{opacity:0}79.44%,100%{opacity:1}}
+@keyframes job-states-hot-queued{0%,9.18%{opacity:1}10.68%,56.94%{opacity:0}59.23%,60.61%{opacity:1}62.1%,100%{opacity:0}}
+@keyframes job-states-hot-running{0%,18.37%{opacity:0}20.66%,31.22%{opacity:1}32.71%,69.79%{opacity:0}72.1%,77.14%{opacity:1}78.63%,100%{opacity:0}}
+@keyframes job-states-hot-failed{0%,40.41%{opacity:0}42.7%,47.75%{opacity:1}49.24%,100%{opacity:0}}
+@keyframes job-states-hot-done{0%,86.32%{opacity:0}88.63%,100%{opacity:1}}
+@keyframes job-states-att1{0%,69.79%{opacity:1}72.1%,100%{opacity:0}}
+@keyframes job-states-att2{0%,69.79%{opacity:0}72.55%,100%{opacity:1}}
+@keyframes job-states-log0{0%,1.84%{opacity:0}4.6%,100%{opacity:1}}
+@keyframes job-states-log1{0%,18.37%{opacity:0}21.13%,100%{opacity:1}}
+@keyframes job-states-log2{0%,40.41%{opacity:0}43.17%,100%{opacity:1}}
+@keyframes job-states-log3{0%,56.94%{opacity:0}59.7%,100%{opacity:1}}
+@keyframes job-states-log4{0%,69.79%{opacity:0}72.55%,100%{opacity:1}}
+@keyframes job-states-log5{0%,86.32%{opacity:0}89.08%,100%{opacity:1}}
+.visible .anim-job-states .job-states-tk-h1{animation:job-states-tk-h1 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-tk-h2{animation:job-states-tk-h2 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-tk-h3{animation:job-states-tk-h3 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-tk-h4{animation:job-states-tk-h4 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-tk-h5{animation:job-states-tk-h5 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-on-picked{animation:job-states-on-picked 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-on-error{animation:job-states-on-error 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-on-retry{animation:job-states-on-retry 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-on-exit{animation:job-states-on-exit 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-hot-queued{animation:job-states-hot-queued 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-hot-running{animation:job-states-hot-running 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-hot-failed{animation:job-states-hot-failed 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-hot-done{animation:job-states-hot-done 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-att1{animation:job-states-att1 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-att2{animation:job-states-att2 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log0{animation:job-states-log0 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log1{animation:job-states-log1 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log2{animation:job-states-log2 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log3{animation:job-states-log3 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log4{animation:job-states-log4 9.8s ease-in-out 1 forwards}
+.visible .anim-job-states .job-states-log5{animation:job-states-log5 9.8s ease-in-out 1 forwards}
+
+@media (prefers-reduced-motion: reduce) { .anim-job-states * { animation: none !important; } }
+</style>
+<div class="anim anim-job-states" data-anim="job-states" data-anim-cycle="9.8" data-anim-phases="0.7,2.9,4.5,5.8,7.4,8.8" data-anim-control="once">
+<svg viewBox="0 0 1200 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Job lifecycle: a queued job is picked by a worker, fails with a timeout, is retried after a 2 second backoff and succeeds on the second attempt, with each transition written to an event log.">
+<path class="job-states-arc" d="M200 252 Q215 135 560 128"/><path class="job-states-arw" d="M550 121 L560 128 L550 135"/>
+<path class="job-states-arc" d="M640 128 Q985 135 1000 252"/><path class="job-states-arw" d="M991.8 243 L1000 252 L1005.6 241.2"/>
+<path class="job-states-arc job-states-arc-evt" d="M600 168 Q700 300 600 432"/><path class="job-states-arw" d="M600.4 419.8 L600 432 L611.6 428.2"/>
+<path class="job-states-arc job-states-arc-evt" d="M562 470 Q215 470 200 328"/><path class="job-states-arw" d="M208 337.2 L200 328 L194.1 338.6"/>
+<g class="job-states-on-picked job-states-c-acc"><path class="job-states-arc-on" d="M200 252 Q215 135 560 128"/><path class="job-states-arw-on" d="M550 121 L560 128 L550 135"/></g>
+<g class="job-states-on-exit job-states-c-ok"><path class="job-states-arc-on" d="M640 128 Q985 135 1000 252"/><path class="job-states-arw-on" d="M991.8 243 L1000 252 L1005.6 241.2"/></g>
+<g class="job-states-on-error job-states-c-bad"><path class="job-states-arc-on" d="M600 168 Q700 300 600 432"/><path class="job-states-arw-on" d="M600.4 419.8 L600 432 L611.6 428.2"/></g>
+<g class="job-states-on-retry job-states-c-acc"><path class="job-states-arc-on" d="M562 470 Q215 470 200 328"/><path class="job-states-arw-on" d="M208 337.2 L200 328 L194.1 338.6"/></g>
+<rect class="job-states-gap" x="254" y="148" width="89" height="30" rx="4"/><rect class="job-states-gap" x="858" y="148" width="89" height="30" rx="4"/><rect class="job-states-gap" x="612" y="285" width="77" height="30" rx="4"/><rect class="job-states-gap" x="225" y="420" width="146" height="30" rx="4"/>
+<text class="job-states-albl" x="298" y="169" text-anchor="middle">picked</text>
+<text class="job-states-albl" x="902" y="169" text-anchor="middle">exit 0</text>
+<text class="job-states-albl" x="650" y="306" text-anchor="middle">error</text>
+<text class="job-states-albl" x="298" y="441" text-anchor="middle">retry · 2 s</text>
+<text class="job-states-albl job-states-albl-on job-states-on-picked job-states-c-acc" x="298" y="169" text-anchor="middle">picked</text>
+<text class="job-states-albl job-states-albl-on job-states-on-exit job-states-c-ok" x="902" y="169" text-anchor="middle">exit 0</text>
+<text class="job-states-albl job-states-albl-on job-states-on-error job-states-c-bad" x="650" y="306" text-anchor="middle">error</text>
+<text class="job-states-albl job-states-albl-on job-states-on-retry job-states-c-acc" x="298" y="441" text-anchor="middle">retry · 2 s</text>
+<circle class="job-states-ring" cx="200" cy="290" r="36"/><path class="job-states-glyph" transform="translate(200 290)" d="M-12 -8 H12 M-12 0 H12 M-12 8 H4"/>
+<g class="job-states-hot-queued job-states-c-acc"><circle class="job-states-halo" cx="200" cy="290" r="36"/><circle class="job-states-ring-on" cx="200" cy="290" r="36"/><path class="job-states-glyph job-states-glyph-on" transform="translate(200 290)" d="M-12 -8 H12 M-12 0 H12 M-12 8 H4"/></g>
+<text class="job-states-lbl" x="148" y="299" text-anchor="end">Queued</text>
+<circle class="job-states-ring" cx="600" cy="130" r="36"/><path class="job-states-glyph" transform="translate(600 130)" d="M-6 -10 L10 0 L-6 10 Z"/>
+<g class="job-states-hot-running job-states-c-acc"><circle class="job-states-halo" cx="600" cy="130" r="36"/><circle class="job-states-ring-on" cx="600" cy="130" r="36"/><path class="job-states-glyph job-states-glyph-on" transform="translate(600 130)" d="M-6 -10 L10 0 L-6 10 Z"/></g>
+<text class="job-states-lbl" x="600" y="50" text-anchor="middle">Running</text>
+<text class="job-states-sub job-states-att1" x="600" y="78" text-anchor="middle">attempt 1 of 3</text>
+<text class="job-states-sub job-states-att2" x="600" y="78" text-anchor="middle">attempt 2 of 3</text>
+<circle class="job-states-ring" cx="1000" cy="290" r="36"/><path class="job-states-glyph" transform="translate(1000 290)" d="M-11 1 L-4 8 L11 -8"/>
+<g class="job-states-hot-done job-states-c-ok"><circle class="job-states-halo" cx="1000" cy="290" r="36"/><circle class="job-states-ring-on" cx="1000" cy="290" r="36"/><path class="job-states-glyph job-states-glyph-on" transform="translate(1000 290)" d="M-11 1 L-4 8 L11 -8"/></g>
+<text class="job-states-lbl" x="1000" y="360" text-anchor="middle">Succeeded</text>
+<circle class="job-states-ring" cx="600" cy="470" r="36"/><path class="job-states-glyph" transform="translate(600 470)" d="M-8 -8 L8 8 M8 -8 L-8 8"/>
+<g class="job-states-hot-failed job-states-c-bad"><circle class="job-states-halo" cx="600" cy="470" r="36"/><circle class="job-states-ring-on" cx="600" cy="470" r="36"/><path class="job-states-glyph job-states-glyph-on" transform="translate(600 470)" d="M-8 -8 L8 8 M8 -8 L-8 8"/></g>
+<text class="job-states-lbl" x="600" y="540" text-anchor="middle">Failed</text>
+<circle class="job-states-tok job-states-c-acc job-states-tk-h1" r="8" style="offset-path:path('M200 252 Q215 135 560 128')"/>
+<circle class="job-states-tok job-states-c-bad job-states-tk-h2" r="8" style="offset-path:path('M600 168 Q700 300 600 432')"/>
+<circle class="job-states-tok job-states-c-acc job-states-tk-h3" r="8" style="offset-path:path('M562 470 Q215 470 200 328')"/>
+<circle class="job-states-tok job-states-c-acc job-states-tk-h4" r="8" style="offset-path:path('M200 252 Q215 135 560 128')"/>
+<circle class="job-states-tok job-states-c-ok job-states-tk-h5" r="8" style="offset-path:path('M640 128 Q985 135 1000 252')"/>
+<text class="job-states-title" x="800" y="414">job 4812 · event log</text>
+<g class="job-states-log0"><text class="job-states-ts" x="800" y="446">00:00</text><text class="job-states-ev job-states-t-fg" x="874" y="446">queued</text></g>
+<g class="job-states-log1"><text class="job-states-ts" x="800" y="473">00:02</text><text class="job-states-ev job-states-t-fg" x="874" y="473">picked · attempt 1</text></g>
+<g class="job-states-log2"><text class="job-states-ts" x="800" y="500">00:31</text><text class="job-states-ev job-states-t-rd" x="874" y="500">error · timeout</text></g>
+<g class="job-states-log3"><text class="job-states-ts" x="800" y="527">00:33</text><text class="job-states-ev job-states-t-fg" x="874" y="527">retry after 2 s</text></g>
+<g class="job-states-log4"><text class="job-states-ts" x="800" y="554">00:35</text><text class="job-states-ev job-states-t-fg" x="874" y="554">picked · attempt 2</text></g>
+<g class="job-states-log5"><text class="job-states-ts" x="800" y="581">00:58</text><text class="job-states-ev job-states-t-gn" x="874" y="581">exit 0 · succeeded</text></g>
+</svg>
+</div>
+
+</section></body></html>

@@ -29,7 +29,7 @@
   domain: software
   viewbox: [1680, 600]
   cycle: 9.4
-  phases: [2.6, 3.5, 4.9, 7.0, 8.2]
+  phases: [2.6, 3.5, 4.9, 7, 8.2]
   spec: true
   story: A service graph builds rank by rank, then a third-party outage spreads only to Payments and a boundary closes around the two: the blast radius.
   tags: [dependencies, microservices, blast-radius, outage, architecture]
@@ -84,7 +84,7 @@
   domain: software
   viewbox: [1680, 600]
   cycle: 10
-  phases: [2.7, 4.55, 6.15, 7.75, 8.9]
+  phases: [2.7, 4.55, 6.15, 7.75, 9.1]
   spec: true
   story: The same four reads raced on one clock without and with a cache; 180 ms database reads keep growing while 8 ms hits stop almost at once, and database load climbs to 96 % on one side but stays at 24 % on the other.
   tags: [caching, latency, database, before-after, performance]
@@ -302,11 +302,11 @@
   domain: chemistry
   viewbox: [1680, 600]
   cycle: 10
-  phases: [0.85, 4.54, 8.5, 9.05]
+  phases: [0.62, 2.63, 4.68, 6.68, 9.02]
   spec: true
-  story: One sealed container holds the same 18 particles; energy in turns the solid lattice into a liquid on the floor (melting, 0 °C) and then a gas filling the container (vaporization, 100 °C at 1 atm); the reverse changes and sublimation and deposition are named with their absorb/release wording.
+  story: One sealed container holds the same 18 particles; energy in loosens the solid lattice into a liquid (melting, 0 °C) and spreads it into a gas (vaporization, 100 °C at 1 atm), then energy out brings it back through condensation and freezing; sublimation and deposition are named with their absorb/release wording.
   tags: [chemistry, states-of-matter, phase-change, energy, particles, physics]
-  technique: one translate track per particle (lattice, liquid, gas; the base is the gas), each rearrangement a staggered series; the energy-in stroke draws on; the lit state and labels cross-fade
+  technique: one translate track per particle through lattice, liquid and gas positions; each of the four changes is one declared series (data-anim-series) of all 18; the energy stroke draws on and reverses; the lit state and labels cross-fade
 
 - name: energy-balance
   archetype: compare
@@ -357,8 +357,8 @@
   moves: [drive-chain, morph, ghost-before-after, draw-on]
   domain: health
   viewbox: [1680, 600]
-  cycle: 8.6
-  phases: [1.2, 4.1, 5.8, 7.4]
+  cycle: 7.3
+  phases: [0.9, 4, 5.85]
   spec: false
   story: A front cross-section of the chest; the domed diaphragm contracts and flattens, the lungs follow it down, then volume up, pressure down and air flows in down the windpipe, resting on the inhaled state with the resting dome kept as a dashed ghost.
   tags: [breathing, diaphragm, lungs, physiology, cause-effect, cross-section]
@@ -386,7 +386,7 @@
   domain: education
   viewbox: [1680, 600]
   cycle: 10
-  phases: [3.0, 5.33, 6.86, 9.15]
+  phases: [3, 5.33, 6.86, 9.15]
   spec: false
   story: Without review, what you learned fades fast and levels off as a dashed ghost; the review line traces on, jumps back to the top at three reviews and falls less steeply each time, and a bracket marks what is kept with review (schematic).
   tags: [forgetting-curve, spacing-effect, memory, learning, schematic, line-chart]
@@ -427,8 +427,8 @@
   moves: [dots-at-scale, units-sort, count]
   domain: health
   viewbox: [1680, 600]
-  cycle: 9.4
-  phases: [0.95, 2.38, 3.85, 6.65, 8.6]
+  cycle: 9.9
+  phases: [1.22, 2.85, 4.7, 7.5, 8.95]
   spec: false
   story: One crowd of 100 people, one ring each, sorts itself by ABO blood group into blocks in columns of five (about 44 O, 42 A, 10 B, 4 AB in the US); the counts land and the largest group takes the accent.
   tags: [blood-type, abo, population-share, unit-chart, of-every-100]
@@ -469,8 +469,8 @@
   moves: [morph, cross-fade-shape, draw-on, ghost-before-after]
   domain: earth-science
   viewbox: [1680, 600]
-  cycle: 9.5
-  phases: [2.9, 4.8, 6.1, 8.25]
+  cycle: 10
+  phases: [2.9, 4.8, 6.1, 7.4, 8.8]
   spec: false
   story: A river bend tightens into a loop with a narrow neck, a flood cuts through the neck, and the sealed-off loop is left behind as an oxbow lake.
   tags: [river, meander, erosion, deposition, geomorphology, map]
@@ -511,8 +511,8 @@
   moves: [split-merge, dots-at-scale, draw-on]
   domain: civics
   viewbox: [1680, 600]
-  cycle: 9.2
-  phases: [1.4, 3.6, 5.9, 6.95, 7.8]
+  cycle: 9.4
+  phases: [1.4, 3.58, 6.3, 7.35, 8.15]
   spec: false
   story: No party has a majority alone; Party B joins Party A, then Party C joins both, and together their 53 seats pass the majority line at 51 by 2 (illustrative seats).
   tags: [parliament, coalition, majority, seats, threshold, illustrative]

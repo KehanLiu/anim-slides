@@ -1,0 +1,78 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Motion before and after</title>
+<style>
+:root{--bg:#0F1E27;--fg:#E6EDF0;--muted:#93A7B2;--line:#2A3D49;--accent:#34D1BF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:1500px;margin:0 auto;padding:40px 16px 80px}
+h1{font-size:28px;margin:0 0 8px;text-wrap:balance}
+.lede{color:var(--muted);max-width:70ch;margin:0 0 16px}
+.pair{padding:32px 0;border-top:1px solid var(--line)}
+h2{font-size:18px;margin:0} code{font-family:ui-monospace,monospace;color:var(--accent)}
+.claim{margin:4px 0 16px;font-size:20px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:16px}
+figure{margin:0;min-width:0}
+iframe{display:block;width:100%;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+figcaption{color:var(--muted);font-size:14px;margin-top:8px} figcaption b{color:var(--fg);margin-right:6px}
+button{margin-top:12px;font:inherit;color:var(--fg);background:none;border:1px solid var(--line);border-radius:6px;padding:6px 14px;cursor:pointer}
+button:hover,button:focus-visible{border-color:var(--accent)}
+</style></head><body><main>
+<h1>Motion before and after</h1>
+<p class="lede">Five pool entries whose story was told by a dot travelling along a line, and the same content rebuilt on the verb its claim calls for (references/motion-verbs.md). Each pair plays once when it loads; use the button to play it again. Labels and numbers are unchanged.</p>
+<button type="button" id="all">Replay all</button>
+<section class="pair">
+  <h2><code>bloom-taxonomy</code></h2>
+  <p class="claim">Each level of thinking rests on the one below.</p>
+  <div class="cols">
+    <figure><iframe title="bloom-taxonomy before" src="old/bloom-taxonomy.html" loading="lazy" style="aspect-ratio:1200.0/640.0"></iframe>
+      <figcaption><b>Before</b> a glowing token climbs the finished pyramid</figcaption></figure>
+    <figure><iframe title="bloom-taxonomy after" src="new/bloom-taxonomy.html" loading="lazy" style="aspect-ratio:1200.0/640.0"></iframe>
+      <figcaption><b>After</b> stack: each tier is lowered onto the one beneath it</figcaption></figure>
+  </div>
+  <button type="button" class="replay">Replay both</button>
+</section><section class="pair">
+  <h2><code>job-states</code></h2>
+  <p class="claim">One job fails once, waits, and succeeds on the second attempt.</p>
+  <div class="cols">
+    <figure><iframe title="job-states before" src="old/job-states.html" loading="lazy" style="aspect-ratio:1200.0/600.0"></iframe>
+      <figcaption><b>Before</b> a token travels between state rings</figcaption></figure>
+    <figure><iframe title="job-states after" src="new/job-states.html" loading="lazy" style="aspect-ratio:1200.0/600.0"></iframe>
+      <figcaption><b>After</b> switch: one job ticket changes state in place</figcaption></figure>
+  </div>
+  <button type="button" class="replay">Replay both</button>
+</section><section class="pair">
+  <h2><code>phase-changes</code></h2>
+  <p class="claim">The same particles, arranged differently, as energy goes in.</p>
+  <div class="cols">
+    <figure><iframe title="phase-changes before" src="old/phase-changes.html" loading="lazy" style="aspect-ratio:1680.0/600.0"></iframe>
+      <figcaption><b>Before</b> a token runs the six transitions between three pictures</figcaption></figure>
+    <figure><iframe title="phase-changes after" src="new/phase-changes.html" loading="lazy" style="aspect-ratio:1680.0/600.0"></iframe>
+      <figcaption><b>After</b> switch: one sample rearranges in place</figcaption></figure>
+  </div>
+  <button type="button" class="replay">Replay both</button>
+</section><section class="pair">
+  <h2><code>service-deps</code></h2>
+  <p class="claim">A third-party outage stays contained to Payments.</p>
+  <div class="cols">
+    <figure><iframe title="service-deps before" src="old/service-deps.html" loading="lazy" style="aspect-ratio:1680.0/600.0"></iframe>
+      <figcaption><b>Before</b> a packet traces one request through the graph</figcaption></figure>
+    <figure><iframe title="service-deps after" src="new/service-deps.html" loading="lazy" style="aspect-ratio:1680.0/600.0"></iframe>
+      <figcaption><b>After</b> nest: the failure spreads one step and a boundary closes around it</figcaption></figure>
+  </div>
+  <button type="button" class="replay">Replay both</button>
+</section><section class="pair">
+  <h2><code>cache-compare</code></h2>
+  <p class="claim">The same four reads, without and with a cache.</p>
+  <div class="cols">
+    <figure><iframe title="cache-compare before" src="old/cache-compare.html" loading="lazy" style="aspect-ratio:1680.0/600.0"></iframe>
+      <figcaption><b>Before</b> a packet travels for every read</figcaption></figure>
+    <figure><iframe title="cache-compare after" src="new/cache-compare.html" loading="lazy" style="aspect-ratio:1680.0/600.0"></iframe>
+      <figcaption><b>After</b> race: both latency bars grow on one clock, one stops at once</figcaption></figure>
+  </div>
+  <button type="button" class="replay">Replay both</button>
+</section>
+</main><script>
+function replay(scope){scope.querySelectorAll('iframe').forEach(function(f){f.src=f.src})}
+document.querySelectorAll('.replay').forEach(function(b){b.addEventListener('click',function(){replay(b.closest('.pair'))})});
+document.getElementById('all').addEventListener('click',function(){replay(document)});
+</script></body></html>

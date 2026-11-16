@@ -595,18 +595,16 @@ def main():
         if verb is None:
             R.warn('verb', 'wrapper has no data-anim-verb="<verb>": name the main motion from '
                    'references/motion-verbs.md (travel only when a named thing changes place)', wrapper['line'])
-        elif verb not in VERBS:
-            R.fail('verb', f'data-anim-verb="{verb}" is not a motion verb; use one of {", ".join(VERBS)}',
-                   wrapper['line'])
+        elif not verb.split() or len(verb.split()) > 3 or any(v not in VERBS for v in verb.split()):
+            R.fail('verb', f'data-anim-verb="{verb}": the main verb, then at most two supporting verbs, each one of '
+                   f'{", ".join(VERBS)}', wrapper['line'])
         else:
             n0 = len(R.items)
-            if uses_offset and verb not in ('travel', 'cycle'):
+            verbs_named = verb.split()
+            if uses_offset and not ({'travel', 'cycle'} & set(verbs_named)):
                 R.warn('verb', f'offset-path motion (a travelling marker) under data-anim-verb="{verb}": a '
-                       'marker on a path is travel; draw the verb\'s own change, or set travel and name '
-                       'the traveller', wrapper['line'])
-            if verb == 'travel' and not uses_offset:
-                R.warn('verb', 'data-anim-verb="travel" but no offset-path: nothing travels along a route',
-                       wrapper['line'])
+                       'marker on a path is travel; draw the verb\'s own change, or name travel (as the '
+                       'main verb, or after it as a supporting verb) and name the traveller', wrapper['line'])
             if len(R.items) == n0:
                 R.ok('verb', f'data-anim-verb="{verb}"' + (' with offset-path motion' if uses_offset else ''))
 

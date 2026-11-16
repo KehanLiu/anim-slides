@@ -37,9 +37,11 @@ One file `<name>.html` containing exactly two top-level things, in this order:
   one of the twenty in [motion-verbs.md](motion-verbs.md) (`grow`, `count`, `accumulate`,
   `thin`, `race`, `split`, `merge`, `sort`, `stack`, `nest`, `transform`, `wipe`, `switch`,
   `balance`, `drive`, `zoom`, `open`, `travel`, `trace`, `cycle`) or `reveal`. Hand-built
-  fragments carry it too. A marker moving along a path (`offset-path`) belongs to `travel` (or a
-  token trip under `cycle`); under any other verb the checker warns, and `travel` without one
-  warns as well. Missing warns (older fragments), an unknown value fails.
+  fragments carry it too. At most two supporting verbs may follow the main one, separated by
+  spaces (`data-anim-verb="accumulate count"`); deck checks read the first. A marker moving
+  along a path (`offset-path`) belongs to `travel` (or a token trip under `cycle`), named as
+  the main or a supporting verb; otherwise the checker warns. Missing warns (older
+  fragments), an unknown value fails.
 - Exactly one `<svg>`. HTML text outside the SVG is not allowed; captions belong to the slide.
 - Nothing else: no `<script>` (under any control), no `<link>`, no `<image>`,
   no `<img>`, `<iframe>`, `<object>`, `<embed>` or `<foreignObject>`, no `href`/`xlink:href`/`src`
