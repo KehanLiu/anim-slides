@@ -32,10 +32,10 @@ groups:
   - { id: edge, label: Edge }
   - { id: core, label: Core services }
 phases:
-  - { t: 0,    label: setup,    show: [edge, web, gateway],     note: "Requests enter through the API gateway" }
-  - { t: 0.85, label: core,     show: [core, orders, payments], note: "Core services sit behind the gateway" }
-  - { t: 1.45, label: storage,  show: [inventory, db],          note: "Orders and Inventory publish events" }
-  - { t: 2.0,  label: external, show: [psp, queue],             note: "Payments calls an external provider" }
-  - { t: 2.7,  label: blast,    active: [psp, payments] }
+  - { t: 0,    label: setup,    show: [edge, web, gateway],     note: "Core services sit behind the gateway" }
+  - { t: 0.85, label: core,     show: [core, orders, payments] }
+  - { t: 1.45, label: storage,  show: [inventory, db] }
+  - { t: 2.0,  label: external, show: [psp, queue] }
+  - { t: 2.7,  label: blast,    active: [psp, payments],        note: "Payments calls an external provider" }
   - { t: 5.1,  label: contain,  active: [psp, payments],        note: "Provider down: only Payments degrades, orders keep flowing" }
   - { t: 8.2,  label: hold }

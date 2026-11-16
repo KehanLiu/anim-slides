@@ -19,8 +19,10 @@
     affected, the rest healthy): unchanged from the previous service-deps entry and its spec.yaml.
   - "blast radius": the entry's own term for the affected part (index tag blast-radius, spec phase
     "blast"). No numbers in this fragment.
-  - The caption "One request: web app > gateway > Orders > database" was dropped with the traced
-    request it narrated. -->
+  - Captions kept: "Core services sit behind the gateway" (graph), "Payments calls an external
+    provider" (outage and containment), the final one. Dropped so each caption stays readable:
+    "Requests enter through the API gateway", "Orders and Inventory publish events", and
+    "One request: web app > gateway > Orders > database" (its traced request is gone). -->
 <style>
 .anim-service-deps{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -70,7 +72,7 @@
 .anim-service-deps .service-deps-wall{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 /* resting frame = the end: graph built, provider down, Payments degraded, outline closed and labelled,
    outside lit, last caption. Earlier captions rest at 0. */
-.anim-service-deps .service-deps-cap0, .anim-service-deps .service-deps-cap1, .anim-service-deps .service-deps-cap2, .anim-service-deps .service-deps-cap3{opacity:0}
+.anim-service-deps .service-deps-cap1, .anim-service-deps .service-deps-cap2{opacity:0}
 
 /* ---- motion: 9.4 s once pass, percent = s / 9.4 ---- */
 /* Edge bracket 0-0.35 s */
@@ -134,14 +136,10 @@
 @keyframes service-deps-wall-lbl{0%{opacity:0}69.681%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.872%{opacity:1}100%{opacity:1}}
 /* healthy rings and wires lit 7.2-7.6 s */
 @keyframes service-deps-lit{0%{opacity:0}76.596%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.851%{opacity:1}100%{opacity:1}}
-/* caption 0 until 0.88 s */
-@keyframes service-deps-cap0{0%{opacity:1}7.979%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}9.362%{opacity:0}100%{opacity:0}}
-/* caption 1 0.9-1.45 s */
-@keyframes service-deps-cap1{0%{opacity:0}9.574%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.489%{opacity:1}14.362%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}15.426%{opacity:0}100%{opacity:0}}
-/* caption 3 1.47-2.4 s */
-@keyframes service-deps-cap3{0%{opacity:0}15.638%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.234%{opacity:1}24.468%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25.532%{opacity:0}100%{opacity:0}}
-/* caption 2 2.42-7.72 s */
-@keyframes service-deps-cap2{0%{opacity:0}25.745%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.66%{opacity:1}80.851%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}82.128%{opacity:0}100%{opacity:0}}
+/* graph caption 0-2.32 s */
+@keyframes service-deps-cap1{0%{opacity:1}23.404%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}24.681%{opacity:0}100%{opacity:0}}
+/* outage caption 2.34-7.72 s */
+@keyframes service-deps-cap2{0%{opacity:0}24.894%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26.596%{opacity:1}80.851%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}82.128%{opacity:0}100%{opacity:0}}
 /* final caption from 7.75 s */
 @keyframes service-deps-cap5{0%{opacity:0}82.447%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}85.106%{opacity:1}100%{opacity:1}}
 .visible .anim-service-deps .service-deps-g-edge{animation:service-deps-g-edge 9.4s linear 1 both}
@@ -181,9 +179,7 @@
 .visible .anim-service-deps .service-deps-wall{animation:service-deps-wall 9.4s linear 1 both}
 .visible .anim-service-deps .service-deps-wall-lbl{animation:service-deps-wall-lbl 9.4s linear 1 both}
 .visible .anim-service-deps .service-deps-lit{animation:service-deps-lit 9.4s linear 1 both}
-.visible .anim-service-deps .service-deps-cap0{animation:service-deps-cap0 9.4s linear 1 both}
 .visible .anim-service-deps .service-deps-cap1{animation:service-deps-cap1 9.4s linear 1 both}
-.visible .anim-service-deps .service-deps-cap3{animation:service-deps-cap3 9.4s linear 1 both}
 .visible .anim-service-deps .service-deps-cap2{animation:service-deps-cap2 9.4s linear 1 both}
 .visible .anim-service-deps .service-deps-cap5{animation:service-deps-cap5 9.4s linear 1 both}
 
@@ -269,9 +265,7 @@
 <!-- hero: the containment outline around exactly the provider and Payments -->
 <path class="service-deps-wall" d="M730 352 Q730 326 756 326 H874 Q900 326 900 352 V366 H1370 V352 Q1370 326 1396 326 H1584 Q1610 326 1610 352 V486 Q1610 512 1584 512 H1396 Q1370 512 1370 486 V436 H900 V486 Q900 512 874 512 H756 Q730 512 730 486 Z" pathLength="100"/>
 <text class="service-deps-wlbl service-deps-wall-lbl" x="918" y="354">blast radius</text>
-<text class="service-deps-cap service-deps-cap0" x="840" y="570" text-anchor="middle">Requests enter through the API gateway</text>
 <text class="service-deps-cap service-deps-cap1" x="840" y="570" text-anchor="middle">Core services sit behind the gateway</text>
-<text class="service-deps-cap service-deps-cap3" x="840" y="570" text-anchor="middle">Orders and Inventory publish events</text>
 <text class="service-deps-cap service-deps-cap2" x="840" y="570" text-anchor="middle">Payments calls an external provider</text>
 <text class="service-deps-cap service-deps-cap5" x="840" y="570" text-anchor="middle">Provider down: only Payments degrades, orders keep flowing</text>
 </svg>
