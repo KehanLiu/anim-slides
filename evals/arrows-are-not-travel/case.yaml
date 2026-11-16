@@ -1,0 +1,23 @@
+schema_version: "1.1"
+name: arrows-are-not-travel
+expected_outcome: |
+  Mode B with the user absent, so the defaults are recorded under Decisions in
+  anim/triage.md. Every content slide (2 to 6) is drawn in the source as text cards joined
+  by arrow glyphs. These are card layouts of text, not charts or diagrams with data, so the
+  "keep the source figure's form" rule does not apply: changing the form away from boxes and
+  arrows is expected and is not a fault. The cards and arrows of each animated slide are
+  replaced by the fragment (named in the triage's Replaces column), not animated over. Slide
+  2 (example gauge readings 1.2 m, 2.4 m, 3.4 m against the 3.0 m warning line) is `grow`
+  and/or `switch`: a level rises past the line and the warning state changes. Slide 3 (flash
+  0.000003 s, thunder about 3 s over 1 km) is `race`: two arrivals on one clock, the gap
+  marked. Slide 4 (example parks budget, 100 into 45, 30 and 25) is `split` (or `sort`) at
+  true proportion. Slide 5 is the only hand-over between named actors (finder, desk
+  officer, lost-property office, owner): `travel` with the wallet named as the traveller, and
+  it is the only fragment with an offset-path. Slide 6 (library card renewal) says order
+  only: `reveal`, a four-node row in source order, no travelling marker. No marker runs
+  along the source's arrows on slides 2 to 4. scripts/check_verbs.py run on the final
+  deck.html with --triage anim/triage.md prints no FAIL. Every label and number in the
+  fragments is the deck's own. Slides 1 and 7 stay text. The run ends with
+  anim/review/index.html.
+context:
+  scaffold_script: place-files.sh

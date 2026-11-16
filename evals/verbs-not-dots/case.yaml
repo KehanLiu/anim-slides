@@ -1,0 +1,22 @@
+schema_version: "1.1"
+name: verbs-not-dots
+expected_outcome: |
+  Mode B with the user absent, so the defaults are recorded under Decisions in
+  anim/triage.md. Slides 2 to 8 are all written as numbered steps, "then" bullets or numbered
+  cards with arrows, but each claim is a different kind of thing, so each gets its own motion
+  verb. The triage has a Verb column. Slide 2 (example savings, 250 a month) accumulates to
+  1,000, 2,000 and 3,000 (`accumulate`, perhaps with `count`), the "Example" kept. Slide 3
+  states which side outweighs (the safety gain over the lost minutes): `balance`, tipping to
+  safety. Slide 4 splits 100 litres into 97, 2 and 1 at true proportion (`sort` or `split`).
+  Slide 5 shows the same 30 desks before and after (`wipe`, `transform` or `sort`; same
+  desks, rows become tables of six). Slide 6 is containment, gene in DNA in chromosome in
+  nucleus in cell (`nest`, `zoom` or `open`). Slide 7 is the only real journey: `travel`
+  with the blood sample named as the traveller, GP surgery to courier van to hospital
+  laboratory, and it is the only fragment with an offset-path. Slide 8 (course sign-up)
+  says order only: `reveal`, a clean four-node row in source order with no travelling
+  marker. At least five different verbs across the animated slides. scripts/check_verbs.py
+  run on the final deck.html with --triage anim/triage.md prints no FAIL. No fragment adds a
+  label, number, actor or step the deck does not state. Slides 1 and 9 stay text. The run
+  ends with anim/review/index.html.
+context:
+  scaffold_script: place-files.sh

@@ -5,8 +5,8 @@ a forced figure on a list, clipped German compounds, Chinese labels drawn as emp
 faint lines on a white ground, a 4:3 stage treated as 16:9, fifteen dots crammed on one
 axis, a twenty-node web drawn as spaghetti, actor icons dropped, a chart picture turned into
 a sentence, an already animated deck rebuilt instead of switched, every numbered text slide
-drawn as the same row. Each case says what a good result looks like and carries graders that
-check it from the run's transcript and files.
+drawn as the same row, a dot sent along every list or every arrow. Each case says what a good
+result looks like and carries graders that check it from the run's transcript and files.
 
 The corpus is for the skill to test itself after a change to `SKILL.md`, `references/`,
 `scripts/` or `pool/`: the run report shows which traps it still falls into.
@@ -28,6 +28,8 @@ The corpus is for the skill to test itself after a change to `SKILL.md`, `refere
 | `icons-are-content` | compare columns labelled by actor icons: keep or redraw them | B, user absent |
 | `already-animated-switch` | "make the figures play on click": Mode E, `--control step` only | E |
 | `prose-not-a-row` | four numbered "pipelines": falling counts, a return, a trade-off, and one pure order that stays a row | B, user absent |
+| `verbs-not-dots` | seven list slides, seven kinds of claim: one verb each, travel only on the real journey, reveal on the pure order | B, user absent |
+| `arrows-are-not-travel` | text cards joined by arrows: a level, a race and a split, not dots along the arrows; one real hand-over | B, user absent |
 
 The Mode B cases other than `bare-improve-html` say "just do it" in the prompt: an eval run
 cannot answer the intake question, so those cases test the default path (defaults recorded
