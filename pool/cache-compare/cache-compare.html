@@ -10,15 +10,15 @@
   and a bracket marks the gap down to 24 %: 75 % fewer database reads; the verdict sentence lands.
   Verb: race. Technique: one full-pass scaleX track per bar (transform-box fill-box, origin at the
   bar start), LINEAR timing because the bars track the clock: 1.0 s of pass per 180 ms of latency,
-  so every bar grows at 324 px/s (180 ms = 324 px over 1.0 s, 185 ms = 333 px over 1.028 s,
-  8 ms = 14.4 px over 0.044 s). Scale 1.8 px per ms on both sides ("bars to scale" note). Bars are
-  8 px tall so the 8 ms bar stays visible at true length. Load meters: scaleY on the fill about its
+  so every bar grows at 378 px/s (180 ms = 378 px over 1.0 s, 185 ms = 388.5 px over 1.028 s,
+  8 ms = 16.8 px over 0.044 s). Scale 2.1 px per ms on both sides ("bars to scale" note). Bars are
+  24 px tall, the largest marks in each column, so the 8 ms bar stays visible at true length. Load meters: scaleY on the fill about its
   baseline in four steps of 24 %; counters and cache state cross-fade as stacked <text>.
-  Answer: dashed ghost tick at 96 % on the right meter, draw-on bracket (pathLength 100) to the
-  24 % level, label. No packets, no offset-path.
+  Answer: dashed ghost tick at 96 % on the right meter, then the accent bracket draws on alone
+  (pathLength 100) down to the 24 % level, then its label. No packets, no offset-path.
   Once pass 10 s: set 0-0.6 s; race read 1 0.7-1.73 s, cache fill and load steps to 2.6 s; read 2
-  3.0-4.45 s; read 3 4.6-6.05 s; read 4 6.2-7.65 s; answer 7.75-8.85 s; hold 8.9-10 s.
-  Phases 2.7, 4.55, 6.15, 7.75, 8.9.
+  3.0-4.45 s; read 3 4.6-6.05 s; read 4 6.2-7.65 s; answer 7.75-9.1 s (bracket alone 8.35-8.85 s); hold 9.1-10 s.
+  Phases 2.7, 4.55, 6.15, 7.75, 9.1.
   Facts (all values are the entry's existing illustrative example figures, tagged "illustrative"):
   - 180 ms per database read (left reads 1-4): illustrative, as in the entry before this rework.
   - 185 ms for read 1 with cache (miss, go to the database, fill): illustrative, entry value.
@@ -31,7 +31,7 @@
   - "75 % fewer database reads" = (4 - 1) / 4: arithmetic, entry's verdict; also 96 % vs 24 %.
   - Captions "First read misses and fills the cache", "Later reads hit the cache": the entry's
     phase notes (spec.yaml).
-  - "bars to scale" (1.8 px per ms) and the 1.0 s per 180 ms clock: drawing scale, not data. -->
+  - "bars to scale" (2.1 px per ms) and the 1.0 s per 180 ms clock: drawing scale, not data. -->
 <style>
 .anim-cache-compare{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -49,7 +49,7 @@
   display:block;width:100%;height:100%
 }
 .anim-cache-compare svg{width:100%;height:100%;display:block}
-.anim-cache-compare .cache-compare-tagbox{fill:none;stroke:var(--anim-line);stroke-width:2}
+.anim-cache-compare .cache-compare-tagbox{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2}
 .anim-cache-compare .cache-compare-mono{font-family:var(--anim-mono);font-size:20px}
 .anim-cache-compare .cache-compare-small{font-size:18px}
 .anim-cache-compare .cache-compare-sans{font-family:var(--anim-font);font-size:20px}
@@ -63,23 +63,22 @@
 .anim-cache-compare .cache-compare-rd{fill:var(--anim-danger)}
 .anim-cache-compare .cache-compare-note{font-family:var(--anim-font);font-size:26px;font-weight:400;fill:var(--anim-fg)}
 .anim-cache-compare .cache-compare-verdict-n{font-weight:600;fill:var(--anim-accent)}
-.anim-cache-compare .cache-compare-sep{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
+.anim-cache-compare .cache-compare-sep{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2;stroke-linecap:round}
 .anim-cache-compare .cache-compare-panel{fill:none;stroke:var(--anim-accent);stroke-width:3px;stroke-linecap:round}
-.anim-cache-compare .cache-compare-wire{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round}
+.anim-cache-compare .cache-compare-wire{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2.5;stroke-linecap:round}
 .anim-cache-compare .cache-compare-node{fill:none;stroke:var(--anim-ok);stroke-width:2.5}
 .anim-cache-compare .cache-compare-slot{fill:var(--anim-ok)}
 .anim-cache-compare .cache-compare-cyl path,.anim-cache-compare .cache-compare-cyl ellipse{fill:none;stroke-width:2.5;stroke-linejoin:round}
 .anim-cache-compare .cache-compare-cyl-calm path,.anim-cache-compare .cache-compare-cyl-calm ellipse{stroke:var(--anim-muted)}
 .anim-cache-compare .cache-compare-cyl-busy path,.anim-cache-compare .cache-compare-cyl-busy ellipse{stroke:var(--anim-danger)}
-.anim-cache-compare .cache-compare-meter{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
+.anim-cache-compare .cache-compare-meter{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2;stroke-linecap:round}
 .anim-cache-compare .cache-compare-fill{transform-box:fill-box;transform-origin:50% 100%}
 .anim-cache-compare .cache-compare-fill-l{fill:var(--anim-danger);transform:scaleY(.96)}
 .anim-cache-compare .cache-compare-fill-r{fill:var(--anim-ok);transform:scaleY(.24)}
 .anim-cache-compare .cache-compare-ghost{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:5 5}
-.anim-cache-compare .cache-compare-brk{fill:none;stroke:var(--anim-accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-cache-compare .cache-compare-ans{font-family:var(--anim-font);font-size:24px;font-weight:600;fill:var(--anim-accent)}
-.anim-cache-compare .cache-compare-rowrule{fill:none;stroke:var(--anim-line);stroke-width:1.5}
-.anim-cache-compare .cache-compare-track{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
+.anim-cache-compare .cache-compare-brk{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-cache-compare .cache-compare-ans{font-family:var(--anim-font);font-size:30px;font-weight:600;fill:var(--anim-accent)}
+.anim-cache-compare .cache-compare-track{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2;stroke-linecap:round}
 .anim-cache-compare .cache-compare-bar{transform-box:fill-box;transform-origin:0 50%}
 .anim-cache-compare .cache-compare-bar-am{fill:var(--anim-muted)}
 .anim-cache-compare .cache-compare-bar-gn{fill:var(--anim-ok)}
@@ -142,12 +141,12 @@
 @keyframes cache-compare-n1{0%{opacity:0}1%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5%{opacity:1}27%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}29%{opacity:0}100%{opacity:0}}
 @keyframes cache-compare-n2{0%{opacity:0}27.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.5%{opacity:1}77.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}79.5%{opacity:0}100%{opacity:0}}
 @keyframes cache-compare-verdict{0%{opacity:0;transform:translateY(12px)}77.5%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.5%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-/* answer: left recedes 7.8-8.2 s, winner underline 8.2-8.4 s, ghost 8.1-8.3 s, bracket 8.25-8.75 s, label 8.6-8.85 s */
+/* answer: left recedes 7.8-8.2 s, winner underline and ghost 8.15-8.3 s, bracket alone 8.35-8.85 s, label 8.85-9.1 s */
 @keyframes cache-compare-lose{0%{opacity:1}78%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}82%{opacity:.68}100%{opacity:.68}}
-@keyframes cache-compare-win{0%{stroke:var(--anim-line)}82%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1)}84%{stroke:var(--anim-accent)}100%{stroke:var(--anim-accent)}}
-@keyframes cache-compare-ghost{0%{opacity:0}81%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-brk{0%{stroke-dashoffset:101}82.5%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}87.5%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes cache-compare-ans{0%{opacity:0}86%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.5%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-win{0%{stroke:var(--anim-muted)}81.5%{stroke:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1)}83%{stroke:var(--anim-accent)}100%{stroke:var(--anim-accent)}}
+@keyframes cache-compare-ghost{0%{opacity:0}81.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-brk{0%{stroke-dashoffset:101}83.5%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}88.5%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes cache-compare-ans{0%{opacity:0}88.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}91%{opacity:1}100%{opacity:1}}
 
 .visible .anim-cache-compare .cache-compare-scene{animation:cache-compare-scene 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-row-0{animation:cache-compare-row0 10s linear 1 both}
@@ -196,10 +195,10 @@
 
 @media (prefers-reduced-motion: reduce) { .anim-cache-compare * { animation: none !important; } }
 </style>
-<div class="anim anim-cache-compare" data-anim="cache-compare" data-anim-cycle="10" data-anim-phases="2.7,4.55,6.15,7.75,8.9" data-anim-control="once" data-anim-verb="race">
+<div class="anim anim-cache-compare" data-anim="cache-compare" data-anim-cycle="10" data-anim-phases="2.7,4.55,6.15,7.75,9.1" data-anim-control="once" data-anim-verb="race">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The same four reads raced side by side on one clock and one scale: without a cache every read takes 180 ms at the database and database load climbs to 96 percent; with a cache the first read misses (185 ms) and fills it, the next three hit it at 8 ms each and database load stays at 24 percent: 22 times faster on cache hits, 75 percent fewer database reads.">
 <g class="cache-compare-scene">
-<path class="cache-compare-sep" d="M840 48 V508"/>
+<path class="cache-compare-sep" d="M840 48 V510"/>
 <!-- ===================== without cache ===================== -->
 <g class="cache-compare-side-l">
 <text class="cache-compare-sans cache-compare-head cache-compare-fg" x="60" y="66">Without cache</text>
@@ -209,53 +208,45 @@
 <g class="cache-compare-cyl cache-compare-cyl-calm"><path d="M584 124 V184 A60 12 0 0 0 704 184 V124"/><ellipse cx="644" cy="124" rx="60" ry="12"/></g>
 <g class="cache-compare-cyl cache-compare-cyl-busy"><path d="M584 124 V184 A60 12 0 0 0 704 184 V124"/><ellipse cx="644" cy="124" rx="60" ry="12"/></g>
 <text class="cache-compare-mono cache-compare-fg" x="644" y="166" text-anchor="middle">Database</text>
-<text class="cache-compare-mono cache-compare-dim" x="752" y="88" text-anchor="middle">load</text>
-<path class="cache-compare-meter" d="M752 104 V230"/>
-<rect class="cache-compare-fill cache-compare-fill-l" x="748" y="104" width="8" height="126" rx="2"/>
+<text class="cache-compare-mono cache-compare-dim" x="752" y="86" text-anchor="middle">load</text>
+<path class="cache-compare-meter" d="M752 100 V236"/>
+<rect class="cache-compare-fill cache-compare-fill-l" x="748" y="100" width="8" height="136" rx="2"/>
 <g class="cache-compare-cnt-l">
 <text class="cache-compare-mono cache-compare-dim cache-compare-rd-l0" x="644" y="230" text-anchor="middle">0 reads</text>
 <text class="cache-compare-mono cache-compare-dim cache-compare-rd-l1" x="644" y="230" text-anchor="middle">1 read</text>
 <text class="cache-compare-mono cache-compare-dim cache-compare-rd-l2" x="644" y="230" text-anchor="middle">2 reads</text>
 <text class="cache-compare-mono cache-compare-dim cache-compare-rd-l3" x="644" y="230" text-anchor="middle">3 reads</text>
 <text class="cache-compare-mono cache-compare-rd cache-compare-rd-l4" x="644" y="230" text-anchor="middle">4 reads</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l0" x="752" y="258" text-anchor="middle">0 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l1" x="752" y="258" text-anchor="middle">24 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l2" x="752" y="258" text-anchor="middle">48 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l3" x="752" y="258" text-anchor="middle">72 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-rd cache-compare-pc-l4" x="752" y="258" text-anchor="middle">96 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l0" x="752" y="262" text-anchor="middle">0 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l1" x="752" y="262" text-anchor="middle">24 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l2" x="752" y="262" text-anchor="middle">48 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l3" x="752" y="262" text-anchor="middle">72 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-rd cache-compare-pc-l4" x="752" y="262" text-anchor="middle">96 %</text>
 </g>
-<text class="cache-compare-mono cache-compare-small cache-compare-dim" x="364" y="268">bars to scale</text>
+<text class="cache-compare-mono cache-compare-small cache-compare-dim" x="290" y="270">bars to scale</text>
 <g class="cache-compare-row-0">
-<text class="cache-compare-mono cache-compare-dim" x="60" y="304">read 1</text>
-<text class="cache-compare-mono cache-compare-fg" x="144" y="304">→ database</text>
-<path class="cache-compare-track" d="M364 297 H688"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l0" x="364" y="293" width="324" height="8" rx="3"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l0" x="790" y="304" text-anchor="end">180 ms</text>
-<path class="cache-compare-rowrule" d="M60 328 H790"/>
+<text class="cache-compare-mono cache-compare-fg" x="60" y="307"><tspan class="cache-compare-dim">read 1</tspan> → database</text>
+<path class="cache-compare-track" d="M290 300 H668"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l0" x="290" y="288" width="378" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l0" x="790" y="307" text-anchor="end">180 ms</text>
 </g>
 <g class="cache-compare-row-1">
-<text class="cache-compare-mono cache-compare-dim" x="60" y="364">read 2</text>
-<text class="cache-compare-mono cache-compare-fg" x="144" y="364">→ database</text>
-<path class="cache-compare-track" d="M364 357 H688"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l1" x="364" y="353" width="324" height="8" rx="3"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l1" x="790" y="364" text-anchor="end">180 ms</text>
-<path class="cache-compare-rowrule" d="M60 388 H790"/>
+<text class="cache-compare-mono cache-compare-fg" x="60" y="369"><tspan class="cache-compare-dim">read 2</tspan> → database</text>
+<path class="cache-compare-track" d="M290 362 H668"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l1" x="290" y="350" width="378" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l1" x="790" y="369" text-anchor="end">180 ms</text>
 </g>
 <g class="cache-compare-row-2">
-<text class="cache-compare-mono cache-compare-dim" x="60" y="424">read 3</text>
-<text class="cache-compare-mono cache-compare-fg" x="144" y="424">→ database</text>
-<path class="cache-compare-track" d="M364 417 H688"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l2" x="364" y="413" width="324" height="8" rx="3"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l2" x="790" y="424" text-anchor="end">180 ms</text>
-<path class="cache-compare-rowrule" d="M60 448 H790"/>
+<text class="cache-compare-mono cache-compare-fg" x="60" y="431"><tspan class="cache-compare-dim">read 3</tspan> → database</text>
+<path class="cache-compare-track" d="M290 424 H668"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l2" x="290" y="412" width="378" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l2" x="790" y="431" text-anchor="end">180 ms</text>
 </g>
 <g class="cache-compare-row-3">
-<text class="cache-compare-mono cache-compare-dim" x="60" y="484">read 4</text>
-<text class="cache-compare-mono cache-compare-fg" x="144" y="484">→ database</text>
-<path class="cache-compare-track" d="M364 477 H688"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l3" x="364" y="473" width="324" height="8" rx="3"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l3" x="790" y="484" text-anchor="end">180 ms</text>
-<path class="cache-compare-rowrule" d="M60 508 H790"/>
+<text class="cache-compare-mono cache-compare-fg" x="60" y="493"><tspan class="cache-compare-dim">read 4</tspan> → database</text>
+<path class="cache-compare-track" d="M290 486 H668"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l3" x="290" y="474" width="378" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l3" x="790" y="493" text-anchor="end">180 ms</text>
 </g>
 </g>
 <!-- ===================== with cache ===================== -->
@@ -277,53 +268,45 @@
 </g>
 <g class="cache-compare-cyl cache-compare-cyl-calm"><path d="M1250 124 V184 A60 12 0 0 0 1370 184 V124"/><ellipse cx="1310" cy="124" rx="60" ry="12"/></g>
 <text class="cache-compare-mono cache-compare-fg" x="1310" y="166" text-anchor="middle">Database</text>
-<text class="cache-compare-mono cache-compare-dim" x="1420" y="88" text-anchor="middle">load</text>
-<path class="cache-compare-meter" d="M1420 104 V230"/>
-<rect class="cache-compare-fill cache-compare-fill-r" x="1416" y="104" width="8" height="126" rx="2"/>
+<text class="cache-compare-mono cache-compare-dim" x="1420" y="86" text-anchor="middle">load</text>
+<path class="cache-compare-meter" d="M1420 100 V236"/>
+<rect class="cache-compare-fill cache-compare-fill-r" x="1416" y="100" width="8" height="136" rx="2"/>
 <g class="cache-compare-cnt-r">
 <text class="cache-compare-mono cache-compare-dim cache-compare-rd-r0" x="1310" y="230" text-anchor="middle">0 reads</text>
 <text class="cache-compare-mono cache-compare-gn cache-compare-rd-r1" x="1310" y="230" text-anchor="middle">1 read</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-r0" x="1420" y="258" text-anchor="middle">0 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-pc-r1" x="1420" y="258" text-anchor="middle">24 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-r0" x="1420" y="262" text-anchor="middle">0 %</text>
+<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-pc-r1" x="1420" y="262" text-anchor="middle">24 %</text>
 </g>
 <!-- answer: the left level (96 %) ghosted on the right meter, bracket down to 24 % -->
-<path class="cache-compare-ghost" d="M1404 109 H1436"/>
-<path class="cache-compare-brk" pathLength="100" d="M1444 109 H1454 V200 H1444"/>
+<path class="cache-compare-ghost" d="M1402 105.4 H1438"/>
+<path class="cache-compare-brk" pathLength="100" d="M1446 105.4 H1460 V203.4 H1446"/>
 <g class="cache-compare-ans-g">
-<text class="cache-compare-ans" x="1468" y="152">75 % fewer</text>
-<text class="cache-compare-mono cache-compare-small cache-compare-dim" x="1468" y="178">database reads</text>
+<text class="cache-compare-ans" x="1474" y="160">75 % fewer</text>
+<text class="cache-compare-mono cache-compare-small cache-compare-dim" x="1474" y="186">database reads</text>
 </g>
 <g class="cache-compare-row-0">
-<text class="cache-compare-mono cache-compare-dim" x="880" y="304">read 1</text>
-<text class="cache-compare-mono cache-compare-fg" x="964" y="304">miss → DB, fill</text>
-<path class="cache-compare-track" d="M1192 297 H1525"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-r0" x="1192" y="293" width="333" height="8" rx="3"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-r0" x="1612" y="304" text-anchor="end">185 ms</text>
-<path class="cache-compare-rowrule" d="M880 328 H1612"/>
+<text class="cache-compare-mono cache-compare-fg" x="880" y="307"><tspan class="cache-compare-dim">read 1</tspan> miss → DB, fill</text>
+<path class="cache-compare-track" d="M1165 300 H1553.5"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-r0" x="1165" y="288" width="388.5" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-r0" x="1640" y="307" text-anchor="end">185 ms</text>
 </g>
 <g class="cache-compare-row-1">
-<text class="cache-compare-mono cache-compare-dim" x="880" y="364">read 2</text>
-<text class="cache-compare-mono cache-compare-fg" x="964" y="364">cache hit</text>
-<path class="cache-compare-track" d="M1192 357 H1525"/>
-<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r1" x="1192" y="353" width="14.4" height="8" rx="3"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r1" x="1612" y="364" text-anchor="end">8 ms</text>
-<path class="cache-compare-rowrule" d="M880 388 H1612"/>
+<text class="cache-compare-mono cache-compare-fg" x="880" y="369"><tspan class="cache-compare-dim">read 2</tspan> cache hit</text>
+<path class="cache-compare-track" d="M1165 362 H1553.5"/>
+<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r1" x="1165" y="350" width="16.8" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r1" x="1640" y="369" text-anchor="end">8 ms</text>
 </g>
 <g class="cache-compare-row-2">
-<text class="cache-compare-mono cache-compare-dim" x="880" y="424">read 3</text>
-<text class="cache-compare-mono cache-compare-fg" x="964" y="424">cache hit</text>
-<path class="cache-compare-track" d="M1192 417 H1525"/>
-<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r2" x="1192" y="413" width="14.4" height="8" rx="3"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r2" x="1612" y="424" text-anchor="end">8 ms</text>
-<path class="cache-compare-rowrule" d="M880 448 H1612"/>
+<text class="cache-compare-mono cache-compare-fg" x="880" y="431"><tspan class="cache-compare-dim">read 3</tspan> cache hit</text>
+<path class="cache-compare-track" d="M1165 424 H1553.5"/>
+<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r2" x="1165" y="412" width="16.8" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r2" x="1640" y="431" text-anchor="end">8 ms</text>
 </g>
 <g class="cache-compare-row-3">
-<text class="cache-compare-mono cache-compare-dim" x="880" y="484">read 4</text>
-<text class="cache-compare-mono cache-compare-fg" x="964" y="484">cache hit</text>
-<path class="cache-compare-track" d="M1192 477 H1525"/>
-<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r3" x="1192" y="473" width="14.4" height="8" rx="3"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r3" x="1612" y="484" text-anchor="end">8 ms</text>
-<path class="cache-compare-rowrule" d="M880 508 H1612"/>
+<text class="cache-compare-mono cache-compare-fg" x="880" y="493"><tspan class="cache-compare-dim">read 4</tspan> cache hit</text>
+<path class="cache-compare-track" d="M1165 486 H1553.5"/>
+<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r3" x="1165" y="474" width="16.8" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r3" x="1640" y="493" text-anchor="end">8 ms</text>
 </g>
 <!-- captions -->
 <g class="cache-compare-caps">
