@@ -377,9 +377,9 @@ JS = r"""
   }
   var q=document.getElementById('q');if(q)q.addEventListener('input',filter);
   function picked(g){var c=document.querySelector('.chip[data-group="'+g+'"][aria-pressed="true"]');return c?c.dataset.value:''}
-  function filter(){var a=picked('archetype'),d=picked('domain'),s=(q&&q.value||'').toLowerCase().trim(),n=0;
+  function filter(){var v=picked('verb'),a=picked('archetype'),d=picked('domain'),s=(q&&q.value||'').toLowerCase().trim(),n=0;
     document.querySelectorAll('.card').forEach(function(c){
-      var ok=(!a||c.dataset.archetype===a)&&(!d||c.dataset.domain===d)&&(!s||c.dataset.text.indexOf(s)>=0);
+      var ok=(!v||c.dataset.verb===v)&&(!a||c.dataset.archetype===a)&&(!d||c.dataset.domain===d)&&(!s||c.dataset.text.indexOf(s)>=0);
       c.hidden=!ok;if(ok)n++});
     var k=document.getElementById('count');if(k)k.textContent=n+(n===1?' fragment':' fragments');
     var em=document.getElementById('empty');if(em)em.hidden=n>0}
@@ -428,7 +428,8 @@ def page(title, body, desc, depth=0):
 
 
 def meta_pills(e):
-    out = [f'<span class="pill">{esc(e["archetype"])}</span>']
+    out = [f'<span class="pill">{esc(e["verb"])}</span>'] if e.get('verb') else []
+    out.append(f'<span class="pill">{esc(e["archetype"])}</span>')
     if e.get('domain'):
         out.append(f'<span class="pill dom">{esc(e["domain"])}</span>')
     w, h = e['viewbox']
@@ -451,11 +452,12 @@ def chips(group, label, values):
 
 def build_index(entries, title, repo_url):
     archetypes = sorted({e['archetype'] for e in entries})
+    verbs = sorted({str(e['verb']) for e in entries if e.get('verb')})
     domains = sorted({str(e['domain']) for e in entries if e.get('domain')})
     cards = []
     for e in entries:
         n = e['name']
-        text = ' '.join([n, e['archetype'], str(e.get('domain') or ''), str(e.get('story') or ''), *e['tags']]).lower()
+        text = ' '.join([n, str(e.get('verb') or ''), e['archetype'], str(e.get('domain') or ''), str(e.get('story') or ''), *e['tags']]).lower()
         tags = ''.join(f'<span>#{esc(t)}</span>' for t in e['tags'])
         cyc = e.get('cycle')
         if e['control'] == 'loop' and isinstance(cyc, (int, float)) and cyc > 0 and 'animation-delay' not in e['src']:
@@ -464,7 +466,7 @@ def build_index(entries, title, repo_url):
             lead_cls, lead = '', ''
         step_btn = (f'<button class="btn" type="button" data-step="fit-{n}" aria-label="Step through {esc(n)} '
                     f'phase by phase">Step</button>' if e['phases'] else '')
-        cards.append(f"""<article class="card" data-archetype="{esc(e['archetype'])}" data-domain="{esc(e.get('domain') or '')}" data-text="{esc(text)}">
+        cards.append(f"""<article class="card" data-verb="{esc(e.get('verb') or '')}" data-archetype="{esc(e['archetype'])}" data-domain="{esc(e.get('domain') or '')}" data-text="{esc(text)}">
   <a class="stage" href="{n}/index.html" aria-label="Open {esc(n)}"><div class="fit visible{lead_cls}" id="fit-{n}" data-ctl="{esc(e['control'])}" data-phases="{esc(e['phases'])}" style="{fit_style(e)}{lead}">
 {e['src']}
   </div></a>
@@ -491,6 +493,7 @@ def build_index(entries, title, repo_url):
   {install}
 </section>
 <section class="filters" aria-label="Filters">
+  {chips('verb', 'Verb', verbs)}
   {chips('archetype', 'Archetype', archetypes)}
   {chips('domain', 'Domain', domains)}
   <div class="frow"><span class="lbl">Search</span><input class="search" id="q" type="search" placeholder="name, story or tag" aria-label="Search fragments"></div>
@@ -509,7 +512,8 @@ adapt them, do not ship their example stories unchanged.</div></footer>"""
 def build_detail(e, title, repo_url):
     n = e['name']
     w, h = e['viewbox']
-    facts = [('Archetype', esc(e['archetype']))]
+    facts = [('Verb', esc(e['verb']))] if e.get('verb') else []
+    facts.append(('Archetype', esc(e['archetype'])))
     if e.get('domain'):
         facts.append(('Domain', esc(e['domain'])))
     facts.append(('viewBox', f'{w:g} × {h:g}'))
@@ -592,7 +596,7 @@ def main():
                 shutil.copyfile(p, os.path.join(d, fn))
     open(os.path.join(out, '.nojekyll'), 'w').close()
     with open(os.path.join(out, 'pool.json'), 'w', encoding='utf-8') as f:
-        json.dump([{k: e.get(k) for k in ('name', 'archetype', 'domain', 'viewbox', 'control', 'cycle', 'story', 'tags')}
+        json.dump([{k: e.get(k) for k in ('name', 'verb', 'archetype', 'domain', 'viewbox', 'control', 'cycle', 'story', 'tags')}
                    for e in entries], f, indent=1)
     print(f'build_gallery: {len(entries)} fragments -> {out}/index.html')
 

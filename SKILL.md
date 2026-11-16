@@ -137,7 +137,8 @@ cheap; write them all before building), then builds.
    Under about 12 nodes; split otherwise.
 2. **Pool first, for craft.** Read `<skill-dir>/pool/index.yaml` (and `$ANIM_POOL/index.yaml`
    if set). The pool is the quality floor, not the menu of pictures: look an entry up by the
-   triage row's form and moves first (`form`, `moves` and `technique` lines), archetype second.
+   triage row's verb first, then form and moves (`verb`, `form`, `moves` and `technique`
+   lines), archetype last.
    When an entry draws that form, copy it to `anim/<name>/`, rename the prefix and adapt
    labels, node count, timing, marks and viewBox to the spec. When none does, hand-build the
    form (the normal path, not an exception) with the closest entry open as the bar for stroke
