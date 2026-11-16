@@ -136,7 +136,6 @@
 @media (prefers-reduced-motion: reduce) { .anim-canal-lock * { animation: none !important; } }
 </style>
 <div class="anim anim-canal-lock" data-anim="canal-lock" data-anim-cycle="9.5" data-anim-phases="1.9,2.75,5.85,6.9,8.5" data-anim-control="once">
-<!-- anim-look: boxes-ok: the water is the meaning -->
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cross-section of a canal lock: a boat enters the chamber at the lower level, the lower gates close, a filling valve lets water in from the upper canal, the chamber and boat rise, the upper gates open and the boat leaves one level higher.">
 <defs><clipPath id="canal-lock-clip"><rect x="0" y="0" width="1680" height="441"/></clipPath></defs>
 <g class="canal-lock-scene">
@@ -151,10 +150,10 @@
     <rect class="canal-lock-win" x="1342" y="155" width="22" height="14" rx="2"/>
     <rect class="canal-lock-win" x="1374" y="155" width="22" height="14" rx="2"/>
   </g>
-  <!-- water -->
-  <rect class="canal-lock-wat" x="24" y="320" width="484" height="100"/>
-  <rect class="canal-lock-wat canal-lock-water" x="508" y="200" width="664" height="240"/>
-  <rect class="canal-lock-wat" x="1172" y="200" width="484" height="130"/>
+  <!-- water: scene ground (data-anim-scene), the thing itself drawn -->
+  <rect data-anim-scene class="canal-lock-wat" x="24" y="320" width="484" height="100"/>
+  <rect data-anim-scene class="canal-lock-wat canal-lock-water" x="508" y="200" width="664" height="240"/>
+  <rect data-anim-scene class="canal-lock-wat" x="1172" y="200" width="484" height="130"/>
   <path class="canal-lock-sf" d="M24 320 H508"/>
   <path class="canal-lock-sf canal-lock-surf" d="M508 200 H1172"/>
   <path class="canal-lock-sf" d="M1172 200 H1656"/>

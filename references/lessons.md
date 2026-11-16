@@ -22,8 +22,9 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
   control: `render-phases.sh` overrides delays when it pauses frames, so delayed tracks render
   at the wrong time, and under `loop` delays also break clean restarts. Many tracks are fine;
   the checker measures how many things move at the same instant, not how many tracks exist.
-- When lines attach to a shape that later splits or moves in parts (a bar, a group), end each line
-  inside the part it belongs to so the split needs no re-attachment.
+- Merge and split: draw each part as its own `<g>` and end each line inside the part it belongs
+  to, then translate the groups together or apart. A split starts with the parts stacked on the
+  whole (the whole fades as they move off); a merge ends with the whole cross-faded in over them.
 
 ## Chrome rendering
 
@@ -78,6 +79,7 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
 - Transforms on SVG groups (translate a curve, rotate a clipped layer, scale a lens) need
   `transform-box: view-box` (or `fill-box`) plus a `transform-origin` in px; the CSS default
   resolves against the wrong box. Avoid CSS `d` path morphing: Safari does not animate it.
+  To turn one shape into another, stack both and cross-fade their opacity.
 - Index suffixes collide with semantic ones: `<name>-mk0` written by hand and `<name>-mk{i}`
   generated for i = 0 select the same element. Use separators such as `<name>-mk-n0`.
   `check_fragment.py` warns (`index-collision`).

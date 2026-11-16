@@ -11,8 +11,12 @@ the rendered slide check the rest.
    the fragment when the licence allows (credit it), or redraw it as a simple SVG glyph in the
    same colours. Drop only backgrounds, logos and unrelated photos, and say what you dropped.
    The figure's form is content too: a staircase is redrawn as a staircase, not re-plotted as
-   a line chart; a table stays rows; the slide's reading order stays. Changing the form is an
-   interpretation the author did not make.
+   a line chart; a table of values stays rows; the slide's reading order stays. Changing a
+   figure's form is an interpretation the author did not make. Prose, bullets and cards have
+   no figure form: draw the structure the text states. "The cycle repeats each season" may be
+   a ring; four listed stages with nothing else said are a row; a funnel needs the source's
+   quantities ("1,200 applied, 90 admitted") or its stated narrowing. In both cases the form
+   adds no node, label, number, actor, arrow direction or storyline the source does not state.
 1. **Numbers come from the source.** Every value, date, percentage, unit and axis value is on the
    slide, in its notes or tables, or in a figure you have read. If a value is a placeholder, the
    fragment itself says so in visible text ("illustrative values"); a comment is not enough.
@@ -28,8 +32,9 @@ the rendered slide check the rest.
    figure are allowed only when the spec says the fragment spans those slides; cite them in the
    spec header.
 5. **Arrows and directions follow the slide.** Who sends to whom, what causes what, which way a
-   curve shifts: copy the slide's arrows. If the slide has none, state the assumption in the
-   brief and keep the drawing neutral (no arrowheads).
+   curve shifts: copy the slide's arrows. A direction the text states ("flows into", "returns
+   to", "then") may be drawn. If the slide states none, state the assumption in the brief and
+   keep the drawing neutral (no arrowheads).
 6. **Charts are redrawn from their data at exact scale.** Read the values off the figure, write
    them into the spec's header comment ("E0 (10 B$, 8%)"), plot them on a linear axis with
    evenly spaced ticks. No smoothing, no extra points, no invented trend between known points.
@@ -74,6 +79,7 @@ rendered PNG next to the rendered source slide is still the final check.
 - Labels use the slide's own words; shorten, never paraphrase or explain.
 - Why/reason/legend slots only hold relations the slide states.
 - Arrows, directions and order exactly as on the slide; no facts from other slides.
+- A figure keeps its form; a text slide's form comes from the structure its text states.
 - Charts redrawn from their data at exact scale; unreadable figure = traced and tagged, not guessed.
 - verify_facts.py: 0 FAIL, each WARN fixed or justified in the report.
 ```

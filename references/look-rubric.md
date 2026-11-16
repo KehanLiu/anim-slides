@@ -28,7 +28,7 @@ score a corpus. It enforces `style.md` and `accuracy.md` rule 0 by eye.
    general-purpose). Give it **only** the prompt in section 3 and the image paths with their
    labels. No brief, no spec, no triage, no conversation, no hint at what was changed or what
    you worry about: a reviewer told the hypothesis confirms it.
-2. It returns a table of scores, the three worst defects and a verdict.
+2. It returns a table of scores, the form of each slide, the three worst defects and a verdict.
 3. A score below 3 on any item blocks "done". The builder fixes the named defects, re-renders,
    and runs a **new** fresh reviewer (not the same one: it has seen the old images).
 4. At most two rounds. Defects left after round two are listed in the hand-over message and
@@ -55,16 +55,30 @@ against the **before** image.
 | 8 | **Rest frame** | Does the resting image tell the finished story on its own? | The complete figure: every step, value and label present, the end state visibly reached (final step marked, all data drawn), looks intended | Complete but flat: nothing shows where the story ended, or one element looks mid-fade | Empty or half drawn: blank slot, only the start of the story; would print as an unfinished figure. A row of identical neutral markers (empty rings, grey dots) where the source showed progress, order shading, values or a highlighted outcome scores 2 at best | contract resting frame; style.md 9 |
 | 9 | **Fidelity** | Are labels, numbers and the figure the source's own? | Every label and number visible on the before slide (shortened, not paraphrased); illustrative or traced tag where values are examples; the source's meaning-carrying icons kept or redrawn | One reworded label, a missing tag, a dropped icon that labelled a column, a dropped callout or audience question the slide asks | Invented numbers, labels or categories; claims the source does not make; a meaningful figure or illustration dropped | accuracy.md 0 to 3, 7 |
 | 10 | **Host fit** | Does the whole slide look designed, with the figure in place of the old content? | Title, figure, margins and footer form one composition in the deck's look; the figure replaced the cards or text block; the context slide looks designed too | The figure fits but the slide around it is plain (oversized title, default font, lost brand elements) | A dumped host (full-width wrapping title, raw bullet list, row of thumbnails) or the old boxes still there under the figure: the slide looks no different from the source | SKILL.md "Deck first", "Make a visible change"; style.md "Under a host theme" |
+| 11 | **Idea** | Does the picture show what the slide says beyond the order of its items (the mechanism, quantity or relation), or does it list the items? | The form itself carries the slide's point (stated falling counts drawn shrinking, a stated return drawn as a ring, a stated trade-off drawn as two sides); or the source states order only and the picture is a clean row | A correct row or list where the source also states a quantity, a return, a tension or a containment that the picture ignores | Generic nodes that could illustrate any slide | archetypes.md picture idea; accuracy.md 0 |
+
+Idea is judged against the before slide's words, not against variety. A row is a 5 when
+order is all the source states; decoration does not raise the score, and a form the words do
+not support is a Form or Fidelity fault, not a better idea. For any Idea score under 4 the
+reviewer quotes the before words that state the quantity, return or relation, as for
+Fidelity. A before slide of text or step cards has no figure of its own: a row of cards is
+layout, so Form there asks only that the drawn form follows the words.
 
 **Verdict** (per slide and for the deck; the deck takes the worst slide):
 - **ship**: every item 3 or above.
-- **fix**: any item at 2, or a single 1 on Space, Boxes, Colour, Type, Lines or Rest frame.
-  Patch the named defects and review again.
+- **fix**: any item at 2, or a single 1 on Space, Boxes, Colour, Type, Lines, Rest frame or
+  Idea. Patch the named defects and review again.
 - **rebuild**: a 1 on Form, Restraint, Fidelity or Host fit, or three or more items below 3.
   The figure (or, for Host fit, the deck around it) is redone from the spec, not patched.
 - The verdict is computed from the scores, never set by feel; the reviewer's doubt goes into a
   lower score (it is told to take the lower of two scores). A context-after image is scored on
   Host fit only and counts as a slide for the deck verdict.
+- **Forms**: beside the deck verdict the reviewer lists the form of each animated slide (row,
+  ring, funnel, two sides, fill level, scene, table...). When the same form sits on two
+  consecutive animated slides or on more than half of them, it asks the builder "does slide N
+  say more than order?" for each. This is a question, not a fail: the builder answers it in
+  the triage from the slide's words (the Idea column), and redraws only where the words state
+  more.
 
 ## 3. The reviewer prompt
 
@@ -84,14 +98,19 @@ lots of empty space; no boxes, cards, chips or pills; rings, dots, thin lines an
 lines; one accent colour lighting what matters with at most one soft glow; at most two extra
 colours that carry a meaning stated on the slide; large readable labels with smaller muted
 sub-labels; the deck's own colours and fonts. "Too much" is a defect even when everything is
-correct: a second storyline, invented arrows or brackets, a different chart form, several
-glows, repeated pulses or packets.
+correct, when it adds what the before slide does not state: a second storyline, invented
+nodes, labels, arrows or brackets, a different chart form, several glows, repeated pulses or
+packets. A form the before slide's own words support is not an addition: a ring where the
+words say the last step repeats or returns, a boundary line where they state a handover,
+shrinking marks where they give falling counts.
 
-Score every slide on these ten items, 1 to 5 (5 = no fault, 3 = visible flaw that a careful
+Score every slide on these eleven items, 1 to 5 (5 = no fault, 3 = visible flaw that a careful
 presenter would fix, 1 = a viewer would call the slide ugly, wrong or unchanged):
 1 Form: the after figure has the before figure's own shape (stairs stay stairs, rows stay
   rows, columns stay columns). 1 = a different form (e.g. steps re-plotted as a line chart)
-  or the figure dropped for text.
+  or the figure dropped for text. When the before slide is only text or a row of step cards,
+  the cards are layout, not a figure: a ring, funnel or two sides drawn from its words is not
+  a Form fault.
 2 Restraint: one movement, at most one glowing element, nothing repeated across the frames.
   1 = repeated packets/pulses, several glows, everything lit. Judge from the mark frames;
   without them judge glow count on the rest frame and write "rest only".
@@ -123,12 +142,20 @@ presenter would fix, 1 = a viewer would call the slide ugly, wrong or unchanged)
   old boxes still there so the slide looks no different from the before. Score a
   context-after image as its own section with Host fit only (other items "n/a"); do not
   fold it into the animated slides' scores.
+11 Idea: the picture shows what the before slide says beyond the order of its items (falling
+  counts drawn shrinking, a stated return drawn closed, a stated trade-off drawn as two
+  sides). 5 = the form carries the point, or the words state order only and the picture is a
+  clean row (a plain row is not a fault then; decoration does not earn points). 3 = a correct
+  row or list that ignores a quantity, return, tension or containment the words state.
+  1 = generic nodes that could illustrate any slide. For any Idea score under 4, quote the
+  before words that state what the picture ignores.
 
 Verdict per slide, computed from the scores and nothing else: "ship" if every item is 3 or
 above; "rebuild" if Form, Restraint, Fidelity or Host fit is 1, or three or more items are
 below 3; otherwise "fix". The deck verdict is the worst slide verdict. Be blunt in the
 scores, not in the verdict: do not reward effort, or correctness, with a higher look score.
-When unsure between two scores, give the lower one.
+When unsure between two scores, give the lower one. An unfamiliar form is not a reason for
+doubt; a form, node or label the before slide's words do not support is.
 
 Output exactly this, nothing before it:
 
@@ -136,10 +163,15 @@ Output exactly this, nothing before it:
 | Item | Score | Reason (one line, name what you see and where) |
 |---|---|---|
 | Form | n | ... |
-... (all ten items)
+... (all eleven items)
 Verdict: ship | fix | rebuild
 
 (repeat per slide)
+
+## Forms
+<slide>: <form in two or three words>, one line per animated slide. If the same form is on
+two consecutive animated slides or on more than half of them, add per such slide:
+"Question: does slide <N> say more than order? <before words that might say more, or none>"
 
 ## Worst defects
 1. <slide>: <defect>, <where on the slide>. Fix: <one concrete action>.
@@ -154,7 +186,8 @@ Verdict: ship | fix | rebuild
 Run on 2026-11-08 with fresh reviewers (Opus, general-purpose, the prompt plus labelled
 paths only; A and B with mark frames, C to E with the rest frame only, A and B with one
 un-animated context slide). Scores are in item order: Form, Restraint, Space, Boxes, Colour, Type, Lines,
-Rest frame, Fidelity, Host fit.
+Rest frame, Fidelity, Host fit. Idea and the Forms list were added on 2026-11-13, after
+these runs, and are not yet calibrated.
 
 | Baseline | What it is | Slide | Scores | Verdict |
 |---|---|---|---|---|

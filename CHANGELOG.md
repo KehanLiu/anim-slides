@@ -2,6 +2,34 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## Unreleased
+
+Picture first. Driver: on long documents and card decks the skill drew nearly every slide as
+a row "step 1, step 2, step 3". Selection went keyword, archetype, nearest pool entry; nothing
+asked what the idea looks like, and the review loop treated any other form as "too much".
+
+- **Picture idea and form:** `references/archetypes.md` opens with a step before the
+  archetype: one sentence on what the slide says beyond the order of its items, and a table
+  from that idea to a form (ring, funnel, fill level, two sides, lanes, scene, row for order
+  only). The seven archetypes become build families. Triage gains `Idea` and `Form` columns,
+  the brief `Picture idea:` and `Form:`, and "Forms across the deck" re-reads slides when one
+  form repeats.
+- **Scope of "keep the form":** `style.md` 0 and `accuracy.md` 0 separate a slide with its own
+  figure (form kept, as before) from a slide of prose, bullets, cards or a text table (form
+  from the structure the source states). Nothing the source does not state is drawn in either.
+- **What motion can mean:** new section in `motion-rules.md` (level, count, dots at scale,
+  trajectory, merge and split, ghost of the old state, rotation, clip reveal), all under the
+  one-pass limits. The 5 % scale limit covers emphasis only.
+- **Rubric item 11, Idea,** and a Forms list per deck in `look-rubric.md`; "too much" is
+  limited to things the source does not state. Not yet calibrated.
+- **Eval `prose-not-a-row`:** falling counts, a cycle and a trade-off written as numbered
+  steps, plus an order-only control that must stay a row.
+- `extract_slides.py`: `idea_cues` (evidence for the picture idea) and `order_only` on
+  pipeline suggestions; confidence capped at 0.3 when a cue contradicts the row.
+- Pool: `form` and `moves` on every entry; lookup goes by form first. `check_look.py` treats
+  shapes marked `data-anim-scene` as scene ground; canal-lock and water-cycle use it instead
+  of the per-file opt-out. `spec-format.md` corrected to what the scaffolder draws.
+
 ## 0.11.0 - 2026-11-08
 
 Self-test: "no ugly slides, no matter the input". Driver: the owner asked how the skill can

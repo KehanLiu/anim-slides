@@ -117,7 +117,6 @@
 @media (prefers-reduced-motion: reduce) { .anim-water-cycle * { animation: none !important; } }
 </style>
 <div class="anim anim-water-cycle" data-anim="water-cycle" data-anim-cycle="10" data-anim-phases="2.24,4.48,5.36,8.64,9.3" data-anim-control="once">
-<!-- anim-look: boxes-ok: the water is the meaning -->
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The water cycle as a closed loop: the sun evaporates sea water, the vapour condenses into a cloud that wind carries inland, rain falls on the mountains and rivers carry it back to the sea.">
   <!-- ===== sun ===== -->
   <g class="water-cycle-rays">
@@ -125,11 +124,11 @@
   </g>
   <circle class="water-cycle-sun" cx="150" cy="120" r="40"/>
   <!-- ===== sea ===== -->
-  <path class="water-cycle-sea" d="M0 452 Q40 442 80 452 T160 452 T240 452 T320 452 T400 452 T480 452 T560 452 T640 452 Q670 443 702 450 V600 H0 Z"/>
+  <path data-anim-scene class="water-cycle-sea" d="M0 452 Q40 442 80 452 T160 452 T240 452 T320 452 T400 452 T480 452 T560 452 T640 452 Q670 443 702 450 V600 H0 Z"/>
   <path class="water-cycle-wave" d="M0 452 Q40 442 80 452 T160 452 T240 452 T320 452 T400 452 T480 452 T560 452 T640 452 Q670 443 702 450"/>
   <text class="water-cycle-mono water-cycle-dim" x="40" y="566">sea</text>
   <!-- ===== land with a mountain ===== -->
-  <path class="water-cycle-land" d="M686 602 L700 468 C820 462 940 452 1040 420 L1220 330 L1400 250 L1500 302 L1580 282 L1682 322 V602 Z"/>
+  <path data-anim-scene class="water-cycle-land" d="M686 602 L700 468 C820 462 940 452 1040 420 L1220 330 L1400 250 L1500 302 L1580 282 L1682 322 V602 Z"/>
   <!-- ===== river (collection and runoff) ===== -->
   <path class="water-cycle-river" d="M1238 348 C1166 388 1104 420 1040 446 C960 478 840 490 720 488 C690 487 670 484 650 478"/>
   <g class="water-cycle-river-on"><path d="M1238 348 C1166 388 1104 420 1040 446 C960 478 840 490 720 488 C690 487 670 484 650 478"/></g>

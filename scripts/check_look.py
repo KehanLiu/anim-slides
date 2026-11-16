@@ -19,6 +19,11 @@ through --dump-dom. Checks (references/style.md principles and "Checklist before
             lines/strokes < 1.5                                                  WARN
   boxes     filled boxes (> 2 % of the viewBox) holding text: 1-3 WARN, > 3 FAIL;
             opt out with <!-- anim-look: boxes-ok --> when the box is the meaning
+  scene     shapes carrying data-anim-scene (or inside a <g data-anim-scene>) are scene
+            ground, the thing itself drawn (water, land, a chamber wall): exempt from
+            boxes and the label-on-fill warning, everything else checked as before;
+            more than half the filled shapes marked scene in a figure with 3+
+            labelled rings (a node diagram)                                     WARN
   colours   distinct hues (greys and the ground ignored): > 4 WARN, > 6 FAIL
   density   bbox union < 35 % or > 90 % of the viewBox, > 40 text elements       WARN
   text-size smallest rendered text below the check_fragment.py floor             FAIL
@@ -73,7 +78,7 @@ try{var root,gate=CFG.gate;
    var r=clipr(el,el.getBoundingClientRect(),svg),p=up(r.left,r.top),q=up(r.right,r.bottom),M=el.getScreenCTM(),es=M?Math.sqrt(Math.abs(M.a*M.d-M.b*M.c)):ss;
    var e={i:nodes.length,tag:el.tagName,cls:(el.getAttribute('class')||'').slice(0,60),x:Math.min(p[0],q[0]),y:Math.min(p[1],q[1]),
     w:Math.abs(q[0]-p[0]),h:Math.abs(q[1]-p[1]),op:disp&&cs.visibility!=='hidden'?+op.toFixed(3):0,fill:col(cs.fill),stroke:col(cs.stroke),
-    fo:+cs.fillOpacity,so:+cs.strokeOpacity,sw:(parseFloat(cs.strokeWidth)||0)*es/ss,glow:cs.filter!=='none',dash:cs.strokeDasharray!=='none'};
+    fo:+cs.fillOpacity,so:+cs.strokeOpacity,sw:(parseFloat(cs.strokeWidth)||0)*es/ss,glow:cs.filter!=='none',dash:cs.strokeDasharray!=='none',scene:!!el.closest('[data-anim-scene]')};
    if(r.out)e.op=0;
    if(e.tag==='text'){e.px=+(parseFloat(cs.fontSize)*es).toFixed(2);e.txt=el.textContent.trim().replace(/\s+/g,' ').slice(0,40);e.runs=[];
     Array.prototype.forEach.call(el.childNodes,function(n){var c=n.nodeType===3?cs:n.nodeType===1?getComputedStyle(n):null;
@@ -229,13 +234,27 @@ def analyse(frames, k, gcol, a, R, pre):
 
     els = rest['els']
     T = [e for e in els if e['tag'] == 'text' and vis(e)]
-    filled = {}
+    filled, scene = {}, {}
     for e in els:
         if e['tag'] != 'text' and e['fill'] and vis(e) and not e['glow']:
             al = e['fill'][3] * e['fo'] * e['op']
             comp = over(e['fill'], al, g)
             if al > 0.08 and dist(comp, g) >= 6:  # a ground-coloured fill is a label plate
-                filled[e['i']] = e
+                (scene if e.get('scene') else filled)[e['i']] = e
+    if scene:  # data-anim-scene: the thing itself drawn, not a card; exempt from boxes and label-on-fill
+        rings = 0
+        for e in els:
+            if e['tag'] == 'circle' and vis(e) and e['stroke'] and e['sw'] > 0 \
+                    and e['i'] not in filled and e['i'] not in scene and e['w'] >= 16:
+                if any(t['x'] + t['w'] / 2 > e['x'] and t['x'] + t['w'] / 2 < e['x'] + e['w'] and
+                       t['y'] + t['h'] / 2 > e['y'] and t['y'] + t['h'] / 2 < e['y'] + e['h'] for t in T):
+                    rings += 1
+        msg = '%d filled shape(s) marked data-anim-scene, exempt from boxes and label-on-fill' % len(scene)
+        if len(scene) > len(filled) and rings >= 3:
+            R.warn(pre + 'scene', msg + '; with %d labelled rings this reads as a node diagram: data-anim-scene is for '
+                   'the thing itself drawn (water, land, a wall), not for cards behind labels' % rings)
+        else:
+            R.info(pre + 'scene', msg)
     on_shape = sorted({ti for ti, si in rest['inside'] if si in filled and els[ti]['tag'] == 'text'})
     if on_shape:
         R.warn(pre + 'overlap', '%d label(s) sit on a filled shape: %s; put labels on the ground or on a plate in --anim-bg'

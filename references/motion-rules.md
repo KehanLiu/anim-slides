@@ -32,7 +32,7 @@ One pass of 4 to 10 s (`data-anim-cycle`), shaped as one staggered reveal:
 | Part | When | What |
 |---|---|---|
 | enter | 0 to ~1 s | the static frame and the first elements rise in, stagger 60-120 ms, under 500 ms per group |
-| action | ~1 s to pass - hold | one phase per narrated step, about 1 to 2 s each: an entrance, one highlight moving on, at most one packet hop along its path; captions cross-fade per phase |
+| action | ~1 s to pass - hold | one phase per narrated step, about 1 to 2 s each, each one move from "What motion can mean" below (an entrance, the highlight moving on, one packet hop, a level rising, ...); captions cross-fade per phase |
 | hold | last 0.8-1.5 s | nothing moves; the finished state (= 100 % keyframe = resting frame) is shown and stays, with the last caption |
 
 Phases keep their second marks from the spec; keyframe percentage = seconds / pass * 100.
@@ -41,6 +41,29 @@ The phase marks go on the wrapper as `data-anim-phases`: settled moments between
 At most three things move at any moment, and no element moves twice unless the story needs it:
 a packet that travels one path once is fine, a pulse that repeats is not. A highlight that moves
 from step to step is one focus changing place, not repetition.
+
+## What motion can mean
+
+Pick the move that says what the slide says (its picture idea, archetypes.md), not the one
+that is easiest. Every move sits under the limits above: one calm pass, rest on the finished
+frame, no loops, at most three things moving at once, no overshoot, one glow.
+
+| Move | Says | Technique (pool example) |
+|---|---|---|
+| highlight moves on, packet hops | order, hand-off | opacity or colour swap; `offset-path` (Techniques) |
+| level rises or falls | a quantity changes | `scaleY` on the fill, `transform-box: view-box`, origin at the floor; dashed ghost of the start level (canal-lock) |
+| count ticks up | a number is reached | stacked `<text>` per value cross-faded (Changing text), ending on the source's number |
+| dots at exact scale | how many | one dot = a stated unit, rows fade in (sales-funnel) |
+| band tapers, dots thin out | fewer pass a stage | bands at the stated counts; dots that do not pass fade at the stage line (sales-funnel) |
+| path drawn | a trajectory, a curve, a route | draw-on by `stroke-dashoffset`, or a growing clip with a head dot (latency-trace) |
+| area revealed | coverage or a region spreads | clip rect `width`/`height` grows (Reveals inside a box) |
+| two merge, one splits | combine, divide | parts as separate groups translated together or apart (lessons.md) |
+| before -> after in place | a state changes | the new state cross-fades in where the old stood; the old stays as a dashed ghost |
+| part rotates | a dial turns, a valve opens, a balance tilts | `rotate` on a `<g>`, `transform-box` and a px origin at the pivot, to the stated angle |
+| stacking up | accumulation, layers built | items rise into place bottom-up, staggered (bloom-taxonomy) |
+| colour along a scale | a state on a range (cold to hot, low to high) | fill steps between `--anim-line` and the accent along the stated scale |
+| token changes type | the thing transforms as it travels | stacked token copies cross-fade at the change points (water-cycle) |
+| shape gives way to shape | one form becomes another | stacked shapes cross-fade (db-failover); never `d` morphing |
 
 ## A step pass
 
@@ -69,7 +92,9 @@ from step to step is one focus changing place, not repetition.
 - Entrance/exit asymmetry: entrances decelerate, exits accelerate and take about 65 % of the
   entrance time (500 ms in, ~320 ms out).
 - Pops scale 0.92 to 1 with the enter curve. Never overshoot past 1.
-- Nothing pulses more than +-5 % scale; prefer opacity or stroke colour for "attention".
+- Emphasis (a pulse, a pop, an entrance) stays within +-5 % scale; prefer opacity or stroke
+  colour for "attention". A size change that is the content (a level, a bar, a band) runs at
+  its true proportion with the move curve.
 
 ## Choreography
 
@@ -157,7 +182,8 @@ Run before shipping each fragment. Every "no" is a fix.
 7. Do packets use `offset-path`, at 0.6-1.2 s per hop?
 8. Do draw-on paths use `pathLength` and 0.5-0.8 s per path?
 9. Is changing text done by cross-fading stacked `<text>` elements?
-10. Does nothing overshoot or pulse more than +-5 %?
+10. Does nothing overshoot, and does no emphasis pulse or pop exceed +-5 % (size that is the
+    content excepted)?
 11. Does every animated element have a full-pass track with no `animation-delay`, whose 100 %
     stop equals its resting value?
 12. Is the resting frame the final state and readable as a still (also under reduced motion)?

@@ -1,6 +1,8 @@
 # Pool of finished, checked fragments. One entry per folder: pool/<name>/<name>.html,
 # plus thumb.png (resting frame) and, where it exists, spec.yaml.
-# Agents: match on archetype, domain and tags first, then read the story; open only the fragment you pick.
+# Agents: match on form and moves first (the picture the slide needs, the motion that shows it), then archetype,
+# domain and tags; then read the story and open only the fragment you pick. form = the picture's shape, moves = the
+# motion techniques it demonstrates (vocabulary in README.md).
 # All entries: data-anim-control="once" by default (one pass of `cycle` seconds, ends on the resting frame), CSS only,
 # pass check_fragment.py at viewBox width. Every entry is step-capable: `phases` repeats the wrapper's
 # data-anim-phases (stop marks in seconds, the last = finished figure), so integrate_fragment.py --control step
@@ -8,6 +10,8 @@
 
 - name: deploy-pipeline
   archetype: pipeline
+  form: row
+  moves: [packet-hop, split-merge, draw-on]
   domain: software
   viewbox: [1680, 440]
   cycle: 9.8
@@ -18,6 +22,8 @@
 
 - name: service-deps
   archetype: graph
+  form: graph
+  moves: [draw-on, packet-hop]
   domain: software
   viewbox: [1680, 600]
   cycle: 9.8
@@ -28,6 +34,8 @@
 
 - name: db-failover
   archetype: graph
+  form: graph
+  moves: [packet-hop, cross-fade-shape]
   domain: software
   viewbox: [1000, 560]
   cycle: 9.4
@@ -39,6 +47,8 @@
 
 - name: roadmap
   archetype: timeline
+  form: axis
+  moves: [draw-on]
   domain: product
   viewbox: [1680, 440]
   cycle: 9.9
@@ -49,6 +59,8 @@
 
 - name: job-states
   archetype: states
+  form: ring
+  moves: [packet-hop]
   domain: software
   viewbox: [1200, 600]
   cycle: 9.8
@@ -59,6 +71,8 @@
 
 - name: cache-compare
   archetype: compare
+  form: columns
+  moves: [level, packet-hop]
   domain: software
   viewbox: [1680, 600]
   cycle: 10
@@ -69,6 +83,8 @@
 
 - name: rag-stack
   archetype: layers
+  form: bands
+  moves: [packet-hop, token-changes-type]
   domain: ai
   viewbox: [1200, 640]
   cycle: 9.8
@@ -79,6 +95,8 @@
 
 - name: cloud-spend
   archetype: chart
+  form: line-chart
+  moves: [trajectory, clip-reveal]
   domain: finance
   viewbox: [1680, 600]
   cycle: 9.5
@@ -89,6 +107,8 @@
 
 - name: latency-trace
   archetype: chart
+  form: strip-chart
+  moves: [trajectory, clip-reveal]
   domain: software
   viewbox: [800, 500]
   cycle: 10
@@ -100,6 +120,8 @@
 
 - name: er-patient-flow
   archetype: pipeline
+  form: snake
+  moves: [packet-hop, draw-on]
   domain: health
   viewbox: [1680, 560]
   cycle: 10
@@ -111,6 +133,8 @@
 
 - name: parcel-route
   archetype: pipeline
+  form: row
+  moves: [packet-hop, draw-on]
   domain: logistics
   viewbox: [1600, 520]
   cycle: 7.5
@@ -121,6 +145,8 @@
 
 - name: water-cycle
   archetype: pipeline
+  form: scene
+  moves: [token-changes-type, trajectory]
   domain: earth-science
   viewbox: [1680, 600]
   cycle: 10
@@ -132,6 +158,8 @@
 
 - name: loan-decision
   archetype: graph
+  form: flowchart
+  moves: [split-merge, packet-hop, draw-on]
   domain: finance
   viewbox: [1680, 600]
   cycle: 10
@@ -142,6 +170,8 @@
 
 - name: hiring-lanes
   archetype: graph
+  form: lanes
+  moves: [packet-hop]
   domain: hr
   viewbox: [1680, 600]
   cycle: 10
@@ -153,6 +183,8 @@
 
 - name: court-case
   archetype: timeline
+  form: axis
+  moves: [draw-on]
   domain: law
   viewbox: [1680, 600]
   cycle: 10
@@ -164,6 +196,8 @@
 
 - name: photosynth-respiration
   archetype: compare
+  form: table
+  moves: [rotate]
   domain: biology
   viewbox: [1680, 600]
   cycle: 10
@@ -175,6 +209,8 @@
 
 - name: funding-options
   archetype: compare
+  form: matrix
+  moves: [clip-reveal]
   domain: business
   viewbox: [1680, 600]
   cycle: 9
@@ -186,6 +222,8 @@
 
 - name: canal-lock
   archetype: states
+  form: scene
+  moves: [level, ghost-before-after]
   domain: engineering
   viewbox: [1680, 600]
   cycle: 9.5
@@ -197,6 +235,8 @@
 
 - name: sales-funnel
   archetype: pipeline
+  form: funnel
+  moves: [dots-at-scale, thinning]
   domain: marketing
   viewbox: [1680, 600]
   cycle: 9.6
@@ -208,6 +248,8 @@
 
 - name: comms-timeline
   archetype: timeline
+  form: axis
+  moves: [draw-on]
   domain: history
   viewbox: [1680, 520]
   cycle: 8.6
@@ -218,6 +260,8 @@
 
 - name: bloom-taxonomy
   archetype: layers
+  form: pyramid
+  moves: [stacking, packet-hop]
   domain: education
   viewbox: [1200, 640]
   cycle: 10
@@ -229,6 +273,8 @@
 
 - name: phase-changes
   archetype: states
+  form: particles
+  moves: [packet-hop]
   domain: chemistry
   viewbox: [1680, 600]
   cycle: 10

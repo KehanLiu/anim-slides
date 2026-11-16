@@ -5,12 +5,21 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
 
 ## Principles
 
-0. **Less.** A fragment is the slide's own figure, redrawn quietly, plus one movement. It keeps
-   the figure's form: stairs stay stairs, a table stays rows, a Gantt stays bars. Turning a
-   staircase into a line chart, adding brackets, arrows, glows or a second storyline the slide
-   does not have, or making several things travel at once, is "too much" even when every
-   number is right. Before adding an element or a motion, ask what the slide loses without it;
-   if the answer is nothing, leave it out.
+0. **Less.** A fragment is the slide's own picture, drawn quietly, plus the movement that
+   carries its story. Two cases:
+   - *The slide has a figure* (chart, diagram, meaning-carrying illustration): the fragment
+     keeps its form: stairs stay stairs, a table of values stays rows, a Gantt stays bars.
+     Turning a staircase into a line chart, or adding brackets, arrows, glows or a second
+     storyline the figure does not have, is "too much" even when every number is right.
+   - *The slide is prose, bullets, cards or a text table*: there is no figure form to keep.
+     The form follows the structure the source states (the picture idea, archetypes.md): a
+     stated cycle may be a ring, a stated narrowing a funnel, a stated rise a fill level. That
+     is drawing the slide, not "too much"; a row is right when order is all the source says.
+
+   In both cases nothing appears that the source does not state (no node, label, number,
+   actor, arrow direction or storyline; accuracy.md, rule 0), and several things never travel
+   at once. Before adding an element or a motion, ask what the slide loses without it; if the
+   answer is nothing, leave it out.
 1. **Space is the main material.** The figure fills about 60 to 70 % of its slot and sits
    centred; the rest stays empty. Fewer elements, larger type, wider gaps. If a slot feels
    crowded, remove a label before shrinking the type.
@@ -18,7 +27,10 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
    bars, no chip backgrounds. A group is a hairline bracket (2 px, `--anim-line`, open on the
    label side) with a small mono label at one end, never a framed card and not a tint. A node is a ring, a dot or a glyph with its label outside; a step in a pipeline is a
    label on a line, not a rounded rectangle with a fill. Rectangles are allowed only when the
-   source shows containers (a table, a lock chamber, a database).
+   source shows containers (a table, a lock chamber, a database). In a scene, mark the ground
+   that is the thing itself (water, land, a chamber wall) with `data-anim-scene` on the shape
+   or its group; `check_look.py` then skips it for boxes and labels on fills. Never mark
+   cards or panels behind labels.
 3. **One accent lights the story.** The accent (`--anim-accent`) marks what is active now, with
    a soft glow. Everything else is drawn in `--anim-line` and `--anim-muted`. Semantic colours
    (`--anim-ok`, `--anim-warn`, `--anim-danger`, `--anim-accent-2`) appear only where they
@@ -41,7 +53,9 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
    glowing element per fragment at most, and lines and arrows never glow.
 9. **Motion is calm and happens once.** Enter with a 16 px rise and fade (600 ms,
    `cubic-bezier(.2,.7,.2,1)`), draw-on over 1.2 s, dim-not-hide for things that lose focus
-   (opacity 0.35). No bounce, no scale beyond 1.05, no more than one thing arriving at a time
+   (opacity 0.35). No bounce, no emphasis or entrance scale beyond 1.05 (a size change that is
+   the content, such as a level, a bar or a band, is drawn at its true proportion), no more
+   than one thing arriving at a time
    unless they are a staggered series (80 ms apart). The pass plays once when the slide
    becomes current (4 to 10 s) and ends on the resting frame; nothing loops, pulses or
    restarts while the slide is up.

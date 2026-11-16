@@ -14,7 +14,8 @@ or on #/## headings when there are none) and writes a JSON outline:
        "layout_pictures": 1,
        "tables": [[["Old", "New"], ["manual", "CI"]]], "connectors": 4,
        "builds": 4, "suggested_archetype": "pipeline", "confidence": 0.6,
-       "reason": "cues: arrows, numbered steps"}], "builds": 4}
+       "reason": "cues: arrows, numbered steps", "order_only": true,
+       "idea_cues": []}], "builds": 4}
 
 `tables` (rows of cell strings), `connectors` (connector lines and arrow
 shapes), `title_guessed` (no title placeholder; the title is the largest-font
@@ -43,7 +44,24 @@ slide itself). Markdown: remark `--` incremental separators.
 The archetype is one of pipeline, graph, timeline, states, compare, layers,
 chart (see references/archetypes.md) or null when no structural cue is found.
 It is only a suggestion from keyword and shape heuristics; review it before
-building.
+building. Numbered items, 'then', 'step' and arrows only say the text is laid
+out in order, not what shape the idea has.
+
+`idea_cues` (per slide, always present, [] when none) is evidence for the
+picture idea: [{"cue": name, "evidence": the matched source words}], with name
+one of falling-quantities / rising-quantities (3+ numbers in reading order,
+item indices and years skipped, same unit or all bare, strictly monotonic),
+returns (cycle, loop, starts again, back to, re-enters, feeds back, iterate ...),
+trade-off (versus, trade-off, at the cost of, on the other hand ...), contains
+(inside, within, part of, consists of, nested ...), split-merge (splits into,
+in parallel, merges, combines, converges ...), handover (hands over, transfer
+to, passes to, across the boundary ...), before-after (before ... after, was
+... now, from <number> to <number>), share-of-whole (percentages summing to
+about 100, 'share of', 'of all' ...). Numbered formatting alone is never a cue.
+`order_only` appears only when the suggestion is pipeline: true when no idea
+cue fired (order is all the source says, a row is right), false when one did;
+then the confidence is capped at 0.3 (except for a mermaid flowchart) and the
+reason names the cues.
 
 The stage defaults to 1920x1080. For .pptx without --stage it is derived from
 the deck's slide size, scaled to a width of 1920 (a 4:3 deck gives 1920x1440).
@@ -1078,6 +1096,116 @@ def suggest(slide):
     return best[2], round(conf, 2), "cues: " + ", ".join(best[3])
 
 
+# ------------------------------------------------------------ idea cues ----
+# Evidence for the picture idea: what the slide says beyond the order of its items. Precision over
+# recall; a cue names the source words it matched so the agent can check them. Numbered formatting
+# alone is never a cue.
+IDEA_RULES = [  # (cue, regex on the cased text, re.I)
+    ("returns", w(r"cycles?|cyclical|cyclic|loops?|looping|repeats|repeated|repeating|repeat until"
+                  r"|repeat from|(?:starts?|begins?|round|all over|over) again|again and again|back to|returns? to|re-?enters?|re-?entering|re-?entry"
+                  r"|feeds? back|fed back|feedback loop|iterate[sd]?|iterating|iterations?|iterative"
+                  r"|recycled?|recycling|starts? over|over and over", re.I,
+                  cjk="循环|周而复始|反复|重复|再次|回到|サイクル|循環|繰り返")),
+    ("trade-off", w(r"versus|vs\.?|trade-?offs?|at the cost of|at the expense of|on the other hand"
+                    r"|tension between|(?:but|while) (?:it )?(?:raises|lowers|increases|reduces|costs"
+                    r"|slows|adds|loses|cuts)", re.I, cjk="权衡|取舍|代价|トレードオフ|一方で")),
+    ("contains", w(r"inside|within(?! (?:\d|a few|the next|hours?|days?|weeks?|minutes?|seconds?"
+                   r"|months?|years?|budget|reach|range|limits?|scope))|(?<!as )part of|consists? of"
+                   r"|made up of|composed of|nested|layers? of|contains", re.I,
+                   cjk="包含|组成|内部|の中に|で構成")),
+    ("split-merge", w(r"splits?(?: up)? into|split in two|branch(?:es|ed)? (?:into|off|out)|branching"
+                      r"|in parallel|run parallel|merges?|merging|merged|combines?|converge[sd]?"
+                      r"|converging|fork(?:s|ed)? into|diverge[sd]?|diverging", re.I,
+                      cjk="分为|分成|分支|并行|合并|汇合|分岐|並列|合流")),
+    ("handover", w(r"hand(?:s|ed)? (?:it )?over|hand-?offs?|handovers?|hand-over|transfer(?:s|red)? to"
+                   r"|pass(?:es|ed)? (?:it )?(?:on )?to|across the (?:boundary|border|membrane|wall)"
+                   r"|cross(?:es|ed)? (?:the )?(?:boundary|border|membrane)", re.I,
+                   cjk="交接|移交|转交|传给|引き継|受け渡")),
+    ("share-of-whole", w(r"(?<!first )(?<!most )(?<!best )(?<!worst )(?<!least )of all(?! the time)"
+                         r"|share of|market share|proportion of|fraction of|percent of|out of every",
+                         re.I, cjk="占比|份额|比例|割合|シェア")),
+]
+BEFORE_AFTER = [w(r"before\b.{1,120}?\bafter", re.I | re.S, cjk="之前.{0,40}?之后|以前.{0,40}?(?:现在|現在)"),
+                w(r"(?:was|were|used to)\b.{1,60}?\b(?:now|today)", re.I | re.S)]
+FROM_TO = re.compile(r"\bfrom\s+([$€£]?\d[\d,.]*\s?%?)\S*\s+to\s+([$€£]?\d[\d,.]*\s?%?)", re.I)
+QTY_UNITS = (r"%|ms|sec|s|min|hrs?|h|days?|weeks?|months?|years?|gb|mb|kb|tb|bn|k|m|kg|mg|g|km|cm|mm"
+             r"|ml|l|°c|°f|ppm|t|x|万|亿|億|元|円|人|名|个|個")
+QTY = re.compile(r"(?<![\w.,\-–/])([$€£])?\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?![\d,]\d)"
+                 r"(?!\s?[–-]\s?\d)\s?(" + QTY_UNITS + r")?(?![a-z\d])", re.I)
+
+
+def quantities(text, nxt=1):
+    """Numbers in reading order as (item, value, unit, source). An item index (1, 2, 3 ... in
+    sequence, counted on from `nxt`) is not a quantity but starts the next item; years and ranges
+    are skipped. Returns the list and the next expected index."""
+    out = []
+    for m in QTY.finditer(text):
+        cur, digits, frac, unit = m.groups()
+        if re.search(r"\d\s?[–-]\s?$", text[:m.start()]):
+            continue  # the end of a range
+        bare = not (cur or unit or frac or "," in digits)
+        val = float(digits.replace(",", "") + ("." + frac if frac else ""))
+        if bare and val == nxt:  # an item index: 1, 2, 3 ...
+            nxt += 1
+            continue
+        if bare and len(digits) == 4 and 1000 <= val <= 2099:
+            continue  # a year
+        out.append((nxt - 1, val, (cur or unit or "").lower(), m.group(0).strip()))
+    return out, nxt
+
+
+def idea_cues(slide):
+    """[{"cue": name, "evidence": matched source words}] for the picture-idea step."""
+    segments = slide.get("_segments") or [slide["title"], slide["text"], slide["notes"]]
+    cased = decite(segments)
+    cues = []
+
+    def add(cue, words):
+        words = list(dict.fromkeys(collapse(x) for x in words if collapse(x)))
+        if words:
+            cues.append({"cue": cue, "evidence": " / ".join(words[:4])})
+
+    # quantities in item order (bullets when there are 3+, else items split at their indices):
+    # per unit, the first number of each item
+    if len(slide["bullets"]) >= 3:
+        qs, nxt = [], 1
+        for i, b in enumerate(slide["bullets"]):
+            found, nxt = quantities(decite([b]), nxt)
+            qs += [(i,) + q[1:] for q in found]
+    else:
+        qs = quantities(decite([slide["text"]]))[0]
+        if all(q[0] == 0 for q in qs):  # no item indices: every number is its own item
+            qs = [(i,) + q[1:] for i, q in enumerate(qs)]
+    groups = {}
+    for item, v, unit, src in qs:
+        g = groups.setdefault(unit, {})
+        g.setdefault(item, (v, src))
+    for unit, per_item in groups.items():
+        vals = [per_item[k] for k in sorted(per_item)]
+        if len(vals) < 3:
+            continue
+        nums = [v for v, _ in vals]
+        pairs = list(zip(nums, nums[1:]))
+        if all(a > b for a, b in pairs):
+            add("falling-quantities", [s for _, s in vals])
+        elif all(a < b for a, b in pairs):
+            add("rising-quantities", [s for _, s in vals])
+    rx_hits = {cue: [m.group(0) for m in rx.finditer(cased)] for cue, rx in IDEA_RULES}
+    for cue in ("returns", "trade-off", "contains", "split-merge", "handover"):
+        add(cue, rx_hits[cue])
+    ba = [m.group(0) for rx in BEFORE_AFTER for m in rx.finditer(cased)]
+    ba += [m.group(0) for m in FROM_TO.finditer(cased)
+           if not all(re.fullmatch(r"(?:19|20)\d{2}", g.strip()) for g in m.groups())]
+    add("before-after", [b if len(b) <= 40 else b[:18] + " … " + b[-18:] for b in ba])
+    pct = [(v, s) for _, v, unit, s in qs if unit == "%"]
+    total = sum(v for v, _ in pct)
+    share = rx_hits["share-of-whole"]
+    if (len(pct) >= 3 and 95 <= total <= 105) or (len(pct) == 2 and 98 <= total <= 102):
+        share = [" + ".join(s for _, s in pct) + " ≈ 100%"] + share
+    add("share-of-whole", share)
+    return cues
+
+
 # ----------------------------------------------------------------- main ----
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -1113,11 +1241,20 @@ def main(argv=None):
 
     for i, s in enumerate(slides, 1):
         arch, conf, reason = suggest(s)
-        s.update(index=i, suggested_archetype=arch, confidence=conf, reason=reason)
+        cues = idea_cues(s)
+        s.update(index=i, idea_cues=cues)
+        if arch == "pipeline":  # a row: is order all the source says?
+            s["order_only"] = not cues
+            if cues and not reason.startswith("mermaid"):
+                conf = min(conf, 0.3)
+                reason += "; idea cues: %s (the row may only be the layout)" % ", ".join(
+                    dict.fromkeys(c["cue"] for c in cues))
+        s.update(suggested_archetype=arch, confidence=conf, reason=reason)
         print("%3d  %-36.36s %-9s %.2f" % (i, s["title"] or "(untitled)", arch or "-", conf),
               file=sys.stderr)
     keys = ["index", "title", "title_guessed", "bullets", "notes", "text", "has_image", "image_count",
-            "hidden_pictures", "layout_pictures", "tables", "connectors", "mermaid", "builds", "suggested_archetype", "confidence", "reason"]
+            "hidden_pictures", "layout_pictures", "tables", "connectors", "mermaid", "builds", "suggested_archetype", "confidence", "reason", "order_only",
+            "idea_cues"]
     slides = [{k: s[k] for k in keys if k in s} for s in slides]
     builds = sum(s.get("builds", 0) for s in slides)
     if builds:

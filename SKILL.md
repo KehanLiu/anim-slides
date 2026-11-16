@@ -37,7 +37,7 @@ next to the user's deck, `anim/<name>/` one per fragment.
 | "improve the slides", "make it less boring", "add (more) animations", "animate this deck" | `.pptx`, Markdown, remark, a document | **A: deck first, then animate** | A deck skill builds the HTML deck; then triage and figures. The budget floor applies (`references/input-stage.md`). |
 | the same | an HTML deck (reveal.js, impress.js, frontend-slides, any `<section>`/`.slide` deck) | **B: animate in place** | Triage and figures on the existing deck. |
 | "animate slide N", "this diagram", "this chart" | any | **C: single slide** | No triage. No intake message, except one look still when the deck has no theme yet. |
-| a process, dependency, timeline or architecture in text, or a Mermaid block | docs, README, pasted text | **D: illustrate from docs** | Pick the archetype (`references/archetypes.md`), spec, build; the host is the page or slot the user names. |
+| a process, dependency, timeline or architecture in text, or a Mermaid block | docs, README, pasted text | **D: illustrate from docs** | Picture idea from each section's claim, then form and archetype (`references/archetypes.md`), spec, build; the host is the page or slot the user names. |
 | "make the figures play on click", "loop them", "switch to lean" | an already animated deck | **E: re-integrate** | No rebuild: `integrate_fragment.py --control step|once` per fragment, or `host_theme.py --mode lean|match --apply`. Fragments stay as they are. |
 
 **Mode A, deck first.** anim-slides adds figures to an HTML deck; it does not design one. The
@@ -79,7 +79,12 @@ a child's margin collapses through the slot and shifts `measure_slot.py`'s box.
    "hidden" and lists them on stderr); note hidden slides in the triage. A picture count in `outline.json` that differs from the
    render points at pictures on the slide layout.
 2. **Draft the triage** in `anim/triage.md` (`references/input-stage.md` section 3): every slide
-   with Slide, Title, Decision, Archetype, Replaces, Why; no silent skips. Budget 3 to 8 per 30
+   with Slide, Title, Decision, Idea, Form, Archetype, Replaces, Why; no silent skips. On a
+   slide of prose, bullets, cards or a table, Idea is one sentence on what it says beyond the
+   order of its items, Form follows from it, and the archetype is only the build family
+   (`references/archetypes.md` "Picture idea and form"); "order only" and a row is a valid
+   answer. Then read down the Form column for repeats (`references/input-stage.md` "Forms
+   across the deck"). Budget 3 to 8 per 30
    slides, never two animated slides in a row; "add more animations" reads as the upper end of
    the budget, not beyond it; on a short deck the budget is a floor. Re-render candidates with
    `--pages N,...` and open `full/p-NN.png`: `extract_slides.py` cannot see inside pictures.
@@ -94,7 +99,8 @@ a child's margin collapses through the slot and shifts `measure_slot.py`'s box.
    slide, through Phase 2's steps (spec, slot, brief, build, check). Render it integrated into
    its slide at rest under match and under lean (`render-phases.sh --theme FILE ...` or
    `--page` on a scratch copy): two stills. When that slide has two plausible figure readings
-   (timeline or pipeline, table or compare), render both readings as stills too.
+   (two forms of the idea such as a row or a funnel; timeline or pipeline; table or compare),
+   render both readings as stills too.
 5. **Send ONE message.** Use the harness's structured-question UI when it has one (Claude Code:
    AskUserQuestion, naming the stills' paths in the question text); otherwise one concise
    message with numbered choices. It carries:
@@ -126,21 +132,22 @@ cheap; write them all before building), then builds.
 1. **Spec.** `anim/<name>/spec.yaml` per `references/spec-format.md`: nodes, edges, groups,
    phases with second marks, cycle (4 to 10 s), control from intake. Reuse the source's words.
    Under about 12 nodes; split otherwise.
-2. **Pool first.** Read `<skill-dir>/pool/index.yaml` (and `$ANIM_POOL/index.yaml` if set).
-   The pool is the template library and the quality floor: start from the entry of the same
-   archetype whose shape is closest (chain, snake, lanes, columns, layers, dots, line), copy it
-   to `anim/<name>/`, rename the prefix and adapt labels, node count, timing, marks and viewBox
-   to the spec. Build from the scaffolder or by hand only when no entry has the shape the
-   slide needs (a triangle, a donut, a map), and then keep the closest entry open as the bar
-   for stroke weights, type sizes and spacing. Never ship a pool fragment unchanged.
+2. **Pool first, for craft.** Read `<skill-dir>/pool/index.yaml` (and `$ANIM_POOL/index.yaml`
+   if set). The pool is the quality floor, not the menu of pictures: look an entry up by the
+   triage row's form and moves first (`form`, `moves` and `technique` lines), archetype second.
+   When an entry draws that form, copy it to `anim/<name>/`, rename the prefix and adapt
+   labels, node count, timing, marks and viewBox to the spec. When none does, hand-build the
+   form (the normal path, not an exception) with the closest entry open as the bar for stroke
+   weights, type sizes and spacing. Never ship a pool fragment unchanged.
 3. **Slot and brief.** `python3 <skill-dir>/scripts/measure_slot.py deck.html --slide N --selector '#sN-slot'`
    prints the box, a viewBox and the checker flags (without `--selector` an absolutely
    positioned layout returns junk; `references/layouts.md` has the manual way). Fill
    `anim/<name>/brief.md` from `references/brief-template.md`, naming what the fragment replaces.
 4. **Build.** `python3 <skill-dir>/scripts/scaffold_from_spec.py anim/<name>/spec.yaml -o anim/<name>/<name>.html --rendered-width <px>`
    covers the plain forms of the seven archetypes: chains, two-row snakes, graphs with lanes,
-   line charts, column compares, layer stacks, dot timelines. Triangles, donuts, bars,
-   timelines with event text and anything the spec format cannot express are hand-built from
+   line charts, column compares, layer stacks, dot timelines. Funnels, rings, scenes,
+   triangles, donuts, bars, timelines with event text and anything the spec format cannot
+   express are hand-built from
    the spec; do not force the scaffolder, use its output as the timing skeleton. Refine with
    `references/archetypes.md`, `references/motion-rules.md` and `references/style.md`.
    **Phase marks** (`data-anim-phases`): a phase mark is a settled moment between narrated
@@ -158,7 +165,8 @@ cheap; write them all before building), then builds.
      clipped or overlapping labels, text under its contrast floor on the real ground, more than
      three text-holding boxes, more than six hues, or text under the size floor; read every WARN
      (faint lines, labels on fills, rest differs from the last mark, missing fonts). A box that
-     is the meaning gets `<!-- anim-look: boxes-ok -->` before the `<svg>`. On a deck-skill
+     is the meaning gets `<!-- anim-look: boxes-ok -->` before the `<svg>`; scene ground
+     (water, land) gets `data-anim-scene` instead (`references/style.md` 2). On a deck-skill
      deck the fragment-mode font WARNs are expected (its web fonts are not installed locally)
      and can be ignored: the `--page` run in step 7 is the real font check.
    - `<skill-dir>/scripts/render-phases.sh anim/<name> <W> <H> <marks...> <pass> rest`, then
@@ -235,8 +243,11 @@ cheap; write them all before building), then builds.
 - **Make a visible change.** A fragment replaces the slide's cards, pills, bullet column or HTML
   diagram. Motion over the existing drawing with the boxes left in place is not an
   illustration; if nothing else is possible, the brief says why.
-- **Less.** The slide's own figure in its own form (stairs stay stairs, a table stays rows)
-  plus one movement; no invented chart forms, brackets, arrows or storylines; one glowing
+- **Less.** A slide with a figure keeps the figure's own form (stairs stay stairs, bars stay
+  bars) plus one movement. On a slide of prose, bullets, cards or a table the form follows the
+  picture idea and may come only from structure the source states; the content never grows:
+  no node, label, number, arrow direction, actor, bracket or storyline the source does not
+  state, and a source that states only order gets a row. One glowing
   element at most, never a glowing line. The look follows `references/style.md` (no filled
   cards, chips or caption bars; rings and thin lines; one accent; at most two semantic
   colours) under match and lean alike: a host theme changes colours and fonts only.
@@ -264,7 +275,7 @@ cheap; write them all before building), then builds.
 - `references/fragment-contract.md` — the output contract (shape, prefixes, tokens, gate, resting frame, control variants)
 - `references/input-stage.md` — deck first, outline JSON, triage, look and control, slide to spec to brief, handoff
 - `references/spec-format.md` — the spec; Mermaid mapping; worked examples
-- `references/archetypes.md` — pipeline, graph, timeline, states, compare, layers, chart: composition and motion
+- `references/archetypes.md` — picture idea and form table; build families pipeline, graph, timeline, states, compare, layers, chart: composition and motion
 - `references/brief-template.md` — the brief every fragment starts from
 - `references/layouts.md` — measuring a slot; 16:9 layouts and viewBoxes
 - `references/motion-rules.md` — timing, easing, choreography, audit checklist

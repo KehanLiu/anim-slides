@@ -4,8 +4,9 @@ These cases are trap inputs: small decks built to trip one known way the skill c
 a forced figure on a list, clipped German compounds, Chinese labels drawn as empty boxes,
 faint lines on a white ground, a 4:3 stage treated as 16:9, fifteen dots crammed on one
 axis, a twenty-node web drawn as spaghetti, actor icons dropped, a chart picture turned into
-a sentence, an already animated deck rebuilt instead of switched. Each case says what a good
-result looks like and carries graders that check it from the run's transcript and files.
+a sentence, an already animated deck rebuilt instead of switched, every numbered text slide
+drawn as the same row. Each case says what a good result looks like and carries graders that
+check it from the run's transcript and files.
 
 The corpus is for the skill to test itself after a change to `SKILL.md`, `references/`,
 `scripts/` or `pool/`: the run report shows which traps it still falls into.
@@ -26,6 +27,7 @@ The corpus is for the skill to test itself after a change to `SKILL.md`, `refere
 | `graph-twenty-nodes` | twenty-node food web: split or group under about 12 nodes | C |
 | `icons-are-content` | compare columns labelled by actor icons: keep or redraw them | B, user absent |
 | `already-animated-switch` | "make the figures play on click": Mode E, `--control step` only | E |
+| `prose-not-a-row` | four numbered "pipelines": falling counts, a return, a trade-off, and one pure order that stays a row | B, user absent |
 
 The Mode B cases other than `bare-improve-html` say "just do it" in the prompt: an eval run
 cannot answer the intake question, so those cases test the default path (defaults recorded
@@ -83,7 +85,7 @@ folder. Results and the HTML report go to `evals/results/` (ignored by git).
 - **Check the input.** Open the deck in a browser (or headless Chrome `--screenshot`) and
   run `python3 scripts/extract_slides.py evals/<case>/files/deck.html` to confirm the
   extractor sees the slides and the trap.
-- **Verifiable graders.** Three to five, each one statement a reader can settle from the
+- **Verifiable graders.** Three to six, each one statement a reader can settle from the
   transcript and the files: a file exists, a script ran and printed 0 fail, a string is
   present or absent, a value is in a range. Name scripts by their repo names. Avoid taste
   words ("looks nice"); taste belongs to the look rubric.

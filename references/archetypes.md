@@ -1,20 +1,65 @@
 # Archetypes
 
-Seven layouts cover almost every slide illustration. Pick one, write the spec
-([spec-format.md](spec-format.md)), then use the section below for composition and motion.
-Timing and easing values are in [motion-rules.md](motion-rules.md); hard limits in
-[fragment-contract.md](fragment-contract.md) section 6. Each **Pass** is for the default `once`
+The seven archetypes below are build families: recipes for composition and motion, not the
+menu of pictures. The picture comes first: write the slide's picture idea, read its form off
+the table in "Picture idea and form", write the spec ([spec-format.md](spec-format.md)), then
+build with the family the table names. Timing and easing values are in
+[motion-rules.md](motion-rules.md); hard limits in [fragment-contract.md](fragment-contract.md)
+section 6. Each **Pass** is for the default `once`
 control: the motion story plays one time when the slide becomes current and its hold is the
 resting frame. Under `step` (a per-deck choice at intake) the same pass is played in click
 segments: put the `data-anim-phases` marks at the ends of the narrated phases each recipe lists,
 3 to 5 per slide, where nothing is mid-move. A requested `loop` (kiosk, gallery, hero) stretches
 the same story to 8 to 15 s.
 
+## Picture idea and form
+
+For each slide whose content is prose, bullets, cards or a text table, write one sentence before
+choosing anything: what does this slide say beyond the order of its items? What changes,
+shrinks, grows, returns, competes, contains, splits or crosses a boundary? That sentence is the
+**picture idea** (triage column `Idea`, brief field `Picture idea:`); the **form** follows from
+it. Read the section's claim, not its formatting: a numbered list is a cue about the layout of
+the text, not the shape of the idea. A slide that already has a figure, chart or
+meaning-carrying illustration keeps that figure's form (stairs stay stairs, bars stay bars, a table of values stays rows);
+this step does not apply to it.
+
+| Picture idea | Form | Build family | Pool entry for craft |
+|---|---|---|---|
+| order only: A, then B, then C, nothing more | a row of rings on one line | `pipeline` | `deploy-pipeline`; `er-patient-flow` (two-row snake) |
+| it returns: the end feeds the start | a closed ring | `states` | `water-cycle`, `phase-changes` |
+| it narrows: fewer pass each stage | a tapering funnel, dots at scale | `pipeline` | `sales-funnel` |
+| it accumulates or matures: each level rests on the one below | stairs or a stack built bottom-up | `layers` | `bloom-taxonomy` |
+| a level or quantity changes | a fill level, a bar, a gauge | `states` / `chart` | `canal-lock`, `cloud-spend` |
+| two things pull against each other | two sides, a balance | `compare` | `funding-options`, `photosynth-respiration` |
+| one thing contains another | rings inside rings | `layers` | none; hand-built |
+| one splits into several, or several merge | fan-out, fan-in | `graph` | `loan-decision`, `service-deps` |
+| actors exchange something | lanes, one token handed between them | `graph` | `hiring-lanes` |
+| a handover across a boundary | a drawn boundary line the token crosses | `timeline` / `graph` | `court-case` |
+| the same thing before and after | the thing in place, the old state as a ghost | `states` / `compare` | `canal-lock` (dashed ghost level), `cache-compare` |
+| a physical mechanism the source describes | a scene: the thing itself, in cross-section | `states` / `pipeline` | `canal-lock`, `water-cycle` |
+| a place or a route | a map or a path with stations | `pipeline` | `parcel-route` |
+| a hierarchy | a tree | `graph` | none; `service-deps` for rank spacing |
+| a spectrum or scale | points on one axis | `timeline` | `roadmap` |
+
+**Order only is a correct answer.** When the source says only order, draw the row and write
+"order only" as the idea. The form may come from structure the source states; the content may
+not grow: no node, label, number, arrow direction or actor the source does not state. A funnel
+needs the source's quantities or its stated narrowing; a cycle needs the source to say it
+returns; a scene needs the source to describe the physical thing ([accuracy.md](accuracy.md)).
+Every form plays one calm pass and rests on the finished frame ([motion-rules.md](motion-rules.md)).
+
+The pool entry is the bar for craft (stroke weights, type sizes, spacing, technique), not a
+picture to copy. A form the scaffolder does not emit is hand-built with the family's recipe
+as its timing skeleton; that is the normal path, not an exception.
+
 ## Decision table
+
+For an idea that is the structure itself (dependencies, dates, a data series), or to pick the
+family for a form the table above leaves open.
 
 | Content signal | Archetype |
 |---|---|
-| Numbered steps, "then", "after that", arrows in one direction, a chain with no branches | `pipeline` |
+| Order and nothing more (after the picture idea): numbered steps, "then", a chain with no branches | `pipeline` |
 | "depends on", "calls", "uses", "talks to", branches, merges, many-to-many, architecture boxes | `graph` |
 | Dates, quarters, versions, "phase 1/2/3", roadmap, history | `timeline` |
 | "when X happens it goes to", statuses, lifecycle, retry loops, modes | `states` |
@@ -35,8 +80,8 @@ All coordinates are viewBox units for the archetype's default `size`.
 
 - Padding 24 on every side.
 - Title row (only when `title` is set): y 0-64, text baseline y 42, 26 px, `--anim-fg`, weight 700.
-- Caption strip (only when any phase has a `note`): y H-64 to H-8, panel rect `--anim-panel`,
-  text baseline H-26, 22 px, `--anim-fg`; notes are stacked `<text>` cross-faded per phase.
+- Caption (only when any phase has a `note`): y H-64 to H-8, plain text with no panel,
+  baseline H-26, 22 px, `--anim-fg`; notes are stacked `<text>` cross-faded per phase.
 - Content band: from y 64 (or 24) to H-72 (or H-24). Everything below is placed in this band.
 - Labels 22 px, `sub` 18 px `--anim-muted`, edge labels 18 px `--anim-mono`.
 
@@ -45,29 +90,30 @@ All coordinates are viewBox units for the archetype's default `size`.
 **Fits:** 3-7 ordered steps, one direction, maybe one feedback / rollback edge.
 **Default:** 1680 x 440.
 
-**Composition.** One row of boxes, centred in the content band. Box 240 x 120, radius 8.
-`gap = (1680 - 80 - n*240) / (n-1)` with 40 side margins, keep >= 80 (for 5 boxes: x 40, 380, 720, 1060, 1400,
-gap 100). With title and caption the band is y 64-368: boxes at y 156-276, wire along y 216.
-Label baseline at box y+54, `sub` at y+84. Status chip 64 x 28 above each box at y 116.
-Feedback edges arc below the row: `M x_from,276 C x_from,340 x_to,340 x_to,276`. With 7 boxes
-shrink to 200 x 110.
+**Composition.** Steps are labels on one horizontal line with a small ring marker each (r 34),
+no boxes and no chips (`style.md`). Ring centres `x_i = 160 + i * 1360 / (n-1)` (5 steps: 160,
+500, 840, 1180, 1520), inset so the outer labels stay inside the padding. With title and caption
+the band is y 64-368: line along y 180, label baseline y 254, `sub` at y 282, a status word (mono
+18 px) above the ring at y 128. Feedback edges arc below the labels:
+`M x_from,300 C x_from,350 x_to,350 x_to,300`. With 7 steps keep labels short or alternate
+them above and below the line.
 
 **Motion story.**
-- Setup (0-1 s): boxes fade in left to right, stagger 80 ms; wires draw on.
-- Action: one packet hops box to box (`offset-path` on the wire's `d`, 0.8-1 s per hop); the
-  receiving box turns active (stroke `--anim-accent`), the previous one settles to `--anim-ok`.
-- Resolution: last box `--anim-ok`, chip shows the outcome; a rollback, if any, sends a packet
-  along the dotted arc in `--anim-danger` or `--anim-warn`.
-- Hold 0.8-1.5 s on all boxes done; that end state is the resting frame.
+- Setup (0-1 s): the line draws on; rings and labels fade in left to right, stagger 80 ms.
+- Action: one glowing dot hops ring to ring (`offset-path` on the line's `d`, 0.8-1 s per hop);
+  the receiving ring turns active (`--anim-accent` with glow), the previous one settles to `--anim-ok`.
+- Resolution: last ring `--anim-ok`, its status word shows the outcome; a rollback, if any,
+  sends the dot along the dotted arc in `--anim-danger` or `--anim-warn`.
+- Hold 0.8-1.5 s on all steps done; that end state is the resting frame.
 
-**Techniques:** packets with `offset-path`; wire draw-on with `pathLength="100"`; status chips
+**Techniques:** the dot with `offset-path`; line draw-on with `pathLength="100"`; status words
 as stacked `<text>` cross-fades; highlight by stroke token change.
 **Pass:** 7-10 s (once).
 
 **Mistakes.**
-- Packets on every wire at once: only the current hop moves.
-- Boxes sized to the longest label: fix the box, shorten the label, use `sub` for detail.
-- Feedback arc drawn through the boxes or over the caption strip: keep it between y 280 and 360.
+- Dots on every segment at once: only the current hop moves.
+- Spacing set by the longest label: keep the even spacing, shorten the label, use `sub` for detail.
+- Feedback arc drawn through the labels or over the caption: keep it between y 296 and 360.
 
 ## graph
 
@@ -170,7 +216,7 @@ panel rect `--anim-panel`, radius 8. Header in each panel at y+48, 26 px (the la
 whose members are all on that side, else "Before" / "After"). Rows inside a panel:
 item box (panel width - 48) x 64 at panel x+24, first row y 104, pitch 84. Rows with the same
 index on both sides correspond: draw a faint connector or align them exactly. Verdict goes in
-the caption strip, not in a panel.
+the caption, not in a panel.
 
 **Motion story.**
 - Setup: both panels and headers in; left items appear (stagger 80 ms).

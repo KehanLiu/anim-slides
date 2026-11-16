@@ -6,6 +6,13 @@ Extract it from prose, bullets, Mermaid or slide text; save it as `anim/<name>/s
 [fragment-contract.md](fragment-contract.md). The spec records *what* is shown and *when*; the
 brief ([brief-template.md](brief-template.md)) records slot, coordinates and theme.
 
+The spec covers the plain forms: a row of rings (`pipeline`, wrapped into a snake past four
+nodes), a graph or flowchart with decision diamonds and lanes (`graph`, `lanes: true`), an axis
+(`timeline`), a ring of states (`states`), columns of rows (`compare`), bands (`layers`) and a line
+chart (`chart`). A form outside them (funnel, scene, fill level, pyramid, map...) is hand-built
+against [fragment-contract.md](fragment-contract.md), starting from the pool entry with that `form`
+in `pool/index.yaml`; that is a normal path, not an exception.
+
 ## Full schema
 
 ```yaml
@@ -91,20 +98,23 @@ Unknown top-level keys are an error (catches typos like `phase:`).
 | `side` | compare | - | Required for `compare`, forbidden elsewhere. Any kebab-case value; each distinct value is one column, in order of first appearance (`left`/`right` for the classic pair; e.g. `green`/`gold`/`diamond` for three). More than 5 rows per side or 4 columns warns. |
 | `layer` | layers | - | Required for `layers`, integer >= 0, 0 = bottom; forbidden elsewhere. Max 5 distinct layers. |
 
-`kind` values and their default drawing:
+`kind` values and their default drawing. Every node is a ring on the ground (fill `--anim-bg`,
+no box) with its label outside it; only `decision` changes the shape. Inside the ring a
+`pipeline` draws the step number; the other archetypes draw a small line glyph per kind:
 
-| Kind | Shape | Colour role |
+| Kind | Mark | Inside the ring |
 |---|---|---|
-| `process` | rounded rect | `--anim-panel` fill, `--anim-line` stroke |
-| `data` | rect with folded corner or document glyph | `--anim-panel`, `--anim-mono` label |
-| `actor` | person glyph or circle above the label | `--anim-fg` stroke |
-| `decision` | diamond (or rect with a diamond badge when the label is long) | `--anim-accent-2` stroke |
-| `external` | dashed-outline rect | `--anim-muted` stroke |
-| `store` | cylinder | `--anim-panel`, `--anim-line` |
-| `milestone` | circle on the axis (timeline) or flag | `--anim-accent` when reached |
+| `process` | ring | nothing |
+| `data` | ring | document glyph |
+| `actor` | ring | person glyph |
+| `decision` | thin diamond (1.3 x ring size) | nothing |
+| `external` | ring, dashed outline | globe glyph |
+| `store` | ring | cylinder glyph |
+| `milestone` | ring (a dot on the `timeline` axis) | flag glyph |
 
-Highlighting (`active`) always switches stroke to `--anim-accent` and raises fill with
-`color-mix(in srgb, var(--anim-accent) 14%, var(--anim-panel))`, whatever the kind.
+Timeline nodes are dots on the axis whatever the kind; `compare` nodes are text rows with
+hairline rules, no mark. Highlighting (`active`) draws an accent ring (stroke `--anim-accent`,
+no fill) over the mark, and turns a timeline dot accent-filled, whatever the kind.
 
 ## Edges
 
@@ -125,7 +135,9 @@ edges; once any edge is given, nothing is implied.
 | `id` | yes | Same id rules as nodes; unique across all ids. Rendered `<name>-g-<id>`. |
 | `label` | yes | Drawn in the group's top-left corner, `--anim-muted`. |
 
-A group is a rounded rect behind its members. A group with no members is an error. Max 4 groups.
+A group is never a box: in `graph` it is a hairline bracket with its name over its members
+(with `lanes: true`, a lane), in `timeline` an era bracket under the axis, in `compare` a column
+header, in `layers` a band name. A group with no members is an error. Max 4 groups.
 
 ## Phases
 

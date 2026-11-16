@@ -17,14 +17,16 @@ the brief; only record the choices the contract leaves open.
 - **Name:** <kebab-case, 2-24 chars, unique in the deck>
 - **Subject:** <one sentence: what the viewer should understand when the pass ends>
 - **Audience / tone:** <who watches, how technical, calm or lively>
-- **Archetype:** pipeline | graph | timeline | states | compare | layers | chart
+- **Picture idea:** <one sentence: what the slide says beyond the order of its items; "order only" when that is all; "source figure: <form>" when the slide has its own figure>
+- **Form:** <from [archetypes.md](archetypes.md) "Picture idea and form", or bespoke; every element of it stated by the source>
+- **Archetype:** pipeline | graph | timeline | states | compare | layers | chart (the build family whose recipe and timing the form borrows)
 - **Slot:** viewBox `0 0 <W> <H>`, rendered at <w> x <h> px on a <stage> stage
   (see [layouts.md](layouts.md)); text scale = <w> / <W> = <s>
 - **Min text size:** <px in viewBox units> so that px * <s> >= 18 (titles >= 22)
 
 ## Composition
 <Elements with coordinates in viewBox units, left to right / top to bottom.
-e.g. "box `build` at x 40 y 120 w 220 h 120; wire build->test along y 180".>
+e.g. "ring `build` r 34 at (500, 180), label below at y 254; line build->test along y 180".>
 
 ## Phases
 | t (s) | Label | Enters | Highlighted | Flows | Caption |
@@ -73,32 +75,34 @@ Contract section 8 is the definition of done.
 - **Subject:** A commit passes build, test and staging before it reaches production; a failed
   test stops it.
 - **Audience / tone:** engineering all-hands; calm, technical, no jokes in the graphic.
+- **Picture idea:** order only: the slide lists five stages and says nothing else about them.
+- **Form:** a row of rings on one line
 - **Archetype:** pipeline
 - **Slot:** viewBox `0 0 1680 440`, rendered at 1680 x 440 px on a 1920x1080 stage
   (full-width body above a caption line); text scale = 1.0
 - **Min text size:** 20 (labels), 26 (stage names)
 
 ## Composition
-Five stage boxes 240 x 120, y 140, at x 40, 380, 720, 1060, 1400: commit, build, test, staging,
-production. Wires between box centres along y 200. Status chip (64 x 28) above each box at y 96.
-Packet: circle r 10 on the wire path.
+Five rings r 34 on one line along y 180, at x 160, 500, 840, 1180, 1520: commit, build, test,
+staging, production; labels below at y 254, status words (mono) above at y 128.
+Packet: glowing dot r 10 on the line path.
 
 ## Phases
 | t (s) | Label | Enters | Highlighted | Flows | Caption |
 |---|---|---|---|---|---|
-| 0.0 | setup | boxes fade in, stagger 80 ms | - | - | - |
-| 1.0 | commit | packet appears at commit | commit | - | "push" |
-| 2.0 | build | build chip "ok" | build | packet commit->build | - |
-| 3.5 | test | test chip "ok" | test | packet build->test | - |
-| 5.0 | staging | staging chip "ok" | staging | packet test->staging | - |
-| 6.0 | release | production chip "live" | production | packet staging->production | "released" |
-| 7.0 | hold | - | all chips | - | - |
+| 0.0 | setup | line draws on, rings fade in, stagger 80 ms | - | - | - |
+| 1.0 | commit | dot appears at commit | commit | - | "push" |
+| 2.0 | build | build status "ok" | build | dot commit->build | - |
+| 3.5 | test | test status "ok" | test | dot build->test | - |
+| 5.0 | staging | staging status "ok" | staging | dot test->staging | - |
+| 6.0 | release | production status "live" | production | dot staging->production | "released" |
+| 7.0 | hold | - | all statuses | - | - |
 
 The hold from 7 s to 8 s is the finished state and stays (it is the resting frame).
 
 - **Cycle:** 8 s
 - **Phases (marks):** 2, 3.5, 5, 6, 7 (five settled frames, one after each narrated step: commit, build, test, staging, release; the hold starts at 7)
-- **Resting frame:** all five boxes, all chips "ok"/"live", production outlined in `--anim-ok`.
+- **Resting frame:** all five rings, all statuses "ok"/"live", production ring in `--anim-ok`.
 - **Control:** once
 
 ## Theme
@@ -109,7 +113,21 @@ The hold from 7 s to 8 s is the finished state and stays (it is the resting fram
 
 ## Verification plan
 - Seconds: 0 1 2 3.5 5 6 7 8 rest
-- 0: boxes entering; 1: packet at commit; 3.5: build chip "ok", packet leaving build for test;
-  6: packet leaving staging for production; 7: production highlighted, all chips; 8 and rest:
-  identical, all chips, no packet.
+- 0: rings entering; 1: dot at commit; 3.5: build "ok", dot leaving build for test;
+  6: dot leaving staging for production; 7: production highlighted, all statuses; 8 and rest:
+  identical, all statuses, no dot.
+```
+
+## Example: not a row (biology, header fields only)
+
+The slide is five numbered bullets: "Blood glucose rises after a meal", "the pancreas releases
+insulin", "cells take up glucose", "blood glucose falls back", "lower glucose slows insulin
+release; the loop closes". Read as a list it is a five-step row; the last bullet says it returns.
+
+```markdown
+- **Picture idea:** blood glucose rises and falls back, and the fall slows the insulin that
+  lowered it.
+- **Form:** a closed ring of the five bullets around a glucose level that fills and drains;
+  the return edge is the last bullet's own; no values (the slide gives none).
+- **Archetype:** states (ring recipe, one token; `water-cycle` open as the bar)
 ```
