@@ -3,14 +3,14 @@
 # release). The only temperatures are for water at 1 atm (melts at 0 °C, boils at 100 °C).
 # Scaffold with:
 #   python3 scripts/scaffold_from_spec.py pool/phase-changes/spec.yaml -o pool/phase-changes/phase-changes.html
-# The shipped phase-changes.html is hand-built: the states sit in one row with particle drawings
-# (lattice, loose cluster, far-apart fast particles), absorbing transitions run left to right on top
-# (sublimation as an arc above), releasing ones right to left below (deposition as an arc below),
-# one token per transition coloured by energy, a legend and a caption strip from the phase notes.
+# The shipped phase-changes.html is hand-built (verb switch): one sealed container holds the same
+# 18 particles for the whole pass; an "energy in" stroke draws up and the lattice loosens into a
+# liquid on the container floor (melting), then spreads to fill the container (vaporization); a
+# state scale lights solid, liquid, gas; the reverse changes and sublimation/deposition are a legend
+# line. This spec reproduces structure and timing only; it does not draw the particle motion.
 name: phase-changes
 archetype: states
-verb: travel
-traveller: { name: a sample of the substance }
+verb: switch
 domain: chemistry
 size: [1680, 600]
 control: once

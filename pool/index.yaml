@@ -297,14 +297,16 @@
 - name: phase-changes
   archetype: states
   form: particles
-  moves: [packet-hop]
+  verb: switch
+  moves: [state-switch, draw-on]
   domain: chemistry
   viewbox: [1680, 600]
   cycle: 10
-  phases: [0.65, 2, 3.3, 4.6, 6, 7.3, 8.6, 9]
+  phases: [0.85, 4.54, 8.5, 9.05]
   spec: true
-  story: Solid, liquid and gas with their particles; a token runs all six phase changes, each labelled with whether it absorbs or releases energy, water's 0 °C and 100 °C at 1 atm noted.
+  story: One sealed container holds the same 18 particles; energy in turns the solid lattice into a liquid on the floor (melting, 0 °C) and then a gas filling the container (vaporization, 100 °C at 1 atm); the reverse changes and sublimation and deposition are named with their absorb/release wording.
   tags: [chemistry, states-of-matter, phase-change, energy, particles, physics]
+  technique: one translate track per particle (lattice, liquid, gas; the base is the gas), each rearrangement a staggered series; the energy-in stroke draws on; the lit state and labels cross-fade
 
 - name: energy-balance
   archetype: compare

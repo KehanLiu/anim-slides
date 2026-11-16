@@ -1,9 +1,38 @@
-<!-- phase-changes (pool, archetype states, domain chemistry; lean restyle, references/style.md). Hand-built from pool/phase-changes/spec.yaml.
-  Solid, liquid and gas with the six named transitions; changes toward gas (melting, vaporization,
-  sublimation) absorb energy, changes toward solid (freezing, condensation, deposition) release it.
-  Only temperatures shown: water at 1 atm (0 °C, 100 °C). Particle drawings are schematic.
-  10 s once-play pass (one full circuit): states enter 0.08-0.6 s | one token per transition, solid > liquid >
-  gas > liquid > solid > gas > solid, 1.34 s apart | 8.7 s all six lit | hold to 10 s, then stays. -->
+<!-- phase-changes (pool, verb switch, archetype states drawn as one sealed container of particles, domain chemistry). Hand-built; lean style, references/style.md.
+  Story: the same particles, arranged differently. One sample of 18 particles sits in one container.
+  Energy is added (the "energy in" stroke at the left draws up, absorbing colour): the solid lattice
+  loosens into a liquid that lies along the container floor (melting, absorbs energy, melts at 0 °C);
+  more energy and the particles spread out to fill the whole container (vaporization, absorbs energy,
+  boils at 100 °C). A state scale at the right lights the current state: solid, liquid, gas. The
+  reverse changes (condensation, freezing) and the direct jumps (sublimation, deposition) are a quiet
+  legend line that lights at the end with the final caption. The pass ends on the gas: a return
+  (condensation and freezing played back) would need two more 2.4 s particle series at the honest
+  concurrency limit and does not fit 10 s, so the reverse is named in the legend only.
+  Verb: switch (a change of state in place, caused by energy in). Object constancy: the same 18
+  circles for the whole pass; nothing is swapped or cross-faded.
+  Technique: one translate track per particle (lattice -> liquid -> gas positions; the base rule is
+  the gas position, so the still is the gas). Each rearrangement is one staggered series in which at
+  most three particles are in motion at once (melting 0.12 s apart, 0.33 s each; vaporization 0.14 s
+  apart, 0.4 s each), top layer first. Energy-in stroke: draw-on (pathLength 100) to 50 at melting,
+  0 at vaporization. Lit states, lit labels and captions cross-fade stacked copies.
+  Once pass 10 s: set 0-0.85 s | energy in 0.95-1.45 s | melting series 1.55-3.92 s |
+  liquid lit, melting label 3.99-4.44 s | energy in 4.6-5.1 s |
+  vaporization series 5.2-7.98 s | gas lit, label 8.04-8.44 s | legend lit and
+  final caption 8.55-9.05 s | hold to 10 s. Phases 0.85,4.54,8.5,9.05.
+  Facts:
+  - Solid, liquid, gas and their sub-labels ("ordered, fixed in place", "close, slide past each
+    other", "far apart, move freely"): from the entry (pool/phase-changes/spec.yaml), textbook.
+  - Six named changes and their energy: melting, vaporization, sublimation absorb energy; freezing,
+    condensation, deposition release it (textbook; spec.yaml). Wording kept from the entry.
+  - "water at 1 atm: melts at 0 °C, boils at 100 °C": stated facts from the entry, kept verbatim
+    as the top-right note; "0 °C" and "100 °C" also sit under their change as "melts at 0 °C" and
+    "boils at 100 °C" (the same words, split at the comma).
+  - Particle drawing, the count of 18 and their positions: schematic, not data. The liquid lies
+    about as dense as the solid and takes the container floor; the gas fills the container
+    (textbook qualitative facts). The energy stroke has no scale: melting at half its length is
+    drawing position only, not a ratio of energies.
+  - Captions: the entry's own phase notes (states, melting, vaporization, hold); the condensation,
+    freezing, sublimation and deposition notes are not played because the pass ends on the gas. -->
 <style>
 .anim-phase-changes{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -21,227 +50,192 @@
   display:block;width:100%;height:100%
 }
 .anim-phase-changes svg{display:block;width:100%;height:100%;max-width:none}
-/* states: thin outlined containers, no fill; the current state gets a brighter outline */
-.anim-phase-changes .phase-changes-box{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2}
-.anim-phase-changes .phase-changes-ring{fill:none;stroke:var(--anim-fg);stroke-width:2.5}
-.anim-phase-changes .phase-changes-sname{font-family:var(--anim-font);font-size:24px;font-weight:600;fill:var(--anim-fg)}
-.anim-phase-changes .phase-changes-ssub{font-family:var(--anim-font);font-size:20px;fill:var(--anim-muted)}
-/* particles: small outlined circles */
-.anim-phase-changes .phase-changes-pt{fill:none;stroke:color-mix(in srgb,var(--anim-fg) 70%,var(--anim-bg));stroke-width:2}
-.anim-phase-changes .phase-changes-trail{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;opacity:.5}
-/* transitions: thin arcs, small open arrowheads */
-.anim-phase-changes .phase-changes-arc{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round}
-.anim-phase-changes .phase-changes-hd{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.anim-phase-changes .phase-changes-tname{font-family:var(--anim-font);font-size:22px;font-weight:600;fill:var(--anim-muted)}
-.anim-phase-changes .phase-changes-tname.phase-changes-on-name{fill:var(--anim-fg)}
+/* the container: one sealed jar, thin outline */
+.anim-phase-changes .phase-changes-jar{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 70%,var(--anim-bg));stroke-width:2.5;stroke-linejoin:round}
+/* particles: small outlined circles, the same 18 for the whole pass */
+.anim-phase-changes .phase-changes-pt{fill:none;stroke:var(--anim-fg);stroke-width:2.5;transform-box:view-box}
+/* energy in: a thin track and its arrowhead, the absorbing stroke drawn on */
+.anim-phase-changes .phase-changes-track{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-phase-changes .phase-changes-ein{fill:none;stroke:var(--anim-accent-2);stroke-width:4;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-phase-changes .phase-changes-tick{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
+/* state scale */
+.anim-phase-changes .phase-changes-scale{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round}
+.anim-phase-changes .phase-changes-sdot{fill:var(--anim-bg);stroke:color-mix(in srgb,var(--anim-muted) 60%,var(--anim-bg));stroke-width:2}
+.anim-phase-changes .phase-changes-sdot-on{fill:var(--anim-fg);stroke:var(--anim-fg);stroke-width:2}
+/* type */
+.anim-phase-changes .phase-changes-sname{font-family:var(--anim-font);font-size:26px;font-weight:600;fill:var(--anim-fg)}
+.anim-phase-changes .phase-changes-tname{font-family:var(--anim-font);font-size:24px;font-weight:600;fill:var(--anim-fg)}
+.anim-phase-changes .phase-changes-tline{font-family:var(--anim-font);font-size:22px}
+.anim-phase-changes .phase-changes-tline .phase-changes-tname{font-size:22px}
 .anim-phase-changes .phase-changes-tsep{font-family:var(--anim-font);font-size:22px;fill:var(--anim-muted)}
 .anim-phase-changes .phase-changes-ten{font-family:var(--anim-mono);font-size:18px}
-.anim-phase-changes .phase-changes-tline{font-family:var(--anim-font);font-size:22px}
+.anim-phase-changes .phase-changes-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-phase-changes .phase-changes-ein-l{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-accent-2)}
+.anim-phase-changes .phase-changes-dimt{fill:color-mix(in srgb,var(--anim-muted) 75%,var(--anim-bg))}
 .anim-phase-changes .phase-changes-k-dim{fill:var(--anim-muted)}
 .anim-phase-changes .phase-changes-k-abs{fill:var(--anim-accent-2)}
 .anim-phase-changes .phase-changes-k-rel{fill:var(--anim-accent)}
-.anim-phase-changes .phase-changes-arc.phase-changes-k-abs-s,.anim-phase-changes .phase-changes-hd.phase-changes-k-abs-h{stroke:var(--anim-accent-2)}
-.anim-phase-changes .phase-changes-arc.phase-changes-k-rel-s,.anim-phase-changes .phase-changes-hd.phase-changes-k-rel-h{stroke:var(--anim-accent)}
-.anim-phase-changes .phase-changes-k-abs-f{fill:var(--anim-accent-2);stroke:var(--anim-accent-2)}
-.anim-phase-changes .phase-changes-k-rel-f{fill:var(--anim-accent);stroke:var(--anim-accent)}
-.anim-phase-changes .phase-changes-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
-/* token: a glowing dot in its energy colour */
-.anim-phase-changes .phase-changes-tok{stroke-width:14;stroke-opacity:.3;offset-rotate:0deg;offset-distance:100%}
 .anim-phase-changes .phase-changes-note{font-family:var(--anim-font);font-size:26px;fill:var(--anim-fg)}
-.anim-phase-changes .phase-changes-state{transform-box:view-box;transform-origin:0px 0px}
-/* resting frame = the end: all six transitions lit in their energy colour, no token, no state ring, last caption */
-.anim-phase-changes .phase-changes-hot-solid, .anim-phase-changes .phase-changes-hot-liquid, .anim-phase-changes .phase-changes-hot-gas, .anim-phase-changes .phase-changes-tk-melt, .anim-phase-changes .phase-changes-tk-vap, .anim-phase-changes .phase-changes-tk-cond, .anim-phase-changes .phase-changes-tk-frz, .anim-phase-changes .phase-changes-tk-sub, .anim-phase-changes .phase-changes-tk-dep, .anim-phase-changes .phase-changes-n0, .anim-phase-changes .phase-changes-n1, .anim-phase-changes .phase-changes-n2, .anim-phase-changes .phase-changes-n3, .anim-phase-changes .phase-changes-n4, .anim-phase-changes .phase-changes-n5, .anim-phase-changes .phase-changes-n6{opacity:0}
-/* state enters 0.08-0.43 s */
-@keyframes phase-changes-st-solid{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}0.78%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.32%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-/* state enters 0.16-0.51 s */
-@keyframes phase-changes-st-liquid{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}1.57%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.11%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-/* state enters 0.24-0.59 s */
-@keyframes phase-changes-st-gas{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.35%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.9%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-/* solid current: 0.63-0.79 s, 5.66-6.13 s, 8.49-8.72 s */
-@keyframes phase-changes-hot-solid{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.72%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.28%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}7.86%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}9.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.02%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.6%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}61.31%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}62.49%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.89%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.25%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88.43%{opacity:0}100%{opacity:0}}
-/* liquid current: 1.65-2.12 s, 4.32-4.79 s */
-@keyframes phase-changes-hot-liquid{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.93%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.51%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.23%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}22.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.66%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.24%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.95%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}49.12%{opacity:0}100%{opacity:0}}
-/* gas current: 2.99-3.46 s, 7.15-7.47 s */
-@keyframes phase-changes-hot-gas{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.29%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.87%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.59%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}35.76%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.53%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}74.68%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}75.85%{opacity:0}100%{opacity:0}}
-/* melting lit 0.79-2.12 s and from 8.72 s */
-@keyframes phase-changes-on-melt{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.86%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.43%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.44%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.61%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
-/* token hop 0.79-1.49 s */
-@keyframes phase-changes-tk-melt{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.68%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.86%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}14.93%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}16.11%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
-/* vaporization lit 2.12-3.46 s and from 8.72 s */
-@keyframes phase-changes-on-vap{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.23%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.79%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.79%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.98%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
-/* token hop 2.12-2.83 s */
-@keyframes phase-changes-tk-vap{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.04%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.23%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}28.29%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}29.48%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
-/* condensation lit 3.46-4.79 s and from 8.72 s */
-@keyframes phase-changes-on-cond{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.59%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.16%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.16%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}48.34%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
-/* token hop 3.46-4.17 s */
-@keyframes phase-changes-tk-cond{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.41%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.59%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}41.66%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}42.84%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
-/* freezing lit 4.79-6.13 s and from 8.72 s */
-@keyframes phase-changes-on-frz{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}49.52%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60.52%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}61.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
-/* token hop 4.79-5.5 s */
-@keyframes phase-changes-tk-frz{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.77%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.95%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}55.02%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}56.2%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
-/* sublimation lit 6.13-7.47 s and from 8.72 s */
-@keyframes phase-changes-on-sub{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.31%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.88%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}73.88%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}75.06%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
-/* token hop 6.13-7 s */
-@keyframes phase-changes-tk-sub{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.13%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.31%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}69.95%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}71.13%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
-/* deposition lit 7.47-8.72 s and from 8.72 s */
-@keyframes phase-changes-on-dep{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.25%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.46%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.03%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.61%{opacity:1}100%{opacity:1}}
-/* token hop 7.47-8.33 s */
-@keyframes phase-changes-tk-dep{0%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.5%{opacity:0;offset-distance:0%;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.68%{opacity:1;offset-distance:0%;animation-timing-function:ease-in-out}83.31%{opacity:1;offset-distance:100%;animation-timing-function:cubic-bezier(0.3,0,1,1)}84.5%{opacity:0;offset-distance:100%}100%{opacity:0;offset-distance:100%}}
-/* caption 0-0.79 s */
-@keyframes phase-changes-n0{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}7.08%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}8.25%{opacity:0}100%{opacity:0}}
-/* caption 0.79-2.04 s */
-@keyframes phase-changes-n1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.61%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.04%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.23%{opacity:0}100%{opacity:0}}
-/* caption 2.12-3.3 s */
-@keyframes phase-changes-n2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.61%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.98%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.41%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.59%{opacity:0}100%{opacity:0}}
-/* caption 3.46-4.64 s */
-@keyframes phase-changes-n3{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.98%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.34%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}46.77%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.95%{opacity:0}100%{opacity:0}}
-/* caption 4.79-5.97 s */
-@keyframes phase-changes-n4{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.34%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.7%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60.13%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}61.31%{opacity:0}100%{opacity:0}}
-/* caption 6.13-7.31 s */
-@keyframes phase-changes-n5{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.06%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}73.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}74.68%{opacity:0}100%{opacity:0}}
-/* caption 7.47-8.57 s */
-@keyframes phase-changes-n6{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.06%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.43%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.07%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.25%{opacity:0}100%{opacity:0}}
-/* final caption from 8.72 s */
-@keyframes phase-changes-n7{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90%{opacity:1}100%{opacity:1}}
-.visible .anim-phase-changes .phase-changes-st-solid{animation:phase-changes-st-solid 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-st-liquid{animation:phase-changes-st-liquid 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-st-gas{animation:phase-changes-st-gas 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-hot-solid{animation:phase-changes-hot-solid 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-hot-liquid{animation:phase-changes-hot-liquid 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-hot-gas{animation:phase-changes-hot-gas 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-on-melt{animation:phase-changes-on-melt 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-tk-melt{animation:phase-changes-tk-melt 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-on-vap{animation:phase-changes-on-vap 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-tk-vap{animation:phase-changes-tk-vap 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-on-cond{animation:phase-changes-on-cond 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-tk-cond{animation:phase-changes-tk-cond 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-on-frz{animation:phase-changes-on-frz 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-tk-frz{animation:phase-changes-tk-frz 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-on-sub{animation:phase-changes-on-sub 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-tk-sub{animation:phase-changes-tk-sub 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-on-dep{animation:phase-changes-on-dep 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-tk-dep{animation:phase-changes-tk-dep 10s linear 1 both}
+/* resting frame = the end: particles at their gas positions (no transform), gas lit, both labels and the legend lit, final caption */
+.anim-phase-changes .phase-changes-lit-solid,.anim-phase-changes .phase-changes-lit-liquid,.anim-phase-changes .phase-changes-n0,.anim-phase-changes .phase-changes-n1,.anim-phase-changes .phase-changes-n2{opacity:0}
+
+/* ---- motion (10 s once pass), only when the slide is visible. percent = s / 10 ---- */
+/* scene enters 0-0.6 s */
+@keyframes phase-changes-scene{0%{opacity:0}0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6%{opacity:1}100%{opacity:1}}
+/* energy in: draws to the melting level 0.95-1.45 s, to the top 4.6-5.1 s */
+@keyframes phase-changes-ein{0%{stroke-dashoffset:101}9.5%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.25,1)}14.5%{stroke-dashoffset:50}46%{stroke-dashoffset:50;animation-timing-function:cubic-bezier(0.45,0,0.25,1)}51%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+/* solid lit until 3.99-4.24 s */
+@keyframes phase-changes-lit-solid{0%{opacity:1}39.9%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}42.4%{opacity:0}100%{opacity:0}}
+/* liquid lit in 3.99-4.29 s, out 8.04-8.29 s */
+@keyframes phase-changes-lit-liquid{0%{opacity:0}39.9%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}42.9%{opacity:1}80.4%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}82.9%{opacity:0}100%{opacity:0}}
+/* gas lit 8.04-8.34 s */
+@keyframes phase-changes-lit-gas{0%{opacity:0}80.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.4%{opacity:1}100%{opacity:1}}
+/* melting label lit 4.09-4.44 s */
+@keyframes phase-changes-lit-melt{0%{opacity:0}40.9%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.4%{opacity:1}100%{opacity:1}}
+/* vaporization label lit 8.14-8.44 s */
+@keyframes phase-changes-lit-vap{0%{opacity:0}81.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.4%{opacity:1}100%{opacity:1}}
+/* reverse and direct changes lit 8.65-9.05 s */
+@keyframes phase-changes-lit-legend{0%{opacity:0}86.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90.5%{opacity:1}100%{opacity:1}}
+/* caption 0 from the start, out 0.95-1.2 s */
+@keyframes phase-changes-n0{0%{opacity:1}9.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}12%{opacity:0}100%{opacity:0}}
+/* caption melting in 1.1-1.45 s, out 4.6-4.85 s */
+@keyframes phase-changes-n1{0%{opacity:0}11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.5%{opacity:1}46%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}48.5%{opacity:0}100%{opacity:0}}
+/* caption vaporization in 4.75-5.1 s, out 8.55-8.8 s */
+@keyframes phase-changes-n2{0%{opacity:0}47.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}51%{opacity:1}85.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88%{opacity:0}100%{opacity:0}}
+/* final caption 8.7-9.05 s */
+@keyframes phase-changes-n7{0%{opacity:0}87%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90.5%{opacity:1}100%{opacity:1}}
+/* particle 0: melts 2.99-3.32 s, vaporizes 7.30-7.70 s */
+@keyframes phase-changes-p0{0%{transform:translate(92.9px,173.3px)}29.9%{transform:translate(92.9px,173.3px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}33.2%{transform:translate(6px,173.1px)}73%{transform:translate(6px,173.1px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}77%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 1: melts 3.11-3.44 s, vaporizes 6.60-7.00 s */
+@keyframes phase-changes-p1{0%{transform:translate(55.3px,105.9px)}31.1%{transform:translate(55.3px,105.9px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}34.4%{transform:translate(-32.4px,105px)}66%{transform:translate(-32.4px,105px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}70%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 2: melts 3.23-3.56 s, vaporizes 7.44-7.84 s */
+@keyframes phase-changes-p2{0%{transform:translate(57.9px,18.6px)}32.3%{transform:translate(57.9px,18.6px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}35.6%{transform:translate(27.6px,18.4px)}74.4%{transform:translate(27.6px,18.4px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}78.4%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 3: melts 3.35-3.68 s, vaporizes 6.88-7.28 s */
+@keyframes phase-changes-p3{0%{transform:translate(8.4px,234.9px)}33.5%{transform:translate(8.4px,234.9px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}36.8%{transform:translate(7.5px,234.3px)}68.8%{transform:translate(7.5px,234.3px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}72.8%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 4: melts 3.47-3.80 s, vaporizes 7.58-7.98 s */
+@keyframes phase-changes-p4{0%{transform:translate(-94.1px,178.2px)}34.7%{transform:translate(-94.1px,178.2px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}38%{transform:translate(-33.7px,178.1px)}75.8%{transform:translate(-33.7px,178.1px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}79.8%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 5: melts 3.59-3.92 s, vaporizes 7.16-7.56 s */
+@keyframes phase-changes-p5{0%{transform:translate(-105.9px,103px)}35.9%{transform:translate(-105.9px,103px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}39.2%{transform:translate(-18.8px,102.7px)}71.6%{transform:translate(-18.8px,102.7px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}75.6%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 6: melts 2.27-2.60 s, vaporizes 7.02-7.42 s */
+@keyframes phase-changes-p6{0%{transform:translate(109.9px,-10px)}22.7%{transform:translate(109.9px,-10px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}26%{transform:translate(-7.6px,19.6px)}70.2%{transform:translate(-7.6px,19.6px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}74.2%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 7: melts 2.39-2.72 s, vaporizes 6.32-6.72 s */
+@keyframes phase-changes-p7{0%{transform:translate(42px,152.7px)}23.9%{transform:translate(42px,152.7px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}27.2%{transform:translate(12px,181.6px)}63.2%{transform:translate(12px,181.6px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}67.2%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 8: melts 2.51-2.84 s, vaporizes 5.90-6.30 s */
+@keyframes phase-changes-p8{0%{transform:translate(2.7px,123.4px)}25.1%{transform:translate(2.7px,123.4px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}28.4%{transform:translate(3.1px,151.3px)}59%{transform:translate(3.1px,151.3px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}63%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 9: melts 2.63-2.96 s, vaporizes 5.76-6.16 s */
+@keyframes phase-changes-p9{0%{transform:translate(-26.4px,-7.1px)}26.3%{transform:translate(-26.4px,-7.1px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}29.6%{transform:translate(3.8px,20.5px)}57.6%{transform:translate(3.8px,20.5px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}61.6%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 10: melts 2.75-3.08 s, vaporizes 6.74-7.14 s */
+@keyframes phase-changes-p10{0%{transform:translate(-130px,-6.7px)}27.5%{transform:translate(-130px,-6.7px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}30.8%{transform:translate(-40.3px,22.6px)}67.4%{transform:translate(-40.3px,22.6px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}71.4%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 11: melts 2.87-3.20 s, vaporizes 6.04-6.44 s */
+@keyframes phase-changes-p11{0%{transform:translate(-104.1px,209.2px)}28.7%{transform:translate(-104.1px,209.2px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}32%{transform:translate(13.1px,237.2px)}60.4%{transform:translate(13.1px,237.2px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}64.4%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 12: melts 1.55-1.88 s, vaporizes 5.62-6.02 s */
+@keyframes phase-changes-p12{0%{transform:translate(110.6px,267.7px)}15.5%{transform:translate(110.6px,267.7px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}18.8%{transform:translate(36.7px,302.2px)}56.2%{transform:translate(36.7px,302.2px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}60.2%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 13: melts 1.67-2.00 s, vaporizes 6.18-6.58 s */
+@keyframes phase-changes-p13{0%{transform:translate(49.9px,195.7px)}16.7%{transform:translate(49.9px,195.7px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}20%{transform:translate(-9.6px,254.4px)}61.8%{transform:translate(-9.6px,254.4px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}65.8%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 14: melts 1.79-2.12 s, vaporizes 5.48-5.88 s */
+@keyframes phase-changes-p14{0%{transform:translate(0.5px,263.5px)}17.9%{transform:translate(0.5px,263.5px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}21.2%{transform:translate(-42.7px,297.4px)}54.8%{transform:translate(-42.7px,297.4px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}58.8%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 15: melts 1.91-2.24 s, vaporizes 5.20-5.60 s */
+@keyframes phase-changes-p15{0%{transform:translate(-63.5px,215.8px)}19.1%{transform:translate(-63.5px,215.8px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}22.4%{transform:translate(-18.7px,249px)}52%{transform:translate(-18.7px,249px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}56%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 16: melts 2.03-2.36 s, vaporizes 6.46-6.86 s */
+@keyframes phase-changes-p16{0%{transform:translate(-32.5px,51.2px)}20.3%{transform:translate(-32.5px,51.2px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}23.6%{transform:translate(-2.9px,110.2px)}64.6%{transform:translate(-2.9px,110.2px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}68.6%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+/* particle 17: melts 2.15-2.48 s, vaporizes 5.34-5.74 s */
+@keyframes phase-changes-p17{0%{transform:translate(-106.4px,257.5px)}21.5%{transform:translate(-106.4px,257.5px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}24.8%{transform:translate(-34.8px,291px)}53.4%{transform:translate(-34.8px,291px);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}57.4%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+
+.visible .anim-phase-changes .phase-changes-p0{animation:phase-changes-p0 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p1{animation:phase-changes-p1 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p2{animation:phase-changes-p2 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p3{animation:phase-changes-p3 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p4{animation:phase-changes-p4 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p5{animation:phase-changes-p5 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p6{animation:phase-changes-p6 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p7{animation:phase-changes-p7 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p8{animation:phase-changes-p8 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p9{animation:phase-changes-p9 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p10{animation:phase-changes-p10 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p11{animation:phase-changes-p11 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p12{animation:phase-changes-p12 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p13{animation:phase-changes-p13 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p14{animation:phase-changes-p14 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p15{animation:phase-changes-p15 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p16{animation:phase-changes-p16 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-p17{animation:phase-changes-p17 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-scene{animation:phase-changes-scene 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-ein{animation:phase-changes-ein 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-lit-solid{animation:phase-changes-lit-solid 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-lit-liquid{animation:phase-changes-lit-liquid 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-lit-gas{animation:phase-changes-lit-gas 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-lit-melt{animation:phase-changes-lit-melt 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-lit-vap{animation:phase-changes-lit-vap 10s linear 1 both}
+.visible .anim-phase-changes .phase-changes-lit-legend{animation:phase-changes-lit-legend 10s linear 1 both}
 .visible .anim-phase-changes .phase-changes-n0{animation:phase-changes-n0 10s linear 1 both}
 .visible .anim-phase-changes .phase-changes-n1{animation:phase-changes-n1 10s linear 1 both}
 .visible .anim-phase-changes .phase-changes-n2{animation:phase-changes-n2 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-n3{animation:phase-changes-n3 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-n4{animation:phase-changes-n4 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-n5{animation:phase-changes-n5 10s linear 1 both}
-.visible .anim-phase-changes .phase-changes-n6{animation:phase-changes-n6 10s linear 1 both}
 .visible .anim-phase-changes .phase-changes-n7{animation:phase-changes-n7 10s linear 1 both}
 
 @media (prefers-reduced-motion: reduce) { .anim-phase-changes * { animation: none !important; } }
 </style>
-<div class="anim anim-phase-changes" data-anim="phase-changes" data-anim-cycle="10" data-anim-phases="0.65,2,3.3,4.6,6,7.3,8.6,9" data-anim-control="once">
-<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Phase changes between solid, liquid and gas: melting, vaporization and sublimation absorb energy; freezing, condensation and deposition release it. A token travels each of the six transitions in turn.">
+<div class="anim anim-phase-changes" data-anim="phase-changes" data-anim-cycle="10" data-anim-control="once" data-anim-phases="0.85,4.54,8.5,9.05" data-anim-verb="switch">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="One sealed container holds the same particles throughout. Energy in: the solid lattice melts into a liquid along the floor (melting absorbs energy; water melts at 0 °C at 1 atm), then the particles spread to fill the container as a gas (vaporization absorbs energy; boils at 100 °C). Condensation, freezing and deposition release energy; sublimation absorbs it.">
 <g class="phase-changes-scene">
-<path class="phase-changes-arc phase-changes-k-abs-s" d="M24 40 H58"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M58.0 47.0 L72.0 40.0 L58.0 33.0"/><text class="phase-changes-ten phase-changes-k-abs" x="86" y="46">absorbs energy</text>
-<path class="phase-changes-arc phase-changes-k-rel-s" d="M72 74 H38"/><path class="phase-changes-hd phase-changes-k-rel-h" d="M38.0 67.0 L24.0 74.0 L38.0 81.0"/><text class="phase-changes-ten phase-changes-k-rel" x="86" y="80">releases energy</text>
-<text class="phase-changes-mono" x="1656" y="40" text-anchor="end">water at 1 atm:</text>
-<text class="phase-changes-mono" x="1656" y="66" text-anchor="end">melts at 0 °C, boils at 100 °C</text>
-<g class="phase-changes-state phase-changes-st-solid">
-  <rect class="phase-changes-box" x="100" y="170" width="320" height="220" rx="8"/>
-  <rect class="phase-changes-ring phase-changes-hot-solid" x="100" y="170" width="320" height="220" rx="8"/>
-  <text class="phase-changes-sname" x="260.0" y="208" text-anchor="middle">Solid</text>
-  <text class="phase-changes-ssub" x="260.0" y="234" text-anchor="middle">ordered, fixed in place</text>
-  <circle class="phase-changes-pt" cx="185.0" cy="266" r="11"/>
-  <circle class="phase-changes-pt" cx="215.0" cy="266" r="11"/>
-  <circle class="phase-changes-pt" cx="245.0" cy="266" r="11"/>
-  <circle class="phase-changes-pt" cx="275.0" cy="266" r="11"/>
-  <circle class="phase-changes-pt" cx="305.0" cy="266" r="11"/>
-  <circle class="phase-changes-pt" cx="335.0" cy="266" r="11"/>
-  <circle class="phase-changes-pt" cx="185.0" cy="296" r="11"/>
-  <circle class="phase-changes-pt" cx="215.0" cy="296" r="11"/>
-  <circle class="phase-changes-pt" cx="245.0" cy="296" r="11"/>
-  <circle class="phase-changes-pt" cx="275.0" cy="296" r="11"/>
-  <circle class="phase-changes-pt" cx="305.0" cy="296" r="11"/>
-  <circle class="phase-changes-pt" cx="335.0" cy="296" r="11"/>
-  <circle class="phase-changes-pt" cx="185.0" cy="326" r="11"/>
-  <circle class="phase-changes-pt" cx="215.0" cy="326" r="11"/>
-  <circle class="phase-changes-pt" cx="245.0" cy="326" r="11"/>
-  <circle class="phase-changes-pt" cx="275.0" cy="326" r="11"/>
-  <circle class="phase-changes-pt" cx="305.0" cy="326" r="11"/>
-  <circle class="phase-changes-pt" cx="335.0" cy="326" r="11"/>
-  <circle class="phase-changes-pt" cx="185.0" cy="356" r="11"/>
-  <circle class="phase-changes-pt" cx="215.0" cy="356" r="11"/>
-  <circle class="phase-changes-pt" cx="245.0" cy="356" r="11"/>
-  <circle class="phase-changes-pt" cx="275.0" cy="356" r="11"/>
-  <circle class="phase-changes-pt" cx="305.0" cy="356" r="11"/>
-  <circle class="phase-changes-pt" cx="335.0" cy="356" r="11"/>
-</g>
-<g class="phase-changes-state phase-changes-st-liquid">
-  <rect class="phase-changes-box" x="680" y="170" width="320" height="220" rx="8"/>
-  <rect class="phase-changes-ring phase-changes-hot-liquid" x="680" y="170" width="320" height="220" rx="8"/>
-  <text class="phase-changes-sname" x="840.0" y="208" text-anchor="middle">Liquid</text>
-  <text class="phase-changes-ssub" x="840.0" y="234" text-anchor="middle">close, slide past each other</text>
-  <circle class="phase-changes-pt" cx="723.0" cy="364" r="11"/>
-  <circle class="phase-changes-pt" cx="749.0" cy="363" r="11"/>
-  <circle class="phase-changes-pt" cx="776.0" cy="364" r="11"/>
-  <circle class="phase-changes-pt" cx="804.0" cy="363" r="11"/>
-  <circle class="phase-changes-pt" cx="831.0" cy="364" r="11"/>
-  <circle class="phase-changes-pt" cx="859.0" cy="363" r="11"/>
-  <circle class="phase-changes-pt" cx="887.0" cy="364" r="11"/>
-  <circle class="phase-changes-pt" cx="916.0" cy="363" r="11"/>
-  <circle class="phase-changes-pt" cx="943.0" cy="364" r="11"/>
-  <circle class="phase-changes-pt" cx="736.0" cy="339" r="11"/>
-  <circle class="phase-changes-pt" cx="766.0" cy="337" r="11"/>
-  <circle class="phase-changes-pt" cx="817.0" cy="339" r="11"/>
-  <circle class="phase-changes-pt" cx="846.0" cy="337" r="11"/>
-  <circle class="phase-changes-pt" cx="900.0" cy="338" r="11"/>
-  <circle class="phase-changes-pt" cx="929.0" cy="339" r="11"/>
-  <circle class="phase-changes-pt" cx="958.0" cy="341" r="11"/>
-  <circle class="phase-changes-pt" cx="752.0" cy="313" r="11"/>
-  <circle class="phase-changes-pt" cx="792.0" cy="316" r="11"/>
-  <circle class="phase-changes-pt" cx="830.0" cy="312" r="11"/>
-  <circle class="phase-changes-pt" cx="914.0" cy="313" r="11"/>
-  <circle class="phase-changes-pt" cx="876.0" cy="330" r="11"/>
-</g>
-<g class="phase-changes-state phase-changes-st-gas">
-  <rect class="phase-changes-box" x="1260" y="170" width="320" height="220" rx="8"/>
-  <rect class="phase-changes-ring phase-changes-hot-gas" x="1260" y="170" width="320" height="220" rx="8"/>
-  <text class="phase-changes-sname" x="1420.0" y="208" text-anchor="middle">Gas</text>
-  <text class="phase-changes-ssub" x="1420.0" y="234" text-anchor="middle">far apart, move freely</text>
-  <path class="phase-changes-trail" d="M1272.6 267.0 L1289.0 276.5"/>
-  <circle class="phase-changes-pt" cx="1302.0" cy="284" r="11"/>
-  <path class="phase-changes-trail" d="M1358.1 323.6 L1375.9 317.1"/>
-  <circle class="phase-changes-pt" cx="1390.0" cy="312" r="11"/>
-  <path class="phase-changes-trail" d="M1517.9 264.4 L1500.1 270.9"/>
-  <circle class="phase-changes-pt" cx="1486.0" cy="276" r="11"/>
-  <path class="phase-changes-trail" d="M1571.9 345.6 L1554.1 339.1"/>
-  <circle class="phase-changes-pt" cx="1540.0" cy="334" r="11"/>
-  <path class="phase-changes-trail" d="M1302.0 379.9 L1316.5 367.6"/>
-  <circle class="phase-changes-pt" cx="1328.0" cy="358" r="11"/>
-  <path class="phase-changes-trail" d="M1455.0 334.6 L1445.5 351.0"/>
-  <circle class="phase-changes-pt" cx="1438.0" cy="364" r="11"/>
-  <path class="phase-changes-trail" d="M1343.2 265.2 L1361.5 270.1"/>
-  <circle class="phase-changes-pt" cx="1376.0" cy="274" r="11"/>
-</g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M436 268 H652"/><path class="phase-changes-hd" d="M650.0 276.0 L666.0 268.0 L650.0 260.0"/><text class="phase-changes-tname" x="550" y="226" text-anchor="middle">melting</text><text class="phase-changes-ten phase-changes-k-dim" x="550" y="250" text-anchor="middle">absorbs energy</text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M1016 268 H1232"/><path class="phase-changes-hd" d="M1230.0 276.0 L1246.0 268.0 L1230.0 260.0"/><text class="phase-changes-tname" x="1130" y="226" text-anchor="middle">vaporization</text><text class="phase-changes-ten phase-changes-k-dim" x="1130" y="250" text-anchor="middle">absorbs energy</text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M1244 318 H1028"/><path class="phase-changes-hd" d="M1030.0 310.0 L1014.0 318.0 L1030.0 326.0"/><text class="phase-changes-tname" x="1130" y="350" text-anchor="middle">condensation</text><text class="phase-changes-ten phase-changes-k-dim" x="1130" y="374" text-anchor="middle">releases energy</text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M664 318 H448"/><path class="phase-changes-hd" d="M450.0 310.0 L434.0 318.0 L450.0 326.0"/><text class="phase-changes-tname" x="550" y="350" text-anchor="middle">freezing</text><text class="phase-changes-ten phase-changes-k-dim" x="550" y="374" text-anchor="middle">releases energy</text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M260 164 C260 52 1420 52 1420 154"/><path class="phase-changes-hd" d="M1412.0 151.0 L1420.0 167.0 L1428.0 151.0"/><text class="phase-changes-tline" x="840" y="64" text-anchor="middle"><tspan class="phase-changes-tname">sublimation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">absorbs energy</tspan></text></g>
-<g class="phase-changes-base"><path class="phase-changes-arc" d="M1420 396 C1420 508 260 508 260 406"/><path class="phase-changes-hd" d="M268.0 409.0 L260.0 393.0 L252.0 409.0"/><text class="phase-changes-tline" x="840" y="514" text-anchor="middle"><tspan class="phase-changes-tname">deposition</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">releases energy</tspan></text></g>
-<g class="phase-changes-on phase-changes-on-melt"><path class="phase-changes-arc phase-changes-k-abs-s" d="M436 268 H652"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M650.0 276.0 L666.0 268.0 L650.0 260.0"/><text class="phase-changes-tname phase-changes-on-name" x="550" y="226" text-anchor="middle">melting</text><text class="phase-changes-ten phase-changes-k-abs" x="550" y="250" text-anchor="middle">absorbs energy</text></g>
-<g class="phase-changes-on phase-changes-on-vap"><path class="phase-changes-arc phase-changes-k-abs-s" d="M1016 268 H1232"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M1230.0 276.0 L1246.0 268.0 L1230.0 260.0"/><text class="phase-changes-tname phase-changes-on-name" x="1130" y="226" text-anchor="middle">vaporization</text><text class="phase-changes-ten phase-changes-k-abs" x="1130" y="250" text-anchor="middle">absorbs energy</text></g>
-<g class="phase-changes-on phase-changes-on-cond"><path class="phase-changes-arc phase-changes-k-rel-s" d="M1244 318 H1028"/><path class="phase-changes-hd phase-changes-k-rel-h" d="M1030.0 310.0 L1014.0 318.0 L1030.0 326.0"/><text class="phase-changes-tname phase-changes-on-name" x="1130" y="350" text-anchor="middle">condensation</text><text class="phase-changes-ten phase-changes-k-rel" x="1130" y="374" text-anchor="middle">releases energy</text></g>
-<g class="phase-changes-on phase-changes-on-frz"><path class="phase-changes-arc phase-changes-k-rel-s" d="M664 318 H448"/><path class="phase-changes-hd phase-changes-k-rel-h" d="M450.0 310.0 L434.0 318.0 L450.0 326.0"/><text class="phase-changes-tname phase-changes-on-name" x="550" y="350" text-anchor="middle">freezing</text><text class="phase-changes-ten phase-changes-k-rel" x="550" y="374" text-anchor="middle">releases energy</text></g>
-<g class="phase-changes-on phase-changes-on-sub"><path class="phase-changes-arc phase-changes-k-abs-s" d="M260 164 C260 52 1420 52 1420 154"/><path class="phase-changes-hd phase-changes-k-abs-h" d="M1412.0 151.0 L1420.0 167.0 L1428.0 151.0"/><text class="phase-changes-tline" x="840" y="64" text-anchor="middle"><tspan class="phase-changes-tname phase-changes-on-name">sublimation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-abs">absorbs energy</tspan></text></g>
-<g class="phase-changes-on phase-changes-on-dep"><path class="phase-changes-arc phase-changes-k-rel-s" d="M1420 396 C1420 508 260 508 260 406"/><path class="phase-changes-hd phase-changes-k-rel-h" d="M268.0 409.0 L260.0 393.0 L252.0 409.0"/><text class="phase-changes-tline" x="840" y="514" text-anchor="middle"><tspan class="phase-changes-tname phase-changes-on-name">deposition</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-rel">releases energy</tspan></text></g>
-<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-melt" r="9" style="offset-path:path('M436 268 H652')"/>
-<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-vap" r="9" style="offset-path:path('M1016 268 H1232')"/>
-<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-cond" r="9" style="offset-path:path('M1244 318 H1028')"/>
-<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-frz" r="9" style="offset-path:path('M664 318 H448')"/>
-<circle class="phase-changes-tok phase-changes-k-abs-f phase-changes-tk-sub" r="9" style="offset-path:path('M260 164 C260 52 1420 52 1420 154')"/>
-<circle class="phase-changes-tok phase-changes-k-rel-f phase-changes-tk-dep" r="9" style="offset-path:path('M1420 396 C1420 508 260 508 260 406')"/>
-<text class="phase-changes-note phase-changes-n0" x="840" y="574" text-anchor="middle">Three states of matter and the six named changes between them</text>
-<text class="phase-changes-note phase-changes-n1" x="840" y="574" text-anchor="middle">Melting: particles leave their fixed positions as the solid absorbs energy</text>
-<text class="phase-changes-note phase-changes-n2" x="840" y="574" text-anchor="middle">Vaporization: particles absorb energy and escape into the gas</text>
-<text class="phase-changes-note phase-changes-n3" x="840" y="574" text-anchor="middle">Condensation: gas particles release energy and gather into a liquid</text>
-<text class="phase-changes-note phase-changes-n4" x="840" y="574" text-anchor="middle">Freezing: the liquid releases energy and particles lock into a lattice</text>
-<text class="phase-changes-note phase-changes-n5" x="840" y="574" text-anchor="middle">Sublimation: a solid absorbs energy and becomes a gas directly</text>
-<text class="phase-changes-note phase-changes-n6" x="840" y="574" text-anchor="middle">Deposition: a gas releases energy and becomes a solid directly</text>
-<text class="phase-changes-note phase-changes-n7" x="840" y="574" text-anchor="middle">Changes toward gas absorb energy; changes toward solid release it</text>
+  <text class="phase-changes-mono" x="1656" y="40" text-anchor="end">water at 1 atm:</text>
+  <text class="phase-changes-mono" x="1656" y="66" text-anchor="end">melts at 0 °C, boils at 100 °C</text>
+  <!-- the sample's container -->
+  <path class="phase-changes-jar" data-anim-scene="" d="M620 100 Q620 90 630 90 H1050 Q1060 90 1060 100 V460 Q1060 470 1050 470 H630 Q620 470 620 460 Z"/>
+  <!-- energy in: track, arrowhead, ticks at the two changes, the drawn absorbing stroke -->
+  <path class="phase-changes-track" d="M540 470 V110"/>
+  <path class="phase-changes-track" d="M532 122 L540 106 L548 122"/>
+  <path class="phase-changes-tick" d="M526 290 H536"/>
+  <path class="phase-changes-tick" d="M526 132 H536"/>
+  <path class="phase-changes-ein" pathLength="100" d="M540 470 V116"/>
+  <text class="phase-changes-ein-l" x="512" y="466" text-anchor="end">energy in</text>
+  <text class="phase-changes-tname phase-changes-dimt" x="512" y="140" text-anchor="end">vaporization</text>
+  <text class="phase-changes-ten phase-changes-k-dim" x="512" y="166" text-anchor="end">absorbs energy</text>
+  <text class="phase-changes-mono" x="512" y="192" text-anchor="end">boils at 100 °C</text>
+  <g class="phase-changes-lit-vap"><text class="phase-changes-tname" x="512" y="140" text-anchor="end">vaporization</text><text class="phase-changes-ten phase-changes-k-abs" x="512" y="166" text-anchor="end">absorbs energy</text></g>
+  <text class="phase-changes-tname phase-changes-dimt" x="512" y="298" text-anchor="end">melting</text>
+  <text class="phase-changes-ten phase-changes-k-dim" x="512" y="324" text-anchor="end">absorbs energy</text>
+  <text class="phase-changes-mono" x="512" y="350" text-anchor="end">melts at 0 °C</text>
+  <g class="phase-changes-lit-melt"><text class="phase-changes-tname" x="512" y="298" text-anchor="end">melting</text><text class="phase-changes-ten phase-changes-k-abs" x="512" y="324" text-anchor="end">absorbs energy</text></g>
+  <!-- state scale: the current state is lit -->
+  <path class="phase-changes-scale" d="M1112 150 V430"/>
+  <circle class="phase-changes-sdot" cx="1112" cy="430" r="8"/>
+  <text class="phase-changes-sname phase-changes-dimt" x="1138" y="438">Solid</text>
+  <text class="phase-changes-mono" x="1138" y="464">ordered, fixed in place</text>
+  <circle class="phase-changes-sdot" cx="1112" cy="290" r="8"/>
+  <text class="phase-changes-sname phase-changes-dimt" x="1138" y="298">Liquid</text>
+  <text class="phase-changes-mono" x="1138" y="324">close, slide past each other</text>
+  <circle class="phase-changes-sdot" cx="1112" cy="150" r="8"/>
+  <text class="phase-changes-sname phase-changes-dimt" x="1138" y="158">Gas</text>
+  <text class="phase-changes-mono" x="1138" y="184">far apart, move freely</text>
+  <g class="phase-changes-lit-solid"><circle class="phase-changes-sdot-on" cx="1112" cy="430" r="8"/><text class="phase-changes-sname" x="1138" y="438">Solid</text></g>
+  <g class="phase-changes-lit-liquid"><circle class="phase-changes-sdot-on" cx="1112" cy="290" r="8"/><text class="phase-changes-sname" x="1138" y="298">Liquid</text></g>
+  <g class="phase-changes-lit-gas"><circle class="phase-changes-sdot-on" cx="1112" cy="150" r="8"/><text class="phase-changes-sname" x="1138" y="158">Gas</text></g>
+  <!-- the sample: 18 particles, resting at their gas positions -->
+  <circle class="phase-changes-pt phase-changes-p0" cx="672.1" cy="278.7" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p1" cx="739.7" cy="346.1" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p2" cx="767.1" cy="433.4" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p3" cx="846.6" cy="217.1" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p4" cx="979.1" cy="273.8" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p5" cx="1020.9" cy="349" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p6" cx="655.1" cy="432" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p7" cx="753" cy="269.3" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p8" cx="822.3" cy="298.6" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p9" cx="881.4" cy="429.1" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p10" cx="1015" cy="428.7" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p11" cx="1019.1" cy="212.8" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p12" cx="654.4" cy="124.3" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p13" cx="745.1" cy="196.3" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p14" cx="824.5" cy="128.5" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p15" cx="918.5" cy="176.2" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p16" cx="917.5" cy="340.8" r="13"/>
+  <circle class="phase-changes-pt phase-changes-p17" cx="1021.4" cy="134.5" r="13"/>
+  <!-- the reverse changes and the direct jumps -->
+  <text class="phase-changes-tline" x="840" y="528" text-anchor="middle"><tspan class="phase-changes-tname phase-changes-dimt">condensation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">releases energy</tspan><tspan class="phase-changes-tname phase-changes-dimt" dx="44">freezing</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">releases energy</tspan><tspan class="phase-changes-tname phase-changes-dimt" dx="44">sublimation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">absorbs energy</tspan><tspan class="phase-changes-tname phase-changes-dimt" dx="44">deposition</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-dim">releases energy</tspan></text>
+  <g class="phase-changes-lit-legend"><text class="phase-changes-tline" x="840" y="528" text-anchor="middle"><tspan class="phase-changes-tname">condensation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-rel">releases energy</tspan><tspan class="phase-changes-tname" dx="44">freezing</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-rel">releases energy</tspan><tspan class="phase-changes-tname" dx="44">sublimation</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-abs">absorbs energy</tspan><tspan class="phase-changes-tname" dx="44">deposition</tspan><tspan class="phase-changes-tsep"> · </tspan><tspan class="phase-changes-ten phase-changes-k-rel">releases energy</tspan></text></g>
+  <text class="phase-changes-note phase-changes-n0" x="840" y="578" text-anchor="middle">Three states of matter and the six named changes between them</text>
+  <text class="phase-changes-note phase-changes-n1" x="840" y="578" text-anchor="middle">Melting: particles leave their fixed positions as the solid absorbs energy</text>
+  <text class="phase-changes-note phase-changes-n2" x="840" y="578" text-anchor="middle">Vaporization: particles absorb energy and escape into the gas</text>
+  <text class="phase-changes-note phase-changes-n7" x="840" y="578" text-anchor="middle">Changes toward gas absorb energy; changes toward solid release it</text>
 </g>
 </svg>
 </div>
