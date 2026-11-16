@@ -24,14 +24,16 @@
 - name: service-deps
   archetype: graph
   form: graph
-  moves: [draw-on, packet-hop]
+  verb: nest
+  moves: [draw-on, nest-outline, state-switch]
   domain: software
   viewbox: [1680, 600]
-  cycle: 9.8
-  phases: [1.2, 2.3, 3.3, 4.0, 4.7, 7.12, 8.8]
+  cycle: 9.4
+  phases: [2.6, 3.5, 4.9, 7.0, 8.2]
   spec: true
-  story: A service graph builds rank by rank, one request is traced through it, then a third-party outage stays contained to Payments.
+  story: A service graph builds rank by rank, then a third-party outage spreads only to Payments and a boundary closes around the two: the blast radius.
   tags: [dependencies, microservices, blast-radius, outage, architecture]
+  technique: draw-on wires; the failure spreads as a danger draw-on along the dependent edges; one closed outline path drawn on around provider and Payments; the services outside return lit
 
 - name: db-failover
   archetype: graph

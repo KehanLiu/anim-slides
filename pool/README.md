@@ -32,7 +32,7 @@ after scaffolding, so the spec reproduces the structure and timing, not every de
 | | Name | Verb | Archetype | Form | Domain | viewBox | Cycle | Story |
 |---|---|---|---|---|---|---|---|---|
 | ![](deploy-pipeline/thumb.png) | `deploy-pipeline` | travel | pipeline | row | software | 1680×440 | 9.8 s | A commit moves through build, test and staging, then a 5 % canary earns 100 % of traffic while an auto-rollback edge stands by. |
-| ![](service-deps/thumb.png) | `service-deps` | ? | graph | graph | software | 1680×600 | 9.8 s | A service graph builds rank by rank, one request is traced through it, then a third-party outage stays contained to Payments. |
+| ![](service-deps/thumb.png) | `service-deps` | nest | graph | graph | software | 1680×600 | 9.4 s | A service graph builds rank by rank, then a third-party outage spreads only to Payments and a boundary closes around the two: the blast radius. |
 | ![](db-failover/thumb.png) | `db-failover` | travel | graph | graph | software | 1000×560 | 9.4 s | Requests reach the primary database, it fails, health checks propose promoting the replica, on-call approves and traffic is rerouted. |
 | ![](roadmap/thumb.png) | `roadmap` | reveal | timeline | axis | product | 1680×440 | 9.9 s | Three milestones ship one after another, mobile apps are in progress and platform v2 is planned. |
 | ![](job-states/thumb.png) | `job-states` | ? | states | ring | software | 1200×600 | 9.8 s | A job is picked, fails with a timeout, retries after a backoff and succeeds on the second attempt, with an event log filling in. |
