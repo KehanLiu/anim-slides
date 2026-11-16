@@ -1,13 +1,13 @@
 # Job lifecycle with one failure, a retry and a success on the second attempt. Scaffold with:
 #   python3 scripts/scaffold_from_spec.py pool/job-states/spec.yaml -o pool/job-states/job-states.html
-# job-states.html is hand-tuned beyond the scaffold: one token per hop (coloured by transition),
-# stacked "attempt 1 of 3" / "attempt 2 of 3" text in Running, transition labels that light up,
-# and an event log panel (bottom right) that fills in one line per transition. The spec's notes
-# are the log lines, so the fragment has no caption strip.
+# job-states.html is hand-built beyond the scaffold (verb switch): one job ticket in the centre
+# changes in place at each event (outline colour and dash, stacked status word, a backoff timer
+# arc, "attempt 1 of 3" -> "attempt 2 of 3"), a small state map at the left lights the current
+# state, and the event log fills in one line per transition. No token. The spec reproduces the
+# states, transitions and phase timing only. The spec's notes are the log lines.
 name: job-states
 archetype: states
-verb: travel
-traveller: { name: the job }
+verb: switch
 size: [1200, 600]
 control: once
 cycle: 9.8

@@ -65,14 +65,16 @@
 - name: job-states
   archetype: states
   form: ring
-  moves: [packet-hop]
+  verb: switch
+  moves: [state-switch, colour-scale, draw-on]
   domain: software
   viewbox: [1200, 600]
   cycle: 9.8
-  phases: [0.7, 2.9, 4.5, 5.8, 7.4, 8.8]
+  phases: [0.7, 2, 3.8, 5.7, 7.1, 8.8]
   spec: true
-  story: A job is picked, fails with a timeout, retries after a backoff and succeeds on the second attempt, with an event log filling in.
+  story: One job changes state in place, from queued to running to failed, waits out a 2 s backoff, and succeeds on the second attempt, while a small state map lights the current state and the event log fills in.
   tags: [lifecycle, retry, state-machine, jobs, error-handling]
+  technique: one ticket outline whose stroke colour, dash and width switch at each cause, stacked status words and attempt counter cross-faded, a backoff timer arc drawn on once, map lights and log lines following 100 to 150 ms later
 
 - name: cache-compare
   archetype: compare
