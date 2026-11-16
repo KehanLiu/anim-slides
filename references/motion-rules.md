@@ -20,10 +20,12 @@ A continuous `loop` is only for a kiosk, a gallery or a hero when the user asks 
 | micro | 150-250 ms | chip pop, colour change, highlight on/off, tick |
 | element | 300-500 ms | a box or label entering, a short move, a cross-fade |
 | scene | 600-900 ms | a group rearranging, a long move across the slot, a large draw-on |
-| hop | 600-1200 ms | one packet along one wire |
+| change | 0.9-1.8 s | the verb's own move: a level rising, units regrouping, a morph, a wipe, a zoom, a beam tilting |
+| hop | 600-1200 ms | one traveller along one leg of its route (`travel` only) |
 | hold | 0.8-1.5 s | end of the pass; the held state is the resting frame and stays (loop: 1-2 s before the reset) |
 
-Anything slower than 900 ms that is not a hop or a draw-on reads as lag.
+Anything slower than 900 ms that is not a change, a hop or a draw-on reads as lag. A change is
+slow on purpose: it is the claim, and the audience has to see it happen.
 
 ## A once pass
 
@@ -32,7 +34,7 @@ One pass of 4 to 10 s (`data-anim-cycle`), shaped as one staggered reveal:
 | Part | When | What |
 |---|---|---|
 | enter | 0 to ~1 s | the static frame and the first elements rise in, stagger 60-120 ms, under 500 ms per group |
-| action | ~1 s to pass - hold | one phase per narrated step, about 1 to 2 s each, each one move from "What motion can mean" below (an entrance, the highlight moving on, one packet hop, a level rising, ...); captions cross-fade per phase |
+| action | ~1 s to pass - hold | one phase per narrated step, about 1 to 2 s each, each a staged step of the fragment's verb (a level rising, units regrouping, the highlight moving on, ...); captions cross-fade per phase |
 | hold | last 0.8-1.5 s | nothing moves; the finished state (= 100 % keyframe = resting frame) is shown and stays, with the last caption |
 
 Phases keep their second marks from the spec; keyframe percentage = seconds / pass * 100.
@@ -44,26 +46,21 @@ from step to step is one focus changing place, not repetition.
 
 ## What motion can mean
 
-Pick the move that says what the slide says (its picture idea, archetypes.md), not the one
-that is easiest. Every move sits under the limits above: one calm pass, rest on the finished
-frame, no loops, at most three things moving at once, no overshoot, one glow.
+Every fragment has one **verb**: the motion that is the slide's claim. The twenty verbs, how
+to pick one from the claim, what each puts on screen and how it is built are in
+[motion-verbs.md](motion-verbs.md). The rules that hold for all of them:
 
-| Move | Says | Technique (pool example) |
-|---|---|---|
-| highlight moves on, packet hops | order, hand-off | opacity or colour swap; `offset-path` (Techniques) |
-| level rises or falls | a quantity changes | `scaleY` on the fill, `transform-box: view-box`, origin at the floor; dashed ghost of the start level (canal-lock) |
-| count ticks up | a number is reached | stacked `<text>` per value cross-faded (Changing text), ending on the source's number |
-| dots at exact scale | how many | one dot = a stated unit, rows fade in (sales-funnel) |
-| band tapers, dots thin out | fewer pass a stage | bands at the stated counts; dots that do not pass fade at the stage line (sales-funnel) |
-| path drawn | a trajectory, a curve, a route | draw-on by `stroke-dashoffset`, or a growing clip with a head dot (latency-trace) |
-| area revealed | coverage or a region spreads | clip rect `width`/`height` grows (Reveals inside a box) |
-| two merge, one splits | combine, divide | parts as separate groups translated together or apart (lessons.md) |
-| before -> after in place | a state changes | the new state cross-fades in where the old stood; the old stays as a dashed ghost |
-| part rotates | a dial turns, a valve opens, a balance tilts | `rotate` on a `<g>`, `transform-box` and a px origin at the pivot, to the stated angle |
-| stacking up | accumulation, layers built | items rise into place bottom-up, staggered (bloom-taxonomy) |
-| colour along a scale | a state on a range (cold to hot, low to high) | fill steps between `--anim-line` and the accent along the stated scale |
-| token changes type | the thing transforms as it travels | stacked token copies cross-fade at the change points (water-cycle) |
-| shape gives way to shape | one form becomes another | stacked shapes cross-fade (db-failover); never `d` morphing |
+- The verb's move is the hero of the pass: 40 to 60 % of the seconds, in two to four staged
+  steps with a settled moment between them. Entrances are the set-up, not the story.
+- A travelling marker belongs to the verb `travel` (a named thing changing place) and to the
+  one trip of a `cycle`. A fragment whose verb is anything else has no packet, token or head
+  dot riding its lines; the highlight moving on shows order.
+- One kind of change per step: positions, then colours, then labels.
+- What the hero touches follows 50 to 150 ms later; nothing else moves meanwhile.
+- A slide explained by pointing at parts of one picture may stay still: `dim`, one `mark`
+  per phase, no invented motion.
+- Every move sits under the limits above: one calm pass, rest on the finished frame, no
+  loops, at most three things moving at once, no overshoot, one glow.
 
 ## A step pass
 
@@ -113,8 +110,22 @@ frame, no loops, at most three things moving at once, no overshoot, one glow.
 
 ## Techniques
 
-- **Packets along wires:** `offset-path: path('M ...')` plus animated `offset-distance` from 0 %
-  to 100 %. The path string reuses the wire's `d`. CSS-only, smooth, no JS.
+- **A traveller on its route** (`travel`): `offset-path: path('M ...')` plus animated
+  `offset-distance` from 0 % to 100 %. The path string reuses the route's `d`. CSS-only,
+  smooth, no JS.
+- **Levels, bars, zoom:** `scaleX`/`scaleY`/`scale` on the shape or group with
+  `transform-box: view-box` and a px `transform-origin` at the baseline or focus; a dashed
+  ghost keeps the start.
+- **Units:** one element per unit, each with its own `translate` or opacity track; a row or
+  a group moves as a staggered series and counts as one move.
+- **Wipe, cutaway:** `clip-path: inset(...)` animated on a `<g>`.
+- **Counting:** a digit strip (a column of `<text>` under a `<clipPath>`, moved by
+  `translateY` in `steps()`) or stacked `<text>` cross-faded. Do not animate text content;
+  CSS counters do not render in SVG text.
+- **Morph:** stack both shapes and cross-fade them as the base; inside
+  `@supports (d: path("M0 0"))` animate `d` between two paths with the same commands and
+  keep the second shape hidden (Safari does not animate `d` and shows the cross-fade). The
+  resting rule sets the final `d`, so the still matches the last frame.
 - **Draw-on:** give the path `pathLength="100"`, set `stroke-dasharray: 100 120`, animate
   `stroke-dashoffset` from 101 to 0 over 500-800 ms. (A plain `100` dash at offset 100 still
   paints a dot at the start with `stroke-linecap: round`.) Same maths for every path regardless of
@@ -177,9 +188,11 @@ Run before shipping each fragment. Every "no" is a fix.
 3. Do entrances use the enter curve, exits the exit curve at ~65 % of the entrance time, and
    on-screen moves the move curve?
 4. Is `linear` used only for continuous motion?
-5. Are all durations in the table's classes (micro, element, scene, hop)?
+5. Are all durations in the table's classes (micro, element, scene, change, hop)?
 6. Is every group's stagger under 500 ms, and does card content follow the card by 50-150 ms?
-7. Do packets use `offset-path`, at 0.6-1.2 s per hop?
+7. Does the wrapper name its verb (`data-anim-verb`), does that move take 40 to 60 % of the
+   pass, and is there a traveller only under `travel` or `cycle`, named, on `offset-path`
+   at 0.6-1.2 s per hop?
 8. Do draw-on paths use `pathLength` and 0.5-0.8 s per path?
 9. Is changing text done by cross-fading stacked `<text>` elements?
 10. Does nothing overshoot, and does no emphasis pulse or pop exceed +-5 % (size that is the

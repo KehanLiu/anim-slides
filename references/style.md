@@ -26,7 +26,10 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
 2. **No boxes unless a box is the meaning.** No filled panels, no card borders, no caption
    bars, no chip backgrounds. A group is a hairline bracket (2 px, `--anim-line`, open on the
    label side) with a small mono label at one end, never a framed card and not a tint. A node is a ring, a dot or a glyph with its label outside; a step in a pipeline is a
-   label on a line, not a rounded rectangle with a fill. Rectangles are allowed only when the
+   label on a line, not a rounded rectangle with a fill. When the source names a physical
+   thing (a jar, a beam, a ballot box, a cell, a river bed), draw that thing in a few thin
+   strokes instead of a ring that stands for it: the subject's own shape says what it is
+   ([motion-verbs.md](motion-verbs.md) section 1). Rectangles are allowed only when the
    source shows containers (a table, a lock chamber, a database). In a scene, mark the ground
    that is the thing itself (water, land, a chamber wall) with `data-anim-scene` on the shape
    or its group; `check_look.py` then skips it for boxes and labels on fills. Never mark
@@ -53,10 +56,12 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
    glowing element per fragment at most, and lines and arrows never glow.
 9. **Motion is calm and happens once.** Enter with a 16 px rise and fade (600 ms,
    `cubic-bezier(.2,.7,.2,1)`), draw-on over 1.2 s, dim-not-hide for things that lose focus
-   (opacity 0.35). No bounce, no emphasis or entrance scale beyond 1.05 (a size change that is
-   the content, such as a level, a bar or a band, is drawn at its true proportion), no more
-   than one thing arriving at a time
-   unless they are a staggered series (80 ms apart). The pass plays once when the slide
+   (opacity 0.35). No bounce, no emphasis or entrance scale beyond 1.05. A size change that is the
+   content (a level, a bar, a band, a `zoom` into a part) is drawn at its true proportion and
+   is not emphasis. One hero move at a time: what it touches may follow 100 to 200 ms later
+   (the label after its bar, the pan after the weight), and a staggered series (40 to 80 ms
+   apart) arrives as one. The move that is the slide's claim, its verb
+   ([motion-verbs.md](motion-verbs.md)), gets the largest share of the pass. The pass plays once when the slide
    becomes current (4 to 10 s) and ends on the resting frame; nothing loops, pulses or
    restarts while the slide is up.
 10. **Both themes.** The same rules hold on a light background: lines get darker, the glow
@@ -85,19 +90,25 @@ opacities to 0.55 to 0.65, and check the faintest element in a rest render.
 
 ## Anatomy by archetype
 
+A traveller appears only under the verb `travel` (or as the one trip of a `cycle`): a small
+glyph or a labelled chip that says what it is (a parcel, a ballot, a blood sample), in the
+accent with the one glow. Under every other verb nothing rides the lines; the active element
+carries the accent.
+
 - **pipeline**: steps are labels on a single horizontal line with small ring markers; the
-  packet is a glowing dot; a passed step keeps its ring in `--anim-ok` with no check-box.
+  active step carries the accent; a passed step keeps its ring in `--anim-ok` with no
+  check-box.
 - **graph**: rings (r 32 to 44 at a 1920 stage) with an optional line glyph inside, labels
   outside (below or beside), wires 2 to 3 px, the active path 4 px accent with glow; groups as a hairline bracket
   with a small mono label, never a card.
 - **timeline**: one axis line, dots on it, labels alternating above and below with a thin
   leader; eras as hairline brackets below.
-- **states**: states are rings or glyphs; the token is a glowing dot; transitions are thin
-  arcs with the label on the arc.
+- **states**: states are rings or glyphs; the current state carries the accent; transitions
+  are thin arcs with the label on the arc.
 - **compare**: two or more columns separated by nothing but space (or one hairline); row
   labels in `--anim-muted` at the left; the verdict as a sentence below.
-- **layers**: bands separated by hairlines, names at the left in mono caps; the traveller
-  is a glowing dot.
+- **layers**: bands separated by hairlines, names at the left in mono caps; the active band
+  carries the accent.
 - **chart**: axes 2 px in `--anim-line`, gridlines dotted at 40 % opacity, one series in the
   accent, reference lines dashed, events as small outlined tags on the trace; the value
   readout is inline text, not a card.
@@ -108,4 +119,6 @@ opacities to 0.55 to 0.65, and check the faintest element in a rest render.
 - [ ] One accent, at most two semantic colours, each explained by the slide.
 - [ ] Every label has room; nothing smaller than the text floor; sub-labels in mono muted.
 - [ ] Caption is plain text; illustrative tag present if any number is an example.
+- [ ] The verb is visible with the labels covered: something grows, splits, tips or changes
+      between the phase frames, not a dot in different places.
 - [ ] Rendered in dark and light; the resting frame is calm and complete.

@@ -78,8 +78,9 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
 
 - Transforms on SVG groups (translate a curve, rotate a clipped layer, scale a lens) need
   `transform-box: view-box` (or `fill-box`) plus a `transform-origin` in px; the CSS default
-  resolves against the wrong box. Avoid CSS `d` path morphing: Safari does not animate it.
-  To turn one shape into another, stack both and cross-fade their opacity.
+  resolves against the wrong box. CSS `d` path morphing does not animate in Safari. To turn one shape into another, stack
+  both and cross-fade their opacity as the base, and add the `d` morph inside
+  `@supports (d: path("M0 0"))` (motion-rules.md, Techniques).
 - Index suffixes collide with semantic ones: `<name>-mk0` written by hand and `<name>-mk{i}`
   generated for i = 0 select the same element. Use separators such as `<name>-mk-n0`.
   `check_fragment.py` warns (`index-collision`).
