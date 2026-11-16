@@ -5,7 +5,8 @@
 #  3. build_gallery.py into a temp folder
 #  4. check_look.py on every pool fragment (rendered in headless Chrome, dark theme);
 #     skipped with a notice when no Chrome/Chromium is found (set CHROME=/path to force one)
-#  5. python3 -m py_compile scripts/*.py
+#  5. check_verbs.py --pool: every entry names a verb, at most a third use a travelling marker
+#  6. python3 -m py_compile scripts/*.py
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 pool="${1:-$root/pool}"
@@ -65,6 +66,11 @@ for dir in "$pool"/*/; do
     echo "FAIL $name"; fail=1
   fi
 done
+
+echo "== check_verbs.py --pool"
+if [ -f "$pool/index.yaml" ]; then
+  "$py" "$root/scripts/check_verbs.py" --pool "$pool/index.yaml" || fail=1
+fi
 
 echo "== py_compile"
 "$py" -m py_compile "$root"/scripts/*.py && echo "ok" || fail=1
