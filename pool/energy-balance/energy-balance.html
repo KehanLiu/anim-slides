@@ -8,10 +8,10 @@
   Verb: balance. Technique: rotate on the beam group about the pivot (800,110); each pan group is
   nested inside the beam and counter-rotated by the same angle about its own hang point (560,110)
   and (1040,110), so the pans hang straight and only translate. transform-box:view-box with px
-  origins. Tilt = (energy used on the right - energy in on the left) / 100 kcal, in degrees:
-  1,400 -> 14 deg, 1,850 -> 18.5 deg, 2,000 -> 20 deg, then 2,000 - 2,500 = -500 -> -5 deg
-  (left side down). Level when equal. Beam half-length 240 so 20 deg fits the slot. Move curve /
-  ease-in-out, no overshoot, no wobble.
+  origins. Tilt rule of a real beam balance: level when the sides are equal, otherwise tipped by
+  one fixed angle (10 deg) to the heavier side. The block heights carry the magnitudes. So the beam
+  tips right when the first use block lands and stays there as the other two land, then swings
+  through level to 10 deg left when intake lands. Move curve / ease-in-out, no overshoot, no wobble.
   Weights: outlined blocks of equal width (170), height proportional to value:
   100 kcal = 10 px (2,500 -> 250 px; 1,400 -> 140; 450 -> 45; 150 -> 15), so the stacks compare
   directly and the 500 kcal surplus is the top 50 px of the intake block.
@@ -71,39 +71,31 @@
 .anim-energy-balance .energy-balance-beam{transform-box:view-box;transform-origin:800px 110px}
 .anim-energy-balance .energy-balance-pan-l{transform-box:view-box;transform-origin:560px 110px}
 .anim-energy-balance .energy-balance-pan-r{transform-box:view-box;transform-origin:1040px 110px}
-/* resting frame = the end: intake side down by 5 deg, pans hanging straight, surplus marked */
-.anim-energy-balance .energy-balance-beam{transform:rotate(-5deg)}
-.anim-energy-balance .energy-balance-pan-l,.anim-energy-balance .energy-balance-pan-r{transform:rotate(5deg)}
+/* resting frame = the end: intake side down by 10 deg, pans hanging straight, surplus marked */
+.anim-energy-balance .energy-balance-beam{transform:rotate(-10deg)}
+.anim-energy-balance .energy-balance-pan-l,.anim-energy-balance .energy-balance-pan-r{transform:rotate(10deg)}
 .anim-energy-balance .energy-balance-in-wt{stroke:var(--anim-accent)}
 .anim-energy-balance .energy-balance-n0,.anim-energy-balance .energy-balance-n1,.anim-energy-balance .energy-balance-n2{opacity:0}
 
 /* ---- motion (9.3 s once pass), only when the slide is visible. percent = s / 9.3 ---- */
 /* scene fades in 0-0.5 s */
 @keyframes energy-balance-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.376%{opacity:1}100%{opacity:1}}
-/* beam: level 0-1.1 s; dips right 1.1-1.9 (14deg), 2.45-3.05 (18.5deg), 3.55-4.05 (20deg); swings left 4.9-6.7 s to -5deg (hero) */
+/* beam: level 0-1.1 s; tips right 1.1-1.9 s (10deg) and stays; swings through level 4.9-6.7 s to -10deg (hero) */
 @keyframes energy-balance-beam{
   0%{transform:rotate(0deg)}
   11.828%{transform:rotate(0deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}   /* 1.1 s */
-  20.43%{transform:rotate(14deg)}                                                      /* 1.9 s */
-  26.344%{transform:rotate(14deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 2.45 s */
-  32.796%{transform:rotate(18.5deg)}                                                   /* 3.05 s */
-  38.172%{transform:rotate(18.5deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}/* 3.55 s */
-  43.548%{transform:rotate(20deg)}                                                     /* 4.05 s */
-  52.688%{transform:rotate(20deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}/* 4.9 s */
-  72.043%{transform:rotate(-5deg)}                                                     /* 6.7 s */
-  100%{transform:rotate(-5deg)}}
+  20.43%{transform:rotate(10deg)}                                                      /* 1.9 s */
+  52.688%{transform:rotate(10deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}/* 4.9 s */
+  72.043%{transform:rotate(-10deg)}                                                    /* 6.7 s */
+  100%{transform:rotate(-10deg)}}
 /* pans: the exact negative of the beam about their hang points, so they hang straight */
 @keyframes energy-balance-pan{
   0%{transform:rotate(0deg)}
   11.828%{transform:rotate(0deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}
-  20.43%{transform:rotate(-14deg)}
-  26.344%{transform:rotate(-14deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}
-  32.796%{transform:rotate(-18.5deg)}
-  38.172%{transform:rotate(-18.5deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}
-  43.548%{transform:rotate(-20deg)}
-  52.688%{transform:rotate(-20deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}
-  72.043%{transform:rotate(5deg)}
-  100%{transform:rotate(5deg)}}
+  20.43%{transform:rotate(-10deg)}
+  52.688%{transform:rotate(-10deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}
+  72.043%{transform:rotate(10deg)}
+  100%{transform:rotate(10deg)}}
 /* weights land (drop 28 px and fade in, enter curve) with their labels:
    resting 0.6-1.05 s, activity 2.0-2.4 s, digesting 3.1-3.5 s, intake 4.3-4.8 s */
 @keyframes energy-balance-w1{0%{opacity:0;transform:translateY(-28px)}6.452%{opacity:0;transform:translateY(-28px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.29%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
@@ -158,13 +150,13 @@
     <path class="energy-balance-beam-s" d="M560 110 L800 100 L1040 110 L800 120 Z"/>
     <!-- left pan: energy in -->
     <g class="energy-balance-pan-l">
-      <path class="energy-balance-string" d="M450 398 V140 L560 110 L670 140 V398"/>
-      <path class="energy-balance-tray" d="M446 398 H674 L652 410 H468 Z"/>
+      <path class="energy-balance-string" d="M560 110 V136 M455 136 H665 M455 136 V398 M665 136 V398"/>
+      <path class="energy-balance-tray" d="M440 398 H680 L658 410 H462 Z"/>
       <text class="energy-balance-t energy-balance-ttl" x="560" y="446" text-anchor="middle">energy in</text>
       <g class="energy-balance-win">
         <rect class="energy-balance-wt energy-balance-in-wt" x="475" y="148" width="170" height="250" rx="5"/>
-        <text class="energy-balance-t energy-balance-lbl" x="430" y="282" text-anchor="end">food and drink</text>
-        <text class="energy-balance-mono" x="430" y="308" text-anchor="end">2,500</text>
+        <text class="energy-balance-t energy-balance-lbl" x="430" y="336" text-anchor="end">food and drink</text>
+        <text class="energy-balance-mono" x="430" y="362" text-anchor="end">2,500</text>
       </g>
       <!-- answer: the part of intake above energy used (2,000 = 200 px) -->
       <g class="energy-balance-surplus">
@@ -180,8 +172,8 @@
     </g>
     <!-- right pan: energy used -->
     <g class="energy-balance-pan-r">
-      <path class="energy-balance-string" d="M930 398 V140 L1040 110 L1150 140 V398"/>
-      <path class="energy-balance-tray" d="M926 398 H1154 L1132 410 H948 Z"/>
+      <path class="energy-balance-string" d="M1040 110 V136 M935 136 H1145 M935 136 V398 M1145 136 V398"/>
+      <path class="energy-balance-tray" d="M920 398 H1160 L1138 410 H942 Z"/>
       <text class="energy-balance-t energy-balance-ttl" x="1040" y="446" text-anchor="middle">energy used</text>
       <g class="energy-balance-w1">
         <rect class="energy-balance-wt" x="955" y="258" width="170" height="140" rx="5"/>

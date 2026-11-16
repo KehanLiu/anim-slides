@@ -9,7 +9,7 @@ archetype: graph
 verb: nest
 size: [1680, 600]
 control: once
-cycle: 8.7
+cycle: 9.5
 nodes:
   - { id: web, label: Web app,          kind: process,  group: edge }
   - { id: gateway, label: API gateway, kind: process,  group: edge }
@@ -38,4 +38,4 @@ phases:
   - { t: 2.0,  label: external, show: [psp, queue] }
   - { t: 2.9,  label: blast,    active: [psp, payments],        note: "Payments calls an external provider" }
   - { t: 5.1,  label: contain,  active: [psp, payments],        note: "Provider down: only Payments degrades, orders keep flowing" }
-  - { t: 7.5,  label: hold }
+  - { t: 8.3,  label: hold }

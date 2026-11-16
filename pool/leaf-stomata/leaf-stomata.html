@@ -75,8 +75,8 @@
 .anim-leaf-stomata .leaf-stomata-n0,.anim-leaf-stomata .leaf-stomata-n1,.anim-leaf-stomata .leaf-stomata-n2{opacity:0}
 
 /* ---- motion (9.3 s once pass), only when the slide is visible. percent = s / 9.3 ---- */
-/* leaf enters 0-0.6 s; fades 2.15-2.8 s, gone before the strokes grow across the frame while the view moves in */
-@keyframes leaf-stomata-leaf{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.452%{opacity:1}23.118%{opacity:1;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}30.108%{opacity:0}100%{opacity:0}}
+/* leaf enters 0-0.6 s; fades 2.2-3.3 s while the view moves in, overlapping the detail fade-in (the band mask keeps it off the caption) while the view moves in */
+@keyframes leaf-stomata-leaf{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.452%{opacity:1}23.656%{opacity:1;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}35.484%{opacity:0}100%{opacity:0}}
 /* leaf labels 0.2-0.7 s, leave 1.6-1.85 s before the zoom */
 @keyframes leaf-stomata-leaflbl{0%{opacity:0}2.151%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.527%{opacity:1}17.204%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}19.892%{opacity:0}100%{opacity:0}}
 /* ring marks the spot: draw-on 0.9-1.5 s, solid (gap 0) from 1.55 s so it stays whole while it grows under non-scaling-stroke; turns from accent to muted 3.6-3.9 s once it frames the detail */
@@ -84,8 +84,8 @@
 /* THE ZOOM 1.9-3.6 s: one root group, translate + scale x8 about view-box 0 0, so the marked spot (1004,310) moves on a straight line to the centre (840,270) */
 /* keys every 0.17 s: scale = 8^ease(t) (equal zoom factor per step, eased in and out), translate = T*(scale-1)/7, i.e. a pure scaling about the fixed point -T/7; linear between keys */
 @keyframes leaf-stomata-zoom{0%{transform:translate(0px,0px) scale(1)}20.43%{transform:translate(0px,0px) scale(1)}22.258%{transform:translate(-53.64px,-16.48px) scale(1.0522)}24.086%{transform:translate(-225.68px,-69.35px) scale(1.2197)}25.914%{transform:translate(-549.77px,-168.94px) scale(1.5351)}27.742%{transform:translate(-1080.04px,-331.88px) scale(2.0512)}29.57%{transform:translate(-1878.58px,-577.26px) scale(2.8284)}31.398%{transform:translate(-2979.69px,-915.62px) scale(3.9001)}33.226%{transform:translate(-4326.94px,-1329.61px) scale(5.2114)}35.054%{transform:translate(-5711.71px,-1755.13px) scale(6.5592)}36.882%{transform:translate(-6784.2px,-2084.69px) scale(7.6031)}38.71%{transform:translate(-7192px,-2210px) scale(8)}100%{transform:translate(-7192px,-2210px) scale(8)}}
-/* detail (one stoma) fades in 2.45-3.4 s as the zoom lands */
-@keyframes leaf-stomata-detail{0%{opacity:0}26.344%{opacity:0;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}36.559%{opacity:1}100%{opacity:1}}
+/* detail (one stoma) fades in 2.3-3.4 s as the zoom lands */
+@keyframes leaf-stomata-detail{0%{opacity:0}24.731%{opacity:0;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}36.559%{opacity:1}100%{opacity:1}}
 /* labels of the detail and the corner context, staggered 3.7-4.2 s */
 @keyframes leaf-stomata-a1{0%{opacity:0}39.785%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.548%{opacity:1}100%{opacity:1}}
 @keyframes leaf-stomata-a2{0%{opacity:0}40.645%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.409%{opacity:1}100%{opacity:1}}
@@ -205,26 +205,26 @@
   </g>
   <!-- detail labels (arrive after the zoom has settled) -->
   <g class="leaf-stomata-a2">
-    <text class="leaf-stomata-t leaf-stomata-lbl" x="590" y="178" text-anchor="end">stoma</text>
+    <text class="leaf-stomata-t leaf-stomata-lbl" x="590" y="140" text-anchor="end">stoma</text>
   </g>
-  <text class="leaf-stomata-mono leaf-stomata-stt leaf-stomata-st0" x="590" y="208" text-anchor="end">pore closed</text>
-  <text class="leaf-stomata-mono leaf-stomata-stt leaf-stomata-acc leaf-stomata-st1" x="590" y="208" text-anchor="end">pore open</text>
+  <text class="leaf-stomata-mono leaf-stomata-stt leaf-stomata-st0" x="590" y="170" text-anchor="end">pore closed</text>
+  <text class="leaf-stomata-mono leaf-stomata-stt leaf-stomata-acc leaf-stomata-st1" x="590" y="170" text-anchor="end">pore open</text>
   <g class="leaf-stomata-a3">
     <path class="leaf-stomata-lead" d="M919.92 154.93 L973.07 79.96 H1013.07"/>
     <text class="leaf-stomata-t leaf-stomata-lbl2" x="1025.07" y="87.96">guard cell</text>
     <path class="leaf-stomata-lead" d="M919.92 385.07 L973.07 460.04 H1013.07"/>
     <text class="leaf-stomata-t leaf-stomata-lbl2" x="1025.07" y="468.04">guard cell</text>
   </g>
-  <!-- the exchange through the open pore: two separate straight lanes, in through the upper half, out through the lower half -->
-  <path class="leaf-stomata-arw-i leaf-stomata-in" pathLength="100" d="M500 256 H800"/>
+  <!-- the exchange through the open pore: two separate straight lanes angled apart: in from the upper left through the upper half, out through the lower half to the lower right -->
+  <path class="leaf-stomata-arw-i leaf-stomata-in" pathLength="100" d="M500 222 L801 252"/>
   <g class="leaf-stomata-inh">
-    <path class="leaf-stomata-arw-i" d="M787 246 L801 256 L787 266"/>
-    <text class="leaf-stomata-t leaf-stomata-lbl2 leaf-stomata-acc" x="484" y="264" text-anchor="end">CO₂ in</text>
+    <path class="leaf-stomata-arw-i" d="M786.3 260.6 L801 252 L788.3 240.7"/>
+    <text class="leaf-stomata-t leaf-stomata-lbl2 leaf-stomata-acc" x="484" y="228" text-anchor="end">CO₂ in</text>
   </g>
-  <path class="leaf-stomata-arw-o leaf-stomata-out" pathLength="100" d="M880 284 H1180"/>
+  <path class="leaf-stomata-arw-o leaf-stomata-out" pathLength="100" d="M879 290 L1180 320"/>
   <g class="leaf-stomata-outh">
-    <path class="leaf-stomata-arw-o" d="M1167 274 L1181 284 L1167 294"/>
-    <text class="leaf-stomata-t leaf-stomata-lbl2 leaf-stomata-acc2" x="1196" y="292">O₂ and water vapour out</text>
+    <path class="leaf-stomata-arw-o" d="M1165.3 328.6 L1180 320 L1167.3 308.7"/>
+    <text class="leaf-stomata-t leaf-stomata-lbl2 leaf-stomata-acc2" x="1196" y="330">O₂ and water vapour out</text>
   </g>
   <text class="leaf-stomata-mono leaf-stomata-small" x="40" y="526">not to scale</text>
   <!-- captions -->

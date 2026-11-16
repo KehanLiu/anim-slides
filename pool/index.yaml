@@ -28,8 +28,8 @@
   moves: [draw-on, nest-outline, state-switch]
   domain: software
   viewbox: [1680, 600]
-  cycle: 8.7
-  phases: [2.7, 3.7, 5, 6.9, 7.5]
+  cycle: 9.5
+  phases: [2.7, 3.7, 5, 6.9, 8.3]
   spec: true
   story: A service graph builds rank by rank, then a third-party outage spreads only to Payments and a boundary closes around the two: the blast radius.
   tags: [dependencies, microservices, blast-radius, outage, architecture]
@@ -70,7 +70,7 @@
   domain: software
   viewbox: [1200, 600]
   cycle: 9.8
-  phases: [0.5, 4, 5.7, 7.45, 9]
+  phases: [0.5, 3.8, 5.7, 7.45, 8.8]
   spec: true
   story: One job changes state in place, from queued to running to failed, waits out a 2 s backoff, and succeeds on the second attempt, while a small state map lights the current state and the event log fills in.
   tags: [lifecycle, retry, state-machine, jobs, error-handling]
@@ -302,7 +302,7 @@
   domain: chemistry
   viewbox: [1680, 600]
   cycle: 10
-  phases: [0.42, 2.41, 4.41, 6.41, 8.79]
+  phases: [0.42, 2.41, 4.41, 6.41, 9.06]
   spec: true
   story: One sealed container holds the same 18 particles; energy in loosens the solid lattice into a liquid (melting, 0 °C) and spreads it into a gas (vaporization, 100 °C at 1 atm), then energy out brings it back through condensation and freezing; sublimation and deposition are named with their absorb/release wording.
   tags: [chemistry, states-of-matter, phase-change, energy, particles, physics]
