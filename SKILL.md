@@ -200,6 +200,8 @@ cheap; write them all before building), then builds.
    screenshot from the running deck. `python3 <skill-dir>/scripts/check_page.py deck.html`
    (paired markers, gated fragments, print guard): check_page warns on the deck's web-font
    link and fails on any other external load.
+   `python3 <skill-dir>/scripts/check_verbs.py deck.html --triage anim/triage.md`: 0 FAIL (a
+   verb on every fragment, a reason on each repeat over a third, no marker outside `travel`).
    `python3 <skill-dir>/scripts/check_look.py --page deck.html --slide N` per animated slide
    measures the fragment on the slide's own ground and stage width; a contrast FAIL on a light
    ground means faded opacities or status colours must be raised (`references/style.md`,
@@ -308,6 +310,7 @@ cheap; write them all before building), then builds.
 - `scripts/measure_slot.py` — free box of a slide with viewBox and checker flags
 - `scripts/integrate_fragment.py` — idempotent inlining, gate rewrite, prefix safety net, `--control once|step`
 - `scripts/check_page.py` — page checks: external loads, markers, gating, print guard, step snippet
+- `scripts/check_verbs.py` — motion variety across the deck: a verb per fragment, repeats over a third need a reason in the triage, markers only under travel or cycle
 - `scripts/bundle_deck.py` — one self-contained file for hand-over (`--fetch` for remote assets)
 - `scripts/review_page.py` — before/after review page for delivery
 - `scripts/snippets/observer.html`, `scripts/snippets/step-host.html` — host helpers (scroll gate; step mode)

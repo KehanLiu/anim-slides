@@ -207,6 +207,10 @@ changed form, or the repeat kept with its reason ("slides 4, 9, 12: each source 
 only"). Then read down the Verb column: when one main verb covers more than a third of the
 deck's fragments (and at least three), each repeat needs a reason from the source in its row;
 re-read the `reveal` and `travel` repeats first ([motion-verbs.md](motion-verbs.md) section 7).
+Write the reason in the Verb cell after a colon ("reveal: the source states order only",
+"travel: the parcel, depot to doorstep"); `scripts/check_verbs.py DECK.html --triage
+anim/triage.md` reads it there and fails a repeated verb without one, a travelling marker
+under any verb but `travel` or `cycle`, and a fragment without `data-anim-verb`.
 A repeat is fine when the content truly has the same shape; this is not variety for its own sake.
 
 A **text** row needs a reason from the "keep as text" list above; a row without one is a
