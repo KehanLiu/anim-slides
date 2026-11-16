@@ -144,7 +144,9 @@ still, the PDF page and the last frame of the pass are one and the same picture.
   No `infinite`, no iteration count above 1, no marching dashes.
 - **Motion concurrency:** what counts is how many things move at the same instant, not how many
   tracks exist (one track per element is the normal shape). At most three at once; a staggered
-  reveal counts as one. The checker warns above 3 and fails above 6.
+  reveal counts as one, and so does a declared series of units (`data-anim-series="<id>"` on
+  the units or their parent `<g>`; rule in [motion-rules.md](motion-rules.md), Concurrency).
+  The checker warns above 3 and fails above 6.
 - **Glow concurrency:** at most one glow visible at a time (a `filter: blur()`/`drop-shadow()`
   copy or a `*glow*` class); arrows and lines never glow (warn at 2, fail above 2).
 - `loop` only: 8 to 15 s with setup, action, resolution and a hold of 1 to 2 s before it restarts.

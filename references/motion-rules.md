@@ -157,6 +157,17 @@ every 20 ms:
   or a second packet. Fix by staggering (60-120 ms), moving one of the
   changes 0.3-0.5 s later, or leaving secondary elements static (they are already right in the
   resting frame).
+  A series of units that move while visible (the `sort` and `accumulate` verbs) counts as
+  one move only when it is declared and really is one: put `data-anim-series="<id>"` on each
+  unit or on their parent `<g>`. The checker counts the members moving at one instant as one
+  move when the series has at most 100 animated members, every member animates the same set
+  of properties, consecutive start times are at most 120 ms apart, and each staged step
+  (members whose moves overlap) is over within 1.6 s. Otherwise it warns, names the series
+  and the rule broken, and counts the members separately.
+- **Variants:** rules inside `@supports (d: path("M0 0"))` are checked as their own variant
+  next to the base (messages carry the condition as a prefix): the morph counts in that
+  variant's concurrency, and a `d` track whose 100 % keyframe differs from the resting `d`
+  fails.
 - **Glow:** count the glow elements (blur/drop-shadow filter or a `glow` class) whose opacity,
   including their ancestors', is above 0 at the same instant. More than 1 warns, more than 2
   fails ("N glows visible at once at t=X s; one glowing element at most"). Keep the glow on the

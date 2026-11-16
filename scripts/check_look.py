@@ -12,6 +12,9 @@ view), freezes every animation with the Web Animations API at the resting frame 
 and at each data-anim-phases mark (plus the pass end), and reads boxes, colours and sizes back
 through --dump-dom. Checks (references/style.md principles and "Checklist before shipping"):
   clip      text or shape crossing the viewBox (or the --slot box)                 FAIL
+            (clip-path: url(#...) clips by its shapes' boxes; inset(), polygon() and the
+            other basic shapes by the browser's hit test of the element at that frame, so
+            a part clipped away there is not visible to clip, overlap and contrast)
   overlap   two visible labels overlapping > 2 px                                FAIL
             a label on a filled shape that is not a ground-coloured plate        WARN
   contrast  text vs ground (WCAG): labels < 3.0, text under 20 px (1920 stage) < 4.5,
@@ -48,7 +51,8 @@ var fcache={};function hasFont(f){if(f in fcache)return fcache[f];var ok=false;
  document.fonts.forEach(function(ff){if(ff.family.replace(/["']/g,'').toLowerCase()===f.toLowerCase())ok=true;});
  var s='mmmmmmmmmmlli1WQ@#';['monospace','serif','sans-serif'].forEach(function(b){if(ok)return;cx.font='72px '+b;var w0=cx.measureText(s).width;
   cx.font='72px "'+f+'",'+b;if(cx.measureText(s).width!==w0)ok=true;});return fcache[f]=ok;}
-try{var root,gate=CFG.gate;
+try{var root,gate=CFG.gate,pe=document.createElement('style');
+ pe.textContent='svg[data-look-pe],svg[data-look-pe] *{pointer-events:none!important}';document.head.appendChild(pe);
  if(CFG.page){var l=document.querySelectorAll('.slide');if(!l.length)l=document.querySelectorAll('section');root=l[CFG.page-1];
   if(!root)throw new Error('no slide '+CFG.page+' ('+l.length+' slides found)');
   Array.prototype.forEach.call(l,function(x){if(x!==root)x.style.setProperty('display','none','important');});
@@ -94,7 +98,20 @@ try{var root,gate=CFG.gate;
   return {name:w.getAttribute('data-anim'),vb:[vb.x,vb.y,vb.width,vb.height],view:[a[0],a[1],b[0]-a[0],b[1]-a[1]],scale:ss,
    control:w.getAttribute('data-anim-control')||'once',tok:tok,tokc:{bg:col(tok.bg),line:col(tok.line),fg:col(tok.fg),muted:col(tok.muted),panel:col(tok.panel)},
    els:els,inside:inside,boxlike:boxlike,missing:Object.keys(missing),boxesok:/anim-look:\s*boxes-ok/.test((w.parentNode||w).innerHTML)};}
- function clipr(el,r,svg){var L=r.left,T=r.top,R=r.right,B=r.bottom;for(var x=el;x&&x!==svg;x=x.parentNode){var cs=getComputedStyle(x);
+ function hitbox(el,L,T,R,B){var sv=el.ownerSVGElement;if(!sv)return null;sv.setAttribute('data-look-pe','');
+   var pv=el.style.getPropertyValue('pointer-events'),pp=el.style.getPropertyPriority('pointer-events');el.style.setProperty('pointer-events','all','important');
+   function on(x,y){if(x<0||y<0||x>=innerWidth||y>=innerHeight)return null;var t=document.elementFromPoint(x,y);return !!(t&&(t===el||el.contains(t)));}
+   function cut(miss,hit,fix,horiz){for(var k=0;k<7;k++){var m=(miss+hit)/2;if(horiz?on(m,fix):on(fix,m))hit=m;else miss=m;}return hit;}
+   var nx=Math.max(3,Math.min(24,Math.ceil((R-L)/6))),ny=Math.max(3,Math.min(10,Math.ceil((B-T)/5))),dx=(R-L)/nx,dy=(B-T)/ny,n=0,e=null;
+   for(var i=0;i<nx;i++)for(var j=0;j<ny;j++){var x=L+(i+.5)*dx,y=T+(j+.5)*dy,o=on(x,y);if(o===null)continue;n++;if(!o)continue;
+    if(!e)e={l:[i,x,y],r:[i,x,y],t:[j,x,y],b:[j,x,y]};
+    if(i<e.l[0])e.l=[i,x,y];if(i>e.r[0])e.r=[i,x,y];if(j<e.t[0])e.t=[j,x,y];if(j>e.b[0])e.b=[j,x,y];}
+   var h=null;if(e){h={L:e.l[0]?cut(e.l[1]-dx,e.l[1],e.l[2],true):L,R:e.r[0]<nx-1?cut(e.r[1]+dx,e.r[1],e.r[2],true):R,
+    T:e.t[0]?cut(e.t[2]-dy,e.t[2],e.t[1],false):T,B:e.b[0]<ny-1?cut(e.b[2]+dy,e.b[2],e.b[1],false):B};}
+   if(pv)el.style.setProperty('pointer-events',pv,pp);else el.style.removeProperty('pointer-events');sv.removeAttribute('data-look-pe');
+   return n?(h||{none:true}):null;}
+ function clipr(el,r,svg){var L=r.left,T=r.top,R=r.right,B=r.bottom,shp=false;for(var x=el;x&&x!==svg;x=x.parentNode){var cs=getComputedStyle(x);
+   if(cs.clipPath&&cs.clipPath!=='none'&&cs.clipPath.indexOf('url(')<0)shp=true;
    [cs.clipPath,cs.maskImage||cs.webkitMaskImage].forEach(function(v){var m=/url\(["']?#([^"')]+)/.exec(v||'');if(!m)return;var cp=document.getElementById(m[1]);
     if(!cp||!x.getScreenCTM)return;var M=x.getScreenCTM(),u=null;Array.prototype.forEach.call(cp.children,function(c){if(!c.getBBox)return;var b=c.getBBox();
      u=u?{x0:Math.min(u.x0,b.x),y0:Math.min(u.y0,b.y),x1:Math.max(u.x1,b.x+b.width),y1:Math.max(u.y1,b.y+b.height)}:{x0:b.x,y0:b.y,x1:b.x+b.width,y1:b.y+b.height};});
@@ -102,6 +119,9 @@ try{var root,gate=CFG.gate;
     var P=[[u.x0,u.y0],[u.x1,u.y0],[u.x0,u.y1],[u.x1,u.y1]].map(function(q){return new DOMPoint(q[0],q[1]).matrixTransform(M);});
     L=Math.max(L,Math.min.apply(0,P.map(function(q){return q.x;})));R=Math.min(R,Math.max.apply(0,P.map(function(q){return q.x;})));
     T=Math.max(T,Math.min.apply(0,P.map(function(q){return q.y;})));B=Math.min(B,Math.max.apply(0,P.map(function(q){return q.y;})));});}
+  if(shp&&R>L&&B>T){var hb=hitbox(el,L,T,R,B);   // inset()/polygon()/circle(): ask the browser's hit test
+   if(hb&&hb.none)return {left:L,top:T,right:L,bottom:T,out:true};
+   if(hb){L=Math.max(L,hb.L);T=Math.max(T,hb.T);R=Math.min(R,hb.R);B=Math.min(B,hb.B);}}
   return {left:L,top:T,right:Math.max(L,R),bottom:Math.max(T,B),out:R<L-0.5||B<T-0.5};}
  function ground(w){var cs=[];for(var x=w;x&&x.nodeType===1;x=x.parentNode)cs.push(col(getComputedStyle(x).backgroundColor));
   var g=[255,255,255];for(var i=cs.length-1;i>=0;i--){var c=cs[i];if(c&&c[3]>0)g=[0,1,2].map(function(k){return c[k]*c[3]+g[k]*(1-c[3]);});}return g;}

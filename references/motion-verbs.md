@@ -183,6 +183,10 @@ full-pass keyframe track that ends on its resting value (motion-rules.md, Techni
 - **Units** (`accumulate`, `sort`, `thin`): one element per unit, 20 to 100 units, one unit
   = a stated amount, written in a mono note ("1 dot = 100 voters"). Stagger by row or group
   so the series stays under about 1.2 s. A unit that moves keeps its identity to the end.
+  Declare the series with `data-anim-series="<id>"` on the units or their parent `<g>`:
+  the checker then counts it as one move (same properties on every member, starts at most
+  120 ms apart, each staged step over within 1.6 s, at most 100 members; motion-rules.md,
+  Concurrency).
 - **Digit strip** (`count`): a column of `<text>` values inside a `<clipPath>` window, moved
   with `translateY` in `steps()`; three to six values, the last the source's number. CSS
   counters do not render in SVG text.
