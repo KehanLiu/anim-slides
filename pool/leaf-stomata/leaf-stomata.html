@@ -1,0 +1,235 @@
+<!-- leaf-stomata (pool, verb zoom, archetype layers drawn as a scene, domain biology). Hand-built; lean style, references/style.md.
+  Story: a leaf exchanges gases through tiny pores on its surface. A whole leaf (outline, midrib, a few
+  veins), seen from its underside; a ring marks one spot; the view moves into that spot until it fills
+  the slot (the hero), the leaf fading as one stoma fades in: two bean-shaped guard cells with the pore
+  between them, a few neighbouring cells around, a small outline of the leaf kept in the corner. The
+  guard cells bow apart and the pore opens; then two arrows draw on through the pore: CO2 in, O2 and
+  water vapour out.
+  Verb: zoom (with the pore opening as the move inside the detail, motion-verbs.md section 3).
+  Technique: one root group <g class="leaf-stomata-zoom"> carries translate(-7192px,-2210px) scale(8) with
+  transform-box:view-box and transform-origin 0 0, interpolated from identity; both translate and scale
+  are linear in the eased progress, so the spot (1004,310) travels straight to the centre (840,270) while
+  the ring (r 26.25) grows into the 210 px lens. The detail is drawn in final coordinates inside a
+  group with the inverse static transform (scale(0.125) translate(7192 2210)), so it rides the same zoom exactly.
+  vector-effect:non-scaling-stroke keeps every stroke 2-2.5 px through the x8 move. No text is inside the
+  zoomed group: leaf labels leave before the move, detail labels arrive after it settles.
+  Pore: the closed and open outlines of each guard cell share their commands; base = cross-fade of stacked
+  copies, enhancement inside @supports (d: path()) animates d on one copy. Resting frame = open = 100 %.
+  Once pass 9.3 s: set 0-1.6 s (leaf, ring), zoom 1.9-3.6 s, labels 3.7-4.2 s, pore opens 4.6-6.0 s,
+  status 6.05-6.4 s, exchange arrows 6.75-8.05 s, hold 8.15-9.3 s. Phases 1.6, 4.3, 6.45, 8.15.
+  Facts (textbook plant biology, the brief's stated facts; no numbers are shown):
+  - stomata are pores, mostly on the underside of leaves: stated; drawn as a leaf seen from the "underside".
+  - each pore lies between two guard cells: stated; drawn as two bean-shaped cells around one pore.
+  - guard cells take up water and swell, the pore opens: stated; drawn as the cells bowing apart ("closed" -> "open").
+  - CO2 enters through the open pore; O2 and water vapour leave through it: stated; two arrows through the pore.
+  - neighbouring cells: stated in the brief as outlined cells around the stoma; their shapes are schematic.
+  - leaf shape, vein pattern, cell shapes, sizes and the x8 zoom factor: drawing choices, not data; the
+    figure carries the mono note "not to scale". No sizes, counts per area or magnification are stated. -->
+<style>
+.anim-leaf-stomata{
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-leaf-stomata svg{display:block;width:100%;height:100%;max-width:none}
+.anim-leaf-stomata .leaf-stomata-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-leaf-stomata .leaf-stomata-lbl{font-size:26px;font-weight:600}
+.anim-leaf-stomata .leaf-stomata-lbl2{font-size:24px;font-weight:600}
+.anim-leaf-stomata .leaf-stomata-note{font-size:26px;font-weight:400}
+.anim-leaf-stomata .leaf-stomata-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
+.anim-leaf-stomata .leaf-stomata-small{font-size:18px}
+.anim-leaf-stomata .leaf-stomata-acc{fill:var(--anim-accent)}
+.anim-leaf-stomata .leaf-stomata-acc2{fill:var(--anim-accent-2)}
+/* the leaf and the detail: thin strokes that stay thin through the zoom */
+.anim-leaf-stomata .leaf-stomata-zoom path,.anim-leaf-stomata .leaf-stomata-zoom circle{vector-effect:non-scaling-stroke}
+.anim-leaf-stomata .leaf-stomata-blade{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round}
+.anim-leaf-stomata .leaf-stomata-rib{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linecap:round;opacity:.8}
+.anim-leaf-stomata .leaf-stomata-vein{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;opacity:.75}
+.anim-leaf-stomata .leaf-stomata-ring{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-dasharray:100 0;stroke-dashoffset:0}
+.anim-leaf-stomata .leaf-stomata-cell{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;opacity:.8}
+.anim-leaf-stomata .leaf-stomata-gc{fill:color-mix(in srgb,var(--anim-accent) 16%,var(--anim-bg));stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round}
+.anim-leaf-stomata .leaf-stomata-lead{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
+.anim-leaf-stomata .leaf-stomata-mleaf{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.anim-leaf-stomata .leaf-stomata-mring{fill:none;stroke:var(--anim-accent);stroke-width:2}
+.anim-leaf-stomata .leaf-stomata-arw-i{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-leaf-stomata .leaf-stomata-arw-o{fill:none;stroke:var(--anim-accent-2);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-leaf-stomata .leaf-stomata-in,.anim-leaf-stomata .leaf-stomata-out{stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-leaf-stomata .leaf-stomata-s1{stop-color:var(--anim-fg);stop-opacity:1}
+.anim-leaf-stomata .leaf-stomata-s0{stop-color:var(--anim-fg);stop-opacity:0}
+.anim-leaf-stomata mask{mask-type:alpha}
+/* zoom root: view-box reference, origin 0 0 (lessons.md) */
+.anim-leaf-stomata .leaf-stomata-zoom{transform-box:view-box;transform-origin:0px 0px;transform:translate(-7192px,-2210px) scale(8)}
+/* resting frame = the end: zoomed in, leaf gone, pore open, both arrows drawn */
+.anim-leaf-stomata .leaf-stomata-leaf,.anim-leaf-stomata .leaf-stomata-leaflbl,.anim-leaf-stomata .leaf-stomata-st0,.anim-leaf-stomata .leaf-stomata-gc-x,
+.anim-leaf-stomata .leaf-stomata-n0,.anim-leaf-stomata .leaf-stomata-n1,.anim-leaf-stomata .leaf-stomata-n2{opacity:0}
+
+/* ---- motion (9.3 s once pass), only when the slide is visible. percent = s / 9.3 ---- */
+/* leaf enters 0-0.6 s; fades 2.4-3.15 s while the view moves in */
+@keyframes leaf-stomata-leaf{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.452%{opacity:1}25.806%{opacity:1;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}33.871%{opacity:0}100%{opacity:0}}
+/* leaf labels 0.2-0.7 s, leave 1.6-1.85 s before the zoom */
+@keyframes leaf-stomata-leaflbl{0%{opacity:0}2.151%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.527%{opacity:1}17.204%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}19.892%{opacity:0}100%{opacity:0}}
+/* ring marks the spot: draw-on 0.9-1.5 s, solid (gap 0) from 1.55 s so it stays whole while it grows under non-scaling-stroke; turns from accent to muted 3.6-3.9 s once it frames the detail */
+@keyframes leaf-stomata-ring{0%{stroke-dashoffset:101;stroke-dasharray:100 120;stroke:var(--anim-accent)}9.677%{stroke-dashoffset:101;stroke-dasharray:100 120;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.129%{stroke-dashoffset:0;stroke-dasharray:100 120;stroke:var(--anim-accent)}16.667%{stroke-dashoffset:0;stroke-dasharray:100 0;stroke:var(--anim-accent)}38.71%{stroke-dashoffset:0;stroke-dasharray:100 0;stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.65,0,0.35,1)}41.935%{stroke-dashoffset:0;stroke-dasharray:100 0;stroke:var(--anim-muted)}100%{stroke-dashoffset:0;stroke-dasharray:100 0;stroke:var(--anim-muted)}}
+/* THE ZOOM 1.9-3.6 s: one root group, translate + scale x8 about view-box 0 0, so the marked spot (1004,310) moves on a straight line to the centre (840,270) */
+/* keys every 0.17 s: scale = 8^ease(t) (equal zoom factor per step, eased in and out), translate = T*(scale-1)/7, i.e. a pure scaling about the fixed point -T/7; linear between keys */
+@keyframes leaf-stomata-zoom{0%{transform:translate(0px,0px) scale(1)}20.43%{transform:translate(0px,0px) scale(1)}22.258%{transform:translate(-53.64px,-16.48px) scale(1.0522)}24.086%{transform:translate(-225.68px,-69.35px) scale(1.2197)}25.914%{transform:translate(-549.77px,-168.94px) scale(1.5351)}27.742%{transform:translate(-1080.04px,-331.88px) scale(2.0512)}29.57%{transform:translate(-1878.58px,-577.26px) scale(2.8284)}31.398%{transform:translate(-2979.69px,-915.62px) scale(3.9001)}33.226%{transform:translate(-4326.94px,-1329.61px) scale(5.2114)}35.054%{transform:translate(-5711.71px,-1755.13px) scale(6.5592)}36.882%{transform:translate(-6784.2px,-2084.69px) scale(7.6031)}38.71%{transform:translate(-7192px,-2210px) scale(8)}100%{transform:translate(-7192px,-2210px) scale(8)}}
+/* detail (one stoma) fades in 2.6-3.5 s as the zoom lands */
+@keyframes leaf-stomata-detail{0%{opacity:0}27.957%{opacity:0;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}37.634%{opacity:1}100%{opacity:1}}
+/* labels of the detail and the corner context, staggered 3.7-4.2 s */
+@keyframes leaf-stomata-a1{0%{opacity:0}39.785%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.548%{opacity:1}100%{opacity:1}}
+@keyframes leaf-stomata-a2{0%{opacity:0}40.645%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.409%{opacity:1}100%{opacity:1}}
+@keyframes leaf-stomata-a3{0%{opacity:0}41.505%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}45.269%{opacity:1}100%{opacity:1}}
+/* pore status: closed from 3.7 s, cross-faded to open 6.05-6.35 s (after the cells have bowed) */
+@keyframes leaf-stomata-st0{0%{opacity:0}39.785%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.548%{opacity:1}65.054%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}67.204%{opacity:0}100%{opacity:0}}
+@keyframes leaf-stomata-st1{0%{opacity:0}65.591%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.817%{opacity:1}100%{opacity:1}}
+/* THE PORE OPENS 4.6-6.0 s. Base: closed and open outlines stacked and cross-faded */
+@keyframes leaf-stomata-xo{0%{opacity:1}49.462%{opacity:1;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}64.516%{opacity:0}100%{opacity:0}}
+@keyframes leaf-stomata-xi{0%{opacity:0}49.462%{opacity:0;animation-timing-function:cubic-bezier(0.65,0,0.35,1)}64.516%{opacity:1}100%{opacity:1}}
+/* answer: CO2 in draws on 6.75-7.35 s, its head and label 7.25-7.6 s; out draws 7.2-7.8 s, head and label 7.7-8.05 s */
+@keyframes leaf-stomata-in{0%{stroke-dashoffset:101}72.581%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.032%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes leaf-stomata-inh{0%{opacity:0}77.957%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.72%{opacity:1}100%{opacity:1}}
+@keyframes leaf-stomata-out{0%{stroke-dashoffset:101}77.419%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.871%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes leaf-stomata-outh{0%{opacity:0}82.796%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.559%{opacity:1}100%{opacity:1}}
+/* captions cross-fade before each step starts */
+@keyframes leaf-stomata-n0{0%{opacity:0}1.075%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.376%{opacity:1}17.204%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}19.892%{opacity:0}100%{opacity:0}}
+@keyframes leaf-stomata-n1{0%{opacity:0}17.204%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.43%{opacity:1}46.237%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}48.925%{opacity:0}100%{opacity:0}}
+@keyframes leaf-stomata-n2{0%{opacity:0}46.237%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}49.462%{opacity:1}69.355%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}72.043%{opacity:0}100%{opacity:0}}
+@keyframes leaf-stomata-n3{0%{opacity:0}69.355%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.581%{opacity:1}100%{opacity:1}}
+
+.visible .anim-leaf-stomata .leaf-stomata-leaf{animation:leaf-stomata-leaf 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-leaflbl{animation:leaf-stomata-leaflbl 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-ring{animation:leaf-stomata-ring 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-zoom{animation:leaf-stomata-zoom 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-detail{animation:leaf-stomata-detail 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-a1{animation:leaf-stomata-a1 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-a2{animation:leaf-stomata-a2 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-a3{animation:leaf-stomata-a3 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-st0{animation:leaf-stomata-st0 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-st1{animation:leaf-stomata-st1 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-gc-x{animation:leaf-stomata-xo 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-gc-i{animation:leaf-stomata-xi 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-in{animation:leaf-stomata-in 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-inh{animation:leaf-stomata-inh 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-out{animation:leaf-stomata-out 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-outh{animation:leaf-stomata-outh 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-n0{animation:leaf-stomata-n0 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-n1{animation:leaf-stomata-n1 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-n2{animation:leaf-stomata-n2 9.3s linear 1 both}
+.visible .anim-leaf-stomata .leaf-stomata-n3{animation:leaf-stomata-n3 9.3s linear 1 both}
+
+@supports (d: path("M0 0")) {
+  /* enhancement: animate d on one outline per cell (same commands in the same order); the closed copies stay hidden. Safari keeps the cross-fade. */
+  .anim-leaf-stomata .leaf-stomata-gc-t{d:path("M680 270 C700 194 780 170 840 170 C900 170 980 194 1000 270 C960 250 900 232 840 232 C780 232 720 250 680 270 Z")}
+  .anim-leaf-stomata .leaf-stomata-gc-b{d:path("M680 270 C700 346 780 370 840 370 C900 370 980 346 1000 270 C960 290 900 308 840 308 C780 308 720 290 680 270 Z")}
+  .anim-leaf-stomata .leaf-stomata-gc-x,.visible .anim-leaf-stomata .leaf-stomata-gc-x{opacity:0;animation:none}
+  .visible .anim-leaf-stomata .leaf-stomata-gc-i{animation:none}
+  @keyframes leaf-stomata-mt{0%{d:path("M680 270 C700 204 780 182 840 182 C900 182 980 204 1000 270 C960 268 900 264 840 264 C780 264 720 268 680 270 Z")}49.462%{d:path("M680 270 C700 204 780 182 840 182 C900 182 980 204 1000 270 C960 268 900 264 840 264 C780 264 720 268 680 270 Z");animation-timing-function:cubic-bezier(0.65,0,0.35,1)}64.516%{d:path("M680 270 C700 194 780 170 840 170 C900 170 980 194 1000 270 C960 250 900 232 840 232 C780 232 720 250 680 270 Z")}100%{d:path("M680 270 C700 194 780 170 840 170 C900 170 980 194 1000 270 C960 250 900 232 840 232 C780 232 720 250 680 270 Z")}}
+  @keyframes leaf-stomata-mb{0%{d:path("M680 270 C700 336 780 358 840 358 C900 358 980 336 1000 270 C960 272 900 276 840 276 C780 276 720 272 680 270 Z")}49.462%{d:path("M680 270 C700 336 780 358 840 358 C900 358 980 336 1000 270 C960 272 900 276 840 276 C780 276 720 272 680 270 Z");animation-timing-function:cubic-bezier(0.65,0,0.35,1)}64.516%{d:path("M680 270 C700 346 780 370 840 370 C900 370 980 346 1000 270 C960 290 900 308 840 308 C780 308 720 290 680 270 Z")}100%{d:path("M680 270 C700 346 780 370 840 370 C900 370 980 346 1000 270 C960 290 900 308 840 308 C780 308 720 290 680 270 Z")}}
+  .visible .anim-leaf-stomata .leaf-stomata-gc-t{animation:leaf-stomata-mt 9.3s linear 1 both}
+  .visible .anim-leaf-stomata .leaf-stomata-gc-b{animation:leaf-stomata-mb 9.3s linear 1 both}
+}
+
+@media (prefers-reduced-motion: reduce) { .anim-leaf-stomata * { animation: none !important; } }
+</style>
+<div class="anim anim-leaf-stomata" data-anim="leaf-stomata" data-anim-cycle="9.3" data-anim-control="once" data-anim-phases="1.6,4.3,6.45,8.15" data-anim-verb="zoom">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A leaf seen from its underside; the view zooms into one marked spot until a single stoma fills the frame: a pore between two guard cells, with neighbouring cells around it. The guard cells swell and bow apart, the pore opens, and carbon dioxide goes in while oxygen and water vapour come out through it. Not to scale.">
+<defs>
+  <!-- alpha mask (untransformed): the zooming leaf fades out above the note and caption band, y 488-508; the lens (bottom 481) is untouched -->
+  <linearGradient id="leaf-stomata-fadeg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="600"><stop class="leaf-stomata-s1" offset="0.813"/><stop class="leaf-stomata-s0" offset="0.847"/></linearGradient>
+  <mask id="leaf-stomata-band" maskUnits="userSpaceOnUse" x="0" y="0" width="1680" height="600"><rect x="0" y="0" width="1680" height="600" fill="url(#leaf-stomata-fadeg)"/></mask>
+  <clipPath id="leaf-stomata-lens"><circle cx="840" cy="270" r="208"/></clipPath></defs>
+  <!-- ZOOM ROOT: everything that zooms, no text inside -->
+  <g mask="url(#leaf-stomata-band)">
+  <g class="leaf-stomata-zoom">
+    <g class="leaf-stomata-leaf">
+      <path class="leaf-stomata-blade" d="M470 292 C560 120 930 66 1262 236 C990 438 620 456 470 292 Z"/>
+      <path class="leaf-stomata-rib" d="M470 292 L392 322"/>
+      <path class="leaf-stomata-rib" d="M470 292 C700 276 1000 256 1262 236"/>
+      <path class="leaf-stomata-vein" d="M600.37 282.99 Q627.74 240.67 695.1 162.07"/>
+      <path class="leaf-stomata-vein" d="M600.37 282.99 Q628.94 318.78 697.5 385.25"/>
+      <path class="leaf-stomata-vein" d="M740.58 273.35 Q769.5 229.97 838.41 149.41"/>
+      <path class="leaf-stomata-vein" d="M740.58 273.35 Q769.15 311.94 837.72 383.6"/>
+      <path class="leaf-stomata-vein" d="M878.61 263.78 Q908.07 227.26 977.54 159.43"/>
+      <path class="leaf-stomata-vein" d="M878.61 263.78 Q907.74 296.77 976.86 358.02"/>
+      <path class="leaf-stomata-vein" d="M1018.86 253.89 Q1048.33 231.39 1117.8 189.59"/>
+      <path class="leaf-stomata-vein" d="M1018.86 253.89 Q1047.6 273.23 1116.35 309.14"/>
+      <path class="leaf-stomata-vein" d="M1141.9 244.99 Q1170.36 240.67 1238.81 232.65"/>
+      <path class="leaf-stomata-vein" d="M1141.9 244.99 Q1169.33 244.98 1236.76 244.97"/>
+    </g>
+    <circle class="leaf-stomata-ring" pathLength="100" cx="1004" cy="310" r="26.25"/>
+    <!-- one stoma, drawn in final coordinates; this static transform is the inverse of the zoom's end -->
+    <g transform="scale(0.125) translate(7192 2210)">
+      <g class="leaf-stomata-detail">
+        <g clip-path="url(#leaf-stomata-lens)">
+        <path class="leaf-stomata-cell" d="M964.82 320.43 L1051.91 382.67"/>
+        <path class="leaf-stomata-cell" d="M863.16 362.9 L918.14 496.92"/>
+        <path class="leaf-stomata-cell" d="M779.74 356.05 L688.96 456.52"/>
+        <path class="leaf-stomata-cell" d="M697.13 297.77 L607.13 328.06"/>
+        <path class="leaf-stomata-cell" d="M730.3 206.67 L643.4 132.34"/>
+        <path class="leaf-stomata-cell" d="M825.19 176.5 L777.88 38.18"/>
+        <path class="leaf-stomata-cell" d="M931.11 196.22 L1034.16 128.93"/>
+        <path class="leaf-stomata-cell" d="M676.42 160.58 L792.08 79.67"/>
+        <path class="leaf-stomata-cell" d="M716.2 426.38 L643.13 315.95"/>
+        </g>
+        <path class="leaf-stomata-gc leaf-stomata-gc-x" d="M680 270 C700 204 780 182 840 182 C900 182 980 204 1000 270 C960 268 900 264 840 264 C780 264 720 268 680 270 Z"/>
+        <path class="leaf-stomata-gc leaf-stomata-gc-x" d="M680 270 C700 336 780 358 840 358 C900 358 980 336 1000 270 C960 272 900 276 840 276 C780 276 720 272 680 270 Z"/>
+        <g class="leaf-stomata-gc-i">
+          <path class="leaf-stomata-gc leaf-stomata-gc-t" d="M680 270 C700 194 780 170 840 170 C900 170 980 194 1000 270 C960 250 900 232 840 232 C780 232 720 250 680 270 Z"/>
+          <path class="leaf-stomata-gc leaf-stomata-gc-b" d="M680 270 C700 346 780 370 840 370 C900 370 980 346 1000 270 C960 290 900 308 840 308 C780 308 720 290 680 270 Z"/>
+        </g>
+      </g>
+    </g>
+  </g>
+  </g>
+  <!-- leaf-level labels (leave before the zoom) -->
+  <g class="leaf-stomata-leaflbl">
+    <text class="leaf-stomata-t leaf-stomata-lbl" x="372" y="320" text-anchor="end">leaf</text>
+    <text class="leaf-stomata-mono" x="372" y="348" text-anchor="end">underside</text>
+  </g>
+  <!-- corner context: the whole leaf, small, with the spot -->
+  <g class="leaf-stomata-a1">
+    <path class="leaf-stomata-mleaf" transform="translate(-46.24 25.48) scale(0.22)" d="M470 292 C560 120 930 66 1262 236 C990 438 620 456 470 292 Z M470 292 L392 322 M470 292 C700 276 1000 256 1262 236"/>
+    <circle class="leaf-stomata-mring" cx="174.64" cy="93.68" r="8"/>
+    <text class="leaf-stomata-mono leaf-stomata-small" x="40" y="148">leaf · underside</text>
+  </g>
+  <!-- detail labels (arrive after the zoom has settled) -->
+  <g class="leaf-stomata-a2">
+    <text class="leaf-stomata-t leaf-stomata-lbl" x="590" y="178" text-anchor="end">stoma</text>
+  </g>
+  <text class="leaf-stomata-mono leaf-stomata-st0" x="590" y="206" text-anchor="end">pore closed</text>
+  <text class="leaf-stomata-mono leaf-stomata-acc leaf-stomata-st1" x="590" y="206" text-anchor="end">pore open</text>
+  <g class="leaf-stomata-a3">
+    <path class="leaf-stomata-lead" d="M907.15 174.12 L973.07 79.96 H1013.07"/>
+    <text class="leaf-stomata-t leaf-stomata-lbl2" x="1025.07" y="87.96">guard cell</text>
+    <path class="leaf-stomata-lead" d="M907.15 365.88 L973.07 460.04 H1013.07"/>
+    <text class="leaf-stomata-t leaf-stomata-lbl2" x="1025.07" y="468.04">guard cell</text>
+  </g>
+  <!-- the exchange through the open pore -->
+  <path class="leaf-stomata-arw-i leaf-stomata-in" pathLength="100" d="M500 270 H806"/>
+  <g class="leaf-stomata-inh">
+    <path class="leaf-stomata-arw-i" d="M792 259 L807 270 L792 281"/>
+    <text class="leaf-stomata-t leaf-stomata-lbl2 leaf-stomata-acc" x="484" y="279" text-anchor="end">CO₂ in</text>
+  </g>
+  <path class="leaf-stomata-arw-o leaf-stomata-out" pathLength="100" d="M874 270 H1180"/>
+  <g class="leaf-stomata-outh">
+    <path class="leaf-stomata-arw-o" d="M1166 259 L1181 270 L1166 281"/>
+    <text class="leaf-stomata-t leaf-stomata-lbl2 leaf-stomata-acc2" x="1196" y="279">O₂ and water vapour out</text>
+  </g>
+  <text class="leaf-stomata-mono leaf-stomata-small" x="40" y="526">not to scale</text>
+  <!-- captions -->
+  <text class="leaf-stomata-t leaf-stomata-note leaf-stomata-n0" x="840" y="572" text-anchor="middle">A leaf, seen from its underside</text>
+  <text class="leaf-stomata-t leaf-stomata-note leaf-stomata-n1" x="840" y="572" text-anchor="middle">Zoom into one spot: a stoma, a pore between two guard cells</text>
+  <text class="leaf-stomata-t leaf-stomata-note leaf-stomata-n2" x="840" y="572" text-anchor="middle">The guard cells take up water and swell: the pore opens</text>
+  <text class="leaf-stomata-t leaf-stomata-note leaf-stomata-n3" x="840" y="572" text-anchor="middle">Through the open pore CO₂ enters, O₂ and water vapour leave</text>
+</svg>
+</div>

@@ -11,6 +11,7 @@
 - name: deploy-pipeline
   archetype: pipeline
   form: row
+  verb: travel
   moves: [packet-hop, split-merge, draw-on]
   domain: software
   viewbox: [1680, 440]
@@ -35,6 +36,7 @@
 - name: db-failover
   archetype: graph
   form: graph
+  verb: travel
   moves: [packet-hop, cross-fade-shape]
   domain: software
   viewbox: [1000, 560]
@@ -48,6 +50,7 @@
 - name: roadmap
   archetype: timeline
   form: axis
+  verb: reveal
   moves: [draw-on]
   domain: product
   viewbox: [1680, 440]
@@ -72,18 +75,20 @@
 - name: cache-compare
   archetype: compare
   form: columns
-  moves: [level, packet-hop]
+  verb: race
+  moves: [race-bars, level, ghost-before-after, draw-on]
   domain: software
   viewbox: [1680, 600]
   cycle: 10
-  phases: [0.7, 4.15, 6.2, 8.33, 9]
+  phases: [2.7, 4.55, 6.15, 7.75, 8.9]
   spec: true
-  story: The same four reads without and with a cache; repeated 180 ms database reads become 8 ms hits and database load drops.
+  story: The same four reads raced on one clock without and with a cache; 180 ms database reads keep growing while 8 ms hits stop almost at once, and database load climbs to 96 % on one side but stays at 24 % on the other.
   tags: [caching, latency, database, before-after, performance]
 
 - name: rag-stack
   archetype: layers
   form: bands
+  verb: travel
   moves: [packet-hop, token-changes-type]
   domain: ai
   viewbox: [1200, 640]
@@ -96,6 +101,7 @@
 - name: cloud-spend
   archetype: chart
   form: line-chart
+  verb: trace
   moves: [trajectory, clip-reveal]
   domain: finance
   viewbox: [1680, 600]
@@ -108,6 +114,7 @@
 - name: latency-trace
   archetype: chart
   form: strip-chart
+  verb: trace
   moves: [trajectory, clip-reveal]
   domain: software
   viewbox: [800, 500]
@@ -121,6 +128,7 @@
 - name: er-patient-flow
   archetype: pipeline
   form: snake
+  verb: travel
   moves: [packet-hop, draw-on]
   domain: health
   viewbox: [1680, 560]
@@ -134,6 +142,7 @@
 - name: parcel-route
   archetype: pipeline
   form: row
+  verb: travel
   moves: [packet-hop, draw-on]
   domain: logistics
   viewbox: [1600, 520]
@@ -146,6 +155,7 @@
 - name: water-cycle
   archetype: pipeline
   form: scene
+  verb: cycle
   moves: [token-changes-type, trajectory]
   domain: earth-science
   viewbox: [1680, 600]
@@ -159,6 +169,7 @@
 - name: loan-decision
   archetype: graph
   form: flowchart
+  verb: travel
   moves: [split-merge, packet-hop, draw-on]
   domain: finance
   viewbox: [1680, 600]
@@ -171,6 +182,7 @@
 - name: hiring-lanes
   archetype: graph
   form: lanes
+  verb: travel
   moves: [packet-hop]
   domain: hr
   viewbox: [1680, 600]
@@ -184,6 +196,7 @@
 - name: court-case
   archetype: timeline
   form: axis
+  verb: reveal
   moves: [draw-on]
   domain: law
   viewbox: [1680, 600]
@@ -197,6 +210,7 @@
 - name: photosynth-respiration
   archetype: compare
   form: table
+  verb: switch
   moves: [rotate]
   domain: biology
   viewbox: [1680, 600]
@@ -210,6 +224,7 @@
 - name: funding-options
   archetype: compare
   form: matrix
+  verb: reveal
   moves: [clip-reveal]
   domain: business
   viewbox: [1680, 600]
@@ -223,6 +238,7 @@
 - name: canal-lock
   archetype: states
   form: scene
+  verb: grow
   moves: [level, ghost-before-after]
   domain: engineering
   viewbox: [1680, 600]
@@ -236,6 +252,7 @@
 - name: sales-funnel
   archetype: pipeline
   form: funnel
+  verb: thin
   moves: [dots-at-scale, thinning]
   domain: marketing
   viewbox: [1680, 600]
@@ -249,6 +266,7 @@
 - name: comms-timeline
   archetype: timeline
   form: axis
+  verb: reveal
   moves: [draw-on]
   domain: history
   viewbox: [1680, 520]
@@ -261,15 +279,16 @@
 - name: bloom-taxonomy
   archetype: layers
   form: pyramid
-  moves: [stacking, packet-hop]
+  verb: stack
+  moves: [stacking]
   domain: education
   viewbox: [1200, 640]
   cycle: 10
-  phases: [1, 1.9, 3.2, 4.4, 5.6, 6.9, 8.5, 9]
+  phases: [1, 3.05, 5.1, 7.2, 8.6]
   spec: false
-  story: The six levels of the revised Bloom's taxonomy build bottom-up, then one topic (fractions) climbs from Remember to Create with an example task per level.
+  story: The six levels of the revised Bloom's taxonomy are set on top of one another bottom-up, each resting on the one below, and one topic (fractions) gets an example task at every level.
   tags: [education, bloom, learning-objectives, pyramid, hierarchy, cognition]
-  technique: six stacked trapezoid layers with a climbing token and a task card per layer
+  technique: six touching trapezoid tiers, each faded in and lowered onto the one below; an accent outline copy per tier cross-faded up the stack; a side bracket draws on at the end
 
 - name: phase-changes
   archetype: states
@@ -282,3 +301,213 @@
   spec: true
   story: Solid, liquid and gas with their particles; a token runs all six phase changes, each labelled with whether it absorbs or releases energy, water's 0 °C and 100 °C at 1 atm noted.
   tags: [chemistry, states-of-matter, phase-change, energy, particles, physics]
+
+- name: energy-balance
+  archetype: compare
+  form: scene
+  verb: balance
+  moves: [rotate, ghost-before-after, draw-on]
+  domain: health
+  viewbox: [1680, 600]
+  cycle: 9.6
+  phases: [1, 4.6, 7.2, 8.6]
+  spec: false
+  story: A beam balance starts level and empty; resting metabolism, activity and digesting food land on the energy-used pan and the beam dips right with each, then food and drink lands on the energy-in pan and the beam swings past level to the intake side, marking a 500 kcal a day surplus as stored (illustrative numbers).
+  tags: [nutrition, metabolism, energy-balance, physiology, scale, trade-off]
+  technique: the beam group rotates about the pivot and each pan group is counter-rotated about its hang point so the pans hang straight; tilt is 1 degree per 200 kcal of imbalance
+
+- name: petition-threshold
+  archetype: chart
+  form: column
+  verb: accumulate
+  moves: [accumulate, count, level]
+  domain: civics
+  viewbox: [1680, 600]
+  cycle: 9
+  phases: [2.8, 4.8, 6.9, 7.9]
+  spec: false
+  story: A European Citizens' Initiative fills a column with signature marks (1 mark = 20,000) in three waves until it reaches the 1,000,000 line; then seven member-state markers tick on next to a 12-month bracket.
+  tags: [eu, petition, threshold, signatures, units, counter]
+  technique: one translateY+opacity track per slip (each wave one staggered series), scaleY level about the floor, digit strip under a clipPath, stacked accent copy for the threshold
+
+- name: compound-interest
+  archetype: chart
+  form: columns
+  verb: grow
+  moves: [level, count, ghost-before-after, draw-on]
+  domain: finance
+  viewbox: [1680, 600]
+  cycle: 9.6
+  phases: [0.7, 2.4, 4.1, 6.05, 8.5]
+  spec: false
+  story: Left alone at an example rate of 5 % a year, 1,000 grows to 1,629, 2,653 and 4,322 at years 10, 20 and 30, and each decade adds more than the one before (+629, +1,024, +1,669).
+  tags: [compound-interest, savings, growth, columns, true-proportion, illustrative]
+  technique: the interest part of each column scales up from the 1,000 ghost line (scaleY), value as a digit strip, draw-on brackets mark the gains, the last in the accent
+
+- name: breathing
+  archetype: states
+  form: scene
+  verb: drive
+  moves: [drive-chain, morph, ghost-before-after, draw-on]
+  domain: health
+  viewbox: [1680, 600]
+  cycle: 8.6
+  phases: [1.2, 4.1, 5.8, 7.4]
+  spec: false
+  story: A front cross-section of the chest; the domed diaphragm contracts and flattens, the lungs follow it down, then volume up, pressure down and air flows in down the windpipe, resting on the inhaled state with the resting dome kept as a dashed ghost.
+  tags: [breathing, diaphragm, lungs, physiology, cause-effect, cross-section]
+  technique: diaphragm scaleY about its base with a non-scaling stroke; both lungs one path, d morph inside @supports with a cross-fade base; arrow drawn on
+
+- name: number-sets
+  archetype: layers
+  form: nested
+  verb: nest
+  moves: [nest-outline, draw-on]
+  domain: education
+  viewbox: [1680, 600]
+  cycle: 9.9
+  phases: [2.3, 4.35, 6.4, 9.1]
+  spec: false
+  story: The natural numbers 1, 2, 3 get an outline, then 0 and -3, 1/2 and -0.75, and the square root of 2 and pi arrive just outside, and each time a larger outline draws around everything so far, giving N in Z in Q in R.
+  tags: [sets, subsets, containment, number-systems, mathematics]
+  technique: four offset rounded outlines sharing the lower-left region, each one path with pathLength 100 drawn on from a gap in its top edge where the label sits
+
+- name: forgetting-curve
+  archetype: chart
+  form: line-chart
+  verb: trace
+  moves: [draw-on, ghost-before-after, trajectory, mark]
+  domain: education
+  viewbox: [1680, 600]
+  cycle: 10
+  phases: [3.0, 5.33, 6.86, 9.15]
+  spec: false
+  story: Without review, what you learned fades fast and levels off as a dashed ghost; the review line traces on, jumps back to the top at three reviews and falls less steeply each time, and a bracket marks what is kept with review (schematic).
+  tags: [forgetting-curve, spacing-effect, memory, learning, schematic, line-chart]
+  technique: one continuous pathLength=100 path drawn by stroke-dashoffset at even speed with keyframe holds after each tooth; no head dot
+
+- name: contract-formation
+  archetype: states
+  form: scene
+  verb: switch
+  moves: [state-switch, ghost-before-after, draw-on, mark]
+  domain: law
+  viewbox: [1680, 600]
+  cycle: 9
+  phases: [1, 2.3, 4.45, 7.85]
+  spec: false
+  story: One sheet with three empty slots; the offer and then acceptance land and the status stays "not binding"; when consideration lands the whole document switches in place, from a dashed to a solid accent outline, "binding contract" and a signature, with the old dashed outline left as a faint ghost behind it.
+  tags: [contract, law, offer, acceptance, consideration, threshold, document]
+  technique: stacked copies cross-faded (dashed outline group under a solid accent sheet), slot outlines and signature drawn on, status as two stacked texts
+
+- name: mediation-vs-trial
+  archetype: compare
+  form: axis
+  verb: race
+  moves: [race-bars, draw-on]
+  domain: law
+  viewbox: [1680, 600]
+  cycle: 8.8
+  phases: [1.35, 5.9, 7.4]
+  spec: false
+  story: The same dispute on one month axis; mediation and trial bars grow together at the same rate, mediation stops at 3 months, the trial runs on alone through four stages to 18, and a bracket marks 15 months longer (illustrative durations).
+  tags: [mediation, court, litigation, duration, comparison, gap, illustrative]
+  technique: two bar groups scaleX about the dispute line with the same start and linear timing, durations proportional to length; stage dividers tick in as the front passes
+
+- name: blood-types
+  archetype: compare
+  form: matrix
+  verb: sort
+  moves: [dots-at-scale, units-sort, count]
+  domain: health
+  viewbox: [1680, 600]
+  cycle: 9.4
+  phases: [0.95, 2.38, 3.85, 6.65, 8.6]
+  spec: false
+  story: One crowd of 100 people, one ring each, sorts itself by ABO blood group into blocks in columns of five (about 44 O, 42 A, 10 B, 4 AB in the US); the counts land and the largest group takes the accent.
+  tags: [blood-type, abo, population-share, unit-chart, of-every-100]
+  technique: rings drawn at their final cells; each rigid piece is one group with one full-pass track; digit strips under a clipPath stepped with steps()
+
+- name: mitosis
+  archetype: states
+  form: scene
+  verb: split
+  moves: [split-merge, morph, draw-on]
+  domain: biology
+  viewbox: [1680, 600]
+  cycle: 10
+  phases: [1, 3.8, 5.75, 6.75, 9.15]
+  spec: false
+  story: Four copied chromosomes line up at the middle of a cell, their sister chromatids are pulled to opposite poles, a nucleus forms at each pole and the cell pinches into two daughter cells, each with a full copy.
+  tags: [cell-division, mitosis, chromatids, spindle, pinch]
+  technique: each half is one group pulled to its pole by scaleX about the pole with non-scaling strokes; the pinch is a d morph inside @supports with a cross-fade base
+
+- name: leaf-stomata
+  archetype: layers
+  form: scene
+  verb: zoom
+  moves: [zoom, morph, draw-on]
+  domain: biology
+  viewbox: [1680, 600]
+  cycle: 9.3
+  phases: [1.6, 4.3, 6.45, 8.15]
+  spec: false
+  story: A leaf seen from its underside; the view zooms into one marked spot until a single stoma fills the frame, the guard cells bow apart to open the pore, and CO2 goes in while O2 and water vapour come out.
+  tags: [plant, leaf, stoma, guard-cell, gas-exchange, zoom]
+  technique: one root group zooms x8 about a fixed point with thin non-scaling strokes; the guard cells morph (d inside @supports, cross-fade base); arrows draw on
+
+- name: oxbow-lake
+  archetype: states
+  form: scene
+  verb: transform
+  moves: [morph, cross-fade-shape, draw-on, ghost-before-after]
+  domain: earth-science
+  viewbox: [1680, 600]
+  cycle: 9.5
+  phases: [2.9, 4.8, 6.1, 8.25]
+  spec: false
+  story: A river bend tightens into a loop with a narrow neck, a flood cuts through the neck, and the sealed-off loop is left behind as an oxbow lake.
+  tags: [river, meander, erosion, deposition, geomorphology, map]
+  technique: the river is three pieces whose CSS d morphs between paths with the same commands inside @supports, over stacked cross-faded copies as the base
+
+- name: street-redesign
+  archetype: compare
+  form: scene
+  verb: wipe
+  moves: [wipe, clip-reveal, ghost-before-after, draw-on]
+  domain: civics
+  viewbox: [1680, 600]
+  cycle: 8.4
+  phases: [2.05, 3.8, 5.65, 7.3]
+  spec: false
+  story: An example 20 m street is redivided; a boundary line sweeps across and two car lanes and the parking give way to a cycle track, a bus lane and wider pavements, while the building edges and the 20 m bracket stay put (illustrative widths).
+  tags: [urban-planning, street, cross-section, before-after, redesign, illustrative]
+  technique: clipPath rects animated by CSS x and width with an accent boundary line translated in step; 1 m = 56 px
+
+- name: earth-layers
+  archetype: layers
+  form: scene
+  verb: open
+  moves: [cutaway, clip-reveal, rotate, draw-on]
+  domain: earth-science
+  viewbox: [1680, 600]
+  cycle: 9.9
+  phases: [1.28, 3, 5.25, 7.24, 8.9]
+  spec: false
+  story: A closed Earth has a quarter cut away; the layers show at true radial proportion and are named from the outside in (crust, rocky mantle, liquid outer core, solid inner core), then a depth scale draws from 0 at the surface to 6,371 km at the centre.
+  tags: [earth, geology, cutaway, layers, depth, scale]
+  technique: fan clip-path polygon() on a smoothstep plus a cut line rotated about the centre in step; layer copies cross-fade to the accent; leaders and the scale draw on
+
+- name: coalition-majority
+  archetype: compare
+  form: bands
+  verb: merge
+  moves: [split-merge, dots-at-scale, draw-on]
+  domain: civics
+  viewbox: [1680, 600]
+  cycle: 9.2
+  phases: [1.4, 3.6, 5.9, 6.95, 7.8]
+  spec: false
+  story: No party has a majority alone; Party B joins Party A, then Party C joins both, and together their 53 seats pass the majority line at 51 by 2 (illustrative seats).
+  tags: [parliament, coalition, majority, seats, threshold, illustrative]
+  technique: seat row of 100 marks (1 mark = 1 seat); each moving party is nested groups (translateX, then translateY) so it slides along its own row and rises into the empty seats; the party outlines cross-fade into one outline, then into an accent copy

@@ -1,0 +1,169 @@
+<!-- number-sets (pool, verb nest, archetype layers drawn as nested sets, domain education / mathematics). Hand-built; lean style, references/style.md.
+  Story: every natural number is an integer, every integer is a rational number and every rational
+  number is a real number: each set of numbers sits inside the next. The natural numbers 1, 2, 3
+  stand alone; an outline draws around them and its label lands on it (natural, N). Then 0 and -3
+  arrive just outside and a larger outline draws around everything so far (integers, Z); then 1/2
+  and -0.75 (rational, Q); then the square root of 2 and pi (real, R). Answer: one mono line
+  "N subset Z subset Q subset R" under the figure.
+  Verb: nest. Technique: four rounded outlines that share the lower-left region and grow up and to
+  the right, so each set's new members have their own band and each label sits in a gap of its
+  own top edge (labels step diagonally, no collisions). Each outline is one path with
+  pathLength=100 that starts at the right end of its label gap and runs clockwise back to it; it
+  draws on by stroke-dashoffset 101 -> 0 (1.1 s; the outermost 1.2 s). Each set's group carries
+  `color`; outline and set letter use currentColor: accent while that outline is the current one,
+  settling to muted as the next outline starts; the outermost (R) keeps the accent at rest.
+  Nothing travels: no offset-path, no markers, no arrows.
+  Once pass 9.9 s: set 0-0.8 s (1, 2, 3 rise in); N draws 0.8-1.9, label 1.95; Z members 2.3,
+  draws 2.85-3.95, label 4.0; Q members 4.35, draws 4.9-6.0, label 6.05; R members 6.4, draws
+  6.95-8.15, label 8.2; answer line 8.55-8.95, last caption 8.4-9.02; hold 9.1-9.9. Phases 2.3,4.35,6.4,9.1 (each step settled).
+  Facts (school mathematics, stated in the entry's brief):
+  - Natural numbers N: 1, 2, 3, ... (0 is left out because some textbooks include it and some do
+    not; it is shown among the integers, where it belongs either way).
+  - Integers Z add zero and the negatives: examples 0 and -3.
+  - Rational numbers Q add fractions: examples 1/2 and -0.75.
+  - Real numbers R add the irrational numbers: examples the square root of 2 and pi.
+  - N is contained in Z, Z in Q, Q in R (the answer line, subset sign U+2282). No other numbers
+    are drawn. Set symbols are plain capitals N, Z, Q, R: the double-struck forms render in
+    headless Chrome but from mixed fallback fonts (Q unlike the others), so plain letters it is.
+  - Outline sizes and positions are layout only and carry no quantity (no "illustrative" tag
+    needed: nothing on the slide is an example value beyond the stated example members). -->
+<style>
+.anim-number-sets{
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-number-sets svg{display:block;width:100%;height:100%;max-width:none}
+.anim-number-sets .number-sets-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-number-sets .number-sets-num{font-size:30px;font-weight:600}
+.anim-number-sets .number-sets-note{font-size:26px;font-weight:400}
+.anim-number-sets .number-sets-sym{font-family:var(--anim-font);font-size:30px;font-weight:600;fill:currentColor}
+.anim-number-sets .number-sets-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
+.anim-number-sets .number-sets-ans{font-family:var(--anim-mono);font-size:24px;font-weight:400;fill:var(--anim-fg)}
+/* outlines: thin rounded strokes in the set's current colour, drawn on with pathLength 100 */
+.anim-number-sets .number-sets-ol{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+/* resting frame = the end: all four outlines drawn, inner three muted, the outermost in the accent */
+.anim-number-sets .number-sets-set{color:var(--anim-muted)}
+.anim-number-sets .number-sets-s-r{color:var(--anim-accent)}
+.anim-number-sets .number-sets-n0,.anim-number-sets .number-sets-n1,.anim-number-sets .number-sets-n2,.anim-number-sets .number-sets-n3{opacity:0}
+
+/* ---- motion (9.9 s once pass), only when the slide is visible. percent = s / 9.9 ---- */
+@keyframes number-sets-m-n0{0%{opacity:0;transform:translateY(16px)}2.525%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.566%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-n1{0%{opacity:0;transform:translateY(16px)}3.434%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.475%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-n2{0%{opacity:0;transform:translateY(16px)}4.343%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.384%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-o-n{0%{stroke-dashoffset:101}8.081%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.4,1)}19.192%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes number-sets-l-n{0%{opacity:0;transform:translateY(-10px)}19.697%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.727%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-s-n{0%{color:var(--anim-accent)}28.788%{color:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1)}32.323%{color:var(--anim-muted)}100%{color:var(--anim-muted)}}
+@keyframes number-sets-m-z0{0%{opacity:0;transform:translateY(16px)}23.232%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.273%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-z1{0%{opacity:0;transform:translateY(16px)}24.141%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.182%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-o-z{0%{stroke-dashoffset:101}28.788%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.4,1)}39.899%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes number-sets-l-z{0%{opacity:0;transform:translateY(-10px)}40.404%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.434%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-s-z{0%{color:var(--anim-accent)}49.495%{color:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1)}53.03%{color:var(--anim-muted)}100%{color:var(--anim-muted)}}
+@keyframes number-sets-m-q0{0%{opacity:0;transform:translateY(16px)}43.939%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.98%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-q1{0%{opacity:0;transform:translateY(16px)}44.848%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.889%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-o-q{0%{stroke-dashoffset:101}49.495%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.4,1)}60.606%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes number-sets-l-q{0%{opacity:0;transform:translateY(-10px)}61.111%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.141%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-s-q{0%{color:var(--anim-accent)}70.202%{color:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1)}73.737%{color:var(--anim-muted)}100%{color:var(--anim-muted)}}
+@keyframes number-sets-m-r0{0%{opacity:0;transform:translateY(16px)}64.646%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.687%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-r1{0%{opacity:0;transform:translateY(16px)}65.556%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.596%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-o-r{0%{stroke-dashoffset:101}70.202%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.4,1)}82.323%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes number-sets-l-r{0%{opacity:0;transform:translateY(-10px)}82.828%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}85.859%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-ans{0%{opacity:0;transform:translateY(10px)}86.364%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90.404%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-n0{0%{opacity:0}1.01%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.051%{opacity:1}23.232%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25.455%{opacity:0}100%{opacity:0}}
+@keyframes number-sets-n1{0%{opacity:0}25.455%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.495%{opacity:1}43.939%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}46.162%{opacity:0}100%{opacity:0}}
+@keyframes number-sets-n2{0%{opacity:0}46.162%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.202%{opacity:1}64.646%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.869%{opacity:0}100%{opacity:0}}
+@keyframes number-sets-n3{0%{opacity:0}66.869%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.909%{opacity:1}84.848%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.071%{opacity:0}100%{opacity:0}}
+@keyframes number-sets-n4{0%{opacity:0}87.071%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}91.111%{opacity:1}100%{opacity:1}}
+
+.visible .anim-number-sets .number-sets-m-n0{animation:number-sets-m-n0 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-m-n1{animation:number-sets-m-n1 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-m-n2{animation:number-sets-m-n2 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-o-n{animation:number-sets-o-n 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-l-n{animation:number-sets-l-n 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-s-n{animation:number-sets-s-n 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-m-z0{animation:number-sets-m-z0 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-m-z1{animation:number-sets-m-z1 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-o-z{animation:number-sets-o-z 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-l-z{animation:number-sets-l-z 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-s-z{animation:number-sets-s-z 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-m-q0{animation:number-sets-m-q0 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-m-q1{animation:number-sets-m-q1 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-o-q{animation:number-sets-o-q 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-l-q{animation:number-sets-l-q 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-s-q{animation:number-sets-s-q 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-m-r0{animation:number-sets-m-r0 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-m-r1{animation:number-sets-m-r1 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-o-r{animation:number-sets-o-r 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-l-r{animation:number-sets-l-r 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-ans{animation:number-sets-ans 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-n0{animation:number-sets-n0 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-n1{animation:number-sets-n1 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-n2{animation:number-sets-n2 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-n3{animation:number-sets-n3 9.9s linear 1 both}
+.visible .anim-number-sets .number-sets-n4{animation:number-sets-n4 9.9s linear 1 both}
+
+@media (prefers-reduced-motion: reduce) { .anim-number-sets * { animation: none !important; } }
+</style>
+<div class="anim anim-number-sets" data-anim="number-sets" data-anim-cycle="9.9" data-anim-control="once" data-anim-phases="2.3,4.35,6.4,9.1" data-anim-verb="nest">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nested sets of numbers drawn from the inside out: the natural numbers 1, 2, 3 inside the integers (adding 0 and minus 3), inside the rational numbers (adding 1/2 and minus 0.75), inside the real numbers (adding the square root of 2 and pi). Each set sits inside the next.">
+  <!-- natural: N -->
+  <g class="number-sets-set number-sets-s-n">
+    <text class="number-sets-t number-sets-num number-sets-m-n0" x="410" y="334" text-anchor="middle">1</text>
+    <text class="number-sets-t number-sets-num number-sets-m-n1" x="484" y="334" text-anchor="middle">2</text>
+    <text class="number-sets-t number-sets-num number-sets-m-n2" x="558" y="334" text-anchor="middle">3</text>
+    <path class="number-sets-ol number-sets-o-n" pathLength="100" d="M517 264 H604 A36 36 0 0 1 640 300 V348 A36 36 0 0 1 604 384 H364 A36 36 0 0 1 328 348 V300 A36 36 0 0 1 364 264 H376"/>
+    <g class="number-sets-l-n">
+      <text class="number-sets-sym" x="390" y="275">N</text>
+      <text class="number-sets-mono" x="418" y="271">natural</text>
+    </g>
+  </g>
+  <!-- integers: Z -->
+  <g class="number-sets-set number-sets-s-z">
+    <text class="number-sets-t number-sets-num number-sets-m-z0" x="722" y="309" text-anchor="middle">0</text>
+    <text class="number-sets-t number-sets-num number-sets-m-z1" x="812" y="309" text-anchor="middle">−3</text>
+    <path class="number-sets-ol number-sets-o-z" pathLength="100" d="M497 184 H850 A40 40 0 0 1 890 224 V374 A40 40 0 0 1 850 414 H332 A40 40 0 0 1 292 374 V224 A40 40 0 0 1 332 184 H344"/>
+    <g class="number-sets-l-z">
+      <text class="number-sets-sym" x="358" y="195">Z</text>
+      <text class="number-sets-mono" x="386" y="191">integers</text>
+    </g>
+  </g>
+  <!-- rational: Q -->
+  <g class="number-sets-set number-sets-s-q">
+    <text class="number-sets-t number-sets-num number-sets-m-q0" x="972" y="284" text-anchor="middle">1/2</text>
+    <text class="number-sets-t number-sets-num number-sets-m-q1" x="1084" y="284" text-anchor="middle">−0.75</text>
+    <path class="number-sets-ol number-sets-o-q" pathLength="100" d="M465 104 H1126 A44 44 0 0 1 1170 148 V400 A44 44 0 0 1 1126 444 H300 A44 44 0 0 1 256 400 V148 A44 44 0 0 1 300 104 H312"/>
+    <g class="number-sets-l-q">
+      <text class="number-sets-sym" x="326" y="115">Q</text>
+      <text class="number-sets-mono" x="354" y="111">rational</text>
+    </g>
+  </g>
+  <!-- real: R -->
+  <g class="number-sets-set number-sets-s-r">
+    <text class="number-sets-t number-sets-num number-sets-m-r0" x="1256" y="259" text-anchor="middle">√2</text>
+    <text class="number-sets-t number-sets-num number-sets-m-r1" x="1372" y="259" text-anchor="middle">π</text>
+    <path class="number-sets-ol number-sets-o-r" pathLength="100" d="M384 24 H1412 A48 48 0 0 1 1460 72 V426 A48 48 0 0 1 1412 474 H268 A48 48 0 0 1 220 426 V72 A48 48 0 0 1 268 24 H280"/>
+    <g class="number-sets-l-r">
+      <text class="number-sets-sym" x="294" y="35">R</text>
+      <text class="number-sets-mono" x="322" y="31">real</text>
+    </g>
+  </g>
+  <!-- answer -->
+  <text class="number-sets-ans number-sets-ans-g" x="840" y="520" text-anchor="middle">N ⊂ Z ⊂ Q ⊂ R</text>
+  <!-- captions -->
+  <text class="number-sets-t number-sets-note number-sets-n0" x="840" y="570" text-anchor="middle">Start with the natural numbers</text>
+  <text class="number-sets-t number-sets-note number-sets-n1" x="840" y="570" text-anchor="middle">Integers add zero and the negatives</text>
+  <text class="number-sets-t number-sets-note number-sets-n2" x="840" y="570" text-anchor="middle">Rational numbers add the fractions</text>
+  <text class="number-sets-t number-sets-note number-sets-n3" x="840" y="570" text-anchor="middle">Real numbers add the irrational numbers</text>
+  <text class="number-sets-t number-sets-note number-sets-n4" x="840" y="570" text-anchor="middle">Each set of numbers sits inside the next</text>
+</svg>
+</div>

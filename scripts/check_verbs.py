@@ -228,7 +228,7 @@ def check_pool(path, R):
         R.ok('verb', f'{n} entries, each with a verb')
     counts = Counter(e['verb'] for e in entries if e['verb'] in VERBS)
     print('      verbs: ' + ', '.join(f'{v} {c}' for v, c in counts.most_common()))
-    absent = [v for v in VERBS if v not in counts]
+    absent = [v for v in VERBS if v not in counts and v != 'count']  # count is always a supporting verb
     if absent:
         R.warn('coverage', f"no pool entry for: {', '.join(absent)}")
     markers = [e['name'] for e in entries if 'packet-hop' in e['moves'] or e['verb'] == 'travel']

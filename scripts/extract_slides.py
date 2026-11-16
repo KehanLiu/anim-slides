@@ -94,6 +94,13 @@ chart). A slide with its own chart (mermaid xychart, a pptx chart part, a
 picture beside chart or trend words) keeps its archetype and gets trace (3+
 time-axis marks) or grow; another mermaid diagram keeps its archetype and gets
 its text verb, else travel (sequence), switch (state) or reveal.
+More number cues: parts that sum to a stated whole (45 + 30 + 25 = 100) ->
+split; two durations on one clock with 'later'/'first' -> race; one amount put
+in at a regular interval (stated 3+ times or with a saving verb) reaching a
+total -> accumulate. A numbered list (<ol>, pptx auto-numbering) of 3+ items
+that nothing else explains is a pipeline (0.3, reveal). A title or closing
+slide (no list, table, connector, arrow or chart picture, 25 words or fewer)
+gets no archetype and no verb.
 
 The stage defaults to 1920x1080. For .pptx without --stage it is derived from
 the deck's slide size, scaled to a width of 1920 (a 4:3 deck gives 1920x1440).
@@ -112,6 +119,7 @@ one-line summary per slide goes to stderr; the JSON goes to stdout unless -o is
 given.
 """
 import argparse
+import collections
 import json
 import math
 import os
@@ -421,6 +429,7 @@ def read_pptx(path):
             # a native chart part on the slide: the verb then says how that chart moves
             slides[-1]["_chart"] = any("chart" in (g.get("uri") or "")
                                        for g in root.iter(A + "graphicData"))
+            slides[-1]["_ordered"] = sum(1 for _ in root.iter(A + "buAutoNum"))  # numbered paragraphs
     return slides
 
 
@@ -560,9 +569,12 @@ def html_slide(n):
         rows = [[node_text(c) for c in tr.children if isinstance(c, Node) and c.tag in ("td", "th")]
                 for tr in t.iter() if tr.tag == "tr"]
         tables.append([r for r in rows if any(collapse(c) for c in r)])
-    return make_slide(title, bullets, notes, node_text(n), images, tables,
-                      segments=[title] + bullets + [notes, node_text(n)],
-                      builds=html_builds(n))
+    slide = make_slide(title, bullets, notes, node_text(n), images, tables,
+                       segments=[title] + bullets + [notes, node_text(n)],
+                       builds=html_builds(n))
+    # items of a numbered list (<ol>): order is stated even without 'step' words
+    slide["_ordered"] = sum(1 for d in nodes if d.tag == "li" and inside(d, "ol") and id(d) not in in_notes)
+    return slide
 
 
 BUILD_CLASSES = {"fragment", "build", "build-item", "substep"}
@@ -1108,6 +1120,8 @@ def _archetype(slide):
     # a lone 'either' or 'OR' is just wording, not a decision
     if [c[0] for c in found.get("graph", [])] in (["'either'"], ["'OR'"]):
         del found["graph"]
+    if slide.get("_ordered", 0) >= 3 and not found:  # a numbered list that nothing else explains
+        found.setdefault("pipeline", []).append(("numbered list", slide["_ordered"], 1, None))
     # shape cues: 4+ connectors weigh as two keyword cues
     conns = slide.get("connectors", 0)
     if conns >= 2:
@@ -1260,6 +1274,8 @@ VERB_RULES = {  # verb -> regex on the cased text (re.I); idea cues and quantiti
     "sort": w(r"of every \d+|out of every|ranked|rankings?|jede[rs]? (?:zweite|dritte|vierte|fünfte)"
               r"|von (?:je )?100|rangliste", re.I, cjk="排名|ランキング"),
     "sort-share": w(r"majority|minority|mehrheit|minderheit", re.I, cjk="多数|少数|過半数"),  # needs a %
+    "race-clock": w(r"later|earlier|sooner|ahead of|lags? behind|head start|(?:arrives?|reaches?|comes?"
+                    r"|gets?) (?:\w+ )?first|später|früher|zuerst", re.I, cjk="先到|更早|更晚|先に|後で"),
     "race": w(r"faster than|slower than|cheaper than|costlier than|longer than|shorter than|twice as"
               r"|\d+(?:\.\d+)?\s?(?:x|times) (?:faster|slower|more|less|cheaper|longer|shorter)"
               r"|outpaces?|overtakes?|schneller als|langsamer als|billiger als|doppelt so", re.I,
@@ -1352,7 +1368,15 @@ STRONG_VERBS = {"cycle": "states", "thin": "pipeline", "sort": "chart", "race": 
                 "stack": "layers", "accumulate": "chart", "grow": "chart", "count": "chart"}
 FAMILY_VERB = {"chart": "grow", "timeline": "trace", "states": "switch", "compare": "wipe",
                "layers": "stack", "graph": "reveal", "pipeline": "reveal"}
-ORDER_CUES = ("arrows", "'then'", "numbered steps", "'step'")
+ORDER_CUES = ("arrows", "'then'", "numbered steps", "'step'", "numbered list")
+ARROW = re.compile(r"->|→|=>|⇒|⟶")
+PERIODIC = w(r"(?:every|each|a|per) (?:day|week|month|quarter|year)|daily|weekly|monthly|yearly|annually"
+             r"|(?:jeden|jede|pro) (?:tag|woche|monat|quartal|jahr)|täglich|wöchentlich|monatlich|jährlich",
+             re.I, cjk="每天|每周|每月|每年|毎日|毎週|毎月|毎年")
+ADDING = w(r"put aside|set aside|sav(?:e|es|ed|ing)|deposit(?:s|ed)?|pa(?:y|ys|id) in|contribut\w*"
+           r"|add(?:s|ed)? up|zurückgelegt|gespart|spar(?:t|en)|eingezahlt|einzahl\w*", re.I,
+           cjk="存入|储蓄|攒|積み立て|貯金")
+TIME_UNITS = {"ms", "s", "sec", "min", "h", "hr", "hrs", "days", "day", "weeks", "months", "years"}
 
 
 def verb_cues(slide, ideas=None):
@@ -1377,8 +1401,28 @@ def verb_cues(slide, ideas=None):
     add("sort", ([ideas["share-of-whole"]] if "share-of-whole" in ideas else []) + hits["sort"])
     if any(q[2] == "%" for q in quantities(cased)[0]):
         add("sort", hits["sort-share"])
+    qs = quantities(cased)[0]
     if nq >= 1:
         add("race", hits["race"])
+    # two durations of one event on the same clock (a flash and its thunder)
+    timed = [q for q in qs if q[2] in TIME_UNITS]
+    if len({q[1] for q in timed}) >= 2 and hits["race-clock"]:
+        add("race", hits["race-clock"] + [" vs ".join(q[3] for q in timed[:2])])
+    # stated parts that sum to a stated whole: 45 + 30 + 25 of 100
+    vals = [q for q in qs if q[1] > 0]
+    if vals:
+        top = max(q[1] for q in vals)
+        parts = [q for q in vals if q[1] != top]
+        if 2 <= len(parts) <= 6 and abs(sum(q[1] for q in parts) - top) <= top * 0.01 \
+                and len({q[2] for q in parts}) == 1:
+            add("split", [" + ".join(q[3] for q in parts) + " = " + next(q[3] for q in vals if q[1] == top)])
+    # a stated amount put in at a regular interval that reaches a stated total
+    # (the same amount stated 3+ times, or a saving verb, and a total of at least 3 such amounts)
+    if PERIODIC.search(cased) and len(vals) >= 2:
+        counts = collections.Counter(q[1] for q in vals)
+        unit = max(counts, key=lambda v: (counts[v], -v))
+        if (counts[unit] >= 3 or ADDING.search(cased)) and max(q[1] for q in vals) >= 3 * unit:
+            add("accumulate", [PERIODIC.search(cased).group(0), max(vals, key=lambda q: q[1])[3]])
     if "trade-off" in ideas and nq >= 2:  # two quantities under one clock: the gap is the point
         add("race", [ideas["trade-off"]])
     else:
@@ -1435,6 +1479,14 @@ def suggest(slide):
     vcues = verb_cues(slide, ideas)
     verb = vcues[0]["cue"] if vcues else None
     out = {"idea_cues": ideas}
+    words = len((slide["title"] + " " + slide["text"]).split())
+    if not (slide["bullets"] or slide.get("tables") or slide.get("connectors") or slide.get("mermaid")
+            or slide.get("_ordered") or ARROW.search(slide["text"])
+            or (slide.get("image_count") and figure_kind(slide, arch) == "chart")) and words <= 25:
+        # a title or closing slide: no list or body to illustrate
+        out.update(suggested_archetype=None, confidence=0.0, reason="title or closing slide: no body",
+                   suggested_verb=None, verb_cues=vcues)
+        return out
     fig = figure_kind(slide, arch)
     order_cues = bool(labels) and all(l in ORDER_CUES or "connectors/arrows" in l for l in labels)
     if fig == "chart" or (arch == "chart" and fig is None and verb not in STRONG_VERBS):

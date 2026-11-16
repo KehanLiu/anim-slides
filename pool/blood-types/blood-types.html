@@ -1,0 +1,188 @@
+<!-- blood-types (pool, verb sort + count, domain health). Hand-built (generated once by a throwaway script, then kept static).
+  Story: one crowd of 100 people (1 ring = 1 person) sorts itself by ABO blood group. The same rings move:
+  the bottom of the crowd slides left as group O, the top drops into the middle as group A (a few A
+  rings already stand there), then B and AB travel right. Every group ends as a block of columns of
+  five on one baseline, so its size reads at a glance; then each group takes its label, its count
+  steps up to the number, and the largest group (O) takes the accent. Once-play pass 9.4 s, hold 8.6-9.4 s.
+  Verb: sort (main), count (support, after the units have settled).
+  Technique: each rigid piece of units (a block, a strip, a column, a single ring) is one <g> with one
+  full-pass track: a `translate` leg across and a `transform: translateY` leg down, overlapped so a
+  piece curves around the units still standing. Seven pieces: O 1, A 3 (one stays), B 1, AB 2; a
+  piece never swaps a ring for another. Counts are digit strips under a clipPath, stepped with steps().
+  Facts:
+  - O 44, A 42, B 10, AB 4 of every 100: Stanford Blood Center, "Blood Types" page (US population,
+    citing the AABB Technical Manual, 18th ed.): O+ 37.4 % + O- 6.6 % = 44.0 %; A+ 35.7 % + A- 6.3 % =
+    42.0 %; B+ 8.5 % + B- 1.5 % = 10.0 %; AB+ 3.4 % + AB- 0.6 % = 4.0 %. The ABO totals are arithmetic
+    on those eight figures, sum exactly 100, so no rounding was needed. (The brief's 45/40/11/4 is a
+    commonly quoted Red Cross rounding; the Red Cross page could not be fetched, so the Stanford
+    figures are used.) Rh types are not shown; no compatibility claim is made.
+  - "approximate shares, United States": the source calls its figures estimates for the US population.
+  - Intermediate count values (0, 10, 20, 30, 40; 0, 5; 0, 2) are round values on the way to the
+    stated number (motion-verbs.md, count), not data.
+  - Start layout of the crowd (which ring stands where) is illustrative and carries no meaning. -->
+<style>
+.anim-blood-types{
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-blood-types svg{display:block;width:100%;height:100%;max-width:none}
+.anim-blood-types .blood-types-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-blood-types .blood-types-glbl{font-size:28px;font-weight:600}
+.anim-blood-types .blood-types-note{font-size:26px;font-weight:400}
+.anim-blood-types .blood-types-mono{font-family:var(--anim-mono);font-size:18px;font-weight:400;fill:var(--anim-muted)}
+.anim-blood-types .blood-types-num{font-family:var(--anim-font);font-size:30px;font-weight:600}
+.anim-blood-types .blood-types-cntw{fill:var(--anim-fg)}
+/* one unit = one person: a thin ring in the muted tone; a piece's colour is its `color` */
+.anim-blood-types .blood-types-p{color:var(--anim-muted)}
+.anim-blood-types .blood-types-u{fill:none;stroke:currentColor;stroke-width:2.5}
+.anim-blood-types .blood-types-key{fill:none;stroke:var(--anim-muted);stroke-width:2.5}
+/* resting frame = the end: every unit in its group, labels and counts shown, O in the accent */
+.anim-blood-types .blood-types-p{translate:0px 0px;transform:translateY(0px)}
+.anim-blood-types .blood-types-p-o-hue{color:var(--anim-accent)}
+.anim-blood-types .blood-types-cntw.blood-types-cnt-o-hue{fill:var(--anim-accent)}
+.anim-blood-types .blood-types-strip-o{transform:translateY(-200px)}
+.anim-blood-types .blood-types-strip-a{transform:translateY(-200px)}
+.anim-blood-types .blood-types-strip-b{transform:translateY(-80px)}
+.anim-blood-types .blood-types-strip-ab{transform:translateY(-80px)}
+.anim-blood-types .blood-types-n0,.anim-blood-types .blood-types-n1{opacity:0}
+
+/* ---- motion (9.4 s once pass; set 0-0.95, caption 0.95-1.22, O 1.25-2.35, A 2.4-3.8, B 4.0-5.1, AB 5.3-6.6, labels and counts 6.75-8.05, accent 8.15-8.55, hold 8.6-9.4) ---- */
+/* row 0 of the crowd rises in 0.10-0.55 s */
+@keyframes blood-types-r0{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}1.06%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.85%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 1 of the crowd rises in 0.15-0.60 s */
+@keyframes blood-types-r1{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}1.6%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.38%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 2 of the crowd rises in 0.20-0.65 s */
+@keyframes blood-types-r2{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.13%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.91%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 3 of the crowd rises in 0.25-0.70 s */
+@keyframes blood-types-r3{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.66%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.45%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 4 of the crowd rises in 0.30-0.75 s */
+@keyframes blood-types-r4{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.19%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.98%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 5 of the crowd rises in 0.35-0.80 s */
+@keyframes blood-types-r5{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.72%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.51%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 6 of the crowd rises in 0.40-0.85 s */
+@keyframes blood-types-r6{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.26%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.04%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 7 of the crowd rises in 0.45-0.90 s */
+@keyframes blood-types-r7{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.79%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.57%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 8 of the crowd rises in 0.50-0.95 s */
+@keyframes blood-types-r8{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.32%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.11%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* row 9 of the crowd rises in 0.55-1.00 s */
+@keyframes blood-types-r9{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.85%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.64%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* notes 0.05-0.5 s */
+@keyframes blood-types-notes{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}0.53%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.32%{opacity:1}100%{opacity:1}}
+/* piece o (44 units): accent 8.15-8.55 s, across 1.25-2.35 s */
+@keyframes blood-types-p-o{0%{translate:340px 0px;color:var(--anim-muted)}13.3%{translate:340px 0px;animation-timing-function:cubic-bezier(0.2,0,0,1)}25%{translate:0px 0px}86.7%{color:var(--anim-muted);animation-timing-function:ease-in-out}90.96%{color:var(--anim-accent)}100%{translate:0px 0px;color:var(--anim-accent)}}
+/* piece ap (2 units): across 2.4-2.8 s */
+@keyframes blood-types-p-ap{0%{translate:-34px 0px}25.53%{translate:-34px 0px;animation-timing-function:cubic-bezier(0.2,0,0,1)}29.79%{translate:0px 0px}100%{translate:0px 0px}}
+/* piece ad (36 units): across 3.05-3.8 s, down 2.5-3.3 s */
+@keyframes blood-types-p-ad{0%{translate:-68px 0px;transform:translateY(-170px)}26.6%{transform:translateY(-170px);animation-timing-function:ease-in-out}32.45%{translate:-68px 0px;animation-timing-function:ease-in-out}35.11%{transform:translateY(0px)}40.43%{translate:0px 0px}100%{translate:0px 0px;transform:translateY(0px)}}
+/* piece b (10 units): across 4-4.75 s, down 4.45-5.1 s */
+@keyframes blood-types-p-b{0%{translate:-204px 0px;transform:translateY(-170px)}42.55%{translate:-204px 0px;animation-timing-function:ease-in-out}47.34%{transform:translateY(-170px);animation-timing-function:ease-in-out}50.53%{translate:0px 0px}54.26%{transform:translateY(0px)}100%{translate:0px 0px;transform:translateY(0px)}}
+/* piece abc (3 units): across 5.3-6.05 s, down 5.75-6.4 s */
+@keyframes blood-types-p-abc{0%{translate:-408px 0px;transform:translateY(-238px)}56.38%{translate:-408px 0px;animation-timing-function:ease-in-out}61.17%{transform:translateY(-238px);animation-timing-function:ease-in-out}64.36%{translate:0px 0px}68.09%{transform:translateY(0px)}100%{translate:0px 0px;transform:translateY(0px)}}
+/* piece abs (1 units): across 5.55-6.35 s, down 6.05-6.6 s */
+@keyframes blood-types-p-abs{0%{translate:-442px 0px;transform:translateY(-204px)}59.04%{translate:-442px 0px;animation-timing-function:ease-in-out}64.36%{transform:translateY(-204px);animation-timing-function:ease-in-out}67.55%{translate:0px 0px}70.21%{transform:translateY(0px)}100%{translate:0px 0px;transform:translateY(0px)}}
+/* caption 0: 0.15-1.12 s */
+@keyframes blood-types-n0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}1.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.38%{opacity:1}10.11%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}11.91%{opacity:0}100%{opacity:0}}
+/* caption 1: 1.0-8.15 s */
+@keyframes blood-types-n1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.64%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.98%{opacity:1}84.04%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.7%{opacity:0}100%{opacity:0}}
+/* caption 2 from 8.2 s */
+@keyframes blood-types-n2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.23%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}91.49%{opacity:1}100%{opacity:1}}
+/* group labels and count windows 6.75-7.15 s */
+@keyframes blood-types-lbl{0%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.81%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.06%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+/* count o: 0 > 10 > 20 > 30 > 40 > 44, 7.15-7.75 s */
+@keyframes blood-types-strip-o{0%{transform:translateY(0px);animation-timing-function:steps(5,end)}76.06%{transform:translateY(0px);animation-timing-function:steps(5,end)}82.45%{transform:translateY(-200px)}100%{transform:translateY(-200px)}}
+/* count a: 0 > 10 > 20 > 30 > 40 > 42, 7.35-7.95 s */
+@keyframes blood-types-strip-a{0%{transform:translateY(0px);animation-timing-function:steps(5,end)}78.19%{transform:translateY(0px);animation-timing-function:steps(5,end)}84.57%{transform:translateY(-200px)}100%{transform:translateY(-200px)}}
+/* count b: 0 > 5 > 10, 7.55-7.85 s */
+@keyframes blood-types-strip-b{0%{transform:translateY(0px);animation-timing-function:steps(2,end)}80.32%{transform:translateY(0px);animation-timing-function:steps(2,end)}83.51%{transform:translateY(-80px)}100%{transform:translateY(-80px)}}
+/* count ab: 0 > 2 > 4, 7.75-8.05 s */
+@keyframes blood-types-strip-ab{0%{transform:translateY(0px);animation-timing-function:steps(2,end)}82.45%{transform:translateY(0px);animation-timing-function:steps(2,end)}85.64%{transform:translateY(-80px)}100%{transform:translateY(-80px)}}
+/* O count takes the accent 8.15-8.55 s */
+@keyframes blood-types-cnt-o-hue{0%{fill:var(--anim-fg);animation-timing-function:ease-in-out}86.7%{fill:var(--anim-fg);animation-timing-function:ease-in-out}90.96%{fill:var(--anim-accent)}100%{fill:var(--anim-accent)}}
+
+.visible .anim-blood-types .blood-types-r0{animation:blood-types-r0 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r1{animation:blood-types-r1 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r2{animation:blood-types-r2 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r3{animation:blood-types-r3 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r4{animation:blood-types-r4 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r5{animation:blood-types-r5 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r6{animation:blood-types-r6 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r7{animation:blood-types-r7 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r8{animation:blood-types-r8 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-r9{animation:blood-types-r9 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-notes{animation:blood-types-notes 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-p-o{animation:blood-types-p-o 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-p-ap{animation:blood-types-p-ap 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-p-ad{animation:blood-types-p-ad 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-p-b{animation:blood-types-p-b 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-p-abc{animation:blood-types-p-abc 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-p-abs{animation:blood-types-p-abs 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-n0{animation:blood-types-n0 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-n1{animation:blood-types-n1 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-n2{animation:blood-types-n2 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-lbl{animation:blood-types-lbl 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-strip-o{animation:blood-types-strip-o 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-strip-a{animation:blood-types-strip-a 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-strip-b{animation:blood-types-strip-b 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-strip-ab{animation:blood-types-strip-ab 9.4s linear 1 both}
+.visible .anim-blood-types .blood-types-cnt-o-hue{animation:blood-types-cnt-o-hue 9.4s linear 1 both}
+
+@media (prefers-reduced-motion: reduce) { .anim-blood-types * { animation: none !important; } }
+</style>
+<div class="anim anim-blood-types" data-anim="blood-types" data-anim-cycle="9.4" data-anim-control="once" data-anim-phases="0.95,2.38,3.85,6.65,8.6" data-anim-verb="sort">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Unit chart: 100 rings, one per person, start as one 10 by 10 crowd and sort into four blocks by ABO blood group: about 44 of every 100 people in the United States are group O, 42 group A, 10 group B and 4 group AB.">
+<defs>
+  <clipPath id="blood-types-win-o"><rect x="423" y="224" width="120" height="42"/></clipPath>
+  <clipPath id="blood-types-win-a"><rect x="831" y="224" width="120" height="42"/></clipPath>
+  <clipPath id="blood-types-win-b"><rect x="1120" y="224" width="120" height="42"/></clipPath>
+  <clipPath id="blood-types-win-ab"><rect x="1273" y="224" width="120" height="42"/></clipPath>
+</defs>
+<g class="blood-types-notes">
+  <circle class="blood-types-key" cx="347" cy="58" r="10"/>
+  <text class="blood-types-mono" x="369" y="64">= 1 of 100 people</text>
+  <text class="blood-types-mono" x="1350" y="64" text-anchor="end">approximate shares, United States</text>
+</g>
+  <!-- O piece "o": 44 units, start +10 cols +0 rows from final -->
+  <g class="blood-types-p blood-types-g-o blood-types-p-o blood-types-p-o-hue"><circle class="blood-types-u blood-types-r5" cx="347" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="347" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="347" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="347" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="347" cy="426" r="10"/><circle class="blood-types-u blood-types-r5" cx="381" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="381" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="381" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="381" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="381" cy="426" r="10"/><circle class="blood-types-u blood-types-r5" cx="415" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="415" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="415" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="415" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="415" cy="426" r="10"/><circle class="blood-types-u blood-types-r5" cx="449" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="449" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="449" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="449" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="449" cy="426" r="10"/><circle class="blood-types-u blood-types-r5" cx="483" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="483" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="483" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="483" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="483" cy="426" r="10"/><circle class="blood-types-u blood-types-r5" cx="517" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="517" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="517" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="517" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="517" cy="426" r="10"/><circle class="blood-types-u blood-types-r5" cx="551" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="551" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="551" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="551" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="551" cy="426" r="10"/><circle class="blood-types-u blood-types-r5" cx="585" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="585" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="585" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="585" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="585" cy="426" r="10"/><circle class="blood-types-u blood-types-r6" cx="619" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="619" cy="358" r="10"/><circle class="blood-types-u blood-types-r8" cx="619" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="619" cy="426" r="10"/></g>
+  <!-- A piece "ap": 2 units, start -1 cols +0 rows from final -->
+  <g class="blood-types-p blood-types-g-a blood-types-p-ap"><circle class="blood-types-u blood-types-r8" cx="1027" cy="392" r="10"/><circle class="blood-types-u blood-types-r9" cx="1027" cy="426" r="10"/></g>
+  <!-- A piece "ad": 36 units, start -2 cols -5 rows from final -->
+  <g class="blood-types-p blood-types-g-a blood-types-p-ad"><circle class="blood-types-u blood-types-r0" cx="755" cy="290" r="10"/><circle class="blood-types-u blood-types-r1" cx="755" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="755" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="755" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="755" cy="426" r="10"/><circle class="blood-types-u blood-types-r0" cx="789" cy="290" r="10"/><circle class="blood-types-u blood-types-r1" cx="789" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="789" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="789" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="789" cy="426" r="10"/><circle class="blood-types-u blood-types-r0" cx="823" cy="290" r="10"/><circle class="blood-types-u blood-types-r1" cx="823" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="823" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="823" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="823" cy="426" r="10"/><circle class="blood-types-u blood-types-r0" cx="857" cy="290" r="10"/><circle class="blood-types-u blood-types-r1" cx="857" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="857" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="857" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="857" cy="426" r="10"/><circle class="blood-types-u blood-types-r0" cx="891" cy="290" r="10"/><circle class="blood-types-u blood-types-r1" cx="891" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="891" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="891" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="891" cy="426" r="10"/><circle class="blood-types-u blood-types-r0" cx="925" cy="290" r="10"/><circle class="blood-types-u blood-types-r1" cx="925" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="925" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="925" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="925" cy="426" r="10"/><circle class="blood-types-u blood-types-r1" cx="959" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="959" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="959" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="959" cy="426" r="10"/><circle class="blood-types-u blood-types-r3" cx="993" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="993" cy="426" r="10"/></g>
+  <!-- A piece "as": 4 units, start same from final -->
+  <g class="blood-types-p blood-types-g-a"><circle class="blood-types-u blood-types-r5" cx="959" cy="290" r="10"/><circle class="blood-types-u blood-types-r5" cx="993" cy="290" r="10"/><circle class="blood-types-u blood-types-r6" cx="993" cy="324" r="10"/><circle class="blood-types-u blood-types-r7" cx="993" cy="358" r="10"/></g>
+  <!-- B piece "b": 10 units, start -6 cols -5 rows from final -->
+  <g class="blood-types-p blood-types-g-b blood-types-p-b"><circle class="blood-types-u blood-types-r0" cx="1163" cy="290" r="10"/><circle class="blood-types-u blood-types-r1" cx="1163" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="1163" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="1163" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="1163" cy="426" r="10"/><circle class="blood-types-u blood-types-r0" cx="1197" cy="290" r="10"/><circle class="blood-types-u blood-types-r1" cx="1197" cy="324" r="10"/><circle class="blood-types-u blood-types-r2" cx="1197" cy="358" r="10"/><circle class="blood-types-u blood-types-r3" cx="1197" cy="392" r="10"/><circle class="blood-types-u blood-types-r4" cx="1197" cy="426" r="10"/></g>
+  <!-- AB piece "abc": 3 units, start -12 cols -7 rows from final -->
+  <g class="blood-types-p blood-types-g-ab blood-types-p-abc"><circle class="blood-types-u blood-types-r0" cx="1333" cy="358" r="10"/><circle class="blood-types-u blood-types-r1" cx="1333" cy="392" r="10"/><circle class="blood-types-u blood-types-r2" cx="1333" cy="426" r="10"/></g>
+  <!-- AB piece "abs": 1 units, start -13 cols -6 rows from final -->
+  <g class="blood-types-p blood-types-g-ab blood-types-p-abs"><circle class="blood-types-u blood-types-r0" cx="1333" cy="324" r="10"/></g>
+  <g class="blood-types-lbl">
+    <text class="blood-types-mono" x="300" y="250" text-anchor="end">people</text>
+    <text class="blood-types-mono" x="300" y="480" text-anchor="end">blood group</text>
+    <text class="blood-types-t blood-types-glbl" x="483" y="486" text-anchor="middle">O</text>
+    <text class="blood-types-t blood-types-glbl" x="891" y="486" text-anchor="middle">A</text>
+    <text class="blood-types-t blood-types-glbl" x="1180" y="486" text-anchor="middle">B</text>
+    <text class="blood-types-t blood-types-glbl" x="1333" y="486" text-anchor="middle">AB</text>
+  </g>
+  <g class="blood-types-lbl">
+    <g class="blood-types-cntw blood-types-cnt-o-hue" clip-path="url(#blood-types-win-o)"><g class="blood-types-strip blood-types-strip-o"><text class="blood-types-num" x="483" y="256" text-anchor="middle">0</text><text class="blood-types-num" x="483" y="296" text-anchor="middle">10</text><text class="blood-types-num" x="483" y="336" text-anchor="middle">20</text><text class="blood-types-num" x="483" y="376" text-anchor="middle">30</text><text class="blood-types-num" x="483" y="416" text-anchor="middle">40</text><text class="blood-types-num" x="483" y="456" text-anchor="middle">44</text></g></g>
+    <g class="blood-types-cntw" clip-path="url(#blood-types-win-a)"><g class="blood-types-strip blood-types-strip-a"><text class="blood-types-num" x="891" y="256" text-anchor="middle">0</text><text class="blood-types-num" x="891" y="296" text-anchor="middle">10</text><text class="blood-types-num" x="891" y="336" text-anchor="middle">20</text><text class="blood-types-num" x="891" y="376" text-anchor="middle">30</text><text class="blood-types-num" x="891" y="416" text-anchor="middle">40</text><text class="blood-types-num" x="891" y="456" text-anchor="middle">42</text></g></g>
+    <g class="blood-types-cntw" clip-path="url(#blood-types-win-b)"><g class="blood-types-strip blood-types-strip-b"><text class="blood-types-num" x="1180" y="256" text-anchor="middle">0</text><text class="blood-types-num" x="1180" y="296" text-anchor="middle">5</text><text class="blood-types-num" x="1180" y="336" text-anchor="middle">10</text></g></g>
+    <g class="blood-types-cntw" clip-path="url(#blood-types-win-ab)"><g class="blood-types-strip blood-types-strip-ab"><text class="blood-types-num" x="1333" y="256" text-anchor="middle">0</text><text class="blood-types-num" x="1333" y="296" text-anchor="middle">2</text><text class="blood-types-num" x="1333" y="336" text-anchor="middle">4</text></g></g>
+  </g>
+<text class="blood-types-t blood-types-note blood-types-n0" x="840" y="566" text-anchor="middle">One crowd of 100 people</text>
+<text class="blood-types-t blood-types-note blood-types-n1" x="840" y="566" text-anchor="middle">The same 100 people, sorted by ABO blood group</text>
+<text class="blood-types-t blood-types-note blood-types-n2" x="840" y="566" text-anchor="middle">Of every 100 people, about 44 are group O, 42 A, 10 B and 4 AB</text>
+</svg>
+</div>

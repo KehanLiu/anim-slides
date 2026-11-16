@@ -1,0 +1,208 @@
+<!-- compound-interest (pool, verb grow + count, archetype chart drawn as columns, domain finance). Hand-built; lean style, references/style.md.
+  Story: 1,000 left alone at 5 % a year. Four columns stand on one baseline at year 0, 10, 20 and 30;
+  each holds the original 1,000 as a quiet base of constant height (sides only, its top is the dashed
+  ghost line at the 1,000 level). The interest part of each column then rises from that line, one
+  column after another, to its true height; the value riding the top counts up (1,000, then each
+  decade value it passes, then its own value as it lands). Answer: a tie at the previous column's
+  level and a bracket mark each decade's gain, +629, +1,024, +1,669, drawn on in order; the last and
+  largest takes the accent.
+  Verb: grow (supporting: count). Technique: interest part (faint tint + two sides) is a scaleY 0 -> 1
+  about the 1,000 level (transform-box view-box, px origin 387.50); the cap and its value ride the
+  top as a translateY on the same curve (cubic-bezier(0.4,0,0.2,1), in-out, no overshoot); the value is a digit strip
+  (one <text> per value under a clipPath window inside the cap group) moved by translateY in
+  steps(1,end), switching exactly when the rising top passes the neighbouring column's level
+  (crossing times solved from the easing curve) and to its own value 0.1 s after landing.
+  Brackets: pathLength draw-on. No travelling marker, no offset-path.
+  Scale: 0.0925 px per 1 unit of money (4,322 -> 399.8 px), baseline y 480. Heights:
+  1,000 -> 92.50 px, 1,629 -> 150.68 px, 2,653 -> 245.40 px, 4,322 -> 399.78 px.
+  Once pass 9.6 s: set 0-1.0 s (scene, bases, year-0 value); hero 1.0-5.9 s (column 10 1.0-2.2,
+  column 20 2.6-3.9, column 30 4.3-5.9); caption swap 6.0-6.7; answer 6.75-8.4 (brackets
+  6.75-7.2, 7.25-7.7, 7.8-8.3, labels follow); hold 8.5-9.6 s. Phases 0.7,2.4,4.1,6.05,8.5.
+  Facts:
+  - 5 % a year: ILLUSTRATIVE example rate, shown with the "illustrative rate" tag; no currency unit.
+  - 1,000 start: illustrative amount (the brief's claim).
+  - 1,629 / 2,653 / 4,322: arithmetic, 1000 x 1.05^n for n = 10, 20, 30 (annual compounding) =
+    1,628.89 / 2,653.30 / 4,321.94, rounded.
+  - +629 / +1,024 / +1,669: arithmetic, differences of the rounded values.
+  - "interest added once a year", "interest earns interest too": the claim's mechanism (annual
+    compounding), stated in the brief. No inflation, tax or product claims.
+  - Column heights: drawing scale above, at true proportion; bracket positions follow from it. -->
+<style>
+.anim-compound-interest{
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-compound-interest svg{display:block;width:100%;height:100%;max-width:none}
+.anim-compound-interest .compound-interest-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-compound-interest .compound-interest-lbl{font-size:24px;font-weight:600}
+.anim-compound-interest .compound-interest-val{font-size:26px;font-weight:600}
+.anim-compound-interest .compound-interest-gain{font-size:26px;font-weight:600}
+.anim-compound-interest .compound-interest-note{font-size:26px;font-weight:400}
+.anim-compound-interest .compound-interest-mono{font-family:var(--anim-mono);font-size:18px;font-weight:400;fill:var(--anim-muted)}
+.anim-compound-interest .compound-interest-yr{font-size:20px}
+.anim-compound-interest .compound-interest-val.compound-interest-pass{fill:var(--anim-muted)}
+.anim-compound-interest .compound-interest-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
+/* structure: thin strokes, no panels */
+.anim-compound-interest .compound-interest-axis{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
+.anim-compound-interest .compound-interest-base{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;opacity:.7}
+.anim-compound-interest .compound-interest-ghost{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:7 8;stroke-linecap:round}
+.anim-compound-interest .compound-interest-tint{fill:color-mix(in srgb,var(--anim-accent) 9%,transparent)}
+.anim-compound-interest .compound-interest-side,.anim-compound-interest .compound-interest-cap{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round}
+/* answer */
+.anim-compound-interest .compound-interest-tie{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:2 7;stroke-linecap:round}
+.anim-compound-interest .compound-interest-brk{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-compound-interest .compound-interest-brk.compound-interest-acc{stroke:var(--anim-accent)}
+.anim-compound-interest .compound-interest-gain.compound-interest-acc{fill:var(--anim-accent)}
+.anim-compound-interest .compound-interest-g{transform-box:view-box;transform-origin:0px 387.50px}
+.anim-compound-interest .compound-interest-c,.anim-compound-interest .compound-interest-s{transform-box:view-box;transform-origin:0px 0px}
+/* resting frame = the end: columns grown, each strip on its own value, brackets drawn, last caption */
+.anim-compound-interest .compound-interest-s1{transform:translateY(-40px)}
+.anim-compound-interest .compound-interest-s2{transform:translateY(-80px)}
+.anim-compound-interest .compound-interest-s3{transform:translateY(-120px)}
+.anim-compound-interest .compound-interest-n0{opacity:0}
+
+/* ---- motion (9.6 s once pass), only when the slide is visible. percent = s / 9.6 ---- */
+/* column 1: interest part rises 1.0-2.2 s */
+@keyframes compound-interest-g1{0%{transform:scaleY(0)}10.417%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.4,0,0.2,1)}22.917%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+@keyframes compound-interest-c1{0%{transform:translateY(58.18px)}10.417%{transform:translateY(58.18px);animation-timing-function:cubic-bezier(0.4,0,0.2,1)}22.917%{transform:translateY(0px)}100%{transform:translateY(0px)}}
+@keyframes compound-interest-s1{0%{transform:translateY(0px)}10.417%{transform:translateY(0px);animation-timing-function:steps(1,end)}23.958%{transform:translateY(-40px)}100%{transform:translateY(-40px)}}
+/* column 2: interest part rises 2.6-3.9 s */
+@keyframes compound-interest-g2{0%{transform:scaleY(0)}27.083%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.4,0,0.2,1)}40.625%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+@keyframes compound-interest-c2{0%{transform:translateY(152.90px)}27.083%{transform:translateY(152.90px);animation-timing-function:cubic-bezier(0.4,0,0.2,1)}40.625%{transform:translateY(0px)}100%{transform:translateY(0px)}}
+@keyframes compound-interest-s2{0%{transform:translateY(0px)}27.083%{transform:translateY(0px);animation-timing-function:steps(1,end)}31.211%{transform:translateY(-40px);animation-timing-function:steps(1,end)}41.667%{transform:translateY(-80px)}100%{transform:translateY(-80px)}}
+/* column 3: interest part rises 4.3-5.9 s */
+@keyframes compound-interest-g3{0%{transform:scaleY(0)}44.792%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.4,0,0.2,1)}61.458%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+@keyframes compound-interest-c3{0%{transform:translateY(307.28px)}44.792%{transform:translateY(307.28px);animation-timing-function:cubic-bezier(0.4,0,0.2,1)}61.458%{transform:translateY(0px)}100%{transform:translateY(0px)}}
+@keyframes compound-interest-s3{0%{transform:translateY(0px)}44.792%{transform:translateY(0px);animation-timing-function:steps(1,end)}48.61%{transform:translateY(-40px);animation-timing-function:steps(1,end)}50.609%{transform:translateY(-80px);animation-timing-function:steps(1,end)}62.5%{transform:translateY(-120px)}100%{transform:translateY(-120px)}}
+@keyframes compound-interest-b1{0%{stroke-dashoffset:101}70.312%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes compound-interest-a1{0%{opacity:0}70.312%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.438%{opacity:1}100%{opacity:1}}
+@keyframes compound-interest-l1{0%{opacity:0}72.917%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.042%{opacity:1}100%{opacity:1}}
+@keyframes compound-interest-b2{0%{stroke-dashoffset:101}75.521%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.208%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes compound-interest-a2{0%{opacity:0}75.521%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}78.646%{opacity:1}100%{opacity:1}}
+@keyframes compound-interest-l2{0%{opacity:0}78.125%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.25%{opacity:1}100%{opacity:1}}
+@keyframes compound-interest-b3{0%{stroke-dashoffset:101}81.25%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.458%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes compound-interest-a3{0%{opacity:0}81.25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.375%{opacity:1}100%{opacity:1}}
+@keyframes compound-interest-l3{0%{opacity:0}83.854%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.5%{opacity:1}100%{opacity:1}}
+/* scene 0-0.6 s */
+@keyframes compound-interest-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.25%{opacity:1}100%{opacity:1}}
+/* caption 1: 0.2-0.8 s in, 6.0-6.3 s out */
+@keyframes compound-interest-n0{0%{opacity:0}1.042%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.25%{opacity:1}63.542%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.146%{opacity:0}100%{opacity:0}}
+/* caption 2: 6.25-6.7 s in */
+@keyframes compound-interest-n1{0%{opacity:0}65.625%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.792%{opacity:1}100%{opacity:1}}
+
+.visible .anim-compound-interest .compound-interest-g1{animation:compound-interest-g1 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-c1{animation:compound-interest-c1 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-s1{animation:compound-interest-s1 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-g2{animation:compound-interest-g2 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-c2{animation:compound-interest-c2 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-s2{animation:compound-interest-s2 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-g3{animation:compound-interest-g3 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-c3{animation:compound-interest-c3 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-s3{animation:compound-interest-s3 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-b1{animation:compound-interest-b1 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-a1{animation:compound-interest-a1 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-l1{animation:compound-interest-l1 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-b2{animation:compound-interest-b2 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-a2{animation:compound-interest-a2 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-l2{animation:compound-interest-l2 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-b3{animation:compound-interest-b3 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-a3{animation:compound-interest-a3 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-l3{animation:compound-interest-l3 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-scene{animation:compound-interest-scene 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-n0{animation:compound-interest-n0 9.6s linear 1 both}
+.visible .anim-compound-interest .compound-interest-n1,.visible .anim-compound-interest .compound-interest-il{animation:compound-interest-n1 9.6s linear 1 both}
+
+@media (prefers-reduced-motion: reduce) { .anim-compound-interest * { animation: none !important; } }
+</style>
+<div class="anim anim-compound-interest" data-anim="compound-interest" data-anim-cycle="9.6" data-anim-control="once" data-anim-phases="0.7,2.4,4.1,6.05,8.5" data-anim-verb="grow">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustrative compound interest at an example rate of 5 percent a year: four columns at year 0, 10, 20 and 30 hold the original 1,000 and grow to 1,629, 2,653 and 4,322; the gains per decade are 629, 1,024 and 1,669, each larger than the one before, because interest earns interest.">
+<defs>
+  <clipPath id="compound-interest-w1"><rect x="555" y="283.32" width="160" height="40"/></clipPath>
+  <clipPath id="compound-interest-w2"><rect x="865" y="188.60" width="160" height="40"/></clipPath>
+  <clipPath id="compound-interest-w3"><rect x="1175" y="34.22" width="160" height="40"/></clipPath>
+</defs>
+<g class="compound-interest-scene">
+  <text class="compound-interest-mono" x="40" y="44">1,000 left alone at 5 % a year, interest added once a year</text>
+  <text class="compound-interest-mono" x="40" y="70">column height ∝ amount · no currency unit</text>
+  <rect class="compound-interest-tag" x="1450" y="20" width="206" height="36" rx="6"/>
+  <text class="compound-interest-mono" x="1553" y="44" text-anchor="middle">illustrative rate</text>
+  <!-- baseline and year labels -->
+  <path class="compound-interest-axis" d="M230 480.0 H1350"/>
+  <text class="compound-interest-mono compound-interest-yr" x="325" y="514" text-anchor="middle">year 0</text>
+  <text class="compound-interest-mono compound-interest-yr" x="635" y="514" text-anchor="middle">year 10</text>
+  <text class="compound-interest-mono compound-interest-yr" x="945" y="514" text-anchor="middle">year 20</text>
+  <text class="compound-interest-mono compound-interest-yr" x="1255" y="514" text-anchor="middle">year 30</text>
+  <!-- the original 1,000 in every column: quiet sides; its top is the dashed ghost line -->
+  <path class="compound-interest-base" d="M255 480.0 V387.50 M395 480.0 V387.50 M565 480.0 V387.50 M705 480.0 V387.50 M875 480.0 V387.50 M1015 480.0 V387.50 M1185 480.0 V387.50 M1325 480.0 V387.50"/>
+  <path class="compound-interest-ghost" d="M230 387.50 H1350"/>
+  <text class="compound-interest-t compound-interest-lbl" x="1347" y="428">original 1,000</text>
+  <g class="compound-interest-il">
+  <text class="compound-interest-t compound-interest-lbl" x="1347" y="305">interest</text>
+  <text class="compound-interest-mono" x="1347" y="331">earns interest too</text>
+  </g>
+  <text class="compound-interest-t compound-interest-val" x="325" y="371.50" text-anchor="middle">1,000</text>
+  <!-- year 10: 1,629 = 1,000 + 629 interest -->
+  <g class="compound-interest-g compound-interest-g1">
+    <rect class="compound-interest-tint" x="565" y="329.32" width="140" height="58.18"/>
+    <path class="compound-interest-side" d="M565 387.50 V329.32 M705 387.50 V329.32"/>
+  </g>
+  <g class="compound-interest-c compound-interest-c1">
+    <path class="compound-interest-cap" d="M565 329.32 H705"/>
+    <g clip-path="url(#compound-interest-w1)"><g class="compound-interest-s compound-interest-s1">
+      <text class="compound-interest-t compound-interest-val compound-interest-pass" x="635" y="313.32" text-anchor="middle">1,000</text>
+      <text class="compound-interest-t compound-interest-val" x="635" y="353.32" text-anchor="middle">1,629</text>
+    </g></g>
+  </g>
+  <!-- year 20: 2,653 = 1,000 + 1,653 interest -->
+  <g class="compound-interest-g compound-interest-g2">
+    <rect class="compound-interest-tint" x="875" y="234.60" width="140" height="152.90"/>
+    <path class="compound-interest-side" d="M875 387.50 V234.60 M1015 387.50 V234.60"/>
+  </g>
+  <g class="compound-interest-c compound-interest-c2">
+    <path class="compound-interest-cap" d="M875 234.60 H1015"/>
+    <g clip-path="url(#compound-interest-w2)"><g class="compound-interest-s compound-interest-s2">
+      <text class="compound-interest-t compound-interest-val compound-interest-pass" x="945" y="218.60" text-anchor="middle">1,000</text>
+      <text class="compound-interest-t compound-interest-val compound-interest-pass" x="945" y="258.60" text-anchor="middle">1,629</text>
+      <text class="compound-interest-t compound-interest-val" x="945" y="298.60" text-anchor="middle">2,653</text>
+    </g></g>
+  </g>
+  <!-- year 30: 4,322 = 1,000 + 3,322 interest -->
+  <g class="compound-interest-g compound-interest-g3">
+    <rect class="compound-interest-tint" x="1185" y="80.22" width="140" height="307.28"/>
+    <path class="compound-interest-side" d="M1185 387.50 V80.22 M1325 387.50 V80.22"/>
+  </g>
+  <g class="compound-interest-c compound-interest-c3">
+    <path class="compound-interest-cap" d="M1185 80.22 H1325"/>
+    <g clip-path="url(#compound-interest-w3)"><g class="compound-interest-s compound-interest-s3">
+      <text class="compound-interest-t compound-interest-val compound-interest-pass" x="1255" y="64.22" text-anchor="middle">1,000</text>
+      <text class="compound-interest-t compound-interest-val compound-interest-pass" x="1255" y="104.22" text-anchor="middle">1,629</text>
+      <text class="compound-interest-t compound-interest-val compound-interest-pass" x="1255" y="144.22" text-anchor="middle">2,653</text>
+      <text class="compound-interest-t compound-interest-val" x="1255" y="184.22" text-anchor="middle">4,322</text>
+    </g></g>
+  </g>
+  <!-- answer: each decade's gain, a tie at the previous column's level and a bracket -->
+  <path class="compound-interest-tie compound-interest-a1" d="M399 387.50 H711"/>
+  <path class="compound-interest-brk compound-interest-b1" pathLength="100" d="M713 387.50 H723 V329.32 H713"/>
+  <text class="compound-interest-t compound-interest-gain compound-interest-l1" x="735" y="367">+629</text>
+  <path class="compound-interest-tie compound-interest-a2" d="M731 329.32 H1021"/>
+  <path class="compound-interest-brk compound-interest-b2" pathLength="100" d="M1023 329.32 H1033 V234.60 H1023"/>
+  <text class="compound-interest-t compound-interest-gain compound-interest-l2" x="1045" y="291">+1,024</text>
+  <path class="compound-interest-tie compound-interest-a3" d="M1041 234.60 H1331"/>
+  <path class="compound-interest-brk compound-interest-acc compound-interest-b3" pathLength="100" d="M1333 234.60 H1343 V80.22 H1333"/>
+  <text class="compound-interest-t compound-interest-gain compound-interest-acc compound-interest-l3" x="1355" y="166">+1,669</text>
+  <text class="compound-interest-t compound-interest-note compound-interest-n0" x="840" y="572" text-anchor="middle">Left alone at 5 % a year, 1,000 grows decade by decade</text>
+  <text class="compound-interest-t compound-interest-note compound-interest-n1" x="840" y="572" text-anchor="middle">Each decade adds more than the one before: interest earns interest</text>
+</g>
+</svg>
+</div>

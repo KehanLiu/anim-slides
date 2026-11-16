@@ -1,0 +1,198 @@
+<!-- mitosis (pool, verb split, archetype states drawn as one cell, domain biology). Hand-built; lean style, references/style.md.
+  Story: one cell divides into two cells, each with a full copy of the chromosomes. Prophase: the
+  copied chromosomes (X shapes, two sister chromatids each) condense, scattered in the cell; the
+  spindle poles are present. Metaphase: the chromosomes move one after another to the middle of the
+  cell and spindle fibres draw on to them. Anaphase (the hero): every X comes apart, its two
+  chromatids pulled to opposite poles while the fibres shorten. Telophase: a nucleus forms at each
+  pole. Cytokinesis: the outline pinches at the middle into two cells that move slightly apart.
+  Verb: split. Technique: each chromatid is its own path from the start (nothing is swapped). The
+  four left chromatids, the left fibres, the left nucleus and the left daughter outline sit in one
+  group (.mitosis-gl) that is pulled to the pole by scaleX(0.4) about the pole (520,300) with
+  transform-box:view-box; the fibres converge on the pole, so scaling about it shortens each fibre
+  exactly to its chromatid. vector-effect:non-scaling-stroke keeps every stroke at its width; the
+  nucleus and daughter outlines are drawn pre-stretched (x 1/0.4) so they render as circles. Mirror
+  group on the right about (1160,300). One track per group, so anaphase is two moving things.
+  Colour (accent on the separating chromatids) rides `color` on the same groups (currentColor).
+  Pinch: base rule = cross-fade from the parent outline to the two daughter outlines; inside
+  @supports (d: path("M0 0")) the parent outline morphs (d, same 8 cubic commands) from the ellipse
+  to two touching circles, then hands over to the daughter outlines, which are drawn on those
+  circles. Line-up runs one chromosome at a time (0.45 s each) so at most two chromatids move at once.
+  Once pass 10 s: prophase 0-1.0, metaphase 1.0-3.8, anaphase 3.8-5.75, telophase 5.75-6.75,
+  cytokinesis 6.75-9.1, hold 9.15-10. Phases 1, 3.8, 5.75, 6.75, 9.15.
+  Facts:
+  - Before mitosis the chromosomes are copied, so each is two sister chromatids; prophase: chromosomes
+    condense, spindle forms; metaphase: line up at the middle; anaphase: sister chromatids separate and
+    are pulled to opposite poles; telophase: a nucleus forms at each pole; cytokinesis: the cell
+    pinches in two, giving two daughter cells with the same chromosomes: stated textbook cell biology
+    (the brief's facts). Phase names, "sister chromatids", "spindle", "two daughter cells": stated terms.
+  - 4 chromosomes: schematic choice, written on the slide as "schematic: 4 chromosomes shown"; no
+    human chromosome number, no timings, no sizes. Positions, distances and the 0.4 pull are drawing
+    choices, not data. -->
+<style>
+.anim-mitosis{
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-mitosis svg{display:block;width:100%;height:100%;max-width:none}
+.anim-mitosis .mitosis-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-mitosis .mitosis-ph{font-size:28px;font-weight:600}
+.anim-mitosis .mitosis-note{font-size:26px;font-weight:400}
+.anim-mitosis .mitosis-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
+.anim-mitosis .mitosis-small{font-size:18px}
+/* the cell: thin strokes, no fill */
+.anim-mitosis .mitosis-cell{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round}
+.anim-mitosis .mitosis-cell-d{fill:none;stroke:var(--anim-accent);stroke-width:2.5}
+.anim-mitosis .mitosis-nucl{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:6 8}
+.anim-mitosis .mitosis-pole{fill:var(--anim-muted)}
+.anim-mitosis .mitosis-fan path{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;opacity:.75}
+.anim-mitosis .mitosis-fan{stroke-dasharray:100 120;stroke-dashoffset:0}
+/* chromatids: rods in currentColor, colour set on their half */
+.anim-mitosis .mitosis-cr{fill:none;stroke:currentColor;stroke-width:8;stroke-linecap:round}
+.anim-mitosis .mitosis-half{color:var(--anim-fg);transform-box:view-box}
+.anim-mitosis .mitosis-gl{transform-origin:520px 300px;transform:translateX(-40px) scaleX(0.4)}
+.anim-mitosis .mitosis-gr{transform-origin:1160px 300px;transform:translateX(40px) scaleX(0.4)}
+.anim-mitosis .mitosis-c0{transform-box:view-box;transform-origin:840px 186px}
+.anim-mitosis .mitosis-c1{transform-box:view-box;transform-origin:840px 262px}
+.anim-mitosis .mitosis-c2{transform-box:view-box;transform-origin:840px 338px}
+.anim-mitosis .mitosis-c3{transform-box:view-box;transform-origin:840px 414px}
+/* resting frame = the end: two daughter cells apart, nuclei formed, spindle gone */
+.anim-mitosis .mitosis-fan,.anim-mitosis .mitosis-poles,.anim-mitosis .mitosis-spl,.anim-mitosis .mitosis-sis,.anim-mitosis .mitosis-par{opacity:0}
+.anim-mitosis .mitosis-p0,.anim-mitosis .mitosis-p1,.anim-mitosis .mitosis-p2,.anim-mitosis .mitosis-p3,.anim-mitosis .mitosis-n0,.anim-mitosis .mitosis-n1,.anim-mitosis .mitosis-n2,.anim-mitosis .mitosis-n3{opacity:0}
+
+/* ---- motion (10 s once pass), only when the slide is visible. percent = s / 10 ---- */
+/* scene fades in 0-0.4 s */
+@keyframes mitosis-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4%{opacity:1}100%{opacity:1}}
+/* chromosome 1: condenses (appears) 0.20-0.60 s, moves to the middle 1.35-1.80 s */
+@keyframes mitosis-c0{0%{opacity:0;transform:translate(-210px,30px) rotate(-35deg)}2%{opacity:0;transform:translate(-210px,30px) rotate(-35deg);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6%{opacity:1;transform:translate(-210px,30px) rotate(-35deg)}13.50%{opacity:1;transform:translate(-210px,30px) rotate(-35deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}18%{opacity:1;transform:translate(0px,0px) rotate(0deg)}100%{opacity:1;transform:translate(0px,0px) rotate(0deg)}}
+/* chromosome 2: condenses (appears) 0.32-0.72 s, moves to the middle 1.80-2.25 s */
+@keyframes mitosis-c1{0%{opacity:0;transform:translate(190px,-60px) rotate(50deg)}3.20%{opacity:0;transform:translate(190px,-60px) rotate(50deg);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.20%{opacity:1;transform:translate(190px,-60px) rotate(50deg)}18%{opacity:1;transform:translate(190px,-60px) rotate(50deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}22.50%{opacity:1;transform:translate(0px,0px) rotate(0deg)}100%{opacity:1;transform:translate(0px,0px) rotate(0deg)}}
+/* chromosome 3: condenses (appears) 0.44-0.84 s, moves to the middle 2.25-2.70 s */
+@keyframes mitosis-c2{0%{opacity:0;transform:translate(-120px,50px) rotate(70deg)}4.40%{opacity:0;transform:translate(-120px,50px) rotate(70deg);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.40%{opacity:1;transform:translate(-120px,50px) rotate(70deg)}22.50%{opacity:1;transform:translate(-120px,50px) rotate(70deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}27%{opacity:1;transform:translate(0px,0px) rotate(0deg)}100%{opacity:1;transform:translate(0px,0px) rotate(0deg)}}
+/* chromosome 4: condenses (appears) 0.56-0.96 s, moves to the middle 2.70-3.15 s */
+@keyframes mitosis-c3{0%{opacity:0;transform:translate(230px,-40px) rotate(-20deg)}5.60%{opacity:0;transform:translate(230px,-40px) rotate(-20deg);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.60%{opacity:1;transform:translate(230px,-40px) rotate(-20deg)}27%{opacity:1;transform:translate(230px,-40px) rotate(-20deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}31.50%{opacity:1;transform:translate(0px,0px) rotate(0deg)}100%{opacity:1;transform:translate(0px,0px) rotate(0deg)}}
+/* spindle fibres draw on 3.2-3.7 s, fade 6.1-6.3 s */
+@keyframes mitosis-fan{0%{stroke-dashoffset:101;opacity:1}32%{stroke-dashoffset:101;opacity:1;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37%{stroke-dashoffset:0;opacity:1}61%{stroke-dashoffset:0;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+/* spindle poles: present from the start, fade 6.1-6.3 s */
+@keyframes mitosis-poles{0%{opacity:1}61%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63%{opacity:0}100%{opacity:0}}
+/* "spindle" label 3.2-6.3 s */
+@keyframes mitosis-spl{0%{opacity:0}32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36%{opacity:1}61%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63%{opacity:0}100%{opacity:0}}
+/* "sister chromatids" label 3.2-4.05 s */
+@keyframes mitosis-sis{0%{opacity:0}32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36%{opacity:1}38%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40.50%{opacity:0}100%{opacity:0}}
+/* gl: accent 4.1-4.3, to the pole 4.35-5.65 s, plain 6.35-6.6, apart 8.25-9.1 s */
+@keyframes mitosis-half-gl{0%{transform:translateX(0px) scaleX(1);color:var(--anim-fg)}41%{transform:translateX(0px) scaleX(1);color:var(--anim-fg);animation-timing-function:cubic-bezier(0.2,0,0,1)}43%{transform:translateX(0px) scaleX(1);color:var(--anim-accent)}43.50%{transform:translateX(0px) scaleX(1);color:var(--anim-accent);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}56.50%{transform:translateX(0px) scaleX(0.4);color:var(--anim-accent)}63.50%{transform:translateX(0px) scaleX(0.4);color:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1)}66%{transform:translateX(0px) scaleX(0.4);color:var(--anim-fg)}82.50%{transform:translateX(0px) scaleX(0.4);color:var(--anim-fg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}91%{transform:translateX(-40px) scaleX(0.4);color:var(--anim-fg)}100%{transform:translateX(-40px) scaleX(0.4);color:var(--anim-fg)}}
+/* gr: accent 4.1-4.3, to the pole 4.35-5.65 s, plain 6.35-6.6, apart 8.25-9.1 s */
+@keyframes mitosis-half-gr{0%{transform:translateX(0px) scaleX(1);color:var(--anim-fg)}41%{transform:translateX(0px) scaleX(1);color:var(--anim-fg);animation-timing-function:cubic-bezier(0.2,0,0,1)}43%{transform:translateX(0px) scaleX(1);color:var(--anim-accent)}43.50%{transform:translateX(0px) scaleX(1);color:var(--anim-accent);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}56.50%{transform:translateX(0px) scaleX(0.4);color:var(--anim-accent)}63.50%{transform:translateX(0px) scaleX(0.4);color:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1)}66%{transform:translateX(0px) scaleX(0.4);color:var(--anim-fg)}82.50%{transform:translateX(0px) scaleX(0.4);color:var(--anim-fg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}91%{transform:translateX(40px) scaleX(0.4);color:var(--anim-fg)}100%{transform:translateX(40px) scaleX(0.4);color:var(--anim-fg)}}
+/* a nucleus forms at each pole 6.35-6.68 s */
+@keyframes mitosis-nuc{0%{opacity:0}63.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}66.80%{opacity:1}100%{opacity:1}}
+/* base: parent outline fades out 7.05-8.05 s (cross-fade fallback) */
+@keyframes mitosis-par-x{0%{opacity:1}70.50%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80.50%{opacity:0}100%{opacity:0}}
+/* base: daughter outlines fade in 7.05-8.05 s */
+@keyframes mitosis-dau-x{0%{opacity:0}70.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.50%{opacity:1}100%{opacity:1}}
+/* p0 */
+@keyframes mitosis-p0{0%{opacity:0}1.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.50%{opacity:1}10%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}11.50%{opacity:0}100%{opacity:0}}
+/* p1 */
+@keyframes mitosis-p1{0%{opacity:0}11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13%{opacity:1}38%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}39.50%{opacity:0}100%{opacity:0}}
+/* p2 */
+@keyframes mitosis-p2{0%{opacity:0}39%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41%{opacity:1}57.50%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59%{opacity:0}100%{opacity:0}}
+/* p3 */
+@keyframes mitosis-p3{0%{opacity:0}58.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.50%{opacity:1}67.50%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}69%{opacity:0}100%{opacity:0}}
+/* p4 */
+@keyframes mitosis-p4{0%{opacity:0}68.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.50%{opacity:1}100%{opacity:1}}
+/* n0 */
+@keyframes mitosis-n0{0%{opacity:0}1.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.50%{opacity:1}10%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}11.50%{opacity:0}100%{opacity:0}}
+/* n1 */
+@keyframes mitosis-n1{0%{opacity:0}11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13%{opacity:1}38%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}39.50%{opacity:0}100%{opacity:0}}
+/* n2 */
+@keyframes mitosis-n2{0%{opacity:0}39%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41%{opacity:1}57.50%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59%{opacity:0}100%{opacity:0}}
+/* n3 */
+@keyframes mitosis-n3{0%{opacity:0}58.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.50%{opacity:1}67.50%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}69%{opacity:0}100%{opacity:0}}
+/* n4 */
+@keyframes mitosis-n4{0%{opacity:0}68.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.50%{opacity:1}100%{opacity:1}}
+
+.visible .anim-mitosis .mitosis-scene{animation:mitosis-scene 10s linear 1 both}
+.visible .anim-mitosis .mitosis-c0{animation:mitosis-c0 10s linear 1 both}
+.visible .anim-mitosis .mitosis-c1{animation:mitosis-c1 10s linear 1 both}
+.visible .anim-mitosis .mitosis-c2{animation:mitosis-c2 10s linear 1 both}
+.visible .anim-mitosis .mitosis-c3{animation:mitosis-c3 10s linear 1 both}
+.visible .anim-mitosis .mitosis-fan{animation:mitosis-fan 10s linear 1 both}
+.visible .anim-mitosis .mitosis-poles{animation:mitosis-poles 10s linear 1 both}
+.visible .anim-mitosis .mitosis-spl{animation:mitosis-spl 10s linear 1 both}
+.visible .anim-mitosis .mitosis-sis{animation:mitosis-sis 10s linear 1 both}
+.visible .anim-mitosis .mitosis-gl{animation:mitosis-half-gl 10s linear 1 both}
+.visible .anim-mitosis .mitosis-gr{animation:mitosis-half-gr 10s linear 1 both}
+.visible .anim-mitosis .mitosis-nuc{animation:mitosis-nuc 10s linear 1 both}
+.visible .anim-mitosis .mitosis-par{animation:mitosis-par-x 10s linear 1 both}
+.visible .anim-mitosis .mitosis-dau{animation:mitosis-dau-x 10s linear 1 both}
+.visible .anim-mitosis .mitosis-p0{animation:mitosis-p0 10s linear 1 both}
+.visible .anim-mitosis .mitosis-p1{animation:mitosis-p1 10s linear 1 both}
+.visible .anim-mitosis .mitosis-p2{animation:mitosis-p2 10s linear 1 both}
+.visible .anim-mitosis .mitosis-p3{animation:mitosis-p3 10s linear 1 both}
+.visible .anim-mitosis .mitosis-p4{animation:mitosis-p4 10s linear 1 both}
+.visible .anim-mitosis .mitosis-n0{animation:mitosis-n0 10s linear 1 both}
+.visible .anim-mitosis .mitosis-n1{animation:mitosis-n1 10s linear 1 both}
+.visible .anim-mitosis .mitosis-n2{animation:mitosis-n2 10s linear 1 both}
+.visible .anim-mitosis .mitosis-n3{animation:mitosis-n3 10s linear 1 both}
+.visible .anim-mitosis .mitosis-n4{animation:mitosis-n4 10s linear 1 both}
+
+/* enhancement: the parent outline morphs into two touching circles, then hands over */
+@supports (d: path("M0 0")) {
+  .anim-mitosis .mitosis-par{d:path("M 840 300 C 840 189.5 929.5 100 1040 100 C 1150.5 100 1240 189.5 1240 300 C 1240 410.5 1150.5 500 1040 500 C 929.5 500 840 410.5 840 300 C 840 410.5 750.5 500 640 500 C 529.5 500 440 410.5 440 300 C 440 189.5 529.5 100 640 100 C 750.5 100 840 189.5 840 300 Z")}
+  @keyframes mitosis-par-m{0%{d:path("M 840 85 C 946.1 85 1047.8 107.7 1122.8 148 C 1197.9 188.3 1240 243 1240 300 C 1240 357 1197.9 411.7 1122.8 452 C 1047.8 492.3 946.1 515 840 515 C 733.9 515 632.2 492.3 557.2 452 C 482.1 411.7 440 357 440 300 C 440 243 482.1 188.3 557.2 148 C 632.2 107.7 733.9 85 840 85 Z");opacity:1}70.50%{d:path("M 840 85 C 946.1 85 1047.8 107.7 1122.8 148 C 1197.9 188.3 1240 243 1240 300 C 1240 357 1197.9 411.7 1122.8 452 C 1047.8 492.3 946.1 515 840 515 C 733.9 515 632.2 492.3 557.2 452 C 482.1 411.7 440 357 440 300 C 440 243 482.1 188.3 557.2 148 C 632.2 107.7 733.9 85 840 85 Z");opacity:1;animation-timing-function:cubic-bezier(0.45,0,0.25,1)}80.50%{d:path("M 840 300 C 840 189.5 929.5 100 1040 100 C 1150.5 100 1240 189.5 1240 300 C 1240 410.5 1150.5 500 1040 500 C 929.5 500 840 410.5 840 300 C 840 410.5 750.5 500 640 500 C 529.5 500 440 410.5 440 300 C 440 189.5 529.5 100 640 100 C 750.5 100 840 189.5 840 300 Z");opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}82%{d:path("M 840 300 C 840 189.5 929.5 100 1040 100 C 1150.5 100 1240 189.5 1240 300 C 1240 410.5 1150.5 500 1040 500 C 929.5 500 840 410.5 840 300 C 840 410.5 750.5 500 640 500 C 529.5 500 440 410.5 440 300 C 440 189.5 529.5 100 640 100 C 750.5 100 840 189.5 840 300 Z");opacity:0}100%{d:path("M 840 300 C 840 189.5 929.5 100 1040 100 C 1150.5 100 1240 189.5 1240 300 C 1240 410.5 1150.5 500 1040 500 C 929.5 500 840 410.5 840 300 C 840 410.5 750.5 500 640 500 C 529.5 500 440 410.5 440 300 C 440 189.5 529.5 100 640 100 C 750.5 100 840 189.5 840 300 Z");opacity:0}}
+  @keyframes mitosis-dau-m{0%{opacity:0}80.50%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82%{opacity:1}100%{opacity:1}}
+  .visible .anim-mitosis .mitosis-par{animation:mitosis-par-m 10s linear 1 both}
+  .visible .anim-mitosis .mitosis-dau{animation:mitosis-dau-m 10s linear 1 both}
+}
+
+@media (prefers-reduced-motion: reduce) { .anim-mitosis * { animation: none !important; } }
+</style>
+<div class="anim anim-mitosis" data-anim="mitosis" data-anim-cycle="10" data-anim-control="once" data-anim-phases="1,3.8,5.75,6.75,9.15" data-anim-verb="split">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schematic of mitosis with four chromosomes: the copied chromosomes, each two sister chromatids, line up at the middle of the cell, the sister chromatids are pulled to opposite poles along the spindle, a nucleus forms at each pole and the cell pinches into two daughter cells, each with a full copy of the chromosomes.">
+<g class="mitosis-scene">
+  <text class="mitosis-mono mitosis-small" x="40" y="48">schematic: 4 chromosomes shown</text>
+  <text class="mitosis-mono" x="1470" y="276" text-anchor="middle">phase</text>
+  <text class="mitosis-t mitosis-ph mitosis-p0" x="1470" y="318" text-anchor="middle">prophase</text>
+  <text class="mitosis-t mitosis-ph mitosis-p1" x="1470" y="318" text-anchor="middle">metaphase</text>
+  <text class="mitosis-t mitosis-ph mitosis-p2" x="1470" y="318" text-anchor="middle">anaphase</text>
+  <text class="mitosis-t mitosis-ph mitosis-p3" x="1470" y="318" text-anchor="middle">telophase</text>
+  <text class="mitosis-t mitosis-ph mitosis-p4" x="1470" y="318" text-anchor="middle">cytokinesis</text>
+  <path class="mitosis-cell mitosis-par" d="M 840 85 C 946.1 85 1047.8 107.7 1122.8 148 C 1197.9 188.3 1240 243 1240 300 C 1240 357 1197.9 411.7 1122.8 452 C 1047.8 492.3 946.1 515 840 515 C 733.9 515 632.2 492.3 557.2 452 C 482.1 411.7 440 357 440 300 C 440 243 482.1 188.3 557.2 148 C 632.2 107.7 733.9 85 840 85 Z"/>
+  <g class="mitosis-poles"><circle class="mitosis-pole" cx="520" cy="300" r="7"/><circle class="mitosis-pole" cx="1160" cy="300" r="7"/></g>
+  <text class="mitosis-mono mitosis-spl" x="520" y="352" text-anchor="middle">spindle</text>
+  <text class="mitosis-mono mitosis-sis" x="840" y="130" text-anchor="middle">sister chromatids</text>
+<g class="mitosis-gl mitosis-half">
+  <g class="mitosis-fan"><path pathLength="100" vector-effect="non-scaling-stroke" d="M 520 300 L 832 186"/><path pathLength="100" vector-effect="non-scaling-stroke" d="M 520 300 L 832 262"/><path pathLength="100" vector-effect="non-scaling-stroke" d="M 520 300 L 832 338"/><path pathLength="100" vector-effect="non-scaling-stroke" d="M 520 300 L 832 414"/></g>
+  <ellipse class="mitosis-nucl mitosis-nuc" vector-effect="non-scaling-stroke" cx="835" cy="300" rx="400" ry="160"/>
+  <ellipse class="mitosis-cell-d mitosis-dau" vector-effect="non-scaling-stroke" cx="820" cy="300" rx="500" ry="200"/>
+  <path class="mitosis-cr mitosis-c0" vector-effect="non-scaling-stroke" d="M 822 156 Q 848 186 822 216"/>
+  <path class="mitosis-cr mitosis-c1" vector-effect="non-scaling-stroke" d="M 822 232 Q 848 262 822 292"/>
+  <path class="mitosis-cr mitosis-c2" vector-effect="non-scaling-stroke" d="M 822 308 Q 848 338 822 368"/>
+  <path class="mitosis-cr mitosis-c3" vector-effect="non-scaling-stroke" d="M 822 384 Q 848 414 822 444"/>
+</g>
+<g class="mitosis-gr mitosis-half">
+  <g class="mitosis-fan"><path pathLength="100" vector-effect="non-scaling-stroke" d="M 1160 300 L 848 186"/><path pathLength="100" vector-effect="non-scaling-stroke" d="M 1160 300 L 848 262"/><path pathLength="100" vector-effect="non-scaling-stroke" d="M 1160 300 L 848 338"/><path pathLength="100" vector-effect="non-scaling-stroke" d="M 1160 300 L 848 414"/></g>
+  <ellipse class="mitosis-nucl mitosis-nuc" vector-effect="non-scaling-stroke" cx="845" cy="300" rx="400" ry="160"/>
+  <ellipse class="mitosis-cell-d mitosis-dau" vector-effect="non-scaling-stroke" cx="860" cy="300" rx="500" ry="200"/>
+  <path class="mitosis-cr mitosis-c0" vector-effect="non-scaling-stroke" d="M 858 156 Q 832 186 858 216"/>
+  <path class="mitosis-cr mitosis-c1" vector-effect="non-scaling-stroke" d="M 858 232 Q 832 262 858 292"/>
+  <path class="mitosis-cr mitosis-c2" vector-effect="non-scaling-stroke" d="M 858 308 Q 832 338 858 368"/>
+  <path class="mitosis-cr mitosis-c3" vector-effect="non-scaling-stroke" d="M 858 384 Q 832 414 858 444"/>
+</g>
+  <text class="mitosis-t mitosis-note mitosis-n0" x="840" y="572" text-anchor="middle">The copied chromosomes condense: each is two sister chromatids</text>
+  <text class="mitosis-t mitosis-note mitosis-n1" x="840" y="572" text-anchor="middle">The chromosomes line up at the middle of the cell</text>
+  <text class="mitosis-t mitosis-note mitosis-n2" x="840" y="572" text-anchor="middle">The sister chromatids separate and are pulled to opposite poles</text>
+  <text class="mitosis-t mitosis-note mitosis-n3" x="840" y="572" text-anchor="middle">A nucleus forms at each pole</text>
+  <text class="mitosis-t mitosis-note mitosis-n4" x="840" y="572" text-anchor="middle">The cell pinches in two: two daughter cells, each with a full copy of the chromosomes</text>
+</g>
+</svg>
+</div>

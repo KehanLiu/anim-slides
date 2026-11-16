@@ -1,0 +1,153 @@
+<!-- oxbow-lake (pool, verb transform, form plan-view scene, domain earth science). Hand-built (geometry
+  generated, then checked by eye); lean style, references/style.md.
+  Story: a river seen from above. Its gentle bend grows into a tight loop with a narrow neck; in a flood
+  the river cuts through the neck and takes the short new course; deposition seals the ends of the old
+  loop, which is left behind as a crescent-shaped oxbow lake. A dashed ghost keeps the line of the first
+  bend. Once-play pass 9.5 s, hold 8.25-9.5 s.
+  Verb: transform. The river's own outline changes shape in place (gentle bend -> tight loop -> lake
+  plus straight course); the cut-off channel is the one accent.
+  Technique (references/motion-verbs.md section 5, Morph): the river is three pieces (left reach, loop,
+  right reach), each a path with the same commands (M + cubic C segments) in every state, drawn twice
+  (a wide bank stroke under a narrower water stroke, all banks before all water so the pieces join
+  without seams). Base rule: four stacked copies of the river (gentle bend, pronounced bend, tight loop,
+  final pieces) cross-faded, plus a cut channel copy at the neck, so a browser without CSS d animation shows a correct pass and the same
+  finished still. Inside @supports (d: path("M0 0")) the stacked copies are hidden and the pieces
+  animate d through the four states (the cut channel also draws on, then drops in line with the
+  straightened reaches); their d attributes hold the final state, so the resting frame,
+  the reduced-motion still and the last frame of the pass are the same picture.
+  Facts (textbook physical geography, no source numbers; every shape is schematic):
+  - "meander", "outer bank: erosion", "inner bank: deposition": a meandering river erodes the outer
+    bank of a bend (cut bank) and deposits sediment on the inner bank (point bar). Stated fact (brief).
+  - the bend grows tighter and its neck narrows; label "neck". Stated fact (brief).
+  - "cut-off", "new course": in a flood the river breaks through the neck and takes the shorter,
+    straighter course. Stated fact (brief).
+  - "oxbow lake": deposition seals the ends of the abandoned loop, which remains as a crescent-shaped
+    lake. Stated fact (brief).
+  - No numbers, dates, rates or place names. Sizes and the timing of the stages are illustrative and
+    carry no scale; nothing is measured, so no illustrative tag. -->
+<style>
+.anim-oxbow-lake{
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-oxbow-lake svg{display:block;width:100%;height:100%;max-width:none}
+.anim-oxbow-lake .oxbow-lake-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-oxbow-lake .oxbow-lake-lbl{font-size:26px;font-weight:600}
+.anim-oxbow-lake .oxbow-lake-acc{fill:var(--anim-accent)}
+.anim-oxbow-lake .oxbow-lake-note{font-size:26px;font-weight:400}
+.anim-oxbow-lake .oxbow-lake-mono{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted)}
+/* river: a 38 px bank stroke under a 34 px water stroke leaves two 2 px bank lines; water is scene ground */
+.anim-oxbow-lake .oxbow-lake-bank{fill:none;stroke:var(--anim-muted);stroke-width:38;stroke-linecap:round;stroke-linejoin:round}
+.anim-oxbow-lake .oxbow-lake-water{fill:none;stroke:color-mix(in srgb,var(--anim-accent) 20%,var(--anim-bg));stroke-width:34;stroke-linecap:round;stroke-linejoin:round}
+.anim-oxbow-lake .oxbow-lake-cutbank{stroke:var(--anim-accent);stroke-width:39}
+.anim-oxbow-lake .oxbow-lake-cut,.anim-oxbow-lake .oxbow-lake-dash{stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-oxbow-lake .oxbow-lake-gh{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:8 9;stroke-linecap:round}
+/* resting frame: final pieces (lake + new course) shown, stacked earlier states and stage labels hidden */
+.anim-oxbow-lake .oxbow-lake-cut,.anim-oxbow-lake .oxbow-lake-xg,.anim-oxbow-lake .oxbow-lake-xm,.anim-oxbow-lake .oxbow-lake-xt,.anim-oxbow-lake .oxbow-lake-lmea,.anim-oxbow-lake .oxbow-lake-lero,.anim-oxbow-lake .oxbow-lake-ldep,.anim-oxbow-lake .oxbow-lake-lneck,.anim-oxbow-lake .oxbow-lake-n0,.anim-oxbow-lake .oxbow-lake-n1,.anim-oxbow-lake .oxbow-lake-n2{opacity:0}
+
+/* ---- motion (9.5 s once-play pass), only when the slide is visible.
+   0-0.5 scene in; 1.0-2.4 bend grows (morph 1); 2.45-2.9 erosion / deposition labels;
+   3.0-4.4 bend tightens to a loop with a narrow neck (morph 2); 4.45 "neck"; 5.15-5.95 cut-off draws on
+   (accent); 6.25-7.65 the loop seals off and the reaches straighten (morph 3); 7.7-8.2 lake and course
+   labels; hold 8.25-9.5. ---- */
+@keyframes oxbow-lake-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.26%{opacity:1}100%{opacity:1}}
+@keyframes oxbow-lake-xg{0%{opacity:1}10.53%{opacity:1;animation-timing-function:ease-in-out}25.26%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-xm{0%{opacity:0}10.53%{opacity:0;animation-timing-function:ease-in-out}25.26%{opacity:1}31.58%{opacity:1;animation-timing-function:ease-in-out}46.32%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-xt{0%{opacity:0}31.58%{opacity:0;animation-timing-function:ease-in-out}46.32%{opacity:1}65.79%{opacity:1;animation-timing-function:ease-in-out}80.53%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-xf{0%{opacity:0}65.79%{opacity:0;animation-timing-function:ease-in-out}80.53%{opacity:1}100%{opacity:1}}
+@keyframes oxbow-lake-dL{0%{d:path("M240 440 C320 440 405 450 480 436.3 C555 422.7 642.5 362.1 690 336.3")}10.53%{d:path("M240 440 C320 440 405 450 480 436.3 C555 422.7 642.5 362.1 690 336.3");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}25.26%{d:path("M240 440 C380 440 545 440 620 440 C695 440 699 430 705 380")}31.58%{d:path("M240 440 C380 440 545 440 620 440 C695 440 699 430 705 380");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}46.32%{d:path("M240 440 C380 440 597.5 440 690 440 C782.5 440 775 458 775 410")}65.79%{d:path("M240 440 C380 440 597.5 440 690 440 C782.5 440 775 458 775 410");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}80.53%{d:path("M240 440 C380 440 560 440 690 440 C730 440 745 440 775 440")}100%{d:path("M240 440 C380 440 560 440 690 440 C730 440 745 440 775 440")}}
+@keyframes oxbow-lake-dO{0%{d:path("M690 336.3 C737.5 310.4 740 310.8 765 302.6 C790 294.5 815 290 840 290 C865 290 890 294.5 915 302.6 C940 310.8 942.5 310.4 990 336.3")}10.53%{d:path("M690 336.3 C737.5 310.4 740 310.8 765 302.6 C790 294.5 815 290 840 290 C865 290 890 294.5 915 302.6 C940 310.8 942.5 310.4 990 336.3");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}25.26%{d:path("M705 380 C711 330 660 300 670 230 C680 160 750 120 840 120 C930 120 1000 160 1010 230 C1020 300 969 330 975 380")}31.58%{d:path("M705 380 C711 330 660 300 670 230 C680 160 750 120 840 120 C930 120 1000 160 1010 230 C1020 300 969 330 975 380");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}46.32%{d:path("M775 410 C775 362 630 330 630 240 C630 150 725 85 840 85 C955 85 1050 150 1050 240 C1050 330 905 362 905 410")}65.79%{d:path("M775 410 C775 362 630 330 630 240 C630 150 725 85 840 85 C955 85 1050 150 1050 240 C1050 330 905 362 905 410");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}80.53%{d:path("M681 324.9 C653.2 302.7 630 276 630 240 C630 150 725 85 840 85 C955 85 1050 150 1050 240 C1050 276 1026.8 302.7 999 324.9")}100%{d:path("M681 324.9 C653.2 302.7 630 276 630 240 C630 150 725 85 840 85 C955 85 1050 150 1050 240 C1050 276 1026.8 302.7 999 324.9")}}
+@keyframes oxbow-lake-dR{0%{d:path("M990 336.3 C1037.5 362.1 1125 422.7 1200 436.3 C1275 450 1360 440 1440 440")}10.53%{d:path("M990 336.3 C1037.5 362.1 1125 422.7 1200 436.3 C1275 450 1360 440 1440 440");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}25.26%{d:path("M975 380 C981 430 975 440 1060 440 C1145 440 1300 440 1440 440")}31.58%{d:path("M975 380 C981 430 975 440 1060 440 C1145 440 1300 440 1440 440");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}46.32%{d:path("M905 410 C905 458 897.5 440 990 440 C1082.5 440 1300 440 1440 440")}65.79%{d:path("M905 410 C905 458 897.5 440 990 440 C1082.5 440 1300 440 1440 440");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}80.53%{d:path("M905 440 C935 440 950 440 990 440 C1120 440 1300 440 1440 440")}100%{d:path("M905 440 C935 440 950 440 990 440 C1120 440 1300 440 1440 440")}}
+@keyframes oxbow-lake-dN{0%{stroke-dashoffset:101;d:path("M775 410 C818 410 862 410 905 410")}54.21%{stroke-dashoffset:101;d:path("M775 410 C818 410 862 410 905 410");animation-timing-function:ease-in-out}62.63%{stroke-dashoffset:0;d:path("M775 410 C818 410 862 410 905 410")}65.79%{stroke-dashoffset:0;d:path("M775 410 C818 410 862 410 905 410");animation-timing-function:cubic-bezier(0.45,0,0.25,1)}80.53%{stroke-dashoffset:0;d:path("M775 440 C818 440 862 440 905 440")}100%{stroke-dashoffset:0;d:path("M775 440 C818 440 862 440 905 440")}}
+@keyframes oxbow-lake-cut{0%{stroke-dashoffset:101;opacity:1}54.21%{stroke-dashoffset:101;opacity:1;animation-timing-function:ease-in-out}62.63%{stroke-dashoffset:0;opacity:1}80.53%{stroke-dashoffset:0;opacity:1;animation-timing-function:ease-in-out}82.63%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes oxbow-lake-ghost{0%{opacity:0}12.11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.42%{opacity:1}100%{opacity:1}}
+@keyframes oxbow-lake-lmea{0%{opacity:1}8.95%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}11.58%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-lero{0%{opacity:0}25.79%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.47%{opacity:1}51.05%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}53.16%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-ldep{0%{opacity:0}26.84%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}30.53%{opacity:1}51.05%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}53.16%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-lneck{0%{opacity:0}46.84%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50%{opacity:1}51.05%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}53.16%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-lcut{0%{opacity:0}60%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.16%{opacity:1}100%{opacity:1}}
+@keyframes oxbow-lake-llake{0%{opacity:0}81.05%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}85.26%{opacity:1}100%{opacity:1}}
+@keyframes oxbow-lake-lnew{0%{opacity:0}82.11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.32%{opacity:1}100%{opacity:1}}
+@keyframes oxbow-lake-n0{0%{opacity:1}31.58%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34.21%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-n1{0%{opacity:0}33.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.84%{opacity:1}51.05%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}53.16%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-n2{0%{opacity:0}52.11%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}55.26%{opacity:1}65.79%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}67.89%{opacity:0}100%{opacity:0}}
+@keyframes oxbow-lake-n3{0%{opacity:0}67.37%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.05%{opacity:1}100%{opacity:1}}
+.visible .anim-oxbow-lake .oxbow-lake-scene{animation:oxbow-lake-scene 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-xg{animation:oxbow-lake-xg 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-xm{animation:oxbow-lake-xm 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-xt{animation:oxbow-lake-xt 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-pc{animation:oxbow-lake-xf 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-cut{animation:oxbow-lake-cut 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-ghost{animation:oxbow-lake-ghost 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-lmea{animation:oxbow-lake-lmea 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-lero{animation:oxbow-lake-lero 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-ldep{animation:oxbow-lake-ldep 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-lneck{animation:oxbow-lake-lneck 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-lcut{animation:oxbow-lake-lcut 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-llake{animation:oxbow-lake-llake 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-lnew{animation:oxbow-lake-lnew 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-n0{animation:oxbow-lake-n0 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-n1{animation:oxbow-lake-n1 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-n2{animation:oxbow-lake-n2 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-n3{animation:oxbow-lake-n3 9.5s linear 1 both}
+/* morph enhancement: where CSS d animates, hide the stacked copies and morph the pieces in place */
+@supports (d: path("M0 0")) {
+.anim-oxbow-lake .oxbow-lake-x{display:none}
+.visible .anim-oxbow-lake .oxbow-lake-pL{animation:oxbow-lake-dL 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-pO{animation:oxbow-lake-dO 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-pR{animation:oxbow-lake-dR 9.5s linear 1 both}
+.visible .anim-oxbow-lake .oxbow-lake-pN{animation:oxbow-lake-dN 9.5s linear 1 both}
+}
+@media (prefers-reduced-motion: reduce) { .anim-oxbow-lake * { animation: none !important; } }
+</style>
+<div class="anim anim-oxbow-lake" data-anim="oxbow-lake" data-anim-cycle="9.5" data-anim-control="once" data-anim-phases="2.9,4.8,6.1,8.25" data-anim-verb="transform">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Map view of a river: a gentle bend grows into a tight loop with a narrow neck, the river cuts through the neck and takes the new course, and the old loop is sealed off as a crescent-shaped oxbow lake.">
+<g class="oxbow-lake-scene">
+  <!-- river pieces: all bank strokes, then the ghost, then all water strokes (water = scene ground) -->
+  <g data-anim-scene>
+    <path class="oxbow-lake-bank oxbow-lake-pc oxbow-lake-pL" d="M240 440 C380 440 560 440 690 440 C730 440 745 440 775 440"/>
+    <path class="oxbow-lake-bank oxbow-lake-pc oxbow-lake-pO" d="M681 324.9 C653.2 302.7 630 276 630 240 C630 150 725 85 840 85 C955 85 1050 150 1050 240 C1050 276 1026.8 302.7 999 324.9"/>
+    <path class="oxbow-lake-bank oxbow-lake-pc oxbow-lake-pR" d="M905 440 C935 440 950 440 990 440 C1120 440 1300 440 1440 440"/>
+    <path class="oxbow-lake-bank oxbow-lake-cutbank oxbow-lake-cut oxbow-lake-x" pathLength="100" d="M775 410 C818 410 862 410 905 410"/>
+    <path class="oxbow-lake-bank oxbow-lake-cutbank oxbow-lake-dash oxbow-lake-pc oxbow-lake-pN" pathLength="100" d="M775 440 C818 440 862 440 905 440"/>
+  </g>
+  <path class="oxbow-lake-gh oxbow-lake-ghost" d="M440 440 C506.7 440 573.3 404.3 640 365 C706.7 325.7 773.3 290 840 290 C906.7 290 973.3 325.7 1040 365 C1106.7 404.3 1173.3 440 1240 440"/>
+  <g data-anim-scene>
+    <path class="oxbow-lake-water oxbow-lake-pc oxbow-lake-pL" d="M240 440 C380 440 560 440 690 440 C730 440 745 440 775 440"/>
+    <path class="oxbow-lake-water oxbow-lake-pc oxbow-lake-pO" d="M681 324.9 C653.2 302.7 630 276 630 240 C630 150 725 85 840 85 C955 85 1050 150 1050 240 C1050 276 1026.8 302.7 999 324.9"/>
+    <path class="oxbow-lake-water oxbow-lake-pc oxbow-lake-pR" d="M905 440 C935 440 950 440 990 440 C1120 440 1300 440 1440 440"/>
+    <path class="oxbow-lake-water oxbow-lake-cut oxbow-lake-x" pathLength="100" d="M775 410 C818 410 862 410 905 410"/>
+    <path class="oxbow-lake-water oxbow-lake-dash oxbow-lake-pc oxbow-lake-pN" pathLength="100" d="M775 440 C818 440 862 440 905 440"/>
+  </g>
+  <!-- stacked copies for the cross-fade base (hidden where d animates) -->
+  <g data-anim-scene>
+    <g class="oxbow-lake-xg oxbow-lake-x"><path class="oxbow-lake-bank" d="M240 440 C320 440 405 450 480 436.3 C555 422.7 642.5 362.1 690 336.3 C737.5 310.4 740 310.8 765 302.6 C790 294.5 815 290 840 290 C865 290 890 294.5 915 302.6 C940 310.8 942.5 310.4 990 336.3 C1037.5 362.1 1125 422.7 1200 436.3 C1275 450 1360 440 1440 440"/><path class="oxbow-lake-water" d="M240 440 C320 440 405 450 480 436.3 C555 422.7 642.5 362.1 690 336.3 C737.5 310.4 740 310.8 765 302.6 C790 294.5 815 290 840 290 C865 290 890 294.5 915 302.6 C940 310.8 942.5 310.4 990 336.3 C1037.5 362.1 1125 422.7 1200 436.3 C1275 450 1360 440 1440 440"/></g>
+    <g class="oxbow-lake-xm oxbow-lake-x"><path class="oxbow-lake-bank" d="M240 440 C380 440 545 440 620 440 C695 440 699 430 705 380 C711 330 660 300 670 230 C680 160 750 120 840 120 C930 120 1000 160 1010 230 C1020 300 969 330 975 380 C981 430 975 440 1060 440 C1145 440 1300 440 1440 440"/><path class="oxbow-lake-water" d="M240 440 C380 440 545 440 620 440 C695 440 699 430 705 380 C711 330 660 300 670 230 C680 160 750 120 840 120 C930 120 1000 160 1010 230 C1020 300 969 330 975 380 C981 430 975 440 1060 440 C1145 440 1300 440 1440 440"/></g>
+    <g class="oxbow-lake-xt oxbow-lake-x"><path class="oxbow-lake-bank" d="M240 440 C380 440 597.5 440 690 440 C782.5 440 775 458 775 410 C775 362 630 330 630 240 C630 150 725 85 840 85 C955 85 1050 150 1050 240 C1050 330 905 362 905 410 C905 458 897.5 440 990 440 C1082.5 440 1300 440 1440 440"/><path class="oxbow-lake-water" d="M240 440 C380 440 597.5 440 690 440 C782.5 440 775 458 775 410 C775 362 630 330 630 240 C630 150 725 85 840 85 C955 85 1050 150 1050 240 C1050 330 905 362 905 410 C905 458 897.5 440 990 440 C1082.5 440 1300 440 1440 440"/></g>
+  </g>
+  <!-- labels -->
+  <text class="oxbow-lake-t oxbow-lake-lbl oxbow-lake-lmea" x="840" y="250" text-anchor="middle">meander</text>
+  <text class="oxbow-lake-mono oxbow-lake-lero" x="1092" y="200">outer bank: erosion</text>
+  <text class="oxbow-lake-mono oxbow-lake-ldep" x="840" y="262" text-anchor="middle">inner bank: deposition</text>
+  <text class="oxbow-lake-mono oxbow-lake-lneck" x="840" y="416" text-anchor="middle">neck</text>
+  <text class="oxbow-lake-mono oxbow-lake-lcut" x="840" y="518" text-anchor="middle">cut-off</text>
+  <text class="oxbow-lake-t oxbow-lake-lbl oxbow-lake-acc oxbow-lake-lnew" x="840" y="494" text-anchor="middle">new course</text>
+  <text class="oxbow-lake-t oxbow-lake-lbl oxbow-lake-llake" x="840" y="250" text-anchor="middle">oxbow lake</text>
+  <text class="oxbow-lake-t oxbow-lake-note oxbow-lake-n0" x="840" y="566" text-anchor="middle">A meandering river erodes the outer bank of its bend and deposits on the inner bank</text>
+  <text class="oxbow-lake-t oxbow-lake-note oxbow-lake-n1" x="840" y="566" text-anchor="middle">The bend grows tighter and its neck narrows</text>
+  <text class="oxbow-lake-t oxbow-lake-note oxbow-lake-n2" x="840" y="566" text-anchor="middle">In a flood the river cuts through the neck and takes the shorter course</text>
+  <text class="oxbow-lake-t oxbow-lake-note oxbow-lake-n3" x="840" y="566" text-anchor="middle">Deposition seals the old loop: it is left behind as an oxbow lake</text>
+</g>
+</svg>
+</div>
