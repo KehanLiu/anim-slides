@@ -1,22 +1,21 @@
 <!-- earth-layers (pool, verb open as a cutaway, archetype layers drawn as the planet itself, domain earth science). Hand-built; lean style, references/style.md.
-  Story: the Earth is one closed sphere drawn as a thin outline. A quarter of it is cut away: the cut
-  sweeps open from the top cut face round to the right one and the inside shows concentric layers at
-  true radial proportion (hero, step 1). The layers are then named from the outside in, each with a
-  thin leader to a label outside the sphere and its depth in mono; the layer being named takes the
-  accent and the earlier labels dim (hero, step 2). Leaders leave each layer through the flat
-  cut face (a dot on the horizontal cut edge), drop through the closed lower quarter and cross only the
-  outer outline once. Answer: the labels come back and a depth scale
-  draws along the vertical cut face, from 0 km at the surface to 6,371 km at the centre.
-  Verb: open (cutaway). Technique: the wedge contents (faint layer faces, boundary arcs, the two cut
-  faces) sit in one <g> whose clip-path is a 4-vertex polygon() animated in two segments (the third
-  vertex runs along the top of the quarter's box, then the fourth runs down its right side), so the
-  opening edge is one straight radius sweeping 90 degrees; equal vertex counts, so it interpolates
-  everywhere. An invisible rect fixes the group's reference box (610,30)-(890,310); polygon px are
-  relative to it. Labels: stacked accent copies cross-faded, leaders drawn on with pathLength,
-  callout groups dimmed by colour (label and dot to --anim-muted) and opacity .6, legible on light grounds too. No offset-path, no marker. The crust is the outline stroke itself
-  (3 px = about 80 km at this scale), said in the crust's mono note.
-  Once pass 9.9 s: set 0-1.28 s, cut 1.3-3.0 s, naming 3.35-7.23 s, answer 7.25-8.85 s, hold 8.9-9.9 s.
-  Phases 1.28, 3.0, 5.25, 7.24, 8.9.
+  Story: the Earth is one closed sphere drawn as a thin outline. A quarter is cut away: a knife radius
+  turns from the top cut face round to the right one and the wedge opens behind it (hero, step 1).
+  The opened wedge then shows the layers one after another from the outside in (hero, step 2): the
+  crust is the outline itself and gets its label; the mantle face fills in; the outer core face fills
+  in as the core-mantle boundary arc draws on; the inner core fills in as the inner-core boundary
+  draws on. Each layer gets a thin leader from a dot on the flat cut face to a label at the right,
+  with its depth in mono. Answer: a depth scale draws along the vertical cut face in the one accent,
+  from 0 km at the surface to 6,371 km at the centre, its depths arriving as the line reaches them.
+  Verb: open (cutaway). Technique: the wedge contents sit in one <g> whose clip-path is a 4-vertex
+  polygon() stepped in 8 linear segments on a smoothstep, so the opening edge is one radius sweeping
+  90 degrees and keeps pace with a knife line rotated about the centre (transform-box view-box, px
+  origin). An invisible rect fixes the group's reference box (570,12)-(862,304);
+  polygon px are relative to it. Layer faces fade in, boundary arcs and leaders draw on (pathLength).
+  The accent is kept for the depth scale only. No offset-path, no marker. Leaders leave each layer
+  through the flat cut face, drop through the closed lower quarter and cross the outline once at most.
+  Once pass 8.7 s: set 0-0.6 s, cut 0.6-2.2 s, layers 2.65-6.15 s, answer 6.35-7.4 s, hold 7.5-8.7 s.
+  Phases 0.57, 2.3, 4.4, 6.25, 7.5.
   Facts (checked on Wikipedia, "Structure of Earth", which cites PREM/USGS values; USGS and
   Britannica pages refused automated fetches):
   - mean radius 6,371 km; core-mantle boundary 2,890 km deep; inner-core boundary about 5,150 km deep:
@@ -24,11 +23,11 @@
   - crust 5-70 km thick: stated fact (brief; same source).
   - mantle rocky (solid, flows slowly), outer core liquid, inner core solid (iron and nickel): stated
     facts; only "rocky", "liquid" and "solid" are drawn.
-  - radii drawn: R = 240 px for 6,371 km; core-mantle boundary 6,371 - 2,890 = 3,481 km -> 131.13 px;
-    inner-core boundary 6,371 - 5,150 = 1,221 km -> 46 px: arithmetic.
-  - "thinner than this line": 3 px stroke = 3 x 6,371 / 240 = about 80 km > 70 km: arithmetic.
+  - radii drawn: R = 252 px for 6,371 km; core-mantle boundary 6,371 - 2,890 = 3,481 km -> 137.69 px;
+    inner-core boundary 6,371 - 5,150 = 1,221 km -> 48.3 px: arithmetic.
+  - "thinner than this line": 3 px stroke = 3 x 6,371 / 252 = about 76 km > 70 km: arithmetic.
   - mantle depth written "to 2,890 km" (not "0-2,890"): the mantle starts under the crust.
-  - the four tints are scene ground (data-anim-scene) in one muted hue, denser toward the centre; the
+  - the three tints are scene ground (data-anim-scene) in one muted hue, denser toward the centre; the
     density step carries no data. No temperatures, pressures or percentages. -->
 <style>
 .anim-earth-layers{
@@ -48,354 +47,303 @@
 }
 .anim-earth-layers svg{display:block;width:100%;height:100%;max-width:none}
 .anim-earth-layers .earth-layers-t{font-family:var(--anim-font);fill:var(--anim-fg)}
-.anim-earth-layers .earth-layers-lbl{font-size:24px;font-weight:600}
+.anim-earth-layers .earth-layers-lbl{font-size:26px;font-weight:600}
 .anim-earth-layers .earth-layers-note{font-size:26px;font-weight:400}
-.anim-earth-layers .earth-layers-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
-.anim-earth-layers .earth-layers-sc{font-size:18px}
+.anim-earth-layers .earth-layers-mono{font-family:var(--anim-mono);font-size:22px;font-weight:400;fill:var(--anim-muted)}
+.anim-earth-layers .earth-layers-sc{font-size:20px}
 .anim-earth-layers .earth-layers-acc{fill:var(--anim-accent)}
 /* the planet: the outline is the crust */
 .anim-earth-layers .earth-layers-earth{fill:none;stroke:var(--anim-fg);stroke-width:3}
-.anim-earth-layers .earth-layers-face0{fill:color-mix(in srgb,var(--anim-muted) 7%,transparent)}
-.anim-earth-layers .earth-layers-face1{fill:color-mix(in srgb,var(--anim-muted) 13%,transparent)}
-.anim-earth-layers .earth-layers-face2{fill:color-mix(in srgb,var(--anim-muted) 20%,transparent)}
-.anim-earth-layers .earth-layers-bnd{fill:none;stroke:var(--anim-muted);stroke-width:2}
+.anim-earth-layers .earth-layers-face1{fill:color-mix(in srgb,var(--anim-muted) 9%,transparent)}
+.anim-earth-layers .earth-layers-face2{fill:color-mix(in srgb,var(--anim-muted) 16%,transparent)}
+.anim-earth-layers .earth-layers-face3{fill:color-mix(in srgb,var(--anim-muted) 24%,transparent)}
+.anim-earth-layers .earth-layers-bnd{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-earth-layers .earth-layers-edge{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
 .anim-earth-layers .earth-layers-box{fill:none;stroke:none}
-.anim-earth-layers .earth-layers-knife{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round;transform-box:view-box;transform-origin:630px 290px;transform:rotate(90deg)}
-/* accent copies of the named layer */
-.anim-earth-layers .earth-layers-hlf{fill:color-mix(in srgb,var(--anim-accent) 24%,transparent);stroke:var(--anim-accent);stroke-width:2.5;stroke-linejoin:round}
-.anim-earth-layers .earth-layers-hla{fill:none;stroke:var(--anim-accent);stroke-width:6;stroke-linecap:round}
+.anim-earth-layers .earth-layers-knife{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round;transform-box:view-box;transform-origin:590px 284px;transform:rotate(90deg)}
 /* callouts */
 .anim-earth-layers .earth-layers-lead{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0;opacity:.75}
-.anim-earth-layers .earth-layers-cob{fill:var(--anim-fg)}
-.anim-earth-layers .earth-layers-cl{font-family:var(--anim-font);fill:inherit}
-.anim-earth-layers .earth-layers-dot{fill:inherit}
+.anim-earth-layers .earth-layers-dot{fill:var(--anim-fg)}
+/* the answer: the depth scale, the one accent */
 .anim-earth-layers .earth-layers-tick{fill:none;stroke:var(--anim-accent);stroke-width:2;stroke-linecap:round}
 .anim-earth-layers .earth-layers-scl{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-/* resting frame = the end: wedge open, all four callouts at full strength, no layer lit, scale drawn */
-.anim-earth-layers .earth-layers-cut{clip-path:polygon(14px 266px,14px 0px,280px 0px,280px 266px)}
-.anim-earth-layers .earth-layers-hl0,.anim-earth-layers .earth-layers-hl1,.anim-earth-layers .earth-layers-hl2,.anim-earth-layers .earth-layers-hl3,.anim-earth-layers .earth-layers-n0,.anim-earth-layers .earth-layers-n1,.anim-earth-layers .earth-layers-n2{opacity:0}
+/* resting frame = the end: wedge open with all layers, all callouts, scale drawn, last caption */
+.anim-earth-layers .earth-layers-cut{clip-path:polygon(14px 278px,14px 0px,292px 0px,292px 278px)}
+.anim-earth-layers .earth-layers-n1,.anim-earth-layers .earth-layers-n2{opacity:0}
 .anim-earth-layers .earth-layers-tx0,.anim-earth-layers .earth-layers-tx1,.anim-earth-layers .earth-layers-tx2,.anim-earth-layers .earth-layers-tx3{transform:translateY(0px)}
 
-/* ---- motion (9.9 s once pass), only when the slide is visible. percent = s / 9.9 ---- */
-/* scene fades in 0-0.6 s */
+/* ---- motion (8.7 s once pass), only when the slide is visible. percent = s / 8.7 ---- */
+/* scene fades in 0-0.4 s */
 @keyframes earth-layers-scene{
   0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 0 s */
-  6.061%{opacity:1}  /* 0.6 s */
-  100%{opacity:1}  /* 9.9 s */
+  4.598%{opacity:1}  /* 0.4 s */
+  100%{opacity:1}  /* 8.7 s */
 }
-/* the cut: a fan clip sweeps 90 deg from the top cut face round to the right one, 1.3-3.0 s (hero);
+/* the cut: a fan clip sweeps 90 deg from the top cut face round to the right one, 0.6-2.2 s (hero, step 1);
    8 linear segments on a smoothstep, so the clip edge keeps pace with the knife line */
 @keyframes earth-layers-cut{
-  0%{clip-path:polygon(14px 266px,14px 0px,14px 0px,14px 0px)}  /* 0 s */
-  13.131%{clip-path:polygon(14px 266px,14px 0px,14.0px 0px,14.0px 0px)}  /* 1.3 s */
-  15.273%{clip-path:polygon(14px 266px,14px 0px,37.6px 0px,37.6px 0px)}  /* 1.512 s */
-  17.424%{clip-path:polygon(14px 266px,14px 0px,85.1px 0px,85.1px 0px)}  /* 1.725 s */
-  19.576%{clip-path:polygon(14px 266px,14px 0px,161.0px 0px,161.0px 0px)}  /* 1.938 s */
-  21.717%{clip-path:polygon(14px 266px,14px 0px,280.0px 0px,280.0px 0px)}  /* 2.15 s */
-  23.859%{clip-path:polygon(14px 266px,14px 0px,280px 0px,280px 119.0px)}  /* 2.362 s */
-  26.01%{clip-path:polygon(14px 266px,14px 0px,280px 0px,280px 194.9px)}  /* 2.575 s */
-  28.162%{clip-path:polygon(14px 266px,14px 0px,280px 0px,280px 242.4px)}  /* 2.788 s */
-  30.303%{clip-path:polygon(14px 266px,14px 0px,280px 0px,280px 266px)}  /* 3.0 s */
-  100%{clip-path:polygon(14px 266px,14px 0px,280px 0px,280px 266px)}  /* 9.9 s */
+  0%{clip-path:polygon(14px 278px,14px 0px,14px 0px,14px 0px)}  /* 0 s */
+  6.897%{clip-path:polygon(14px 278px,14px 0px,14.0px 0px,14.0px 0px)}  /* 0.6 s */
+  9.195%{clip-path:polygon(14px 278px,14px 0px,38.4px 0px,38.4px 0px)}  /* 0.8 s */
+  11.494%{clip-path:polygon(14px 278px,14px 0px,88.1px 0px,88.1px 0px)}  /* 1.0 s */
+  13.793%{clip-path:polygon(14px 278px,14px 0px,167.5px 0px,167.5px 0px)}  /* 1.2 s */
+  16.092%{clip-path:polygon(14px 278px,14px 0px,292.0px 0px,292.0px 0px)}  /* 1.4 s */
+  18.391%{clip-path:polygon(14px 278px,14px 0px,292px 0px,292px 124.5px)}  /* 1.6 s */
+  20.69%{clip-path:polygon(14px 278px,14px 0px,292px 0px,292px 203.9px)}  /* 1.8 s */
+  22.989%{clip-path:polygon(14px 278px,14px 0px,292px 0px,292px 253.6px)}  /* 2.0 s */
+  25.287%{clip-path:polygon(14px 278px,14px 0px,292px 0px,292px 278px)}  /* 2.2 s */
+  100%{clip-path:polygon(14px 278px,14px 0px,292px 0px,292px 278px)}  /* 8.7 s */
 }
-/* the knife: the cut's leading radius, fades in 1.05-1.3 s and turns with the clip */
+/* the knife: the cut's leading radius, fades in 0.3-0.6 s and turns with the clip */
 @keyframes earth-layers-knife{
   0%{transform:rotate(0deg);opacity:0}  /* 0 s */
-  10.606%{transform:rotate(0deg);opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 1.05 s */
-  13.131%{transform:rotate(0deg);opacity:1}  /* 1.3 s */
-  15.273%{transform:rotate(3.87deg);opacity:1}  /* 1.512 s */
-  17.424%{transform:rotate(14.06deg);opacity:1}  /* 1.725 s */
-  19.576%{transform:rotate(28.48deg);opacity:1}  /* 1.938 s */
-  21.717%{transform:rotate(45deg);opacity:1}  /* 2.15 s */
-  23.859%{transform:rotate(61.52deg);opacity:1}  /* 2.362 s */
-  26.01%{transform:rotate(75.94deg);opacity:1}  /* 2.575 s */
-  28.162%{transform:rotate(86.13deg);opacity:1}  /* 2.788 s */
-  30.303%{transform:rotate(90deg);opacity:1}  /* 3.0 s */
-  100%{transform:rotate(90deg);opacity:1}  /* 9.9 s */
+  3.448%{transform:rotate(0deg);opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 0.3 s */
+  6.897%{transform:rotate(0deg);opacity:1}  /* 0.6 s */
+  9.195%{transform:rotate(3.87deg);opacity:1}  /* 0.8 s */
+  11.494%{transform:rotate(14.06deg);opacity:1}  /* 1.0 s */
+  13.793%{transform:rotate(28.48deg);opacity:1}  /* 1.2 s */
+  16.092%{transform:rotate(45deg);opacity:1}  /* 1.4 s */
+  18.391%{transform:rotate(61.52deg);opacity:1}  /* 1.6 s */
+  20.69%{transform:rotate(75.94deg);opacity:1}  /* 1.8 s */
+  22.989%{transform:rotate(86.13deg);opacity:1}  /* 2.0 s */
+  25.287%{transform:rotate(90deg);opacity:1}  /* 2.2 s */
+  100%{transform:rotate(90deg);opacity:1}  /* 8.7 s */
 }
-/* accent on layer 0: 3.45-3.75 s, off 4.35-4.65 s */
-@keyframes earth-layers-hl0{
-  0%{opacity:0}  /* 0 s */
-  34.848%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 3.45 s */
-  37.879%{opacity:1}  /* 3.75 s */
-  43.939%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 4.35 s */
-  46.97%{opacity:0}  /* 4.65 s */
-  100%{opacity:0}  /* 9.9 s */
-}
-/* accent on layer 1: 4.45-4.75 s, off 5.35-5.65 s */
-@keyframes earth-layers-hl1{
-  0%{opacity:0}  /* 0 s */
-  44.949%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 4.45 s */
-  47.98%{opacity:1}  /* 4.75 s */
-  54.04%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 5.35 s */
-  57.071%{opacity:0}  /* 5.65 s */
-  100%{opacity:0}  /* 9.9 s */
-}
-/* accent on layer 2: 5.45-5.75 s, off 6.35-6.65 s */
-@keyframes earth-layers-hl2{
-  0%{opacity:0}  /* 0 s */
-  55.051%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 5.45 s */
-  58.081%{opacity:1}  /* 5.75 s */
-  64.141%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 6.35 s */
-  67.172%{opacity:0}  /* 6.65 s */
-  100%{opacity:0}  /* 9.9 s */
-}
-/* accent on layer 3: 6.45-6.75 s, off 8.2-8.5 s */
-@keyframes earth-layers-hl3{
-  0%{opacity:0}  /* 0 s */
-  65.152%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 6.45 s */
-  68.182%{opacity:1}  /* 6.75 s */
-  82.828%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 8.2 s */
-  85.859%{opacity:0}  /* 8.5 s */
-  100%{opacity:0}  /* 9.9 s */
-}
-/* leader 0 draws 3.75-4.20 s */
+/* leader 0 draws 2.95-3.35 s */
 @keyframes earth-layers-ld0{
   0%{stroke-dashoffset:101}  /* 0 s */
-  37.879%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 3.75 s */
-  42.424%{stroke-dashoffset:0}  /* 4.2 s */
-  100%{stroke-dashoffset:0}  /* 9.9 s */
+  33.908%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 2.95 s */
+  38.506%{stroke-dashoffset:0}  /* 3.35 s */
+  100%{stroke-dashoffset:0}  /* 8.7 s */
 }
-/* label 0 arrives 3.85-4.20 s */
+/* label 0 arrives 3.10-3.45 s */
 @keyframes earth-layers-tx0{
   0%{opacity:0;transform:translateY(12px)}  /* 0 s */
-  38.889%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 3.85 s */
-  42.424%{opacity:1;transform:translateY(0px)}  /* 4.2 s */
-  100%{opacity:1;transform:translateY(0px)}  /* 9.9 s */
+  35.632%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 3.1 s */
+  39.655%{opacity:1;transform:translateY(0px)}  /* 3.45 s */
+  100%{opacity:1;transform:translateY(0px)}  /* 8.7 s */
 }
-/* callout 0 dims 4.35-4.65 s, back 7.5-7.9 s */
-@keyframes earth-layers-co0{
-  0%{opacity:1;fill:var(--anim-fg)}  /* 0 s */
-  43.939%{opacity:1;fill:var(--anim-fg);animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 4.35 s */
-  46.97%{opacity:.6;fill:var(--anim-muted)}  /* 4.65 s */
-  75.758%{opacity:.6;fill:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 7.5 s */
-  79.798%{opacity:1;fill:var(--anim-fg)}  /* 7.9 s */
-  100%{opacity:1;fill:var(--anim-fg)}  /* 9.9 s */
+/* layer 1 face 3.55-4.00 s */
+@keyframes earth-layers-fc1{
+  0%{opacity:0}  /* 0 s */
+  40.805%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 3.55 s */
+  45.977%{opacity:1}  /* 4.0 s */
+  100%{opacity:1}  /* 8.7 s */
 }
-/* leader 1 draws 4.75-5.20 s */
+/* leader 1 draws 3.85-4.25 s */
 @keyframes earth-layers-ld1{
   0%{stroke-dashoffset:101}  /* 0 s */
-  47.98%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 4.75 s */
-  52.525%{stroke-dashoffset:0}  /* 5.2 s */
-  100%{stroke-dashoffset:0}  /* 9.9 s */
+  44.253%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 3.85 s */
+  48.851%{stroke-dashoffset:0}  /* 4.25 s */
+  100%{stroke-dashoffset:0}  /* 8.7 s */
 }
-/* label 1 arrives 4.85-5.20 s */
+/* label 1 arrives 4.00-4.35 s */
 @keyframes earth-layers-tx1{
   0%{opacity:0;transform:translateY(12px)}  /* 0 s */
-  48.99%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 4.85 s */
-  52.525%{opacity:1;transform:translateY(0px)}  /* 5.2 s */
-  100%{opacity:1;transform:translateY(0px)}  /* 9.9 s */
+  45.977%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 4.0 s */
+  50%{opacity:1;transform:translateY(0px)}  /* 4.35 s */
+  100%{opacity:1;transform:translateY(0px)}  /* 8.7 s */
 }
-/* callout 1 dims 5.35-5.65 s, back 7.62-8.02 s */
-@keyframes earth-layers-co1{
-  0%{opacity:1;fill:var(--anim-fg)}  /* 0 s */
-  54.04%{opacity:1;fill:var(--anim-fg);animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 5.35 s */
-  57.071%{opacity:.6;fill:var(--anim-muted)}  /* 5.65 s */
-  76.97%{opacity:.6;fill:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 7.62 s */
-  81.01%{opacity:1;fill:var(--anim-fg)}  /* 8.02 s */
-  100%{opacity:1;fill:var(--anim-fg)}  /* 9.9 s */
+/* layer 2 face 4.45-4.90 s */
+@keyframes earth-layers-fc2{
+  0%{opacity:0}  /* 0 s */
+  51.149%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 4.45 s */
+  56.322%{opacity:1}  /* 4.9 s */
+  100%{opacity:1}  /* 8.7 s */
 }
-/* leader 2 draws 5.75-6.20 s */
+/* layer 2 outer boundary draws 4.45-5.05 s */
+@keyframes earth-layers-bd2{
+  0%{stroke-dashoffset:101}  /* 0 s */
+  51.149%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 4.45 s */
+  58.046%{stroke-dashoffset:0}  /* 5.05 s */
+  100%{stroke-dashoffset:0}  /* 8.7 s */
+}
+/* leader 2 draws 4.75-5.15 s */
 @keyframes earth-layers-ld2{
   0%{stroke-dashoffset:101}  /* 0 s */
-  58.081%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 5.75 s */
-  62.626%{stroke-dashoffset:0}  /* 6.2 s */
-  100%{stroke-dashoffset:0}  /* 9.9 s */
+  54.598%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 4.75 s */
+  59.195%{stroke-dashoffset:0}  /* 5.15 s */
+  100%{stroke-dashoffset:0}  /* 8.7 s */
 }
-/* label 2 arrives 5.85-6.20 s */
+/* label 2 arrives 4.90-5.25 s */
 @keyframes earth-layers-tx2{
   0%{opacity:0;transform:translateY(12px)}  /* 0 s */
-  59.091%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 5.85 s */
-  62.626%{opacity:1;transform:translateY(0px)}  /* 6.2 s */
-  100%{opacity:1;transform:translateY(0px)}  /* 9.9 s */
+  56.322%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 4.9 s */
+  60.345%{opacity:1;transform:translateY(0px)}  /* 5.25 s */
+  100%{opacity:1;transform:translateY(0px)}  /* 8.7 s */
 }
-/* callout 2 dims 6.35-6.65 s, back 7.74-8.14 s */
-@keyframes earth-layers-co2{
-  0%{opacity:1;fill:var(--anim-fg)}  /* 0 s */
-  64.141%{opacity:1;fill:var(--anim-fg);animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 6.35 s */
-  67.172%{opacity:.6;fill:var(--anim-muted)}  /* 6.65 s */
-  78.182%{opacity:.6;fill:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 7.74 s */
-  82.222%{opacity:1;fill:var(--anim-fg)}  /* 8.14 s */
-  100%{opacity:1;fill:var(--anim-fg)}  /* 9.9 s */
+/* layer 3 face 5.35-5.80 s */
+@keyframes earth-layers-fc3{
+  0%{opacity:0}  /* 0 s */
+  61.494%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 5.35 s */
+  66.667%{opacity:1}  /* 5.8 s */
+  100%{opacity:1}  /* 8.7 s */
 }
-/* leader 3 draws 6.75-7.20 s */
+/* layer 3 outer boundary draws 5.35-5.95 s */
+@keyframes earth-layers-bd3{
+  0%{stroke-dashoffset:101}  /* 0 s */
+  61.494%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 5.35 s */
+  68.391%{stroke-dashoffset:0}  /* 5.95 s */
+  100%{stroke-dashoffset:0}  /* 8.7 s */
+}
+/* leader 3 draws 5.65-6.05 s */
 @keyframes earth-layers-ld3{
   0%{stroke-dashoffset:101}  /* 0 s */
-  68.182%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 6.75 s */
-  72.727%{stroke-dashoffset:0}  /* 7.2 s */
-  100%{stroke-dashoffset:0}  /* 9.9 s */
+  64.943%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 5.65 s */
+  69.54%{stroke-dashoffset:0}  /* 6.05 s */
+  100%{stroke-dashoffset:0}  /* 8.7 s */
 }
-/* label 3 arrives 6.85-7.20 s */
+/* label 3 arrives 5.80-6.15 s */
 @keyframes earth-layers-tx3{
   0%{opacity:0;transform:translateY(12px)}  /* 0 s */
-  69.192%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 6.85 s */
-  72.727%{opacity:1;transform:translateY(0px)}  /* 7.2 s */
-  100%{opacity:1;transform:translateY(0px)}  /* 9.9 s */
+  66.667%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 5.8 s */
+  70.69%{opacity:1;transform:translateY(0px)}  /* 6.15 s */
+  100%{opacity:1;transform:translateY(0px)}  /* 8.7 s */
 }
-/* depth scale along the cut edge draws 8.2-8.8 s */
+/* answer: depth scale draws along the vertical cut face 6.7-7.3 s (the one accent) */
 @keyframes earth-layers-scl{
   0%{stroke-dashoffset:101}  /* 0 s */
-  82.828%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 8.2 s */
-  88.889%{stroke-dashoffset:0}  /* 8.8 s */
-  100%{stroke-dashoffset:0}  /* 9.9 s */
+  77.011%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}  /* 6.7 s */
+  83.908%{stroke-dashoffset:0}  /* 7.3 s */
+  100%{stroke-dashoffset:0}  /* 8.7 s */
 }
-/* scale ticks and depths arrive 8.4-8.85 s (staggered 0.06 s) */
+/* scale ticks and depths arrive 6.85-7.46 s, staggered 0.12 s, each as the line reaches it */
 @keyframes earth-layers-tk0{
   0%{opacity:0}  /* 0 s */
-  84.848%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 8.4 s */
-  87.576%{opacity:1}  /* 8.67 s */
-  100%{opacity:1}  /* 9.9 s */
+  78.736%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 6.85 s */
+  81.609%{opacity:1}  /* 7.1 s */
+  100%{opacity:1}  /* 8.7 s */
 }
 @keyframes earth-layers-tk1{
   0%{opacity:0}  /* 0 s */
-  85.455%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 8.46 s */
-  88.182%{opacity:1}  /* 8.73 s */
-  100%{opacity:1}  /* 9.9 s */
+  80.115%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 6.97 s */
+  82.989%{opacity:1}  /* 7.22 s */
+  100%{opacity:1}  /* 8.7 s */
 }
 @keyframes earth-layers-tk2{
   0%{opacity:0}  /* 0 s */
-  86.061%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 8.52 s */
-  88.788%{opacity:1}  /* 8.79 s */
-  100%{opacity:1}  /* 9.9 s */
+  81.494%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 7.09 s */
+  84.368%{opacity:1}  /* 7.34 s */
+  100%{opacity:1}  /* 8.7 s */
 }
 @keyframes earth-layers-tk3{
   0%{opacity:0}  /* 0 s */
-  86.667%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 8.58 s */
-  89.394%{opacity:1}  /* 8.85 s */
-  100%{opacity:1}  /* 9.9 s */
+  82.874%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 7.21 s */
+  85.747%{opacity:1}  /* 7.46 s */
+  100%{opacity:1}  /* 8.7 s */
 }
-/* captions: n0 0.1-1.1 s, n1 0.9-3.22 s, n2 3.05-7.45 s, n3 from 7.25 s */
-@keyframes earth-layers-n0{
-  0%{opacity:0}  /* 0 s */
-  1.01%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 0.1 s */
-  5.051%{opacity:1}  /* 0.5 s */
-  8.586%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 0.85 s */
-  11.111%{opacity:0}  /* 1.1 s */
-  100%{opacity:0}  /* 9.9 s */
-}
+/* captions: n1 0.05-2.45 s, n2 2.3-6.5 s, n3 from 6.35 s */
 @keyframes earth-layers-n1{
-  0%{opacity:0}  /* 0 s */
-  9.091%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 0.9 s */
-  12.626%{opacity:1}  /* 1.25 s */
-  30.505%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 3.02 s */
-  32.525%{opacity:0}  /* 3.22 s */
-  100%{opacity:0}  /* 9.9 s */
+  0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 0 s */
+  4.023%{opacity:1}  /* 0.35 s */
+  25.862%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 2.25 s */
+  28.161%{opacity:0}  /* 2.45 s */
+  100%{opacity:0}  /* 8.7 s */
 }
 @keyframes earth-layers-n2{
   0%{opacity:0}  /* 0 s */
-  30.808%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 3.05 s */
-  33.333%{opacity:1}  /* 3.3 s */
-  73.232%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 7.25 s */
-  75.253%{opacity:0}  /* 7.45 s */
-  100%{opacity:0}  /* 9.9 s */
+  26.437%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 2.3 s */
+  29.31%{opacity:1}  /* 2.55 s */
+  72.414%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}  /* 6.3 s */
+  74.713%{opacity:0}  /* 6.5 s */
+  100%{opacity:0}  /* 8.7 s */
 }
 @keyframes earth-layers-n3{
   0%{opacity:0}  /* 0 s */
-  73.232%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 7.25 s */
-  75.758%{opacity:1}  /* 7.5 s */
-  100%{opacity:1}  /* 9.9 s */
+  72.989%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* 6.35 s */
+  75.862%{opacity:1}  /* 6.6 s */
+  100%{opacity:1}  /* 8.7 s */
 }
 
-.visible .anim-earth-layers .earth-layers-scene{animation:earth-layers-scene 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-cut{animation:earth-layers-cut 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-knife{animation:earth-layers-knife 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-hl0{animation:earth-layers-hl0 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-hl1{animation:earth-layers-hl1 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-hl2{animation:earth-layers-hl2 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-hl3{animation:earth-layers-hl3 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-ld0{animation:earth-layers-ld0 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-ld1{animation:earth-layers-ld1 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-ld2{animation:earth-layers-ld2 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-ld3{animation:earth-layers-ld3 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-tx0{animation:earth-layers-tx0 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-tx1{animation:earth-layers-tx1 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-tx2{animation:earth-layers-tx2 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-tx3{animation:earth-layers-tx3 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-co0{animation:earth-layers-co0 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-co1{animation:earth-layers-co1 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-co2{animation:earth-layers-co2 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-scl{animation:earth-layers-scl 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-tk0{animation:earth-layers-tk0 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-tk1{animation:earth-layers-tk1 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-tk2{animation:earth-layers-tk2 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-tk3{animation:earth-layers-tk3 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-n0{animation:earth-layers-n0 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-n1{animation:earth-layers-n1 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-n2{animation:earth-layers-n2 9.9s linear 1 both}
-.visible .anim-earth-layers .earth-layers-n3{animation:earth-layers-n3 9.9s linear 1 both}
+.visible .anim-earth-layers .earth-layers-scene{animation:earth-layers-scene 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-cut{animation:earth-layers-cut 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-knife{animation:earth-layers-knife 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-fc1{animation:earth-layers-fc1 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-fc2{animation:earth-layers-fc2 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-fc3{animation:earth-layers-fc3 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-bd2{animation:earth-layers-bd2 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-bd3{animation:earth-layers-bd3 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-ld0{animation:earth-layers-ld0 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-ld1{animation:earth-layers-ld1 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-ld2{animation:earth-layers-ld2 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-ld3{animation:earth-layers-ld3 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-tx0{animation:earth-layers-tx0 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-tx1{animation:earth-layers-tx1 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-tx2{animation:earth-layers-tx2 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-tx3{animation:earth-layers-tx3 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-scl{animation:earth-layers-scl 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-tk0{animation:earth-layers-tk0 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-tk1{animation:earth-layers-tk1 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-tk2{animation:earth-layers-tk2 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-tk3{animation:earth-layers-tk3 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-n1{animation:earth-layers-n1 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-n2{animation:earth-layers-n2 8.7s linear 1 both}
+.visible .anim-earth-layers .earth-layers-n3{animation:earth-layers-n3 8.7s linear 1 both}
 
 @media (prefers-reduced-motion: reduce) { .anim-earth-layers * { animation: none !important; } }
 </style>
-<div class="anim anim-earth-layers" data-anim="earth-layers" data-anim-cycle="9.9" data-anim-control="once" data-anim-phases="1.28,3,5.25,7.24,8.9" data-anim-verb="open">
+<div class="anim anim-earth-layers" data-anim="earth-layers" data-anim-cycle="8.7" data-anim-control="once" data-anim-phases="0.57,2.3,4.4,6.25,7.5" data-anim-verb="open">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cutaway of the Earth: a quarter of the sphere is cut away to show its layers at true proportion. Under a crust only 5 to 70 km thick lies the rocky mantle down to 2,890 km, the liquid outer core down to 5,150 km and the solid inner core down to the centre at 6,371 km.">
 <g class="earth-layers-scene">
-  <text class="earth-layers-mono earth-layers-sc" x="40" y="520">radii to scale · 6,371 km = 240 px</text>
+  <text class="earth-layers-mono earth-layers-sc" x="40" y="526">radii to scale · 6,371 km = 252 px</text>
   <!-- the wedge behind the cut: faces (scene ground), boundaries, cut faces; revealed by the clip -->
   <g class="earth-layers-cut">
-    <rect class="earth-layers-box" x="610" y="30" width="280" height="280"/>
+    <rect class="earth-layers-box" x="570" y="12" width="292" height="292"/>
     <g data-anim-scene>
-      <path class="earth-layers-face0" d="M630 50 A240 240 0 0 1 870 290 H761.13 A131.13 131.13 0 0 0 630 158.87 Z"/>
-      <path class="earth-layers-face1" d="M630 158.87 A131.13 131.13 0 0 1 761.13 290 H676 A46 46 0 0 0 630 244 Z"/>
-      <path class="earth-layers-face2" d="M630 244 A46 46 0 0 1 676 290 H630 Z"/>
+      <path class="earth-layers-face1 earth-layers-fc1" d="M590 32 A252 252 0 0 1 842 284 H727.69 A137.69 137.69 0 0 0 590 146.31 Z"/>
+      <path class="earth-layers-face2 earth-layers-fc2" d="M590 146.31 A137.69 137.69 0 0 1 727.69 284 H638.3 A48.3 48.3 0 0 0 590 235.7 Z"/>
+      <path class="earth-layers-face3 earth-layers-fc3" d="M590 235.7 A48.3 48.3 0 0 1 638.3 284 H590 Z"/>
     </g>
-    <path class="earth-layers-bnd" d="M630 158.87 A131.13 131.13 0 0 1 761.13 290"/>
-    <path class="earth-layers-bnd" d="M630 244 A46 46 0 0 1 676 290"/>
-    <g data-anim-scene>
-      <path class="earth-layers-hla earth-layers-hl0" d="M630 50 A240 240 0 0 1 870 290"/>
-      <path class="earth-layers-hlf earth-layers-hl1" d="M630 50 A240 240 0 0 1 870 290 H761.13 A131.13 131.13 0 0 0 630 158.87 Z"/>
-      <path class="earth-layers-hlf earth-layers-hl2" d="M630 158.87 A131.13 131.13 0 0 1 761.13 290 H676 A46 46 0 0 0 630 244 Z"/>
-      <path class="earth-layers-hlf earth-layers-hl3" d="M630 244 A46 46 0 0 1 676 290 H630 Z"/>
-    </g>
-    <path class="earth-layers-edge" d="M630 50 V290 H870"/>
+    <path class="earth-layers-bnd earth-layers-bd2" pathLength="100" d="M590 146.31 A137.69 137.69 0 0 1 727.69 284"/>
+    <path class="earth-layers-bnd earth-layers-bd3" pathLength="100" d="M590 235.7 A48.3 48.3 0 0 1 638.3 284"/>
+    <path class="earth-layers-edge" d="M590 32 V284 H842"/>
   </g>
-  <path class="earth-layers-knife" d="M630 290 V50"/>
+  <path class="earth-layers-knife" d="M590 284 V32"/>
   <!-- the planet's surface: the crust, drawn as the outline itself -->
-  <circle class="earth-layers-earth" cx="630" cy="290" r="240"/>
+  <circle class="earth-layers-earth" cx="590" cy="284" r="252"/>
   <!-- depth scale along the vertical cut face -->
-  <path class="earth-layers-scl" pathLength="100" d="M630 50 V290"/>
-    <g class="earth-layers-tk0"><path class="earth-layers-tick" d="M616 50 H630"/><text class="earth-layers-mono earth-layers-sc" x="614" y="46" text-anchor="end">0 km</text></g>
-    <g class="earth-layers-tk1"><path class="earth-layers-tick" d="M616 158.87 H630"/><text class="earth-layers-mono earth-layers-sc" x="608" y="164.87" text-anchor="end">2,890 km</text></g>
-    <g class="earth-layers-tk2"><path class="earth-layers-tick" d="M616 244 H630"/><text class="earth-layers-mono earth-layers-sc" x="608" y="250" text-anchor="end">5,150 km</text></g>
-    <g class="earth-layers-tk3"><path class="earth-layers-tick" d="M616 290 H630"/><text class="earth-layers-mono earth-layers-sc earth-layers-acc" x="608" y="296" text-anchor="end">6,371 km</text></g>
+  <path class="earth-layers-scl" pathLength="100" d="M590 32 V284"/>
+    <g class="earth-layers-tk0"><path class="earth-layers-tick" d="M576 32 H590"/><text class="earth-layers-mono earth-layers-sc" x="578" y="22" text-anchor="end">0 km</text></g>
+    <g class="earth-layers-tk1"><path class="earth-layers-tick" d="M576 146.31 H590"/><text class="earth-layers-mono earth-layers-sc" x="568" y="153.31" text-anchor="end">2,890 km</text></g>
+    <g class="earth-layers-tk2"><path class="earth-layers-tick" d="M576 235.7 H590"/><text class="earth-layers-mono earth-layers-sc" x="568" y="242.7" text-anchor="end">5,150 km</text></g>
+    <g class="earth-layers-tk3"><path class="earth-layers-tick" d="M576 284 H590"/><text class="earth-layers-mono earth-layers-sc earth-layers-acc" x="568" y="291" text-anchor="end">6,371 km</text></g>
   <!-- callouts, outside in -->
-  <g class="earth-layers-cob earth-layers-co0">
-    <path class="earth-layers-lead earth-layers-ld0" pathLength="100" d="M867.86 258 H958"/>
+  <g>
+    <path class="earth-layers-lead earth-layers-ld0" pathLength="100" d="M840.21 254 H918"/>
     <g class="earth-layers-tx0">
-      <circle class="earth-layers-dot" cx="867.86" cy="258" r="4.5"/>
-      <text class="earth-layers-cl earth-layers-lbl" x="972" y="266">crust</text>
-      <text class="earth-layers-mono" x="972" y="293">5–70 km, thinner than this line</text>
+      <circle class="earth-layers-dot" cx="840.21" cy="254" r="4.5"/>
+      <text class="earth-layers-t earth-layers-lbl" x="932" y="262">crust</text>
+      <text class="earth-layers-mono" x="932" y="291">5–70 km, thinner than this line</text>
     </g>
   </g>
-  <g class="earth-layers-cob earth-layers-co1">
-    <path class="earth-layers-lead earth-layers-ld1" pathLength="100" d="M815 290 V318 H958"/>
+  <g>
+    <path class="earth-layers-lead earth-layers-ld1" pathLength="100" d="M784.84 284 V318 H918"/>
     <g class="earth-layers-tx1">
-      <circle class="earth-layers-dot" cx="815" cy="290" r="4.5"/>
-      <text class="earth-layers-cl earth-layers-lbl" x="972" y="326">rocky mantle</text>
-      <text class="earth-layers-mono" x="972" y="353">to 2,890 km</text>
+      <circle class="earth-layers-dot" cx="784.84" cy="284" r="4.5"/>
+      <text class="earth-layers-t earth-layers-lbl" x="932" y="326">rocky mantle</text>
+      <text class="earth-layers-mono" x="932" y="355">to 2,890 km</text>
     </g>
   </g>
-  <g class="earth-layers-cob earth-layers-co2">
-    <path class="earth-layers-lead earth-layers-ld2" pathLength="100" d="M718 290 V380 H958"/>
+  <g>
+    <path class="earth-layers-lead earth-layers-ld2" pathLength="100" d="M682.99 284 V382 H918"/>
     <g class="earth-layers-tx2">
-      <circle class="earth-layers-dot" cx="718" cy="290" r="4.5"/>
-      <text class="earth-layers-cl earth-layers-lbl" x="972" y="388">liquid outer core</text>
-      <text class="earth-layers-mono" x="972" y="415">2,890–5,150 km</text>
+      <circle class="earth-layers-dot" cx="682.99" cy="284" r="4.5"/>
+      <text class="earth-layers-t earth-layers-lbl" x="932" y="390">liquid outer core</text>
+      <text class="earth-layers-mono" x="932" y="419">2,890–5,150 km</text>
     </g>
   </g>
-  <g class="earth-layers-cob earth-layers-co-last">
-    <path class="earth-layers-lead earth-layers-ld3" pathLength="100" d="M653 290 V442 H958"/>
+  <g>
+    <path class="earth-layers-lead earth-layers-ld3" pathLength="100" d="M614.15 284 V446 H918"/>
     <g class="earth-layers-tx3">
-      <circle class="earth-layers-dot" cx="653" cy="290" r="4.5"/>
-      <text class="earth-layers-cl earth-layers-lbl" x="972" y="450">solid inner core</text>
-      <text class="earth-layers-mono" x="972" y="477">5,150–6,371 km</text>
+      <circle class="earth-layers-dot" cx="614.15" cy="284" r="4.5"/>
+      <text class="earth-layers-t earth-layers-lbl" x="932" y="454">solid inner core</text>
+      <text class="earth-layers-mono" x="932" y="483">5,150–6,371 km</text>
     </g>
   </g>
   <!-- captions -->
-  <text class="earth-layers-t earth-layers-note earth-layers-n0" x="840" y="574" text-anchor="middle">From the outside, the Earth is one closed sphere</text>
-  <text class="earth-layers-t earth-layers-note earth-layers-n1" x="840" y="574" text-anchor="middle">Cut a quarter away and the inside shows layers</text>
-  <text class="earth-layers-t earth-layers-note earth-layers-n2" x="840" y="574" text-anchor="middle">Under a thin crust: a rocky mantle, a liquid outer core, a solid inner core</text>
-  <text class="earth-layers-t earth-layers-note earth-layers-n3" x="840" y="574" text-anchor="middle">From the surface to the centre is about 6,371 km</text>
+  <text class="earth-layers-t earth-layers-note earth-layers-n1" x="840" y="576" text-anchor="middle">Cut a quarter away and the inside shows layers</text>
+  <text class="earth-layers-t earth-layers-note earth-layers-n2" x="840" y="576" text-anchor="middle">Under a thin crust: a rocky mantle, a liquid outer core, a solid inner core</text>
+  <text class="earth-layers-t earth-layers-note earth-layers-n3" x="840" y="576" text-anchor="middle">From the surface to the centre is about 6,371 km</text>
 </g>
 </svg>
 </div>

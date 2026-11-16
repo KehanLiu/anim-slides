@@ -1,23 +1,23 @@
 <!-- breathing (pool, verb drive, archetype states drawn as a physical scene, domain health / human physiology). Hand-built; lean style, references/style.md.
   Story: a front cross-section of the chest. At rest the diaphragm is a dome under the two lungs. The
-  diaphragm contracts and flattens downward (the driver, in the accent); 120 ms later the lungs follow,
-  enlarging downward and slightly outward onto it. Then the consequence, in causal order: "volume up",
-  "pressure down", and an arrow draws on down the windpipe: "air flows in". One inhalation; it rests
-  on the inhaled state with the resting dome kept as a dashed ghost. The exhale is only stated in the
-  caption, not shown as motion.
+  diaphragm contracts and flattens downward (the driver); 120 ms later the lungs follow, enlarging
+  downward and slightly outward onto it. Then the consequence, in causal order: "volume up",
+  "pressure down", and a large arrow draws on from above the windpipe opening into it: "air flows in".
+  One inhalation; it rests on the inhaled state with the resting dome kept as a dashed ghost. The
+  exhale is not shown and not stated.
   Verb: drive (the diaphragm moves the lungs: cause first, effect follows 120 ms later).
   Technique: the diaphragm is drawn in its contracted (flat) shape and starts at scaleY(4.5) about its
   base line y = 480 (transform-box view-box, px origin; vector-effect non-scaling-stroke keeps the
   stroke even), which is exactly the resting dome (control points y 440 -> 480 - 40 * 4.5 = 300), so
   the scaled start and the dashed ghost coincide. The two lungs are one path with two subpaths; inside
   @supports (d: path("M0 0")) their d morphs from the resting to the inhaled outline (same commands);
-  the base rule cross-fades two stacked copies (Safari). Arrow: one group (shaft down the windpipe,
-  forking into both bronchi, two heads) revealed top-down by an animated clip-path inset, so it reads
-  as one stroke drawing on.
-  Once pass 7.3 s: set 0-0.9 s; hero 1.4-3.4 s (diaphragm 1.4-3.1 s, lungs 1.52-3.4 s); "volume up"
-  lands 3.4 s as the lungs finish, "pressure down" 3.6 s; settled beat; air arrow draws on 4.3-5.7 s,
-  its label 5.4-5.8 s; hold 5.85-7.3 s. Causal chain 1.4-5.8 s = 60 % of the pass.
-  Phases 0.9, 4.0, 5.85.
+  the base rule cross-fades two stacked copies (Safari). Lung area grows by about 55 % per lung
+  (shoelace on the outlines), mostly downward. Arrow: one group (shaft 146 px from above the
+  windpipe opening into it, head arms 21 px) revealed top-down by an animated clip-path inset, so it
+  reads as one stroke drawing on.
+  Once pass 6.5 s: scene in 0-0.45 s; diaphragm 0.6-2.3 s, lungs 0.72-2.6 s; "volume up" lands 2.6 s
+  as the lungs finish, "pressure down" 2.8 s; settled beat; air arrow draws on 3.5-4.9 s, its label
+  4.6-5.0 s; hold 5.05-6.5 s. Phases 0.5, 3.2, 5.05.
   Facts (textbook physiology of quiet inhalation, from the brief):
   - the diaphragm is a dome-shaped muscle under the lungs; it contracts, flattens and moves down:
     stated fact. Label "diaphragm", sub-label "contracts, moves down": stated wording.
@@ -25,7 +25,6 @@
     ("pressure down"), air flows in through the windpipe until the pressures are equal ("air flows in"):
     stated facts, in that causal order.
   - "lungs", "windpipe", "chest cavity": stated labels.
-  - exhaling at rest is the reverse, the diaphragm relaxes and rises: stated fact, caption only.
   - no numbers anywhere. Drawing scale only: the diaphragm's descent and the lungs' enlargement are
     exaggerated for visibility and are not measurements; shapes are schematic (one dome, no heart,
     ribs drawn as the outline of the cage; the rib muscles' outward lift is not drawn). -->
@@ -49,81 +48,81 @@
 .anim-breathing .breathing-t{font-family:var(--anim-font);fill:var(--anim-fg)}
 .anim-breathing .breathing-lbl{font-size:24px;font-weight:600}
 .anim-breathing .breathing-note{font-size:26px;font-weight:400}
-.anim-breathing .breathing-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
+.anim-breathing .breathing-mono{font-family:var(--anim-mono);font-size:22px;font-weight:400;fill:var(--anim-muted)}
 .anim-breathing .breathing-acc{fill:var(--anim-accent)}
 /* structure: thin strokes, no panels */
 .anim-breathing .breathing-cage{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .anim-breathing .breathing-pipe{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.anim-breathing .breathing-lung{fill:color-mix(in srgb,var(--anim-fg) 7%,transparent);stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round}
+.anim-breathing .breathing-lung{fill:color-mix(in srgb,var(--anim-fg) 11%,transparent);stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round}
 .anim-breathing .breathing-ghost{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:8 8;stroke-linecap:round}
 .anim-breathing .breathing-dia{fill:none;stroke:var(--anim-accent);stroke-width:4;stroke-linecap:round}
-.anim-breathing .breathing-arrow{clip-path:inset(-12px -12px -12px -12px)}
-.anim-breathing .breathing-head{fill:none;stroke:var(--anim-fg);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.anim-breathing .breathing-arrow{clip-path:inset(-14px -14px -14px -14px)}
+.anim-breathing .breathing-head{fill:none;stroke:var(--anim-accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
 /* the driver scales about its base line (transform-box view-box, px origin) */
 .anim-breathing .breathing-dia{transform-box:view-box;transform-origin:840px 480px}
 /* resting frame = inhaled: flat diaphragm, enlarged lungs, notes and arrow shown */
 .anim-breathing .breathing-lung-r,.anim-breathing .breathing-n0,.anim-breathing .breathing-n1,.anim-breathing .breathing-n2{opacity:0}
 
-/* ---- motion (7.3 s once pass), only when the slide is visible. percent = s / 7.3 ---- */
-/* scene fades in 0-0.5 s */
-@keyframes breathing-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.849%{opacity:1}100%{opacity:1}}
-/* hero, part one: diaphragm contracts and flattens down 1.4-3.1 s (dome = scaleY 4.5 about y 480) */
-@keyframes breathing-dia{0%{transform:scaleY(4.5)}19.178%{transform:scaleY(4.5);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}42.466%{transform:scaleY(1)}100%{transform:scaleY(1)}}
-/* hero, part two (base rule, all browsers): lungs cross-fade from resting to inhaled 1.52-3.4 s */
-@keyframes breathing-lung-r{0%{opacity:1}20.822%{opacity:1;animation-timing-function:ease-in-out}46.575%{opacity:0}100%{opacity:0}}
-@keyframes breathing-lung-i{0%{opacity:0}20.822%{opacity:0;animation-timing-function:ease-in-out}46.575%{opacity:1}100%{opacity:1}}
-/* sub-label lands after the diaphragm starts, 1.6-2.0 s */
-@keyframes breathing-sub{0%{opacity:0}21.918%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.397%{opacity:1}100%{opacity:1}}
-/* effects land as their cause completes: volume up 3.4-3.75 s (lungs done), pressure down 3.6-3.95 s */
-@keyframes breathing-vol{0%{opacity:0;transform:translateY(8px)}46.575%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}51.37%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes breathing-prs{0%{opacity:0;transform:translateY(8px)}49.315%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.11%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-/* air flows in: the arrow is revealed top-down 4.3-5.7 s, label 5.4-5.8 s */
-@keyframes breathing-arrow{0%{clip-path:inset(-12px -12px calc(100% + 12px) -12px)}58.904%{clip-path:inset(-12px -12px calc(100% + 12px) -12px);animation-timing-function:cubic-bezier(0.4,0,0.2,1)}78.082%{clip-path:inset(-12px -12px -12px -12px)}100%{clip-path:inset(-12px -12px -12px -12px)}}
-@keyframes breathing-air{0%{opacity:0}73.973%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.452%{opacity:1}100%{opacity:1}}
-/* captions cross-fade: n0 0.1-1.15 s, n1 1.05-3.7 s, n2 3.55-4.25 s, n3 from 4.15 s */
-@keyframes breathing-n0{0%{opacity:0}1.37%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.164%{opacity:1}12.329%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}15.753%{opacity:0}100%{opacity:0}}
-@keyframes breathing-n1{0%{opacity:0}14.384%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.178%{opacity:1}47.26%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}50.685%{opacity:0}100%{opacity:0}}
-@keyframes breathing-n2{0%{opacity:0}48.63%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.425%{opacity:1}54.795%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}58.219%{opacity:0}100%{opacity:0}}
-@keyframes breathing-n3{0%{opacity:0}56.849%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.644%{opacity:1}100%{opacity:1}}
+/* ---- motion (6.5 s once pass), only when the slide is visible. percent = s / 6.5 ---- */
+/* scene fades in 0-0.45 s */
+@keyframes breathing-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.923%{opacity:1}100%{opacity:1}}
+/* hero, part one: diaphragm contracts and flattens down 0.6-2.3 s (dome = scaleY 4.5 about y 480) */
+@keyframes breathing-dia{0%{transform:scaleY(4.5)}9.231%{transform:scaleY(4.5);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}35.385%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+/* hero, part two (base rule, all browsers): lungs cross-fade from resting to inhaled 0.72-2.6 s */
+@keyframes breathing-lung-r{0%{opacity:1}11.077%{opacity:1;animation-timing-function:ease-in-out}40%{opacity:0}100%{opacity:0}}
+@keyframes breathing-lung-i{0%{opacity:0}11.077%{opacity:0;animation-timing-function:ease-in-out}40%{opacity:1}100%{opacity:1}}
+/* sub-label lands after the diaphragm starts, 0.8-1.2 s */
+@keyframes breathing-sub{0%{opacity:0}12.308%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.462%{opacity:1}100%{opacity:1}}
+/* effects land as their cause completes: volume up 2.6-2.95 s (lungs done), pressure down 2.8-3.15 s */
+@keyframes breathing-vol{0%{opacity:0;transform:translateY(8px)}40%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}45.385%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes breathing-prs{0%{opacity:0;transform:translateY(8px)}43.077%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.462%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+/* air flows in: the arrow is revealed top-down 3.5-4.9 s, label 4.6-5.0 s */
+@keyframes breathing-arrow{0%{clip-path:inset(-14px -14px calc(100% + 14px) -14px)}53.846%{clip-path:inset(-14px -14px calc(100% + 14px) -14px);animation-timing-function:cubic-bezier(0.4,0,0.2,1)}75.385%{clip-path:inset(-14px -14px -14px -14px)}100%{clip-path:inset(-14px -14px -14px -14px)}}
+@keyframes breathing-air{0%{opacity:0}70.769%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.923%{opacity:1}100%{opacity:1}}
+/* captions cross-fade: n0 0-0.7 s, n1 0.6-2.9 s, n2 2.75-3.45 s, n3 from 3.35 s */
+@keyframes breathing-n0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.615%{opacity:1}7.692%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}10.769%{opacity:0}100%{opacity:0}}
+@keyframes breathing-n1{0%{opacity:0}9.231%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.615%{opacity:1}40.769%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}44.615%{opacity:0}100%{opacity:0}}
+@keyframes breathing-n2{0%{opacity:0}42.308%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.692%{opacity:1}49.231%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}53.077%{opacity:0}100%{opacity:0}}
+@keyframes breathing-n3{0%{opacity:0}51.538%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.923%{opacity:1}100%{opacity:1}}
 
-.visible .anim-breathing .breathing-scene{animation:breathing-scene 7.3s linear 1 both}
-.visible .anim-breathing .breathing-dia{animation:breathing-dia 7.3s linear 1 both}
-.visible .anim-breathing .breathing-lung-r{animation:breathing-lung-r 7.3s linear 1 both}
-.visible .anim-breathing .breathing-lung-i{animation:breathing-lung-i 7.3s linear 1 both}
-.visible .anim-breathing .breathing-sub{animation:breathing-sub 7.3s linear 1 both}
-.visible .anim-breathing .breathing-vol{animation:breathing-vol 7.3s linear 1 both}
-.visible .anim-breathing .breathing-prs{animation:breathing-prs 7.3s linear 1 both}
-.visible .anim-breathing .breathing-arrow{animation:breathing-arrow 7.3s linear 1 both}
-.visible .anim-breathing .breathing-air{animation:breathing-air 7.3s linear 1 both}
-.visible .anim-breathing .breathing-n0{animation:breathing-n0 7.3s linear 1 both}
-.visible .anim-breathing .breathing-n1{animation:breathing-n1 7.3s linear 1 both}
-.visible .anim-breathing .breathing-n2{animation:breathing-n2 7.3s linear 1 both}
-.visible .anim-breathing .breathing-n3{animation:breathing-n3 7.3s linear 1 both}
+.visible .anim-breathing .breathing-scene{animation:breathing-scene 6.5s linear 1 both}
+.visible .anim-breathing .breathing-dia{animation:breathing-dia 6.5s linear 1 both}
+.visible .anim-breathing .breathing-lung-r{animation:breathing-lung-r 6.5s linear 1 both}
+.visible .anim-breathing .breathing-lung-i{animation:breathing-lung-i 6.5s linear 1 both}
+.visible .anim-breathing .breathing-sub{animation:breathing-sub 6.5s linear 1 both}
+.visible .anim-breathing .breathing-vol{animation:breathing-vol 6.5s linear 1 both}
+.visible .anim-breathing .breathing-prs{animation:breathing-prs 6.5s linear 1 both}
+.visible .anim-breathing .breathing-arrow{animation:breathing-arrow 6.5s linear 1 both}
+.visible .anim-breathing .breathing-air{animation:breathing-air 6.5s linear 1 both}
+.visible .anim-breathing .breathing-n0{animation:breathing-n0 6.5s linear 1 both}
+.visible .anim-breathing .breathing-n1{animation:breathing-n1 6.5s linear 1 both}
+.visible .anim-breathing .breathing-n2{animation:breathing-n2 6.5s linear 1 both}
+.visible .anim-breathing .breathing-n3{animation:breathing-n3 6.5s linear 1 both}
 
 /* enhancement: one lung outline morphs in place (Chromium, Firefox); Safari keeps the cross-fade */
 @supports (d: path("M0 0")) {
-  /* same timing as the cross-fade, 1.52-3.4 s; 100 % = the base d below */
+  /* same timing as the cross-fade, 0.72-2.6 s; 100 % = the base d below */
   @keyframes breathing-lung-d{
     0%{d:path("M705 150 C645 160 596 230 592 300 C590 350 592 382 598 396 C660 364 740 334 800 326 C806 290 800 230 790 200 C772 166 742 148 705 150 Z M975 150 C1035 160 1084 230 1088 300 C1090 350 1088 382 1082 396 C1020 364 940 334 880 326 C874 290 880 230 890 200 C908 166 938 148 975 150 Z")}
-    20.822%{d:path("M705 150 C645 160 596 230 592 300 C590 350 592 382 598 396 C660 364 740 334 800 326 C806 290 800 230 790 200 C772 166 742 148 705 150 Z M975 150 C1035 160 1084 230 1088 300 C1090 350 1088 382 1082 396 C1020 364 940 334 880 326 C874 290 880 230 890 200 C908 166 938 148 975 150 Z");animation-timing-function:ease-in-out}
-    46.575%{d:path("M705 150 C641 160 586 232 582 310 C578 372 580 420 588 448 C660 442 740 436 800 432 C808 360 802 240 790 200 C772 166 742 148 705 150 Z M975 150 C1039 160 1094 232 1098 310 C1102 372 1100 420 1092 448 C1020 442 940 436 880 432 C872 360 878 240 890 200 C908 166 938 148 975 150 Z")}
+    11.077%{d:path("M705 150 C645 160 596 230 592 300 C590 350 592 382 598 396 C660 364 740 334 800 326 C806 290 800 230 790 200 C772 166 742 148 705 150 Z M975 150 C1035 160 1084 230 1088 300 C1090 350 1088 382 1082 396 C1020 364 940 334 880 326 C874 290 880 230 890 200 C908 166 938 148 975 150 Z");animation-timing-function:ease-in-out}
+    40%{d:path("M705 150 C641 160 586 232 582 310 C578 372 580 420 588 448 C660 442 740 436 800 432 C808 360 802 240 790 200 C772 166 742 148 705 150 Z M975 150 C1039 160 1094 232 1098 310 C1102 372 1100 420 1092 448 C1020 442 940 436 880 432 C872 360 878 240 890 200 C908 166 938 148 975 150 Z")}
     100%{d:path("M705 150 C641 160 586 232 582 310 C578 372 580 420 588 448 C660 442 740 436 800 432 C808 360 802 240 790 200 C772 166 742 148 705 150 Z M975 150 C1039 160 1094 232 1098 310 C1102 372 1100 420 1092 448 C1020 442 940 436 880 432 C872 360 878 240 890 200 C908 166 938 148 975 150 Z")}}
   .anim-breathing .breathing-lung-i{d:path("M705 150 C641 160 586 232 582 310 C578 372 580 420 588 448 C660 442 740 436 800 432 C808 360 802 240 790 200 C772 166 742 148 705 150 Z M975 150 C1039 160 1094 232 1098 310 C1102 372 1100 420 1092 448 C1020 442 940 436 880 432 C872 360 878 240 890 200 C908 166 938 148 975 150 Z")}
   .anim-breathing .breathing-lung-r{display:none}
   .visible .anim-breathing .breathing-lung-r{animation:none}
-  .visible .anim-breathing .breathing-lung-i{animation:breathing-lung-d 7.3s linear 1 both}
+  .visible .anim-breathing .breathing-lung-i{animation:breathing-lung-d 6.5s linear 1 both}
 }
 
 @media (prefers-reduced-motion: reduce) { .anim-breathing * { animation: none !important; } }
 </style>
-<div class="anim anim-breathing" data-anim="breathing" data-anim-cycle="7.3" data-anim-control="once" data-anim-phases="0.9,4,5.85" data-anim-verb="drive">
+<div class="anim anim-breathing" data-anim="breathing" data-anim-cycle="6.5" data-anim-control="once" data-anim-phases="0.5,3.2,5.05" data-anim-verb="drive">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Front cross-section of the chest: the dome-shaped diaphragm under the lungs contracts and moves down, the lungs enlarge downward with it, the chest cavity's volume goes up and the pressure in the lungs goes down, and air flows in through the windpipe. A dashed line keeps the diaphragm's resting dome.">
 <g class="breathing-scene">
   <!-- rib cage: a bell open at the neck -->
-  <path class="breathing-cage" d="M790 96 C690 104 590 150 566 300 C556 380 548 440 540 480"/>
-  <path class="breathing-cage" d="M890 96 C990 104 1090 150 1114 300 C1124 380 1132 440 1140 480"/>
-  <!-- windpipe branching to both lungs -->
-  <path class="breathing-pipe" d="M824 24 V168 L790 202 M856 24 V168 L890 202 M804 222 L840 186 L876 222"/>
+  <path class="breathing-cage" d="M782 106 C686 112 590 152 566 300 C556 380 548 440 540 480"/>
+  <path class="breathing-cage" d="M898 106 C994 112 1090 152 1114 300 C1124 380 1132 440 1140 480"/>
+  <!-- windpipe, open at the top (y 72), branching to both lungs -->
+  <path class="breathing-pipe" d="M816 72 V164 L782 198 M864 72 V164 L898 198 M804 222 L840 186 L876 222"/>
   <!-- lungs: interior ground (data-anim-scene); resting copy for the cross-fade, inhaled copy = resting frame -->
   <path data-anim-scene class="breathing-lung breathing-lung-r" d="M705 150 C645 160 596 230 592 300 C590 350 592 382 598 396 C660 364 740 334 800 326 C806 290 800 230 790 200 C772 166 742 148 705 150 Z M975 150 C1035 160 1084 230 1088 300 C1090 350 1088 382 1082 396 C1020 364 940 334 880 326 C874 290 880 230 890 200 C908 166 938 148 975 150 Z"/>
   <path data-anim-scene class="breathing-lung breathing-lung-i" d="M705 150 C641 160 586 232 582 310 C578 372 580 420 588 448 C660 442 740 436 800 432 C808 360 802 240 790 200 C772 166 742 148 705 150 Z M975 150 C1039 160 1094 232 1098 310 C1102 372 1100 420 1092 448 C1020 442 940 436 880 432 C872 360 878 240 890 200 C908 166 938 148 975 150 Z"/>
@@ -131,25 +130,25 @@
   <path class="breathing-ghost" d="M540 480 C620 300 1060 300 1140 480"/>
   <!-- the driver: drawn contracted (flat); starts as the dome via scaleY(4.5) about y 480 -->
   <path class="breathing-dia" vector-effect="non-scaling-stroke" d="M540 480 C620 440 1060 440 1140 480"/>
-  <!-- air flows in: drawn on down the windpipe -->
+  <!-- air flows in: from above the opening down into the windpipe, revealed top-down -->
   <g class="breathing-arrow">
-    <path class="breathing-head" d="M840 30 V169 L812 197 M840 169 L868 197"/>
-    <path class="breathing-head" d="M814.9 185.7 L812 197 L823.3 194.1 M865.1 185.7 L868 197 L856.7 194.1"/>
+    <path class="breathing-head" d="M840 6 V152"/>
+    <path class="breathing-head" d="M825 137 L840 152 L855 137"/>
   </g>
   <!-- labels outside the shapes -->
-  <text class="breathing-t breathing-lbl" x="804" y="64" text-anchor="end">windpipe</text>
-  <g class="breathing-air"><text class="breathing-t breathing-lbl" x="876" y="64">air flows in</text></g>
+  <text class="breathing-t breathing-lbl" x="804" y="94" text-anchor="end">windpipe</text>
+  <g class="breathing-air"><text class="breathing-t breathing-lbl breathing-acc" x="864" y="40">air flows in</text></g>
   <text class="breathing-t breathing-lbl" x="520" y="262" text-anchor="end">chest cavity</text>
   <g class="breathing-vol"><text class="breathing-mono" x="520" y="292" text-anchor="end">volume up</text></g>
   <text class="breathing-t breathing-lbl" x="1160" y="262">lungs</text>
   <g class="breathing-prs"><text class="breathing-mono" x="1160" y="292">pressure down</text></g>
-  <text class="breathing-t breathing-lbl breathing-acc" x="1172" y="456">diaphragm</text>
+  <text class="breathing-t breathing-lbl" x="1172" y="456">diaphragm</text>
   <g class="breathing-sub"><text class="breathing-mono" x="1172" y="484">contracts, moves down</text></g>
   <!-- captions -->
   <text class="breathing-t breathing-note breathing-n0" x="840" y="566" text-anchor="middle">At rest the diaphragm is a dome under the lungs</text>
   <text class="breathing-t breathing-note breathing-n1" x="840" y="566" text-anchor="middle">The diaphragm contracts and moves down; the lungs follow</text>
   <text class="breathing-t breathing-note breathing-n2" x="840" y="566" text-anchor="middle">The chest cavity gets larger, so the pressure in the lungs drops</text>
-  <text class="breathing-t breathing-note breathing-n3" x="840" y="566" text-anchor="middle">Air flows in until the pressures are equal; to breathe out, the diaphragm relaxes and rises</text>
+  <text class="breathing-t breathing-note breathing-n3" x="840" y="566" text-anchor="middle">Air flows in until the pressures are equal</text>
 </g>
 </svg>
 </div>

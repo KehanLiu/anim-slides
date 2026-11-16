@@ -28,8 +28,8 @@
   moves: [draw-on, nest-outline, state-switch]
   domain: software
   viewbox: [1680, 600]
-  cycle: 9.4
-  phases: [2.6, 3.5, 4.9, 7, 8.2]
+  cycle: 8.7
+  phases: [2.7, 3.7, 5, 6.9, 7.5]
   spec: true
   story: A service graph builds rank by rank, then a third-party outage spreads only to Payments and a boundary closes around the two: the blast radius.
   tags: [dependencies, microservices, blast-radius, outage, architecture]
@@ -70,7 +70,7 @@
   domain: software
   viewbox: [1200, 600]
   cycle: 9.8
-  phases: [0.7, 2, 3.8, 5.7, 7.1, 8.8]
+  phases: [0.5, 4, 5.7, 7.45, 9]
   spec: true
   story: One job changes state in place, from queued to running to failed, waits out a 2 s backoff, and succeeds on the second attempt, while a small state map lights the current state and the event log fills in.
   tags: [lifecycle, retry, state-machine, jobs, error-handling]
@@ -84,7 +84,7 @@
   domain: software
   viewbox: [1680, 600]
   cycle: 10
-  phases: [2.7, 4.55, 6.15, 7.75, 9.1]
+  phases: [2.1, 4.05, 5.7, 7.35, 8.9]
   spec: true
   story: The same four reads raced on one clock without and with a cache; 180 ms database reads keep growing while 8 ms hits stop almost at once, and database load climbs to 96 % on one side but stays at 24 % on the other.
   tags: [caching, latency, database, before-after, performance]
@@ -288,7 +288,7 @@
   domain: education
   viewbox: [1200, 640]
   cycle: 10
-  phases: [1, 3.05, 5.1, 7.2, 8.6]
+  phases: [2.15, 4.35, 6.2, 7.4, 8.6]
   spec: false
   story: The six levels of the revised Bloom's taxonomy are set on top of one another bottom-up, each resting on the one below, and one topic (fractions) gets an example task at every level.
   tags: [education, bloom, learning-objectives, pyramid, hierarchy, cognition]
@@ -302,7 +302,7 @@
   domain: chemistry
   viewbox: [1680, 600]
   cycle: 10
-  phases: [0.62, 2.63, 4.68, 6.68, 9.02]
+  phases: [0.42, 2.41, 4.41, 6.41, 8.79]
   spec: true
   story: One sealed container holds the same 18 particles; energy in loosens the solid lattice into a liquid (melting, 0 °C) and spreads it into a gas (vaporization, 100 °C at 1 atm), then energy out brings it back through condensation and freezing; sublimation and deposition are named with their absorb/release wording.
   tags: [chemistry, states-of-matter, phase-change, energy, particles, physics]
@@ -315,8 +315,8 @@
   moves: [rotate, ghost-before-after, draw-on]
   domain: health
   viewbox: [1680, 600]
-  cycle: 9.6
-  phases: [1, 4.6, 7.2, 8.6]
+  cycle: 9.3
+  phases: [0.6, 4.2, 6.9, 8.3]
   spec: false
   story: A beam balance starts level and empty; resting metabolism, activity and digesting food land on the energy-used pan and the beam dips right with each, then food and drink lands on the energy-in pan and the beam swings past level to the intake side, marking a 500 kcal a day surplus as stored (illustrative numbers).
   tags: [nutrition, metabolism, energy-balance, physiology, scale, trade-off]
@@ -343,8 +343,8 @@
   moves: [level, count, ghost-before-after, draw-on]
   domain: finance
   viewbox: [1680, 600]
-  cycle: 9.6
-  phases: [0.7, 2.4, 4.1, 6.05, 8.5]
+  cycle: 9.2
+  phases: [0.55, 2, 3.7, 5.6, 8.1]
   spec: false
   story: Left alone at an example rate of 5 % a year, 1,000 grows to 1,629, 2,653 and 4,322 at years 10, 20 and 30, and each decade adds more than the one before (+629, +1,024, +1,669).
   tags: [compound-interest, savings, growth, columns, true-proportion, illustrative]
@@ -357,8 +357,8 @@
   moves: [drive-chain, morph, ghost-before-after, draw-on]
   domain: health
   viewbox: [1680, 600]
-  cycle: 7.3
-  phases: [0.9, 4, 5.85]
+  cycle: 6.5
+  phases: [0.5, 3.2, 5.05]
   spec: false
   story: A front cross-section of the chest; the domed diaphragm contracts and flattens, the lungs follow it down, then volume up, pressure down and air flows in down the windpipe, resting on the inhaled state with the resting dome kept as a dashed ghost.
   tags: [breathing, diaphragm, lungs, physiology, cause-effect, cross-section]
@@ -413,8 +413,8 @@
   moves: [race-bars, draw-on]
   domain: law
   viewbox: [1680, 600]
-  cycle: 8.8
-  phases: [1.35, 5.9, 7.4]
+  cycle: 7.9
+  phases: [0.45, 5, 6.5]
   spec: false
   story: The same dispute on one month axis; mediation and trial bars grow together at the same rate, mediation stops at 3 months, the trial runs on alone through four stages to 18, and a bracket marks 15 months longer (illustrative durations).
   tags: [mediation, court, litigation, duration, comparison, gap, illustrative]
@@ -427,8 +427,8 @@
   moves: [dots-at-scale, units-sort, count]
   domain: health
   viewbox: [1680, 600]
-  cycle: 9.9
-  phases: [1.22, 2.85, 4.7, 7.5, 8.95]
+  cycle: 9.5
+  phases: [1.22, 3.0, 4.92, 7.95, 8.5]
   spec: false
   story: One crowd of 100 people, one ring each, sorts itself by ABO blood group into blocks in columns of five (about 44 O, 42 A, 10 B, 4 AB in the US); the counts land and the largest group takes the accent.
   tags: [blood-type, abo, population-share, unit-chart, of-every-100]
@@ -469,8 +469,8 @@
   moves: [morph, cross-fade-shape, draw-on, ghost-before-after]
   domain: earth-science
   viewbox: [1680, 600]
-  cycle: 10
-  phases: [2.9, 4.8, 6.1, 7.4, 8.8]
+  cycle: 9.6
+  phases: [2.9, 4.8, 6.0, 8.35]
   spec: false
   story: A river bend tightens into a loop with a narrow neck, a flood cuts through the neck, and the sealed-off loop is left behind as an oxbow lake.
   tags: [river, meander, erosion, deposition, geomorphology, map]
@@ -483,8 +483,8 @@
   moves: [wipe, clip-reveal, ghost-before-after, draw-on]
   domain: civics
   viewbox: [1680, 600]
-  cycle: 8.4
-  phases: [2.05, 3.8, 5.65, 7.3]
+  cycle: 8.6
+  phases: [2.05, 3.8, 5.9, 7.5]
   spec: false
   story: An example 20 m street is redivided; a boundary line sweeps across and two car lanes and the parking give way to a cycle track, a bus lane and wider pavements, while the building edges and the 20 m bracket stay put (illustrative widths).
   tags: [urban-planning, street, cross-section, before-after, redesign, illustrative]
@@ -497,8 +497,8 @@
   moves: [cutaway, clip-reveal, rotate, draw-on]
   domain: earth-science
   viewbox: [1680, 600]
-  cycle: 9.9
-  phases: [1.28, 3, 5.25, 7.24, 8.9]
+  cycle: 8.7
+  phases: [0.57, 2.3, 4.4, 6.25, 7.5]
   spec: false
   story: A closed Earth has a quarter cut away; the layers show at true radial proportion and are named from the outside in (crust, rocky mantle, liquid outer core, solid inner core), then a depth scale draws from 0 at the surface to 6,371 km at the centre.
   tags: [earth, geology, cutaway, layers, depth, scale]

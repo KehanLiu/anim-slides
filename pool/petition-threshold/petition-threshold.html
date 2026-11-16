@@ -2,7 +2,7 @@
   Story: a European Citizens' Initiative fills a measuring column with statements of support. One
   mark = 20,000 signatures, so 50 marks reach the line at 1,000,000. The marks arrive in three
   staggered waves (20, 20, 10) and settle into rows; after each wave the level rises and the running
-  total rolls on (0, 400,000, 800,000, 1,000,000). When the level reaches the line, the line and its
+  total rolls on one step per row of ten marks, as that row settles (0, 200,000, ... 1,000,000). When the level reaches the line, the line and its
   label take the accent. Then, quieter: seven member-state markers tick on beside a static
   "12 months" bracket, and the caption states the full condition.
   Verb: accumulate (main), count (support, the digit strip). Pass 9 s once, hold 7.9-9.0 s.
@@ -10,8 +10,8 @@
   the level is a scaleY on a rect about the floor (transform-box view-box, px origin); the total is a
   digit strip of stacked <text> under a clipPath, rolled by translateY; the threshold change is a
   cross-fade of stacked copies. No offset-path, no travelling marker.
-  Timing: wave rows (0, 1): 0.9-2.02 s; wave rows (2, 3): 2.9-4.01 s; wave rows (4,): 4.9-5.67 s; level after each wave 2.05-2.65, 4.05-4.65, 5.7-6.3 s;
-  counter rolls 2.15-2.5, 4.15-4.5, 5.8-6.15 s; threshold lights 6.35-6.75 s; markers 7.0-7.73 s.
+  Timing: wave rows (0, 1): 0.5-1.61 s; wave rows (2, 3): 2.9-4.01 s; wave rows (4,): 4.9-5.67 s; level after each wave 1.65-2.25, 4.05-4.65, 5.7-6.3 s;
+  counter rolls per row 1.0-1.3, 1.35-1.65, 3.4-3.7, 3.75-4.05, 5.4-5.7 s; threshold lights 6.35-6.75 s; markers 7.0-7.73 s.
   Facts (Regulation (EU) 2019/788 on the European citizens' initiative; checked 2026-11-16 against
   citizens-initiative.europa.eu "How it works": "the support of at least 1 million EU citizens",
   "12 months to collect statements of support", "thresholds (minimum numbers) in at least 7 EU
@@ -22,7 +22,7 @@
     is named and no per-country threshold is drawn.
   - the Commission must respond once the conditions are met: stated (the claim; Reg. 2019/788).
   - 1 mark = 20,000 signatures: a drawing scale, 1,000,000 / 50 marks (arithmetic).
-  - 400,000 / 800,000: positions on the way, marks x 20,000 (arithmetic), not facts about any
+  - 200,000 / 400,000 / 600,000 / 800,000: positions on the way, marks x 20,000 (arithmetic), not facts about any
     real initiative; the wave sizes and their timing are a drawing choice, not a collection rate.
   - the seven markers stand for "at least 7"; the number of member states in total is not drawn. -->
 <style>
@@ -47,7 +47,7 @@
 .anim-petition-threshold .petition-threshold-note{font-size:26px;font-weight:400}
 .anim-petition-threshold .petition-threshold-big{font-family:var(--anim-font);font-size:64px;font-weight:600;fill:var(--anim-fg)}
 .anim-petition-threshold .petition-threshold-big.petition-threshold-acc{fill:var(--anim-accent)}
-.anim-petition-threshold .petition-threshold-mono{font-family:var(--anim-mono);font-size:18px;font-weight:400;fill:var(--anim-muted)}
+.anim-petition-threshold .petition-threshold-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
 .anim-petition-threshold .petition-threshold-thr-t{font-family:var(--anim-font);font-size:28px;font-weight:600;fill:var(--anim-muted)}
 .anim-petition-threshold .petition-threshold-thr-t.petition-threshold-acc{fill:var(--anim-accent)}
 /* the measuring column: thin walls, a lip, graduation ticks */
@@ -68,31 +68,31 @@
 .anim-petition-threshold .petition-threshold-dot{fill:var(--anim-accent)}
 .anim-petition-threshold .petition-threshold-brk{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .anim-petition-threshold .petition-threshold-strip{transform-box:view-box}
-.anim-petition-threshold .petition-threshold-strip{transform:translateY(-240px)}
+.anim-petition-threshold .petition-threshold-strip{transform:translateY(-400px)}
 /* resting frame: column full to the line, total 1,000,000, line in accent, 7 markers on, final caption */
 .anim-petition-threshold .petition-threshold-n0{opacity:0}
 
 /* ---- motion (9 s once-play pass), only when the slide is visible ---- */
-@keyframes petition-threshold-u0{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u1{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.39%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.39%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u2{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.78%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.78%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u3{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.17%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.17%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u4{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.56%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.56%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u5{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.94%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.94%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u6{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.33%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.33%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u7{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.72%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.72%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u8{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.11%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.11%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u9{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.5%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.5%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u10{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.89%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.89%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u11{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.28%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.28%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u12{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.67%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.67%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u13{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.06%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.06%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u14{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.44%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.44%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u15{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.83%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.83%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u16{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.22%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.22%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u17{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.61%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.61%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u18{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-u19{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.39%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.39%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u0{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.56%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.56%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u1{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.94%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.94%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u2{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.33%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.33%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u3{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.72%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.72%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u4{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.11%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.11%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u5{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.5%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.5%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u6{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.89%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.89%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u7{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.28%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.28%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u8{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.67%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.67%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u9{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.06%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.06%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u10{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.44%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.44%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u11{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.83%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.83%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u12{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.22%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.22%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u13{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.61%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.61%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u14{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u15{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.39%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.39%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u16{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.78%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}16.78%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u17{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.17%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.17%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u18{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.56%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.56%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes petition-threshold-u19{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.94%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.94%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
 @keyframes petition-threshold-u20{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.22%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.22%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
 @keyframes petition-threshold-u21{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.61%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.61%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
 @keyframes petition-threshold-u22{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
@@ -123,8 +123,8 @@
 @keyframes petition-threshold-u47{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}57.17%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.17%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
 @keyframes petition-threshold-u48{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}57.56%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.56%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
 @keyframes petition-threshold-u49{0%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}57.94%{opacity:0;transform:translateY(-56px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.94%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
-@keyframes petition-threshold-level{0%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}22.78%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}29.44%{transform:scaleY(0.4)}45%{transform:scaleY(0.4);animation-timing-function:cubic-bezier(0.2,0,0,1)}51.67%{transform:scaleY(0.8)}63.33%{transform:scaleY(0.8);animation-timing-function:cubic-bezier(0.2,0,0,1)}70%{transform:scaleY(1)}100%{transform:scaleY(1)}}
-@keyframes petition-threshold-strip{0%{transform:translateY(0px);animation-timing-function:ease-in-out}23.89%{transform:translateY(0px);animation-timing-function:ease-in-out}27.78%{transform:translateY(-80px)}46.11%{transform:translateY(-80px);animation-timing-function:ease-in-out}50%{transform:translateY(-160px)}64.44%{transform:translateY(-160px);animation-timing-function:ease-in-out}68.33%{transform:translateY(-240px)}100%{transform:translateY(-240px)}}
+@keyframes petition-threshold-level{0%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}18.33%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}25%{transform:scaleY(0.4)}45%{transform:scaleY(0.4);animation-timing-function:cubic-bezier(0.2,0,0,1)}51.67%{transform:scaleY(0.8)}63.33%{transform:scaleY(0.8);animation-timing-function:cubic-bezier(0.2,0,0,1)}70%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+@keyframes petition-threshold-strip{0%{transform:translateY(0px);animation-timing-function:ease-in-out}11.11%{transform:translateY(0px);animation-timing-function:ease-in-out}14.44%{transform:translateY(-80px)}15%{transform:translateY(-80px);animation-timing-function:ease-in-out}18.33%{transform:translateY(-160px)}37.78%{transform:translateY(-160px);animation-timing-function:ease-in-out}41.11%{transform:translateY(-240px)}41.67%{transform:translateY(-240px);animation-timing-function:ease-in-out}45%{transform:translateY(-320px)}60%{transform:translateY(-320px);animation-timing-function:ease-in-out}63.33%{transform:translateY(-400px)}100%{transform:translateY(-400px)}}
 @keyframes petition-threshold-thr-on{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.56%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75%{opacity:1}100%{opacity:1}}
 @keyframes petition-threshold-thr-off{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}70.56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}73.44%{opacity:0}100%{opacity:0}}
 @keyframes petition-threshold-ms0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.78%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.56%{opacity:1}100%{opacity:1}}
@@ -213,12 +213,14 @@
   <g clip-path="url(#petition-threshold-win)">
     <g class="petition-threshold-strip">
       <text class="petition-threshold-big" x="540" y="322" text-anchor="end">0</text>
-      <text class="petition-threshold-big" x="540" y="402" text-anchor="end">400,000</text>
-      <text class="petition-threshold-big" x="540" y="482" text-anchor="end">800,000</text>
-      <text class="petition-threshold-big petition-threshold-acc" x="540" y="562" text-anchor="end">1,000,000</text>
+      <text class="petition-threshold-big" x="540" y="402" text-anchor="end">200,000</text>
+      <text class="petition-threshold-big" x="540" y="482" text-anchor="end">400,000</text>
+      <text class="petition-threshold-big" x="540" y="562" text-anchor="end">600,000</text>
+      <text class="petition-threshold-big" x="540" y="642" text-anchor="end">800,000</text>
+      <text class="petition-threshold-big petition-threshold-acc" x="540" y="722" text-anchor="end">1,000,000</text>
     </g>
   </g>
-  <rect class="petition-threshold-slip" x="226" y="386" width="16" height="34" rx="3"/>
+  <rect class="petition-threshold-slip" x="196" y="386" width="16" height="34" rx="3"/>
   <text class="petition-threshold-mono" x="540" y="410" text-anchor="end">1 mark = 20,000 signatures</text>
   <!-- the column: contents first, then the walls on top -->
   <rect data-anim-scene class="petition-threshold-level" x="622" y="120" width="436" height="378"/>
@@ -282,8 +284,8 @@
   <text class="petition-threshold-mono" x="1128" y="160">valid statements of support</text>
   <!-- secondary, quiet: member states and the collection period -->
   <text class="petition-threshold-t petition-threshold-lbl" x="1138" y="262">7 member states</text>
-  <circle class="petition-threshold-ring" cx="1150" cy="300" r="12"/><circle class="petition-threshold-dot petition-threshold-ms0" cx="1150" cy="300" r="6"/><circle class="petition-threshold-ring" cx="1190" cy="300" r="12"/><circle class="petition-threshold-dot petition-threshold-ms1" cx="1190" cy="300" r="6"/><circle class="petition-threshold-ring" cx="1230" cy="300" r="12"/><circle class="petition-threshold-dot petition-threshold-ms2" cx="1230" cy="300" r="6"/><circle class="petition-threshold-ring" cx="1270" cy="300" r="12"/><circle class="petition-threshold-dot petition-threshold-ms3" cx="1270" cy="300" r="6"/><circle class="petition-threshold-ring" cx="1310" cy="300" r="12"/><circle class="petition-threshold-dot petition-threshold-ms4" cx="1310" cy="300" r="6"/><circle class="petition-threshold-ring" cx="1350" cy="300" r="12"/><circle class="petition-threshold-dot petition-threshold-ms5" cx="1350" cy="300" r="6"/><circle class="petition-threshold-ring" cx="1390" cy="300" r="12"/><circle class="petition-threshold-dot petition-threshold-ms6" cx="1390" cy="300" r="6"/>
-  <text class="petition-threshold-mono" x="1138" y="342">at least; minimum reached in each</text>
+  <circle class="petition-threshold-ring" cx="1156" cy="300" r="18"/><circle class="petition-threshold-dot petition-threshold-ms0" cx="1156" cy="300" r="9"/><circle class="petition-threshold-ring" cx="1210" cy="300" r="18"/><circle class="petition-threshold-dot petition-threshold-ms1" cx="1210" cy="300" r="9"/><circle class="petition-threshold-ring" cx="1264" cy="300" r="18"/><circle class="petition-threshold-dot petition-threshold-ms2" cx="1264" cy="300" r="9"/><circle class="petition-threshold-ring" cx="1318" cy="300" r="18"/><circle class="petition-threshold-dot petition-threshold-ms3" cx="1318" cy="300" r="9"/><circle class="petition-threshold-ring" cx="1372" cy="300" r="18"/><circle class="petition-threshold-dot petition-threshold-ms4" cx="1372" cy="300" r="9"/><circle class="petition-threshold-ring" cx="1426" cy="300" r="18"/><circle class="petition-threshold-dot petition-threshold-ms5" cx="1426" cy="300" r="9"/><circle class="petition-threshold-ring" cx="1480" cy="300" r="18"/><circle class="petition-threshold-dot petition-threshold-ms6" cx="1480" cy="300" r="9"/>
+  <text class="petition-threshold-mono" x="1138" y="352">at least 7, minimum reached in each</text>
   <text class="petition-threshold-t petition-threshold-lbl" x="1138" y="410">12 months</text>
   <path class="petition-threshold-brk" d="M1140 422 V434 H1418 V422"/>
   <text class="petition-threshold-mono" x="1138" y="464">collection period</text>

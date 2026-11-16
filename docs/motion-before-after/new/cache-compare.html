@@ -7,34 +7,35 @@
   the same rate on the same scale (bar length proportional to milliseconds), so a 180 ms database
   read keeps growing while an 8 ms cache hit stops almost at once. Read 1 misses on both sides (the
   right side goes to the database and fills the cache, 185 ms); reads 2 to 4 are database reads on
-  the left (180 ms each) and cache hits on the right (8 ms each). After each read the database load
-  meter on each side steps up by that read's share: the left climbs to 96 % and turns busy, the
-  right stays at 24 % after its single read. Answer: the left level is ghosted on the right meter
-  and a bracket marks the gap down to 24 %: 75 % fewer database reads; the verdict sentence lands.
+  the left (180 ms each) and cache hits on the right (8 ms each). After each database read that
+  side's load gauge steps up 24 % and its read counter ticks in step: the left reaches 96 % (4 reads,
+  in danger red), the right stays at 24 % (1 read). Answer: the left level is ghosted on the right
+  gauge and an accent bracket spans the gap: 75 % fewer database reads; the verdict sentence lands.
   Verb: race. Technique: one full-pass scaleX track per bar (transform-box fill-box, origin at the
-  bar start), LINEAR timing because the bars track the clock: 1.0 s of pass per 180 ms of latency,
-  so every bar grows at 378 px/s (180 ms = 378 px over 1.0 s, 185 ms = 388.5 px over 1.028 s,
-  8 ms = 16.8 px over 0.044 s). Scale 2.1 px per ms on both sides ("bars to scale" note). Bars are
-  24 px tall, the largest marks in each column, so the 8 ms bar stays visible at true length. Load meters: scaleY on the fill about its
-  baseline in four steps of 24 %; counters and cache state cross-fade as stacked <text>.
-  Answer: dashed ghost tick at 96 % on the right meter, then the accent bracket draws on alone
-  (pathLength 100) down to the 24 % level, then its label. No packets, no offset-path.
-  Once pass 10 s: set 0-0.6 s; race read 1 0.7-1.73 s, cache fill and load steps to 2.6 s; read 2
-  3.0-4.45 s; read 3 4.6-6.05 s; read 4 6.2-7.65 s; answer 7.75-9.1 s (bracket alone 8.35-8.85 s); hold 9.1-10 s.
-  Phases 2.7, 4.55, 6.15, 7.75, 9.1.
+  bar start), LINEAR timing because the bars track the clock: 1.0 s of pass per 180 ms, so every bar
+  grows at 360 px/s (180 ms = 360 px over 1.0 s, 185 ms = 370 px over 1.028 s, 8 ms = 16 px over
+  0.044 s). Scale 2 px per ms on both sides ("bars to scale"); bars 24 px tall, the largest marks
+  and the only large movement. Load gauges: horizontal scaleX in four steps of 24 % (100 % = 360 px);
+  counters are stacked <text> that switch in one instant as the level arrives. Answer: dashed ghost
+  tick, then the bracket draws on alone (pathLength 100), then its label. No packets, no offset-path.
+  Colours: neutral for bars, danger only for the overloaded side, the accent only for the answer.
+  Once pass 10 s: set 0-0.4 s; read 1 0.5-1.95 s; read 2 2.5-3.95 s; read 3 4.15-5.6 s; read 4
+  5.8-7.25 s; answer 7.4-8.85 s (bracket alone 8.15-8.65 s); hold 8.9-10 s.
+  Phases 2.1, 4.05, 5.7, 7.35, 8.9.
   Facts (all values are the entry's existing illustrative example figures, tagged "illustrative"):
   - 180 ms per database read (left reads 1-4): illustrative, as in the entry before this rework.
   - 185 ms for read 1 with cache (miss, go to the database, fill): illustrative, entry value.
   - 8 ms per cache hit (right reads 2-4): illustrative, entry value.
   - Which reads hit and miss (read 1 misses, reads 2-4 hit; left always goes to the database):
-    the entry's stated scenario (read-through cache, the first read fills it).
+    the entry's stated scenario (read-through cache, the first read fills it). The column notes
+    "every read → database" and "miss → DB, fill, then cache hit" reuse the entry's row labels.
   - "0 reads" .. "4 reads" left, "0 reads"/"1 read" right: count of database reads in that scenario.
   - Load 24 % per database read (0/24/48/72/96 % left, 0/24 % right): illustrative, entry values.
   - "22x faster on cache hits" = 180 / 8 = 22.5, rounded down: arithmetic, entry's verdict.
   - "75 % fewer database reads" = (4 - 1) / 4: arithmetic, entry's verdict; also 96 % vs 24 %.
   - Captions "First read misses and fills the cache", "Later reads hit the cache": the entry's
     phase notes (spec.yaml).
-  - "bars to scale" (2.1 px per ms) and the 1.0 s per 180 ms clock: drawing scale, not data. -->
+  - "bars to scale" (2 px per ms) and the 1.0 s per 180 ms clock: drawing scale, not data. -->
 <style>
 .anim-cache-compare{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -53,274 +54,216 @@
 }
 .anim-cache-compare svg{width:100%;height:100%;display:block}
 .anim-cache-compare .cache-compare-tagbox{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2}
-.anim-cache-compare .cache-compare-mono{font-family:var(--anim-mono);font-size:20px}
-.anim-cache-compare .cache-compare-small{font-size:18px}
-.anim-cache-compare .cache-compare-sans{font-family:var(--anim-font);font-size:20px}
-.anim-cache-compare .cache-compare-head{font-size:26px;font-weight:600}
-.anim-cache-compare .cache-compare-lbl{font-size:24px;font-weight:600}
-.anim-cache-compare .cache-compare-bold{font-weight:600}
-.anim-cache-compare .cache-compare-fg{fill:var(--anim-fg)}
-.anim-cache-compare .cache-compare-dim{fill:var(--anim-muted)}
-.anim-cache-compare .cache-compare-gn{fill:var(--anim-ok)}
-.anim-cache-compare .cache-compare-ac{fill:var(--anim-accent)}
-.anim-cache-compare .cache-compare-rd{fill:var(--anim-danger)}
-.anim-cache-compare .cache-compare-note{font-family:var(--anim-font);font-size:26px;font-weight:400;fill:var(--anim-fg)}
+.anim-cache-compare .cache-compare-tagt{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-cache-compare .cache-compare-head{font-family:var(--anim-font);font-size:28px;font-weight:600;fill:var(--anim-fg)}
+.anim-cache-compare .cache-compare-mono{font-family:var(--anim-mono)}
+.anim-cache-compare .cache-compare-note2{font-size:22px;fill:var(--anim-muted)}
+.anim-cache-compare .cache-compare-scale{font-size:20px;fill:var(--anim-muted)}
+.anim-cache-compare .cache-compare-row{font-size:24px;fill:var(--anim-fg)}
+.anim-cache-compare .cache-compare-val{font-size:26px;font-weight:600;fill:var(--anim-fg)}
+.anim-cache-compare .cache-compare-pct{font-size:28px;font-weight:600}
+.anim-cache-compare .cache-compare-cnt{font-size:22px}
+.anim-cache-compare .cache-compare-fgc{fill:var(--anim-fg)}
+.anim-cache-compare .cache-compare-dimc{fill:var(--anim-muted)}
+.anim-cache-compare .cache-compare-rdc{fill:var(--anim-danger)}
+.anim-cache-compare .cache-compare-note{font-family:var(--anim-font);font-size:28px;font-weight:400;fill:var(--anim-fg)}
 .anim-cache-compare .cache-compare-verdict-n{font-weight:600;fill:var(--anim-accent)}
 .anim-cache-compare .cache-compare-sep{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2;stroke-linecap:round}
-.anim-cache-compare .cache-compare-panel{fill:none;stroke:var(--anim-accent);stroke-width:3px;stroke-linecap:round}
-.anim-cache-compare .cache-compare-wire{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2.5;stroke-linecap:round}
-.anim-cache-compare .cache-compare-node{fill:none;stroke:var(--anim-ok);stroke-width:2.5}
-.anim-cache-compare .cache-compare-slot{fill:var(--anim-ok)}
-.anim-cache-compare .cache-compare-cyl path,.anim-cache-compare .cache-compare-cyl ellipse{fill:none;stroke-width:2.5;stroke-linejoin:round}
-.anim-cache-compare .cache-compare-cyl-calm path,.anim-cache-compare .cache-compare-cyl-calm ellipse{stroke:var(--anim-muted)}
-.anim-cache-compare .cache-compare-cyl-busy path,.anim-cache-compare .cache-compare-cyl-busy ellipse{stroke:var(--anim-danger)}
-.anim-cache-compare .cache-compare-meter{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2;stroke-linecap:round}
-.anim-cache-compare .cache-compare-fill{transform-box:fill-box;transform-origin:50% 100%}
-.anim-cache-compare .cache-compare-fill-l{fill:var(--anim-danger);transform:scaleY(.96)}
-.anim-cache-compare .cache-compare-fill-r{fill:var(--anim-ok);transform:scaleY(.24)}
-.anim-cache-compare .cache-compare-ghost{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:5 5}
-.anim-cache-compare .cache-compare-brk{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-cache-compare .cache-compare-ans{font-family:var(--anim-font);font-size:30px;font-weight:600;fill:var(--anim-accent)}
 .anim-cache-compare .cache-compare-track{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,transparent);stroke-width:2;stroke-linecap:round}
 .anim-cache-compare .cache-compare-bar{transform-box:fill-box;transform-origin:0 50%}
 .anim-cache-compare .cache-compare-bar-am{fill:var(--anim-muted)}
-.anim-cache-compare .cache-compare-bar-gn{fill:var(--anim-ok)}
-/* resting frame = the end: all four reads raced, left at 96 % and busy, right at 24 %,
-   the left side dimmed, gap bracketed, verdict shown. Elements of earlier moments rest at 0. */
+.anim-cache-compare .cache-compare-bar-fg{fill:var(--anim-fg)}
+.anim-cache-compare .cache-compare-fill{transform-box:fill-box;transform-origin:0 50%}
+.anim-cache-compare .cache-compare-fill-l{fill:var(--anim-danger);transform:scaleX(.96)}
+.anim-cache-compare .cache-compare-fill-r{fill:var(--anim-muted);transform:scaleX(.24)}
+.anim-cache-compare .cache-compare-ghost{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:5 5}
+.anim-cache-compare .cache-compare-brk{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-cache-compare .cache-compare-ans{font-family:var(--anim-font);font-size:30px;font-weight:600;fill:var(--anim-accent)}
+/* resting frame = the end: four reads raced, left at 96 % (4 reads) and dimmed, right at 24 % (1 read),
+   gap bracketed, verdict shown. Copies that belong to earlier moments rest at opacity 0. */
 .anim-cache-compare .cache-compare-side-l{opacity:.68}
 .anim-cache-compare .cache-compare-rd-l0,.anim-cache-compare .cache-compare-rd-l1,.anim-cache-compare .cache-compare-rd-l2,.anim-cache-compare .cache-compare-rd-l3,.anim-cache-compare .cache-compare-rd-r0,
 .anim-cache-compare .cache-compare-pc-l0,.anim-cache-compare .cache-compare-pc-l1,.anim-cache-compare .cache-compare-pc-l2,.anim-cache-compare .cache-compare-pc-l3,.anim-cache-compare .cache-compare-pc-r0,
-.anim-cache-compare .cache-compare-chip-miss,.anim-cache-compare .cache-compare-c-empty,.anim-cache-compare .cache-compare-n1,.anim-cache-compare .cache-compare-n2{opacity:0}
+.anim-cache-compare .cache-compare-n1,.anim-cache-compare .cache-compare-n2{opacity:0}
 
-/* ---- motion: 10 s once pass, percent = s x 10 ---- */
-/* scene 0-0.6 s */
-@keyframes cache-compare-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6%{opacity:1}100%{opacity:1}}
-/* rows appear as their read starts: 0.7, 3.0, 4.6, 6.2 s (0.2 s) */
-@keyframes cache-compare-row0{0%{opacity:0}7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-row1{0%{opacity:0}30%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-row2{0%{opacity:0}46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-row3{0%{opacity:0}62%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64%{opacity:1}100%{opacity:1}}
-/* the race: linear (the bars track the clock), 1.0 s per 180 ms, same rate on both sides */
-/* left bars: 180 ms each = 1.0 s: 0.7-1.7, 3.0-4.0, 4.6-5.6, 6.2-7.2 s */
-@keyframes cache-compare-bl0{0%{transform:scaleX(0)}7%{transform:scaleX(0)}17%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-@keyframes cache-compare-bl1{0%{transform:scaleX(0)}30%{transform:scaleX(0)}40%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-@keyframes cache-compare-bl2{0%{transform:scaleX(0)}46%{transform:scaleX(0)}56%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-@keyframes cache-compare-bl3{0%{transform:scaleX(0)}62%{transform:scaleX(0)}72%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-/* right bars: 185 ms = 1.028 s (0.7-1.728 s); 8 ms = 0.044 s (3.0-3.044, 4.6-4.644, 6.2-6.244 s) */
-@keyframes cache-compare-br0{0%{transform:scaleX(0)}7%{transform:scaleX(0)}17.278%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-@keyframes cache-compare-br1{0%{transform:scaleX(0)}30%{transform:scaleX(0)}30.444%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-@keyframes cache-compare-br2{0%{transform:scaleX(0)}46%{transform:scaleX(0)}46.444%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-@keyframes cache-compare-br3{0%{transform:scaleX(0)}62%{transform:scaleX(0)}62.444%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-/* value labels land as each bar stops (follow-through 0.0-0.05 s, 0.2 s) */
-@keyframes cache-compare-ml0{0%{opacity:0}17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-ml1{0%{opacity:0}40%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}42%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-ml2{0%{opacity:0}56%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-ml3{0%{opacity:0}72%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-mr0{0%{opacity:0}17.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.5%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-mr1{0%{opacity:0}30.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.5%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-mr2{0%{opacity:0}46.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.5%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-mr3{0%{opacity:0}62.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.5%{opacity:1}100%{opacity:1}}
-/* MISS 0.75-0.95 s, swaps to HIT 3.25-3.45 s */
-@keyframes cache-compare-miss{0%{opacity:0}7.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.5%{opacity:1}32.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}34%{opacity:0}100%{opacity:0}}
-@keyframes cache-compare-hit{0%{opacity:0}32.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.5%{opacity:1}100%{opacity:1}}
-/* cache fills after the miss returns, 1.85-2.05 s */
-@keyframes cache-compare-cempty{0%{opacity:1}18.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20%{opacity:0}100%{opacity:0}}
-@keyframes cache-compare-cwarm{0%{opacity:0}18.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.5%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-cbox{0%{stroke:var(--anim-muted)}18.5%{stroke:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1)}20.5%{stroke:var(--anim-ok)}100%{stroke:var(--anim-ok)}}
-/* database load steps 24 % per database read: 2.05-2.4, 4.1-4.45, 5.7-6.05, 7.3-7.65 s */
-@keyframes cache-compare-fl{0%{transform:scaleY(0)}20.5%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}24%{transform:scaleY(.24)}41%{transform:scaleY(.24);animation-timing-function:cubic-bezier(0.2,0,0,1)}44.5%{transform:scaleY(.48)}57%{transform:scaleY(.48);animation-timing-function:cubic-bezier(0.2,0,0,1)}60.5%{transform:scaleY(.72)}73%{transform:scaleY(.72);animation-timing-function:cubic-bezier(0.2,0,0,1)}76.5%{transform:scaleY(.96)}100%{transform:scaleY(.96)}}
-@keyframes cache-compare-flcol{0%{fill:var(--anim-muted)}73%{fill:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1)}76.5%{fill:var(--anim-danger)}100%{fill:var(--anim-danger)}}
-@keyframes cache-compare-fr{0%{transform:scaleY(0)}20.5%{transform:scaleY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}24%{transform:scaleY(.24)}100%{transform:scaleY(.24)}}
-/* database busy with the fourth read, 7.35-7.65 s */
-@keyframes cache-compare-busy{0%{opacity:0}73.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.5%{opacity:1}100%{opacity:1}}
-/* counters cross-fade: 2.45-2.6, 4.3-4.45, 5.9-6.05, 7.5-7.65 s */
-@keyframes cache-compare-k0{0%{opacity:1}24.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}26%{opacity:0}100%{opacity:0}}
-@keyframes cache-compare-k1{0%{opacity:0}24.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26%{opacity:1}43%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}44.5%{opacity:0}100%{opacity:0}}
-@keyframes cache-compare-k2{0%{opacity:0}43%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.5%{opacity:1}59%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60.5%{opacity:0}100%{opacity:0}}
-@keyframes cache-compare-k3{0%{opacity:0}59%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.5%{opacity:1}75%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}76.5%{opacity:0}100%{opacity:0}}
-@keyframes cache-compare-k4{0%{opacity:0}75%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.5%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-kr1{0%{opacity:0}24.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26%{opacity:1}100%{opacity:1}}
-/* captions: n1 0.1-2.9 s, n2 2.75-8.0 s, verdict from 7.75 s */
-@keyframes cache-compare-n1{0%{opacity:0}1%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5%{opacity:1}27%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}29%{opacity:0}100%{opacity:0}}
-@keyframes cache-compare-n2{0%{opacity:0}27.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.5%{opacity:1}77.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}79.5%{opacity:0}100%{opacity:0}}
-@keyframes cache-compare-verdict{0%{opacity:0;transform:translateY(12px)}77.5%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.5%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-/* answer: left recedes 7.8-8.2 s, winner underline and ghost 8.15-8.3 s, bracket alone 8.35-8.85 s, label 8.85-9.1 s */
-@keyframes cache-compare-lose{0%{opacity:1}78%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}82%{opacity:.68}100%{opacity:.68}}
-@keyframes cache-compare-win{0%{stroke:var(--anim-muted)}81.5%{stroke:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1)}83%{stroke:var(--anim-accent)}100%{stroke:var(--anim-accent)}}
-@keyframes cache-compare-ghost{0%{opacity:0}81.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83%{opacity:1}100%{opacity:1}}
-@keyframes cache-compare-brk{0%{stroke-dashoffset:101}83.5%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}88.5%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes cache-compare-ans{0%{opacity:0}88.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}91%{opacity:1}100%{opacity:1}}
+/* ---- motion: 10 s once pass, percent = s x 10; bars linear (they track the clock), levels on the move curve ---- */
+@keyframes cache-compare-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-row0{0%{opacity:0}5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-bl0{0%{transform:scaleX(0)}5%{transform:scaleX(0)}15%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes cache-compare-br0{0%{transform:scaleX(0)}5%{transform:scaleX(0)}15.278%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes cache-compare-ml0{0%{opacity:0}15%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-mr0{0%{opacity:0}15.58%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.58%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-row1{0%{opacity:0}25%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-bl1{0%{transform:scaleX(0)}25%{transform:scaleX(0)}35%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes cache-compare-br1{0%{transform:scaleX(0)}25%{transform:scaleX(0)}25.444%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes cache-compare-ml1{0%{opacity:0}35%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-mr1{0%{opacity:0}25.74%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.74%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-row2{0%{opacity:0}41.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.5%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-bl2{0%{transform:scaleX(0)}41.5%{transform:scaleX(0)}51.5%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes cache-compare-br2{0%{transform:scaleX(0)}41.5%{transform:scaleX(0)}41.944%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes cache-compare-ml2{0%{opacity:0}51.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.5%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-mr2{0%{opacity:0}42.24%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}44.24%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-row3{0%{opacity:0}58%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-bl3{0%{transform:scaleX(0)}58%{transform:scaleX(0)}68%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes cache-compare-br3{0%{transform:scaleX(0)}58%{transform:scaleX(0)}58.444%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes cache-compare-ml3{0%{opacity:0}68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-mr3{0%{opacity:0}58.74%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.74%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-fl{0%{transform:scaleX(0)}16%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}19.5%{transform:scaleX(0.24)}36%{transform:scaleX(0.24);animation-timing-function:cubic-bezier(0.2,0,0,1)}39.5%{transform:scaleX(0.48)}52.5%{transform:scaleX(0.48);animation-timing-function:cubic-bezier(0.2,0,0,1)}56%{transform:scaleX(0.72)}69%{transform:scaleX(0.72);animation-timing-function:cubic-bezier(0.2,0,0,1)}72.5%{transform:scaleX(0.96)}100%{transform:scaleX(.96)}}
+@keyframes cache-compare-flcol{0%{fill:var(--anim-muted)}69%{fill:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1)}72.5%{fill:var(--anim-danger)}100%{fill:var(--anim-danger)}}
+@keyframes cache-compare-fr{0%{transform:scaleX(0)}16%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}19.5%{transform:scaleX(.24)}100%{transform:scaleX(.24)}}
+@keyframes cache-compare-k0{0%{opacity:1}19.510%{opacity:1}19.512%{opacity:0}100%{opacity:0}}
+@keyframes cache-compare-k1{0%{opacity:0}19.510%{opacity:0}19.512%{opacity:1}39.510%{opacity:1}39.512%{opacity:0}100%{opacity:0}}
+@keyframes cache-compare-k2{0%{opacity:0}39.510%{opacity:0}39.512%{opacity:1}56.010%{opacity:1}56.012%{opacity:0}100%{opacity:0}}
+@keyframes cache-compare-k3{0%{opacity:0}56.010%{opacity:0}56.012%{opacity:1}72.510%{opacity:1}72.512%{opacity:0}100%{opacity:0}}
+@keyframes cache-compare-k4{0%{opacity:0}72.510%{opacity:0}72.512%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-kr1{0%{opacity:0}19.510%{opacity:0}19.512%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-n1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4%{opacity:1}21%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}23%{opacity:0}100%{opacity:0}}
+@keyframes cache-compare-n2{0%{opacity:0}21.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}24%{opacity:1}74%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}76%{opacity:0}100%{opacity:0}}
+@keyframes cache-compare-verdict{0%{opacity:0;transform:translateY(12px)}74.5%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.5%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes cache-compare-lose{0%{opacity:1}78%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}81%{opacity:.68}100%{opacity:.68}}
+@keyframes cache-compare-ghost{0%{opacity:0}79.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81%{opacity:1}100%{opacity:1}}
+@keyframes cache-compare-brk{0%{stroke-dashoffset:101}81.5%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}86.5%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes cache-compare-ans{0%{opacity:0}86.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.5%{opacity:1}100%{opacity:1}}
 
 .visible .anim-cache-compare .cache-compare-scene{animation:cache-compare-scene 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-row-0{animation:cache-compare-row0 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-row-1{animation:cache-compare-row1 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-row-2{animation:cache-compare-row2 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-row-3{animation:cache-compare-row3 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-bar-l0{animation:cache-compare-bl0 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-bar-l1{animation:cache-compare-bl1 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-bar-l2{animation:cache-compare-bl2 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-bar-l3{animation:cache-compare-bl3 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-bar-r0{animation:cache-compare-br0 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-bar-r1{animation:cache-compare-br1 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-bar-r2{animation:cache-compare-br2 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-bar-r3{animation:cache-compare-br3 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-ms-l0{animation:cache-compare-ml0 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-ms-l1{animation:cache-compare-ml1 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-ms-l2{animation:cache-compare-ml2 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-ms-l3{animation:cache-compare-ml3 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-ms-r0{animation:cache-compare-mr0 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-row-1{animation:cache-compare-row1 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-bar-l1{animation:cache-compare-bl1 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-bar-r1{animation:cache-compare-br1 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-ms-l1{animation:cache-compare-ml1 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-ms-r1{animation:cache-compare-mr1 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-row-2{animation:cache-compare-row2 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-bar-l2{animation:cache-compare-bl2 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-bar-r2{animation:cache-compare-br2 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-ms-l2{animation:cache-compare-ml2 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-ms-r2{animation:cache-compare-mr2 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-row-3{animation:cache-compare-row3 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-bar-l3{animation:cache-compare-bl3 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-bar-r3{animation:cache-compare-br3 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-ms-l3{animation:cache-compare-ml3 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-ms-r3{animation:cache-compare-mr3 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-chip-miss{animation:cache-compare-miss 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-chip-hit{animation:cache-compare-hit 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-c-empty{animation:cache-compare-cempty 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-c-warm{animation:cache-compare-cwarm 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-slot{animation:cache-compare-cwarm 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-node{animation:cache-compare-cbox 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-fill-l{animation:cache-compare-fl 10s linear 1 both,cache-compare-flcol 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-fill-r{animation:cache-compare-fr 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-cyl-busy{animation:cache-compare-busy 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-rd-l0,.visible .anim-cache-compare .cache-compare-pc-l0,.visible .anim-cache-compare .cache-compare-rd-r0,.visible .anim-cache-compare .cache-compare-pc-r0{animation:cache-compare-k0 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-rd-l0,.visible .anim-cache-compare .cache-compare-pc-l0{animation:cache-compare-k0 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-rd-l1,.visible .anim-cache-compare .cache-compare-pc-l1{animation:cache-compare-k1 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-rd-l2,.visible .anim-cache-compare .cache-compare-pc-l2{animation:cache-compare-k2 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-rd-l3,.visible .anim-cache-compare .cache-compare-pc-l3{animation:cache-compare-k3 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-rd-l4,.visible .anim-cache-compare .cache-compare-pc-l4{animation:cache-compare-k4 10s linear 1 both}
+.visible .anim-cache-compare .cache-compare-rd-r0,.visible .anim-cache-compare .cache-compare-pc-r0{animation:cache-compare-k0 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-rd-r1,.visible .anim-cache-compare .cache-compare-pc-r1{animation:cache-compare-kr1 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-n1{animation:cache-compare-n1 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-n2{animation:cache-compare-n2 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-verdict{animation:cache-compare-verdict 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-side-l{animation:cache-compare-lose 10s linear 1 both}
-.visible .anim-cache-compare .cache-compare-panel{animation:cache-compare-win 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-ghost{animation:cache-compare-ghost 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-brk{animation:cache-compare-brk 10s linear 1 both}
 .visible .anim-cache-compare .cache-compare-ans-g{animation:cache-compare-ans 10s linear 1 both}
 
 @media (prefers-reduced-motion: reduce) { .anim-cache-compare * { animation: none !important; } }
 </style>
-<div class="anim anim-cache-compare" data-anim="cache-compare" data-anim-cycle="10" data-anim-phases="2.7,4.55,6.15,7.75,9.1" data-anim-control="once" data-anim-verb="race">
-<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The same four reads raced side by side on one clock and one scale: without a cache every read takes 180 ms at the database and database load climbs to 96 percent; with a cache the first read misses (185 ms) and fills it, the next three hit it at 8 ms each and database load stays at 24 percent: 22 times faster on cache hits, 75 percent fewer database reads.">
+<div class="anim anim-cache-compare" data-anim="cache-compare" data-anim-cycle="10" data-anim-phases="2.1,4.05,5.7,7.35,8.9" data-anim-control="once" data-anim-verb="race">
+<svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The same four reads raced side by side on one clock and one scale: without a cache every read takes 180 ms at the database and database load climbs to 96 percent after 4 reads; with a cache the first read misses (185 ms) and fills it, the next three hit it at 8 ms each and load stays at 24 percent after 1 read: 22 times faster on cache hits, 75 percent fewer database reads.">
 <g class="cache-compare-scene">
-<path class="cache-compare-sep" d="M840 48 V510"/>
-<!-- ===================== without cache ===================== -->
+<path class="cache-compare-sep" d="M840 40 V470"/>
 <g class="cache-compare-side-l">
-<text class="cache-compare-sans cache-compare-head cache-compare-fg" x="60" y="66">Without cache</text>
-<path class="cache-compare-wire" d="M126 150 H584"/>
-<text class="cache-compare-mono cache-compare-dim" x="355" y="136" text-anchor="middle">every read</text>
-<text class="cache-compare-sans cache-compare-lbl cache-compare-fg" x="60" y="158">App</text>
-<g class="cache-compare-cyl cache-compare-cyl-calm"><path d="M584 124 V184 A60 12 0 0 0 704 184 V124"/><ellipse cx="644" cy="124" rx="60" ry="12"/></g>
-<g class="cache-compare-cyl cache-compare-cyl-busy"><path d="M584 124 V184 A60 12 0 0 0 704 184 V124"/><ellipse cx="644" cy="124" rx="60" ry="12"/></g>
-<text class="cache-compare-mono cache-compare-fg" x="644" y="166" text-anchor="middle">Database</text>
-<text class="cache-compare-mono cache-compare-dim" x="752" y="86" text-anchor="middle">load</text>
-<path class="cache-compare-meter" d="M752 100 V236"/>
-<rect class="cache-compare-fill cache-compare-fill-l" x="748" y="100" width="8" height="136" rx="2"/>
+<text class="cache-compare-head" x="164" y="60">Without cache</text>
+<text class="cache-compare-mono cache-compare-note2" x="164" y="100">every read → database</text>
+<text class="cache-compare-mono cache-compare-scale" x="714" y="100" text-anchor="end">bars to scale</text>
+<g class="cache-compare-row-0">
+<text class="cache-compare-mono cache-compare-row" x="164" y="176">read 1</text>
+<path class="cache-compare-track" d="M264 168 H624"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l0" x="264" y="156" width="360" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-val cache-compare-ms-l0" x="640" y="176">180 ms</text>
+</g>
+<g class="cache-compare-row-1">
+<text class="cache-compare-mono cache-compare-row" x="164" y="238">read 2</text>
+<path class="cache-compare-track" d="M264 230 H624"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l1" x="264" y="218" width="360" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-val cache-compare-ms-l1" x="640" y="238">180 ms</text>
+</g>
+<g class="cache-compare-row-2">
+<text class="cache-compare-mono cache-compare-row" x="164" y="300">read 3</text>
+<path class="cache-compare-track" d="M264 292 H624"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l2" x="264" y="280" width="360" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-val cache-compare-ms-l2" x="640" y="300">180 ms</text>
+</g>
+<g class="cache-compare-row-3">
+<text class="cache-compare-mono cache-compare-row" x="164" y="362">read 4</text>
+<path class="cache-compare-track" d="M264 354 H624"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l3" x="264" y="342" width="360" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-val cache-compare-ms-l3" x="640" y="362">180 ms</text>
+</g>
+<text class="cache-compare-mono cache-compare-note2" x="164" y="422">load</text>
+<path class="cache-compare-track" d="M264 414 H624"/>
+<rect class="cache-compare-fill cache-compare-fill-l" x="264" y="408" width="360" height="12" rx="3"/>
 <g class="cache-compare-cnt-l">
-<text class="cache-compare-mono cache-compare-dim cache-compare-rd-l0" x="644" y="230" text-anchor="middle">0 reads</text>
-<text class="cache-compare-mono cache-compare-dim cache-compare-rd-l1" x="644" y="230" text-anchor="middle">1 read</text>
-<text class="cache-compare-mono cache-compare-dim cache-compare-rd-l2" x="644" y="230" text-anchor="middle">2 reads</text>
-<text class="cache-compare-mono cache-compare-dim cache-compare-rd-l3" x="644" y="230" text-anchor="middle">3 reads</text>
-<text class="cache-compare-mono cache-compare-rd cache-compare-rd-l4" x="644" y="230" text-anchor="middle">4 reads</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l0" x="752" y="262" text-anchor="middle">0 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l1" x="752" y="262" text-anchor="middle">24 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l2" x="752" y="262" text-anchor="middle">48 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-l3" x="752" y="262" text-anchor="middle">72 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-rd cache-compare-pc-l4" x="752" y="262" text-anchor="middle">96 %</text>
+<text class="cache-compare-mono cache-compare-pct cache-compare-fgc cache-compare-pc-l0" x="640" y="424">0 %</text>
+<text class="cache-compare-mono cache-compare-pct cache-compare-fgc cache-compare-pc-l1" x="640" y="424">24 %</text>
+<text class="cache-compare-mono cache-compare-pct cache-compare-fgc cache-compare-pc-l2" x="640" y="424">48 %</text>
+<text class="cache-compare-mono cache-compare-pct cache-compare-fgc cache-compare-pc-l3" x="640" y="424">72 %</text>
+<text class="cache-compare-mono cache-compare-pct cache-compare-rdc cache-compare-pc-l4" x="640" y="424">96 %</text>
+<text class="cache-compare-mono cache-compare-cnt cache-compare-dimc cache-compare-rd-l0" x="640" y="456">0 reads</text>
+<text class="cache-compare-mono cache-compare-cnt cache-compare-dimc cache-compare-rd-l1" x="640" y="456">1 read</text>
+<text class="cache-compare-mono cache-compare-cnt cache-compare-dimc cache-compare-rd-l2" x="640" y="456">2 reads</text>
+<text class="cache-compare-mono cache-compare-cnt cache-compare-dimc cache-compare-rd-l3" x="640" y="456">3 reads</text>
+<text class="cache-compare-mono cache-compare-cnt cache-compare-rdc cache-compare-rd-l4" x="640" y="456">4 reads</text>
 </g>
-<text class="cache-compare-mono cache-compare-small cache-compare-dim" x="290" y="270">bars to scale</text>
+</g>
+<text class="cache-compare-head" x="940" y="60">With cache</text>
+<text class="cache-compare-mono cache-compare-note2" x="940" y="100">miss → DB, fill, then cache hit</text>
 <g class="cache-compare-row-0">
-<text class="cache-compare-mono cache-compare-fg" x="60" y="307"><tspan class="cache-compare-dim">read 1</tspan> → database</text>
-<path class="cache-compare-track" d="M290 300 H668"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l0" x="290" y="288" width="378" height="24" rx="4"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l0" x="790" y="307" text-anchor="end">180 ms</text>
+<text class="cache-compare-mono cache-compare-row" x="940" y="176">read 1</text>
+<path class="cache-compare-track" d="M1040 168 H1410"/>
+<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-r0" x="1040" y="156" width="370" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-val cache-compare-ms-r0" x="1426" y="176">185 ms</text>
 </g>
 <g class="cache-compare-row-1">
-<text class="cache-compare-mono cache-compare-fg" x="60" y="369"><tspan class="cache-compare-dim">read 2</tspan> → database</text>
-<path class="cache-compare-track" d="M290 362 H668"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l1" x="290" y="350" width="378" height="24" rx="4"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l1" x="790" y="369" text-anchor="end">180 ms</text>
+<text class="cache-compare-mono cache-compare-row" x="940" y="238">read 2</text>
+<path class="cache-compare-track" d="M1040 230 H1410"/>
+<rect class="cache-compare-bar cache-compare-bar-fg cache-compare-bar-r1" x="1040" y="218" width="16" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-val cache-compare-ms-r1" x="1426" y="238">8 ms</text>
 </g>
 <g class="cache-compare-row-2">
-<text class="cache-compare-mono cache-compare-fg" x="60" y="431"><tspan class="cache-compare-dim">read 3</tspan> → database</text>
-<path class="cache-compare-track" d="M290 424 H668"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l2" x="290" y="412" width="378" height="24" rx="4"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l2" x="790" y="431" text-anchor="end">180 ms</text>
+<text class="cache-compare-mono cache-compare-row" x="940" y="300">read 3</text>
+<path class="cache-compare-track" d="M1040 292 H1410"/>
+<rect class="cache-compare-bar cache-compare-bar-fg cache-compare-bar-r2" x="1040" y="280" width="16" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-val cache-compare-ms-r2" x="1426" y="300">8 ms</text>
 </g>
 <g class="cache-compare-row-3">
-<text class="cache-compare-mono cache-compare-fg" x="60" y="493"><tspan class="cache-compare-dim">read 4</tspan> → database</text>
-<path class="cache-compare-track" d="M290 486 H668"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-l3" x="290" y="474" width="378" height="24" rx="4"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-l3" x="790" y="493" text-anchor="end">180 ms</text>
+<text class="cache-compare-mono cache-compare-row" x="940" y="362">read 4</text>
+<path class="cache-compare-track" d="M1040 354 H1410"/>
+<rect class="cache-compare-bar cache-compare-bar-fg cache-compare-bar-r3" x="1040" y="342" width="16" height="24" rx="4"/>
+<text class="cache-compare-mono cache-compare-val cache-compare-ms-r3" x="1426" y="362">8 ms</text>
 </g>
-</g>
-<!-- ===================== with cache ===================== -->
-<path class="cache-compare-panel" d="M880 84 H1018"/>
-<text class="cache-compare-sans cache-compare-head cache-compare-fg" x="880" y="66">With cache</text>
-<path class="cache-compare-wire" d="M946 150 H1098"/>
-<path class="cache-compare-wire" d="M1162 150 H1250"/>
-<text class="cache-compare-sans cache-compare-lbl cache-compare-fg" x="880" y="158">App</text>
-<circle class="cache-compare-node" cx="1130" cy="150" r="32"/>
-<circle class="cache-compare-slot" cx="1130" cy="150" r="9"/>
-<text class="cache-compare-sans cache-compare-lbl cache-compare-fg" x="1130" y="104" text-anchor="middle">Cache</text>
-<g class="cache-compare-cstate">
-<text class="cache-compare-mono cache-compare-dim cache-compare-c-empty" x="1130" y="212" text-anchor="middle">empty</text>
-<text class="cache-compare-mono cache-compare-gn cache-compare-c-warm" x="1130" y="212" text-anchor="middle">1 entry</text>
-</g>
-<g class="cache-compare-chips">
-<text class="cache-compare-mono cache-compare-dim cache-compare-bold cache-compare-chip-miss" x="1130" y="242" text-anchor="middle">MISS</text>
-<text class="cache-compare-mono cache-compare-gn cache-compare-bold cache-compare-chip-hit" x="1130" y="242" text-anchor="middle">HIT</text>
-</g>
-<g class="cache-compare-cyl cache-compare-cyl-calm"><path d="M1250 124 V184 A60 12 0 0 0 1370 184 V124"/><ellipse cx="1310" cy="124" rx="60" ry="12"/></g>
-<text class="cache-compare-mono cache-compare-fg" x="1310" y="166" text-anchor="middle">Database</text>
-<text class="cache-compare-mono cache-compare-dim" x="1420" y="86" text-anchor="middle">load</text>
-<path class="cache-compare-meter" d="M1420 100 V236"/>
-<rect class="cache-compare-fill cache-compare-fill-r" x="1416" y="100" width="8" height="136" rx="2"/>
+<text class="cache-compare-mono cache-compare-note2" x="940" y="422">load</text>
+<path class="cache-compare-track" d="M1040 414 H1400"/>
+<rect class="cache-compare-fill cache-compare-fill-r" x="1040" y="408" width="360" height="12" rx="3"/>
 <g class="cache-compare-cnt-r">
-<text class="cache-compare-mono cache-compare-dim cache-compare-rd-r0" x="1310" y="230" text-anchor="middle">0 reads</text>
-<text class="cache-compare-mono cache-compare-gn cache-compare-rd-r1" x="1310" y="230" text-anchor="middle">1 read</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-fg cache-compare-pc-r0" x="1420" y="262" text-anchor="middle">0 %</text>
-<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-pc-r1" x="1420" y="262" text-anchor="middle">24 %</text>
+<text class="cache-compare-mono cache-compare-pct cache-compare-fgc cache-compare-pc-r0" x="1426" y="424">0 %</text>
+<text class="cache-compare-mono cache-compare-pct cache-compare-fgc cache-compare-pc-r1" x="1426" y="424">24 %</text>
+<text class="cache-compare-mono cache-compare-cnt cache-compare-dimc cache-compare-rd-r0" x="1426" y="456">0 reads</text>
+<text class="cache-compare-mono cache-compare-cnt cache-compare-fgc cache-compare-rd-r1" x="1426" y="456">1 read</text>
 </g>
-<!-- answer: the left level (96 %) ghosted on the right meter, bracket down to 24 % -->
-<path class="cache-compare-ghost" d="M1402 105.4 H1438"/>
-<path class="cache-compare-brk" pathLength="100" d="M1446 105.4 H1460 V203.4 H1446"/>
+<!-- answer: the left level (96 %) ghosted on the right gauge; the bracket spans the gap to 24 % -->
+<path class="cache-compare-ghost" d="M1385.6 398 V430"/>
+<path class="cache-compare-brk" pathLength="100" d="M1126.4 432 V442 H1385.6 V432"/>
 <g class="cache-compare-ans-g">
-<text class="cache-compare-ans" x="1474" y="160">75 % fewer</text>
-<text class="cache-compare-mono cache-compare-small cache-compare-dim" x="1474" y="186">database reads</text>
+<text class="cache-compare-ans" x="1256" y="480" text-anchor="middle">75 % fewer</text>
+<text class="cache-compare-mono cache-compare-cnt cache-compare-dimc" x="1256" y="508" text-anchor="middle">database reads</text>
 </g>
-<g class="cache-compare-row-0">
-<text class="cache-compare-mono cache-compare-fg" x="880" y="307"><tspan class="cache-compare-dim">read 1</tspan> miss → DB, fill</text>
-<path class="cache-compare-track" d="M1165 300 H1553.5"/>
-<rect class="cache-compare-bar cache-compare-bar-am cache-compare-bar-r0" x="1165" y="288" width="388.5" height="24" rx="4"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-dim cache-compare-ms-r0" x="1640" y="307" text-anchor="end">185 ms</text>
-</g>
-<g class="cache-compare-row-1">
-<text class="cache-compare-mono cache-compare-fg" x="880" y="369"><tspan class="cache-compare-dim">read 2</tspan> cache hit</text>
-<path class="cache-compare-track" d="M1165 362 H1553.5"/>
-<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r1" x="1165" y="350" width="16.8" height="24" rx="4"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r1" x="1640" y="369" text-anchor="end">8 ms</text>
-</g>
-<g class="cache-compare-row-2">
-<text class="cache-compare-mono cache-compare-fg" x="880" y="431"><tspan class="cache-compare-dim">read 3</tspan> cache hit</text>
-<path class="cache-compare-track" d="M1165 424 H1553.5"/>
-<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r2" x="1165" y="412" width="16.8" height="24" rx="4"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r2" x="1640" y="431" text-anchor="end">8 ms</text>
-</g>
-<g class="cache-compare-row-3">
-<text class="cache-compare-mono cache-compare-fg" x="880" y="493"><tspan class="cache-compare-dim">read 4</tspan> cache hit</text>
-<path class="cache-compare-track" d="M1165 486 H1553.5"/>
-<rect class="cache-compare-bar cache-compare-bar-gn cache-compare-bar-r3" x="1165" y="474" width="16.8" height="24" rx="4"/>
-<text class="cache-compare-mono cache-compare-bold cache-compare-gn cache-compare-ms-r3" x="1640" y="493" text-anchor="end">8 ms</text>
-</g>
-<!-- captions -->
 <g class="cache-compare-caps">
-<text class="cache-compare-note cache-compare-n1" x="840" y="568" text-anchor="middle">First read misses and fills the cache</text>
-<text class="cache-compare-note cache-compare-n2" x="840" y="568" text-anchor="middle">Later reads hit the cache</text>
-<text class="cache-compare-note cache-compare-verdict" x="840" y="568" text-anchor="middle"><tspan class="cache-compare-verdict-n">22× faster</tspan> on cache hits, <tspan class="cache-compare-verdict-n">75 % fewer</tspan> database reads</text>
+<text class="cache-compare-note cache-compare-n1" x="840" y="570" text-anchor="middle">First read misses and fills the cache</text>
+<text class="cache-compare-note cache-compare-n2" x="840" y="570" text-anchor="middle">Later reads hit the cache</text>
+<text class="cache-compare-note cache-compare-verdict" x="840" y="570" text-anchor="middle"><tspan class="cache-compare-verdict-n">22× faster</tspan> on cache hits, <tspan class="cache-compare-verdict-n">75 % fewer</tspan> database reads</text>
 </g>
 </g>
 <!-- illustrative values tag -->
 <rect class="cache-compare-tagbox" x="1514" y="20" width="146" height="32" rx="4"/>
-<text class="cache-compare-mono cache-compare-small cache-compare-dim" x="1587" y="42" text-anchor="middle">illustrative</text>
+<text class="cache-compare-tagt" x="1587" y="42" text-anchor="middle">illustrative</text>
 </svg>
 </div>
 

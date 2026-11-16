@@ -4,7 +4,11 @@
   stands the redesigned section: wider pavements, a cycle track, two car lanes, a bus lane. The
   building edges, the ground line and the 20 m bracket do not move at all: the width is the same, only
   its division changes. Answer: the widths of the new strips take the accent, the old widths stay as a
-  muted row of ticks under the ground line (the ghost) and a mono line says "car lanes 4 to 2".
+  muted row of ticks under the strip labels (the ghost) and a mono line under the bracket says
+  "car lanes 4 to 2". Strip labels never meet the line: the before labels leave just before the
+  sweep, the after labels come in per half once the line has passed (left half at the centre pause,
+  the rest after the sweep). Building edges and the bracket are drawn in the foreground colour and
+  never move.
   Verb: wipe. Technique: each layer is clipped by a url(#) clipPath rect in viewBox units: the after
   layer by a rect from x 0 with CSS width X, the before layer by a rect from CSS x X (width 1680), and
   the boundary line is translated with X; X runs 280 -> 840 (pause at the street centre so both halves
@@ -13,9 +17,10 @@
   Scale: true horizontal proportion, 1 m = 56 px; the street spans x 280 to 1400 (20 m = 1120 px).
   Glyphs (pedestrian, car front, parked car, bicycle, bus front) stand on the strips at roughly true
   size; they are pictograms, not data.
-  Once pass 8.4 s: set 0-1.6 s (strips build left to right, bracket draws), read 1.6-2.3 s,
-  wipe 2.1-5.55 s (moves 2.3-3.2 and 4.4-5.3 s, pause at the centre 3.2-4.4 s), answer 5.7-7.2 s,
-  hold 7.3-8.4 s. Phases 2.05,3.8,5.65,7.3.
+  Once pass 8.6 s: set 0-1.6 s (strips build left to right, labels follow, bracket draws),
+  read to 2.1 s, labels leave 2.08-2.28 s, wipe 2.1-5.55 s (moves 2.3-3.2 and 4.4-5.3 s, pause at the
+  centre 3.2-4.4 s with the left labels in 3.3-3.7 s), right labels 5.35-5.75 s, answer 5.95-7.4 s,
+  hold 7.5-8.6 s. Phases 2.05,3.8,5.9,7.5.
   Facts (all ILLUSTRATIVE, an example street, shown with the "illustrative" tag):
   - total width 20 m: illustrative; both rows below sum to 20.0 m (arithmetic).
   - before: pavement 2.5 m | car lanes 4 x 3.0 = 12.0 m | parking 3.0 m | pavement 2.5 m: illustrative.
@@ -47,77 +52,84 @@
 .anim-street-redesign .street-redesign-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
 .anim-street-redesign .street-redesign-mono.street-redesign-nm,.anim-street-redesign .street-redesign-mono.street-redesign-fgt{fill:var(--anim-fg)}
 .anim-street-redesign .street-redesign-mono.street-redesign-acc{fill:var(--anim-accent);font-weight:600}
-.anim-street-redesign .street-redesign-mono.street-redesign-sm{font-size:18px}
+.anim-street-redesign .street-redesign-mono.street-redesign-wd{font-size:22px}
 /* structure: thin strokes, no panels */
 .anim-street-redesign .street-redesign-bld{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-street-redesign .street-redesign-edge{fill:none;stroke:var(--anim-fg);stroke-width:3;stroke-linecap:round}
 .anim-street-redesign .street-redesign-ground{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round}
 .anim-street-redesign .street-redesign-dv{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
 .anim-street-redesign .street-redesign-gl{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .anim-street-redesign .street-redesign-gm{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .anim-street-redesign .street-redesign-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
-.anim-street-redesign .street-redesign-brk{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-street-redesign .street-redesign-brk{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-street-redesign .street-redesign-bnd{fill:none;stroke:var(--anim-accent);stroke-width:2.5;stroke-linecap:round}
 .anim-street-redesign .street-redesign-gh{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:4 6;stroke-linecap:round;opacity:.7}
 .anim-street-redesign .street-redesign-ght{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;opacity:.7}
 .anim-street-redesign .street-redesign-ghost{opacity:1}
 /* transforms in viewBox units */
-.anim-street-redesign .street-redesign-bnd,.anim-street-redesign .street-redesign-ghost,.anim-street-redesign .street-redesign-b0,.anim-street-redesign .street-redesign-b1,.anim-street-redesign .street-redesign-b2,.anim-street-redesign .street-redesign-b3,.anim-street-redesign .street-redesign-b4,.anim-street-redesign .street-redesign-b5,.anim-street-redesign .street-redesign-b6{transform-box:view-box;transform-origin:0px 0px}
+.anim-street-redesign .street-redesign-bnd,.anim-street-redesign .street-redesign-ghost,.anim-street-redesign .street-redesign-al,.anim-street-redesign .street-redesign-ar,.anim-street-redesign .street-redesign-b0,.anim-street-redesign .street-redesign-b1,.anim-street-redesign .street-redesign-b2,.anim-street-redesign .street-redesign-b3,.anim-street-redesign .street-redesign-b4,.anim-street-redesign .street-redesign-b5,.anim-street-redesign .street-redesign-b6{transform-box:view-box;transform-origin:0px 0px}
 /* resting frame = the end: the wipe complete, before layer fully clipped, line gone, answer shown */
 .anim-street-redesign .street-redesign-cb{x:1400px}
 .anim-street-redesign .street-redesign-ca{width:1400px}
 .anim-street-redesign .street-redesign-bnd{opacity:0;transform:translateX(560px)}
-.anim-street-redesign .street-redesign-n0,.anim-street-redesign .street-redesign-n1{opacity:0}
+.anim-street-redesign .street-redesign-n0,.anim-street-redesign .street-redesign-n1,.anim-street-redesign .street-redesign-blab{opacity:0}
 
-/* ---- motion (8.4 s once pass), only when the slide is visible. percent = s / 8.4 ---- */
-@keyframes street-redesign-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.952%{opacity:1}100%{opacity:1}}
-@keyframes street-redesign-b0{0%{opacity:0;transform:translateY(12px)}3.571%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.524%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes street-redesign-b1{0%{opacity:0;transform:translateY(12px)}4.405%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.357%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes street-redesign-b2{0%{opacity:0;transform:translateY(12px)}5.238%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.19%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes street-redesign-b3{0%{opacity:0;transform:translateY(12px)}6.071%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.024%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes street-redesign-b4{0%{opacity:0;transform:translateY(12px)}6.905%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.857%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes street-redesign-b5{0%{opacity:0;transform:translateY(12px)}7.738%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.69%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes street-redesign-b6{0%{opacity:0;transform:translateY(12px)}8.571%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.524%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes street-redesign-brk{0%{stroke-dashoffset:101}10.714%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.857%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes street-redesign-brkl{0%{opacity:0}14.286%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.048%{opacity:1}100%{opacity:1}}
-@keyframes street-redesign-clip-b{0%{x:280px}27.381%{x:280px;animation-timing-function:cubic-bezier(0.45,0,0.55,1)}38.095%{x:840px}52.381%{x:840px;animation-timing-function:cubic-bezier(0.45,0,0.55,1)}63.095%{x:1400px}100%{x:1400px}}
-@keyframes street-redesign-clip-a{0%{width:280px}27.381%{width:280px;animation-timing-function:cubic-bezier(0.45,0,0.55,1)}38.095%{width:840px}52.381%{width:840px;animation-timing-function:cubic-bezier(0.45,0,0.55,1)}63.095%{width:1400px}100%{width:1400px}}
-@keyframes street-redesign-bnd{0%{opacity:0;transform:translateX(-560px)}25%{opacity:0;transform:translateX(-560px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.381%{opacity:1;transform:translateX(-560px);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}38.095%{opacity:1;transform:translateX(0px)}52.381%{opacity:1;transform:translateX(0px);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}63.095%{opacity:1;transform:translateX(560px);animation-timing-function:cubic-bezier(0.3,0,1,1)}66.071%{opacity:0;transform:translateX(560px)}100%{opacity:0;transform:translateX(560px)}}
-@keyframes street-redesign-n0{0%{opacity:0}1.786%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.548%{opacity:1}19.048%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.429%{opacity:0}100%{opacity:0}}
-@keyframes street-redesign-n1{0%{opacity:0}20.833%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.81%{opacity:1}67.857%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}70.238%{opacity:0}100%{opacity:0}}
-@keyframes street-redesign-n2{0%{opacity:0}69.643%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.81%{opacity:1}100%{opacity:1}}
-@keyframes street-redesign-a0{0%{opacity:0}69.643%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.405%{opacity:1}100%{opacity:1}}
-@keyframes street-redesign-a1{0%{opacity:0}70.357%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.119%{opacity:1}100%{opacity:1}}
-@keyframes street-redesign-a2{0%{opacity:0}71.071%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.833%{opacity:1}100%{opacity:1}}
-@keyframes street-redesign-a3{0%{opacity:0}71.786%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.548%{opacity:1}100%{opacity:1}}
-@keyframes street-redesign-ghost{0%{opacity:0;transform:translateY(8px)}76.19%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.952%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes street-redesign-ans{0%{opacity:0}81.548%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}85.714%{opacity:1}100%{opacity:1}}
+/* ---- motion (8.6 s once pass), only when the slide is visible. percent = s / 8.6 ---- */
+@keyframes street-redesign-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.814%{opacity:1}100%{opacity:1}}
+@keyframes street-redesign-b0{0%{opacity:0;transform:translateY(12px)}3.488%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.302%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-b1{0%{opacity:0;transform:translateY(12px)}4.302%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.116%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-b2{0%{opacity:0;transform:translateY(12px)}5.116%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.93%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-b3{0%{opacity:0;transform:translateY(12px)}5.93%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.744%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-b4{0%{opacity:0;transform:translateY(12px)}6.744%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.558%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-b5{0%{opacity:0;transform:translateY(12px)}7.558%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.372%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-b6{0%{opacity:0;transform:translateY(12px)}8.372%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.186%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-brk{0%{stroke-dashoffset:101}10.465%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}17.442%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes street-redesign-brkl{0%{opacity:0}13.953%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}18.605%{opacity:1}100%{opacity:1}}
+@keyframes street-redesign-clip-b{0%{x:280px}26.744%{x:280px;animation-timing-function:cubic-bezier(0.45,0,0.55,1)}37.209%{x:840px}51.163%{x:840px;animation-timing-function:cubic-bezier(0.45,0,0.55,1)}61.628%{x:1400px}100%{x:1400px}}
+@keyframes street-redesign-clip-a{0%{width:280px}26.744%{width:280px;animation-timing-function:cubic-bezier(0.45,0,0.55,1)}37.209%{width:840px}51.163%{width:840px;animation-timing-function:cubic-bezier(0.45,0,0.55,1)}61.628%{width:1400px}100%{width:1400px}}
+@keyframes street-redesign-bnd{0%{opacity:0;transform:translateX(-560px)}24.419%{opacity:0;transform:translateX(-560px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26.744%{opacity:1;transform:translateX(-560px);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}37.209%{opacity:1;transform:translateX(0px)}51.163%{opacity:1;transform:translateX(0px);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}61.628%{opacity:1;transform:translateX(560px);animation-timing-function:cubic-bezier(0.3,0,1,1)}64.535%{opacity:0;transform:translateX(560px)}100%{opacity:0;transform:translateX(560px)}}
+@keyframes street-redesign-blab{0%{opacity:0}6.977%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.791%{opacity:1}24.186%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}26.512%{opacity:0}100%{opacity:0}}
+@keyframes street-redesign-al{0%{opacity:0;transform:translateY(8px)}38.372%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.023%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-ar{0%{opacity:0;transform:translateY(8px)}62.209%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}66.86%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-n0{0%{opacity:0}1.744%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.395%{opacity:1}18.605%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.93%{opacity:0}100%{opacity:0}}
+@keyframes street-redesign-n1{0%{opacity:0}20.349%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.256%{opacity:1}69.186%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}71.512%{opacity:0}100%{opacity:0}}
+@keyframes street-redesign-n2{0%{opacity:0}70.93%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75%{opacity:1}100%{opacity:1}}
+@keyframes street-redesign-a0{0%{opacity:0}70.93%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.581%{opacity:1}100%{opacity:1}}
+@keyframes street-redesign-a1{0%{opacity:0}71.628%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.279%{opacity:1}100%{opacity:1}}
+@keyframes street-redesign-a2{0%{opacity:0}72.326%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.977%{opacity:1}100%{opacity:1}}
+@keyframes street-redesign-a3{0%{opacity:0}73.023%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.674%{opacity:1}100%{opacity:1}}
+@keyframes street-redesign-ghost{0%{opacity:0;transform:translateY(8px)}76.744%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.395%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes street-redesign-ans{0%{opacity:0}81.977%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.047%{opacity:1}100%{opacity:1}}
 
-.visible .anim-street-redesign .street-redesign-scene{animation:street-redesign-scene 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-b0{animation:street-redesign-b0 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-b1{animation:street-redesign-b1 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-b2{animation:street-redesign-b2 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-b3{animation:street-redesign-b3 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-b4{animation:street-redesign-b4 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-b5{animation:street-redesign-b5 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-b6{animation:street-redesign-b6 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-brk{animation:street-redesign-brk 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-brkl{animation:street-redesign-brkl 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-cb{animation:street-redesign-clip-b 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-ca{animation:street-redesign-clip-a 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-bnd{animation:street-redesign-bnd 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-n0{animation:street-redesign-n0 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-n1{animation:street-redesign-n1 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-n2{animation:street-redesign-n2 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-a0{animation:street-redesign-a0 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-a1{animation:street-redesign-a1 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-a2{animation:street-redesign-a2 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-a3{animation:street-redesign-a3 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-ghost{animation:street-redesign-ghost 8.4s linear 1 both}
-.visible .anim-street-redesign .street-redesign-ans{animation:street-redesign-ans 8.4s linear 1 both}
+.visible .anim-street-redesign .street-redesign-scene{animation:street-redesign-scene 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-b0{animation:street-redesign-b0 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-b1{animation:street-redesign-b1 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-b2{animation:street-redesign-b2 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-b3{animation:street-redesign-b3 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-b4{animation:street-redesign-b4 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-b5{animation:street-redesign-b5 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-b6{animation:street-redesign-b6 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-brk{animation:street-redesign-brk 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-brkl{animation:street-redesign-brkl 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-cb{animation:street-redesign-clip-b 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-ca{animation:street-redesign-clip-a 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-bnd{animation:street-redesign-bnd 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-blab{animation:street-redesign-blab 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-al{animation:street-redesign-al 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-ar{animation:street-redesign-ar 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-n0{animation:street-redesign-n0 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-n1{animation:street-redesign-n1 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-n2{animation:street-redesign-n2 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-a0{animation:street-redesign-a0 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-a1{animation:street-redesign-a1 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-a2{animation:street-redesign-a2 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-a3{animation:street-redesign-a3 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-ghost{animation:street-redesign-ghost 8.6s linear 1 both}
+.visible .anim-street-redesign .street-redesign-ans{animation:street-redesign-ans 8.6s linear 1 both}
 
 @media (prefers-reduced-motion: reduce) { .anim-street-redesign * { animation: none !important; } }
 </style>
-<div class="anim anim-street-redesign" data-anim="street-redesign" data-anim-cycle="8.4" data-anim-control="once" data-anim-phases="2.05,3.8,5.65,7.3" data-anim-verb="wipe">
+<div class="anim anim-street-redesign" data-anim="street-redesign" data-anim-cycle="8.6" data-anim-control="once" data-anim-phases="2.05,3.8,5.9,7.5" data-anim-verb="wipe">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustrative cross-section of an example street, 20 m between building edges. Before: pavement 2.5 m, four car lanes of 3.0 m, parking 3.0 m, pavement 2.5 m. A boundary line sweeps across and the redesigned section stands behind it: pavement 4.0 m, cycle track 2.5 m, two car lanes of 3.0 m, bus lane 3.5 m, pavement 4.0 m. The buildings and the 20 m width do not move; car lanes go from 4 to 2.">
 <defs><clipPath id="street-redesign-clip-b"><rect class="street-redesign-cb" x="1400" y="0" width="1680" height="600"/></clipPath><clipPath id="street-redesign-clip-a"><rect class="street-redesign-ca" x="0" y="0" width="1400" height="600"/></clipPath></defs>
 <g class="street-redesign-scene">
@@ -125,8 +137,9 @@
   <rect class="street-redesign-tag" x="1500" y="20" width="156" height="36" rx="6"/>
   <text class="street-redesign-mono" x="1578" y="44" text-anchor="middle">illustrative</text>
   <!-- static frame: building edges and ground line; they never move -->
-  <path class="street-redesign-bld" d="M164 150 H280 V400 M200 186 V226 M244 186 V226 M200 270 V310 M244 270 V310"/>
-  <path class="street-redesign-bld" d="M1516 150 H1400 V400 M1480 186 V226 M1436 186 V226 M1480 270 V310 M1436 270 V310"/>
+  <path class="street-redesign-bld" d="M164 150 H280 M200 186 V226 M244 186 V226 M200 270 V310 M244 270 V310"/>
+  <path class="street-redesign-bld" d="M1516 150 H1400 M1480 186 V226 M1436 186 V226 M1480 270 V310 M1436 270 V310"/>
+  <path class="street-redesign-edge" d="M280 150 V400 M1400 150 V400"/>
   <path class="street-redesign-ground" d="M140 400 H1540"/>
   <!-- 20 m bracket between the building edges -->
   <path class="street-redesign-brk" pathLength="100" d="M280 112 V96 H1400 V112"/>
@@ -134,81 +147,87 @@
   <g class="street-redesign-before" clip-path="url(#street-redesign-clip-b)">
     <g class="street-redesign-b0">
       <circle class="street-redesign-gl" cx="350" cy="315" r="9"/><path class="street-redesign-gl" d="M350 325 V362 M350 362 L339 398 M350 362 L361 398 M337 356 L350 334 L363 356"/>
-      <path class="street-redesign-dv" d="M420 400 V416"/>
-      <text class="street-redesign-mono street-redesign-nm" x="350" y="444" text-anchor="middle">pavement</text>
-      <text class="street-redesign-mono" x="350" y="470" text-anchor="middle">2.5 m</text>
+      <path class="street-redesign-dv" d="M420 400 V410"/>
     </g>
     <g class="street-redesign-b1">
       <path class="street-redesign-gl" d="M452 384 V352 L464 346 L472 322 H536 L544 346 L556 352 V384 Z M468 346 H540 M458 384 V398 H474 V384 M534 384 V398 H550 V384 M486 372 H522"/><circle class="street-redesign-gl" cx="468" cy="364" r="5"/><circle class="street-redesign-gl" cx="540" cy="364" r="5"/>
-      <path class="street-redesign-dv" d="M588 400 V416"/>
+      <path class="street-redesign-dv" d="M588 400 V410"/>
     </g>
     <g class="street-redesign-b2">
       <path class="street-redesign-gl" d="M620 384 V352 L632 346 L640 322 H704 L712 346 L724 352 V384 Z M636 346 H708 M626 384 V398 H642 V384 M702 384 V398 H718 V384 M654 372 H690"/><circle class="street-redesign-gl" cx="636" cy="364" r="5"/><circle class="street-redesign-gl" cx="708" cy="364" r="5"/>
-      <path class="street-redesign-dv" d="M756 400 V416"/>
+      <path class="street-redesign-dv" d="M756 400 V410"/>
     </g>
     <g class="street-redesign-b3">
       <path class="street-redesign-gl" d="M788 384 V352 L800 346 L808 322 H872 L880 346 L892 352 V384 Z M804 346 H876 M794 384 V398 H810 V384 M870 384 V398 H886 V384 M822 372 H858"/><circle class="street-redesign-gl" cx="804" cy="364" r="5"/><circle class="street-redesign-gl" cx="876" cy="364" r="5"/>
-      <path class="street-redesign-dv" d="M924 400 V416"/>
+      <path class="street-redesign-dv" d="M924 400 V410"/>
     </g>
     <g class="street-redesign-b4">
       <path class="street-redesign-gl" d="M956 384 V352 L968 346 L976 322 H1040 L1048 346 L1060 352 V384 Z M972 346 H1044 M962 384 V398 H978 V384 M1038 384 V398 H1054 V384 M990 372 H1026"/><circle class="street-redesign-gl" cx="972" cy="364" r="5"/><circle class="street-redesign-gl" cx="1044" cy="364" r="5"/>
-      <path class="street-redesign-dv" d="M1092 400 V416"/>
-      <text class="street-redesign-mono street-redesign-nm" x="756" y="444" text-anchor="middle">car lanes</text>
-      <text class="street-redesign-mono" x="756" y="470" text-anchor="middle">4 × 3.0 m</text>
+      <path class="street-redesign-dv" d="M1092 400 V410"/>
     </g>
     <g class="street-redesign-b5">
       <path class="street-redesign-gm" d="M1124 384 V352 L1136 346 L1144 322 H1208 L1216 346 L1228 352 V384 Z M1140 346 H1212 M1130 384 V398 H1146 V384 M1206 384 V398 H1222 V384 M1158 372 H1194"/><circle class="street-redesign-gm" cx="1140" cy="364" r="5"/><circle class="street-redesign-gm" cx="1212" cy="364" r="5"/>
-      <path class="street-redesign-dv" d="M1260 400 V416"/>
-      <text class="street-redesign-mono street-redesign-nm" x="1176" y="444" text-anchor="middle">parking</text>
-      <text class="street-redesign-mono" x="1176" y="470" text-anchor="middle">3.0 m</text>
+      <path class="street-redesign-dv" d="M1260 400 V410"/>
     </g>
     <g class="street-redesign-b6">
       <circle class="street-redesign-gl" cx="1330" cy="315" r="9"/><path class="street-redesign-gl" d="M1330 325 V362 M1330 362 L1319 398 M1330 362 L1341 398 M1317 356 L1330 334 L1343 356"/>
-      <text class="street-redesign-mono street-redesign-nm" x="1330" y="444" text-anchor="middle">pavement</text>
-      <text class="street-redesign-mono" x="1330" y="470" text-anchor="middle">2.5 m</text>
     </g>
+  </g>
+  <g class="street-redesign-blab">
+    <text class="street-redesign-mono street-redesign-nm" x="350" y="440" text-anchor="middle">pavement</text>
+    <text class="street-redesign-mono street-redesign-wd" x="350" y="466" text-anchor="middle">2.5 m</text>
+    <text class="street-redesign-mono street-redesign-nm" x="756" y="440" text-anchor="middle">car lanes</text>
+    <text class="street-redesign-mono street-redesign-wd" x="756" y="466" text-anchor="middle">4 × 3.0 m</text>
+    <text class="street-redesign-mono street-redesign-nm" x="1176" y="440" text-anchor="middle">parking</text>
+    <text class="street-redesign-mono street-redesign-wd" x="1176" y="466" text-anchor="middle">3.0 m</text>
+    <text class="street-redesign-mono street-redesign-nm" x="1330" y="440" text-anchor="middle">pavement</text>
+    <text class="street-redesign-mono street-redesign-wd" x="1330" y="466" text-anchor="middle">2.5 m</text>
   </g>
   <g class="street-redesign-after" clip-path="url(#street-redesign-clip-a)">
     <circle class="street-redesign-gl" cx="392" cy="315" r="9"/><path class="street-redesign-gl" d="M392 325 V362 M392 362 L381 398 M392 362 L403 398 M379 356 L392 334 L405 356"/>
-    <path class="street-redesign-dv" d="M504 400 V416"/>
-    <text class="street-redesign-mono street-redesign-nm" x="392" y="444" text-anchor="middle">pavement</text>
-    <text class="street-redesign-mono" x="392" y="470" text-anchor="middle">4.0 m</text>
-    <text class="street-redesign-mono street-redesign-acc street-redesign-a0" x="392" y="470" text-anchor="middle">4.0 m</text>
+    <path class="street-redesign-dv" d="M504 400 V410"/>
     <circle class="street-redesign-gl" cx="542" cy="378" r="20"/><circle class="street-redesign-gl" cx="606" cy="378" r="20"/><path class="street-redesign-gl" d="M542 378 L566 350 H598 L606 378 M542 378 H576 L566 350 M576 378 L598 350 M566 350 L562 340 M554 340 H570 M598 350 L594 336 H604"/>
-    <path class="street-redesign-dv" d="M644 400 V416"/>
-    <text class="street-redesign-mono street-redesign-nm" x="574" y="444" text-anchor="middle">cycle track</text>
-    <text class="street-redesign-mono" x="574" y="470" text-anchor="middle">2.5 m</text>
-    <text class="street-redesign-mono street-redesign-acc street-redesign-a1" x="574" y="470" text-anchor="middle">2.5 m</text>
+    <path class="street-redesign-dv" d="M644 400 V410"/>
     <path class="street-redesign-gl" d="M676 384 V352 L688 346 L696 322 H760 L768 346 L780 352 V384 Z M692 346 H764 M682 384 V398 H698 V384 M758 384 V398 H774 V384 M710 372 H746"/><circle class="street-redesign-gl" cx="692" cy="364" r="5"/><circle class="street-redesign-gl" cx="764" cy="364" r="5"/>
-    <path class="street-redesign-dv" d="M812 400 V416"/>
+    <path class="street-redesign-dv" d="M812 400 V410"/>
     <path class="street-redesign-gl" d="M844 384 V352 L856 346 L864 322 H928 L936 346 L948 352 V384 Z M860 346 H932 M850 384 V398 H866 V384 M926 384 V398 H942 V384 M878 372 H914"/><circle class="street-redesign-gl" cx="860" cy="364" r="5"/><circle class="street-redesign-gl" cx="932" cy="364" r="5"/>
-    <path class="street-redesign-dv" d="M980 400 V416"/>
-    <text class="street-redesign-mono street-redesign-nm" x="812" y="444" text-anchor="middle">car lanes</text>
-    <text class="street-redesign-mono" x="812" y="470" text-anchor="middle">2 × 3.0 m</text>
+    <path class="street-redesign-dv" d="M980 400 V410"/>
     <rect class="street-redesign-gl" x="1012" y="238" width="132" height="146" rx="10"/><path class="street-redesign-gl" d="M1024 270 H1132 V322 H1024 Z M1038 252 H1118 M1022 384 V398 H1040 V384 M1116 384 V398 H1134 V384 M1058 362 H1098"/><circle class="street-redesign-gl" cx="1032" cy="360" r="6"/><circle class="street-redesign-gl" cx="1124" cy="360" r="6"/>
-    <path class="street-redesign-dv" d="M1176 400 V416"/>
-    <text class="street-redesign-mono street-redesign-nm" x="1078" y="444" text-anchor="middle">bus lane</text>
-    <text class="street-redesign-mono" x="1078" y="470" text-anchor="middle">3.5 m</text>
-    <text class="street-redesign-mono street-redesign-acc street-redesign-a2" x="1078" y="470" text-anchor="middle">3.5 m</text>
+    <path class="street-redesign-dv" d="M1176 400 V410"/>
     <circle class="street-redesign-gl" cx="1288" cy="315" r="9"/><path class="street-redesign-gl" d="M1288 325 V362 M1288 362 L1277 398 M1288 362 L1299 398 M1275 356 L1288 334 L1301 356"/>
-    <text class="street-redesign-mono street-redesign-nm" x="1288" y="444" text-anchor="middle">pavement</text>
-    <text class="street-redesign-mono" x="1288" y="470" text-anchor="middle">4.0 m</text>
-    <text class="street-redesign-mono street-redesign-acc street-redesign-a3" x="1288" y="470" text-anchor="middle">4.0 m</text>
+  </g>
+  <g class="street-redesign-al">
+    <text class="street-redesign-mono street-redesign-nm" x="392" y="440" text-anchor="middle">pavement</text>
+    <text class="street-redesign-mono street-redesign-wd" x="392" y="466" text-anchor="middle">4.0 m</text>
+    <text class="street-redesign-mono street-redesign-wd street-redesign-acc street-redesign-a0" x="392" y="466" text-anchor="middle">4.0 m</text>
+    <text class="street-redesign-mono street-redesign-nm" x="574" y="440" text-anchor="middle">cycle track</text>
+    <text class="street-redesign-mono street-redesign-wd" x="574" y="466" text-anchor="middle">2.5 m</text>
+    <text class="street-redesign-mono street-redesign-wd street-redesign-acc street-redesign-a1" x="574" y="466" text-anchor="middle">2.5 m</text>
+  </g>
+  <g class="street-redesign-ar">
+    <text class="street-redesign-mono street-redesign-nm" x="812" y="440" text-anchor="middle">car lanes</text>
+    <text class="street-redesign-mono street-redesign-wd" x="812" y="466" text-anchor="middle">2 × 3.0 m</text>
+    <text class="street-redesign-mono street-redesign-nm" x="1078" y="440" text-anchor="middle">bus lane</text>
+    <text class="street-redesign-mono street-redesign-wd" x="1078" y="466" text-anchor="middle">3.5 m</text>
+    <text class="street-redesign-mono street-redesign-wd street-redesign-acc street-redesign-a2" x="1078" y="466" text-anchor="middle">3.5 m</text>
+    <text class="street-redesign-mono street-redesign-nm" x="1288" y="440" text-anchor="middle">pavement</text>
+    <text class="street-redesign-mono street-redesign-wd" x="1288" y="466" text-anchor="middle">4.0 m</text>
+    <text class="street-redesign-mono street-redesign-wd street-redesign-acc street-redesign-a3" x="1288" y="466" text-anchor="middle">4.0 m</text>
   </g>
   <path class="street-redesign-bnd" d="M840 122 V484"/>
   <g class="street-redesign-ghost">
-    <text class="street-redesign-mono" x="258" y="516" text-anchor="end">before</text>
-    <path class="street-redesign-gh" d="M280 510 H1400"/>
-    <path class="street-redesign-ght" d="M280 502 V518 M420 502 V518 M1092 502 V518 M1260 502 V518 M1400 502 V518"/>
-    <text class="street-redesign-mono street-redesign-sm" x="350" y="540" text-anchor="middle">2.5</text>
-    <text class="street-redesign-mono street-redesign-sm" x="756" y="540" text-anchor="middle">4 × 3.0</text>
-    <text class="street-redesign-mono street-redesign-sm" x="1176" y="540" text-anchor="middle">3.0</text>
-    <text class="street-redesign-mono street-redesign-sm" x="1330" y="540" text-anchor="middle">2.5</text>
+    <text class="street-redesign-mono" x="258" y="499" text-anchor="end">before</text>
+    <path class="street-redesign-gh" d="M280 492 H1400"/>
+    <path class="street-redesign-ght" d="M280 484 V500 M420 484 V500 M1092 484 V500 M1260 484 V500 M1400 484 V500"/>
+    <text class="street-redesign-mono" x="350" y="522" text-anchor="middle">2.5</text>
+    <text class="street-redesign-mono" x="756" y="522" text-anchor="middle">4 × 3.0</text>
+    <text class="street-redesign-mono" x="1176" y="522" text-anchor="middle">3.0</text>
+    <text class="street-redesign-mono" x="1330" y="522" text-anchor="middle">2.5</text>
   </g>
-  <text class="street-redesign-mono street-redesign-fgt street-redesign-ans" x="1424" y="458">car lanes 4 to 2</text>
-  <text class="street-redesign-t street-redesign-note street-redesign-n0" x="840" y="584" text-anchor="middle">An example street, 20 m between the buildings: four car lanes and parking</text>
-  <text class="street-redesign-t street-redesign-note street-redesign-n1" x="840" y="584" text-anchor="middle">The redesign keeps the building lines and divides the same 20 m again</text>
-  <text class="street-redesign-t street-redesign-note street-redesign-n2" x="840" y="584" text-anchor="middle">Still 20 m: two car lanes and the parking become a cycle track, a bus lane and wider pavements</text>
+  <text class="street-redesign-mono street-redesign-fgt street-redesign-wd street-redesign-ans" x="840" y="136" text-anchor="middle">car lanes 4 to 2</text>
+  <text class="street-redesign-t street-redesign-note street-redesign-n0" x="840" y="588" text-anchor="middle">An example street, 20 m between the buildings: four car lanes and parking</text>
+  <text class="street-redesign-t street-redesign-note street-redesign-n1" x="840" y="588" text-anchor="middle">The redesign keeps the building lines and divides the same 20 m again</text>
+  <text class="street-redesign-t street-redesign-note street-redesign-n2" x="840" y="588" text-anchor="middle">Still 20 m: two car lanes and the parking become a cycle track, a bus lane and wider pavements</text>
 </g>
 </svg>
 </div>

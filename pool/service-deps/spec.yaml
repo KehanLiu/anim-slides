@@ -9,16 +9,16 @@ archetype: graph
 verb: nest
 size: [1680, 600]
 control: once
-cycle: 9.4
+cycle: 8.7
 nodes:
-  - { id: web,       label: Web app,          sub: browser,          kind: process,  group: edge }
-  - { id: gateway,   label: API gateway,      sub: "auth · routing", kind: process,  group: edge }
-  - { id: orders,    label: Orders,           sub: REST,             kind: process,  group: core }
-  - { id: payments,  label: Payments,         sub: REST,             kind: process,  group: core }
-  - { id: inventory, label: Inventory,        sub: REST,             kind: process,  group: core }
-  - { id: db,        label: Orders DB,        sub: SQL,              kind: store,    group: core }
-  - { id: queue,     label: Event bus,        sub: pub/sub,          kind: data }
-  - { id: psp,       label: Payment provider, sub: third party,      kind: external }
+  - { id: web, label: Web app,          kind: process,  group: edge }
+  - { id: gateway, label: API gateway, kind: process,  group: edge }
+  - { id: orders, label: Orders,             kind: process,  group: core }
+  - { id: payments, label: Payments,             kind: process,  group: core }
+  - { id: inventory, label: Inventory,             kind: process,  group: core }
+  - { id: db, label: Orders DB,              kind: store,    group: core }
+  - { id: queue, label: Event bus,          kind: data }
+  - { id: psp, label: Payment provider, sub: third party,      kind: external }
 edges:
   - { from: web,       to: gateway,   kind: depends }
   - { from: gateway,   to: orders,    kind: depends }
@@ -36,6 +36,6 @@ phases:
   - { t: 0.85, label: core,     show: [core, orders, payments] }
   - { t: 1.45, label: storage,  show: [inventory, db] }
   - { t: 2.0,  label: external, show: [psp, queue] }
-  - { t: 2.7,  label: blast,    active: [psp, payments],        note: "Payments calls an external provider" }
+  - { t: 2.9,  label: blast,    active: [psp, payments],        note: "Payments calls an external provider" }
   - { t: 5.1,  label: contain,  active: [psp, payments],        note: "Provider down: only Payments degrades, orders keep flowing" }
-  - { t: 8.2,  label: hold }
+  - { t: 7.5,  label: hold }
