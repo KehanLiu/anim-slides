@@ -1,21 +1,22 @@
 <!-- coalition-majority (pool, verb merge, archetype compare drawn as a seat bar, domain civics). Hand-built; lean style, references/style.md.
   Story: no party has a majority alone; three parties join their seats and together pass the
-  majority line. A chamber row of 100 seat marks (1 mark = 1 seat) with a vertical majority line
-  after seat 51; the 47 seats of other parties sit muted at the right end. Party A (34) stands in
-  the chamber row, Party B (12) and Party C (7) in rows below, each at its true length from the same
-  left edge, each visibly short of the line. Hero (merge): B slides right and rises into the empty
-  seats after A; at the join the two outlines cross-fade into one. Then C slides right and rises
-  into the seats after A+B; the outlines become one again and the joined bar now reaches past the
-  line. Answer: the joined outline, the two seats past the line and the line itself take the
-  accent, a hairline bracket under the joined bar gives the total 53, a second bracket marks "2 seats over the line".
-  Verb: merge (with a closing mark). Technique: each moving party is three nested groups, an outer
-  translateX, a middle translateY that starts later (so the segment slides along its own row first
-  and rises into the slot from below without crossing A or B), and an inner entrance group; all
-  transform-box:view-box. "Outline becomes one" = cross-fade of the party outlines into one
-  static outline drawn in the chamber row. No offset-path, no travelling marker. Parties are told
-  apart by outline stroke style (A solid, B dashed, C dotted) and labels, not by hue.
-  Once pass 9.2 s: set 0-1.4 s, B joins 1.5-3.3 s, C joins 3.7-5.6 s, accent 5.95-6.45 s, bracket under the joined bar and total 53 6.25-6.85 s,
-  bracket 6.95-7.7 s, hold 7.8-9.2 s. Phases 1.4,3.6,5.9,6.95,7.8.
+  majority line. A tall chamber row of 100 seat marks (1 mark = 1 seat) with a vertical majority
+  line after seat 51; the 47 seats of other parties sit muted at the right end. Party A (34) stands
+  in the chamber row; Party C (7) and Party B (12) wait apart in a row below, each visibly short of
+  the line. Hero (merge): B's label fades, B slides right along the waiting row (still short of the
+  line) and rises into the empty seats after A; at the join the two outlines cross-fade into one, a
+  thin divider stays between A and B, and B's label returns. Then the same for C, which now slides
+  along the emptied waiting row and rises into the seats after A+B: the joined bar passes the line.
+  Answer: the joined outline, the two seats past the line and the line itself take the accent, a
+  hairline bracket under the joined bar gives the total 53, a second bracket "2 seats over the line".
+  Verb: merge (with a closing mark). Technique: each moving party is nested groups, an outer
+  translateX and a middle translateY that starts as the slide ends (so the block never crosses
+  other seat marks), plus an entrance group; all transform-box:view-box. "Outline becomes one" =
+  cross-fade of the party outlines into one static outline in the chamber row. Labels of a moving
+  party fade out before it moves and in about 120 ms after it has joined. No offset-path, no
+  travelling marker. Parties are told apart by outline stroke style (A solid, B dashed, C dotted),
+  dividers and labels, not by hue.
+  Once pass 9.4 s; phases 1.4,3.58,6.3,7.35,8.15 (the last is the hold start).
   Facts:
   - A government in a parliamentary system needs more than half of the seats; parties without a
     majority can form a coalition: stated principle (the brief's claim, general civics).
@@ -24,7 +25,7 @@
   - 51 = more than half of 100: arithmetic. 53 = 34 + 12 + 7, 47 = 100 - 53, 46 (A+B, drawn, not
     labelled) = 34 + 12: arithmetic on the illustrative values.
   - "2 seats over the line" = 53 - 51: arithmetic.
-  - Seat marks: drawing scale, 1 mark = 1 seat = 12 px. -->
+  - Seat marks: drawing scale, 1 mark = 1 seat = 13 px. -->
 <style>
 .anim-coalition-majority{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -43,18 +44,18 @@
 }
 .anim-coalition-majority svg{display:block;width:100%;height:100%;max-width:none}
 .anim-coalition-majority .coalition-majority-t{font-family:var(--anim-font);fill:var(--anim-fg)}
-.anim-coalition-majority .coalition-majority-lbl{font-size:24px;font-weight:600}
+.anim-coalition-majority .coalition-majority-lbl{font-size:26px;font-weight:600}
 .anim-coalition-majority .coalition-majority-note{font-size:26px;font-weight:400}
 .anim-coalition-majority .coalition-majority-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
 .anim-coalition-majority .coalition-majority-small{font-size:18px}
 .anim-coalition-majority .coalition-majority-mut{fill:var(--anim-muted)}
 .anim-coalition-majority .coalition-majority-acc{fill:var(--anim-accent)}
-.anim-coalition-majority .coalition-majority-big{font-size:44px;font-weight:600}
+.anim-coalition-majority .coalition-majority-big{font-size:52px;font-weight:600}
 /* seats: one round-capped mark per seat; empty chamber seats in the line tone, party seats in fg, other parties muted */
-.anim-coalition-majority .coalition-majority-seats{fill:none;stroke-width:6;stroke-linecap:round}
+.anim-coalition-majority .coalition-majority-seats{fill:none;stroke-width:7;stroke-linecap:round}
 .anim-coalition-majority .coalition-majority-empty{stroke:var(--anim-line)}
 .anim-coalition-majority .coalition-majority-party{stroke:var(--anim-fg)}
-.anim-coalition-majority .coalition-majority-other{stroke:var(--anim-muted);opacity:.5}
+.anim-coalition-majority .coalition-majority-other{stroke:var(--anim-muted);opacity:.45}
 .anim-coalition-majority .coalition-majority-over{stroke:var(--anim-accent)}
 /* party outlines tell the parties apart by stroke style, not by hue: A solid, B dashed, C dotted */
 .anim-coalition-majority .coalition-majority-ol{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linejoin:round}
@@ -62,130 +63,142 @@
 .anim-coalition-majority .coalition-majority-ol-c{stroke-dasharray:0 8;stroke-linecap:round;stroke-width:3}
 .anim-coalition-majority .coalition-majority-ol-o{stroke:var(--anim-line)}
 .anim-coalition-majority .coalition-majority-ol-acc{stroke:var(--anim-accent);stroke-width:3}
-.anim-coalition-majority .coalition-majority-glow{fill:var(--anim-accent);opacity:.35;filter:blur(7px)}
+.anim-coalition-majority .coalition-majority-div{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
+.anim-coalition-majority .coalition-majority-glow{fill:var(--anim-accent);opacity:.35;filter:blur(8px)}
 .anim-coalition-majority .coalition-majority-maj{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round}
 .anim-coalition-majority .coalition-majority-maj-acc{stroke:var(--anim-accent)}
 .anim-coalition-majority .coalition-majority-brk{fill:none;stroke:var(--anim-accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-coalition-majority .coalition-majority-cbrk{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-coalition-majority .coalition-majority-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
-/* resting frame = the end: B and C joined to A, one accent outline round 53 seats, line in accent, 2 seats over it */
+/* resting frame = the end: B and C joined to A, dividers between them, one accent outline round 53 seats, 2 over the line */
 .anim-coalition-majority .coalition-majority-bx,.anim-coalition-majority .coalition-majority-by,.anim-coalition-majority .coalition-majority-cx,.anim-coalition-majority .coalition-majority-cy,.anim-coalition-majority .coalition-majority-tot{transform-box:view-box;transform-origin:0px 0px}
-.anim-coalition-majority .coalition-majority-bx{transform:translateX(408px)}
-.anim-coalition-majority .coalition-majority-by{transform:translateY(-120px)}
-.anim-coalition-majority .coalition-majority-cx{transform:translateX(552px)}
-.anim-coalition-majority .coalition-majority-cy{transform:translateY(-240px)}
+.anim-coalition-majority .coalition-majority-bx{transform:translateX(307px)}
+.anim-coalition-majority .coalition-majority-by{transform:translateY(-180px)}
+.anim-coalition-majority .coalition-majority-cx{transform:translateX(598px)}
+.anim-coalition-majority .coalition-majority-cy{transform:translateY(-180px)}
 .anim-coalition-majority .coalition-majority-a-ol,.anim-coalition-majority .coalition-majority-b-ol,.anim-coalition-majority .coalition-majority-c-ol,.anim-coalition-majority .coalition-majority-ab-ol,.anim-coalition-majority .coalition-majority-n0,.anim-coalition-majority .coalition-majority-n1{opacity:0}
 
-/* ---- motion (9.2 s once pass), only when the slide is visible. percent = s / 9.2 ----
-   set 0-1.4 s: chamber, line and the three parties apart (phase 1.4)
-   hero 1.5-3.3 s: B joins A, outlines become one (phase 3.6)
-   hero 3.7-5.6 s: C joins A+B, outlines become one, the bar passes the line (phase 5.9)
-   answer 5.95-6.85 s: accent on the joined majority, bracket and total 53 (phase 6.95)
-   answer 6.95-7.7 s: bracket "2 seats over the line" (phase 7.8 = hold start), hold to 9.2 s */
-@keyframes coalition-majority-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.522%{opacity:1}100%{opacity:1}}
-@keyframes coalition-majority-a-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.804%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.326%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes coalition-majority-b-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.435%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.957%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes coalition-majority-c-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.065%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}13.587%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-/* hero 1: Party B slides right in its own row (still short of the line), then rises into the empty seats after A */
-@keyframes coalition-majority-bx{0%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}16.304%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}26.63%{transform:translateX(408px)}100%{transform:translateX(408px)}}
-@keyframes coalition-majority-by{0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}20.109%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}32.065%{transform:translateY(-120px)}100%{transform:translateY(-120px)}}
-/* at the join the two outlines become one: A and B outlines out, the A+B outline in */
-@keyframes coalition-majority-a-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.065%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}35.87%{opacity:0}100%{opacity:0}}
-@keyframes coalition-majority-b-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.065%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}35.87%{opacity:0}100%{opacity:0}}
-@keyframes coalition-majority-ab-ol{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.065%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35.87%{opacity:1}56.739%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60.652%{opacity:0}100%{opacity:0}}
-/* hero 2: Party C slides right and rises into the seats after A+B; the joined bar now reaches past the line */
-@keyframes coalition-majority-cx{0%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}40.217%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}51.087%{transform:translateX(552px)}100%{transform:translateX(552px)}}
-@keyframes coalition-majority-cy{0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}44.022%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}56.522%{transform:translateY(-240px)}100%{transform:translateY(-240px)}}
-@keyframes coalition-majority-c-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}56.739%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}60.652%{opacity:0}100%{opacity:0}}
-@keyframes coalition-majority-abc-ol{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.739%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.652%{opacity:1}100%{opacity:1}}
-/* answer: the joined outline, the seats past the line and the line itself take the accent; the total lands */
-@keyframes coalition-majority-acc{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.674%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.109%{opacity:1}100%{opacity:1}}
-@keyframes coalition-majority-cbrk{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.935%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.37%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes coalition-majority-tot{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.109%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.457%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes coalition-majority-brk{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}75.543%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.978%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes coalition-majority-ans{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}78.261%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.696%{opacity:1}100%{opacity:1}}
-/* captions cross-fade between the moves, never during them */
-@keyframes coalition-majority-n0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.174%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.609%{opacity:1}35.87%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.043%{opacity:0}100%{opacity:0}}
-@keyframes coalition-majority-n1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.413%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.587%{opacity:1}61.087%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.043%{opacity:0}100%{opacity:0}}
-@keyframes coalition-majority-n2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}61.522%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.696%{opacity:1}100%{opacity:1}}
+/* ---- motion (9.4 s once pass), only when the slide is visible. percent = s / 9.4 ----
+   set 0-1.4 s: chamber, line, A in the chamber row, C and B apart in the waiting row (phase 1.4)
+   hero 1.4-3.55 s: B's label out, B slides and rises into the seats after A, outlines become one, label back (phase 3.58)
+   hero 3.62-6.05 s: the same for C; the joined bar passes the line (phase 6.3)
+   answer 6.35-7.25 s: accent, bracket under the joined bar, total 53 (phase 7.35)
+   answer 7.4-8.05 s: "2 seats over the line" (phase 8.15 = hold start), hold to 9.4 s */
+@keyframes coalition-majority-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.383%{opacity:1}100%{opacity:1}}
+@keyframes coalition-majority-a-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.723%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.106%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes coalition-majority-b-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.596%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.979%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes coalition-majority-c-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.319%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.702%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+/* the moving party's label fades out before it moves and back in 120 ms after it has joined */
+@keyframes coalition-majority-b-lab{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}14.894%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}16.596%{opacity:0}34.043%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.766%{opacity:1}100%{opacity:1}}
+@keyframes coalition-majority-c-lab{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.511%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40.213%{opacity:0}60.851%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.362%{opacity:1}100%{opacity:1}}
+/* hero 1: Party B slides right along the waiting row (still short of the line), then rises into the empty seats after A */
+@keyframes coalition-majority-bx{0%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}16.489%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}26.064%{transform:translateX(307px)}100%{transform:translateX(307px)}}
+@keyframes coalition-majority-by{0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}24.468%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}32.979%{transform:translateY(-180px)}100%{transform:translateY(-180px)}}
+/* at the join the two outlines become one; a thin divider stays between the parties */
+@keyframes coalition-majority-a-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.979%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}36.702%{opacity:0}100%{opacity:0}}
+@keyframes coalition-majority-b-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.979%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}36.702%{opacity:0}100%{opacity:0}}
+@keyframes coalition-majority-ab-ol{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.979%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.702%{opacity:1}59.787%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.298%{opacity:0}100%{opacity:0}}
+@keyframes coalition-majority-div1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.979%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.702%{opacity:1}100%{opacity:1}}
+/* hero 2: Party C slides right along the emptied waiting row, then rises into the seats after A+B: the joined bar passes the line */
+@keyframes coalition-majority-cx{0%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}40.957%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}52.66%{transform:translateX(598px)}100%{transform:translateX(598px)}}
+@keyframes coalition-majority-cy{0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}51.064%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}59.574%{transform:translateY(-180px)}100%{transform:translateY(-180px)}}
+@keyframes coalition-majority-c-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59.787%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.298%{opacity:0}100%{opacity:0}}
+@keyframes coalition-majority-abc-ol{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.787%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.298%{opacity:1}100%{opacity:1}}
+@keyframes coalition-majority-div2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.787%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.298%{opacity:1}100%{opacity:1}}
+/* answer: accent on the joined majority, the bracket under it and the total, then "2 seats over the line" */
+@keyframes coalition-majority-acc{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.553%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.872%{opacity:1}100%{opacity:1}}
+@keyframes coalition-majority-cbrk{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.745%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.064%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes coalition-majority-tot{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.872%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.128%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes coalition-majority-brk{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}78.723%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.511%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes coalition-majority-ans{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.851%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}85.638%{opacity:1}100%{opacity:1}}
+/* captions cross-fade between the moves */
+@keyframes coalition-majority-n0{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.128%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.447%{opacity:1}38.298%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40.213%{opacity:0}100%{opacity:0}}
+@keyframes coalition-majority-n1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}38.511%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}40.638%{opacity:1}64.362%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.17%{opacity:0}100%{opacity:0}}
+@keyframes coalition-majority-n2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.681%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}66.809%{opacity:1}100%{opacity:1}}
 
-.visible .anim-coalition-majority .coalition-majority-scene{animation:coalition-majority-scene 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-a-in{animation:coalition-majority-a-in 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-b-in{animation:coalition-majority-b-in 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-c-in{animation:coalition-majority-c-in 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-bx{animation:coalition-majority-bx 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-by{animation:coalition-majority-by 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-a-ol{animation:coalition-majority-a-ol 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-b-ol{animation:coalition-majority-b-ol 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-ab-ol{animation:coalition-majority-ab-ol 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-cx{animation:coalition-majority-cx 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-cy{animation:coalition-majority-cy 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-c-ol{animation:coalition-majority-c-ol 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-abc-ol{animation:coalition-majority-abc-ol 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-acc{animation:coalition-majority-acc 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-cbrk{animation:coalition-majority-cbrk 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-tot{animation:coalition-majority-tot 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-brk{animation:coalition-majority-brk 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-ans{animation:coalition-majority-ans 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-n0{animation:coalition-majority-n0 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-n1{animation:coalition-majority-n1 9.2s linear 1 both}
-.visible .anim-coalition-majority .coalition-majority-n2{animation:coalition-majority-n2 9.2s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-scene{animation:coalition-majority-scene 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-a-in{animation:coalition-majority-a-in 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-b-in{animation:coalition-majority-b-in 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-c-in{animation:coalition-majority-c-in 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-b-lab{animation:coalition-majority-b-lab 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-c-lab{animation:coalition-majority-c-lab 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-bx{animation:coalition-majority-bx 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-by{animation:coalition-majority-by 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-a-ol{animation:coalition-majority-a-ol 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-b-ol{animation:coalition-majority-b-ol 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-ab-ol{animation:coalition-majority-ab-ol 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-div1{animation:coalition-majority-div1 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-cx{animation:coalition-majority-cx 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-cy{animation:coalition-majority-cy 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-c-ol{animation:coalition-majority-c-ol 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-abc-ol{animation:coalition-majority-abc-ol 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-div2{animation:coalition-majority-div2 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-acc{animation:coalition-majority-acc 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-cbrk{animation:coalition-majority-cbrk 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-tot{animation:coalition-majority-tot 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-brk{animation:coalition-majority-brk 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-ans{animation:coalition-majority-ans 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-n0{animation:coalition-majority-n0 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-n1{animation:coalition-majority-n1 9.4s linear 1 both}
+.visible .anim-coalition-majority .coalition-majority-n2{animation:coalition-majority-n2 9.4s linear 1 both}
 
 @media (prefers-reduced-motion: reduce) { .anim-coalition-majority * { animation: none !important; } }
 </style>
-<div class="anim anim-coalition-majority" data-anim="coalition-majority" data-anim-cycle="9.2" data-anim-control="once" data-anim-phases="1.4,3.6,5.9,6.95,7.8" data-anim-verb="merge">
+<div class="anim anim-coalition-majority" data-anim="coalition-majority" data-anim-cycle="9.4" data-anim-control="once" data-anim-phases="1.4,3.58,6.3,7.35,8.15" data-anim-verb="merge">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustrative coalition in a parliament of 100 seats with a majority line at 51: Party A (34 seats), Party B (12) and Party C (7) each fall short alone; B joins A, then C joins A and B, and together their 53 seats pass the line by 2 seats. The other 47 seats belong to other parties.">
 <g class="coalition-majority-scene">
-  <text class="coalition-majority-mono coalition-majority-small" x="40" y="496">1 mark = 1 seat · 100 seats</text>
+  <text class="coalition-majority-mono coalition-majority-small" x="40" y="500">1 mark = 1 seat · 100 seats</text>
   <rect class="coalition-majority-tag" x="1424" y="20" width="232" height="36" rx="6"/>
   <text class="coalition-majority-mono coalition-majority-small" x="1540" y="44" text-anchor="middle">illustrative numbers</text>
   <!-- the chamber: 100 seat marks; the 47 seats of other parties as one muted remainder -->
-  <path class="coalition-majority-seats coalition-majority-empty" d="M246 178v28M258 178v28M270 178v28M282 178v28M294 178v28M306 178v28M318 178v28M330 178v28M342 178v28M354 178v28M366 178v28M378 178v28M390 178v28M402 178v28M414 178v28M426 178v28M438 178v28M450 178v28M462 178v28M474 178v28M486 178v28M498 178v28M510 178v28M522 178v28M534 178v28M546 178v28M558 178v28M570 178v28M582 178v28M594 178v28M606 178v28M618 178v28M630 178v28M642 178v28M654 178v28M666 178v28M678 178v28M690 178v28M702 178v28M714 178v28M726 178v28M738 178v28M750 178v28M762 178v28M774 178v28M786 178v28M798 178v28M810 178v28M822 178v28M834 178v28M846 178v28M858 178v28M870 178v28M882 178v28M894 178v28M906 178v28M918 178v28M930 178v28M942 178v28M954 178v28M966 178v28M978 178v28M990 178v28M1002 178v28M1014 178v28M1026 178v28M1038 178v28M1050 178v28M1062 178v28M1074 178v28M1086 178v28M1098 178v28M1110 178v28M1122 178v28M1134 178v28M1146 178v28M1158 178v28M1170 178v28M1182 178v28M1194 178v28M1206 178v28M1218 178v28M1230 178v28M1242 178v28M1254 178v28M1266 178v28M1278 178v28M1290 178v28M1302 178v28M1314 178v28M1326 178v28M1338 178v28M1350 178v28M1362 178v28M1374 178v28M1386 178v28M1398 178v28M1410 178v28M1422 178v28M1434 178v28"/>
-  <path class="coalition-majority-seats coalition-majority-other" d="M882 178v28M894 178v28M906 178v28M918 178v28M930 178v28M942 178v28M954 178v28M966 178v28M978 178v28M990 178v28M1002 178v28M1014 178v28M1026 178v28M1038 178v28M1050 178v28M1062 178v28M1074 178v28M1086 178v28M1098 178v28M1110 178v28M1122 178v28M1134 178v28M1146 178v28M1158 178v28M1170 178v28M1182 178v28M1194 178v28M1206 178v28M1218 178v28M1230 178v28M1242 178v28M1254 178v28M1266 178v28M1278 178v28M1290 178v28M1302 178v28M1314 178v28M1326 178v28M1338 178v28M1350 178v28M1362 178v28M1374 178v28M1386 178v28M1398 178v28M1410 178v28M1422 178v28M1434 178v28"/>
-  <rect class="coalition-majority-ol coalition-majority-ol-o" x="877" y="170" width="562" height="44" rx="6"/>
-  <text class="coalition-majority-t coalition-majority-lbl coalition-majority-mut" x="1500" y="130" text-anchor="end">other parties</text>
-  <text class="coalition-majority-mono" x="1500" y="156" text-anchor="end">47 seats</text>
-  <!-- majority line after seat 51 -->
-  <path class="coalition-majority-maj" d="M852 166V468"/>
-  <text class="coalition-majority-t coalition-majority-lbl" x="852" y="500" text-anchor="middle">majority: 51 of 100</text>
-  <!-- merged outlines, static in the chamber row: A+B (46 seats), then A+B+C (53 seats) -->
-  <rect class="coalition-majority-ol coalition-majority-ab-ol" x="241" y="170" width="550" height="44" rx="6"/>
-  <rect class="coalition-majority-ol coalition-majority-abc-ol" x="241" y="170" width="634" height="44" rx="6"/>
+  <path class="coalition-majority-seats coalition-majority-empty" d="M196.5 164v78M209.5 164v78M222.5 164v78M235.5 164v78M248.5 164v78M261.5 164v78M274.5 164v78M287.5 164v78M300.5 164v78M313.5 164v78M326.5 164v78M339.5 164v78M352.5 164v78M365.5 164v78M378.5 164v78M391.5 164v78M404.5 164v78M417.5 164v78M430.5 164v78M443.5 164v78M456.5 164v78M469.5 164v78M482.5 164v78M495.5 164v78M508.5 164v78M521.5 164v78M534.5 164v78M547.5 164v78M560.5 164v78M573.5 164v78M586.5 164v78M599.5 164v78M612.5 164v78M625.5 164v78M638.5 164v78M651.5 164v78M664.5 164v78M677.5 164v78M690.5 164v78M703.5 164v78M716.5 164v78M729.5 164v78M742.5 164v78M755.5 164v78M768.5 164v78M781.5 164v78M794.5 164v78M807.5 164v78M820.5 164v78M833.5 164v78M846.5 164v78M859.5 164v78M872.5 164v78M885.5 164v78M898.5 164v78M911.5 164v78M924.5 164v78M937.5 164v78M950.5 164v78M963.5 164v78M976.5 164v78M989.5 164v78M1002.5 164v78M1015.5 164v78M1028.5 164v78M1041.5 164v78M1054.5 164v78M1067.5 164v78M1080.5 164v78M1093.5 164v78M1106.5 164v78M1119.5 164v78M1132.5 164v78M1145.5 164v78M1158.5 164v78M1171.5 164v78M1184.5 164v78M1197.5 164v78M1210.5 164v78M1223.5 164v78M1236.5 164v78M1249.5 164v78M1262.5 164v78M1275.5 164v78M1288.5 164v78M1301.5 164v78M1314.5 164v78M1327.5 164v78M1340.5 164v78M1353.5 164v78M1366.5 164v78M1379.5 164v78M1392.5 164v78M1405.5 164v78M1418.5 164v78M1431.5 164v78M1444.5 164v78M1457.5 164v78M1470.5 164v78M1483.5 164v78"/>
+  <path class="coalition-majority-seats coalition-majority-other" d="M885.5 164v78M898.5 164v78M911.5 164v78M924.5 164v78M937.5 164v78M950.5 164v78M963.5 164v78M976.5 164v78M989.5 164v78M1002.5 164v78M1015.5 164v78M1028.5 164v78M1041.5 164v78M1054.5 164v78M1067.5 164v78M1080.5 164v78M1093.5 164v78M1106.5 164v78M1119.5 164v78M1132.5 164v78M1145.5 164v78M1158.5 164v78M1171.5 164v78M1184.5 164v78M1197.5 164v78M1210.5 164v78M1223.5 164v78M1236.5 164v78M1249.5 164v78M1262.5 164v78M1275.5 164v78M1288.5 164v78M1301.5 164v78M1314.5 164v78M1327.5 164v78M1340.5 164v78M1353.5 164v78M1366.5 164v78M1379.5 164v78M1392.5 164v78M1405.5 164v78M1418.5 164v78M1431.5 164v78M1444.5 164v78M1457.5 164v78M1470.5 164v78M1483.5 164v78"/>
+  <rect class="coalition-majority-ol coalition-majority-ol-o" x="880" y="150" width="609" height="106" rx="8"/>
+  <text class="coalition-majority-t coalition-majority-lbl coalition-majority-mut" x="1490" y="106" text-anchor="end">other parties</text>
+  <text class="coalition-majority-mono" x="1490" y="134" text-anchor="end">47 seats</text>
+  <!-- majority line after seat 51, through the chamber row and the waiting row -->
+  <path class="coalition-majority-maj" d="M853 144V448"/>
+  <text class="coalition-majority-t coalition-majority-lbl" x="853" y="482" text-anchor="middle">majority: 51 of 100</text>
+  <!-- merged outlines and dividers, static in the chamber row -->
+  <rect class="coalition-majority-ol coalition-majority-ab-ol" x="191" y="150" width="596" height="106" rx="8"/>
+  <rect class="coalition-majority-ol coalition-majority-abc-ol" x="191" y="150" width="687" height="106" rx="8"/>
+  <path class="coalition-majority-div coalition-majority-div1" d="M632 158V248"/>
+  <path class="coalition-majority-div coalition-majority-div2" d="M788 158V248"/>
   <!-- Party A: stays in the chamber row -->
   <g class="coalition-majority-a-in">
-    <path class="coalition-majority-seats coalition-majority-party" d="M246 178v28M258 178v28M270 178v28M282 178v28M294 178v28M306 178v28M318 178v28M330 178v28M342 178v28M354 178v28M366 178v28M378 178v28M390 178v28M402 178v28M414 178v28M426 178v28M438 178v28M450 178v28M462 178v28M474 178v28M486 178v28M498 178v28M510 178v28M522 178v28M534 178v28M546 178v28M558 178v28M570 178v28M582 178v28M594 178v28M606 178v28M618 178v28M630 178v28M642 178v28"/>
-    <rect class="coalition-majority-ol coalition-majority-a-ol" x="241" y="170" width="406" height="44" rx="6"/>
-    <text class="coalition-majority-t coalition-majority-lbl" x="240" y="130">Party A</text><text class="coalition-majority-mono" x="240" y="156">34 seats</text>
+    <path class="coalition-majority-seats coalition-majority-party" d="M196.5 164v78M209.5 164v78M222.5 164v78M235.5 164v78M248.5 164v78M261.5 164v78M274.5 164v78M287.5 164v78M300.5 164v78M313.5 164v78M326.5 164v78M339.5 164v78M352.5 164v78M365.5 164v78M378.5 164v78M391.5 164v78M404.5 164v78M417.5 164v78M430.5 164v78M443.5 164v78M456.5 164v78M469.5 164v78M482.5 164v78M495.5 164v78M508.5 164v78M521.5 164v78M534.5 164v78M547.5 164v78M560.5 164v78M573.5 164v78M586.5 164v78M599.5 164v78M612.5 164v78M625.5 164v78"/>
+    <rect class="coalition-majority-ol coalition-majority-a-ol" x="191" y="150" width="440" height="106" rx="8"/>
+    <g class=""><text class="coalition-majority-t coalition-majority-lbl" x="190" y="106">Party A</text><text class="coalition-majority-mono" x="190" y="134">34 seats</text></g>
   </g>
-  <!-- Party B: drawn in its own row at the left edge; moves +408, -120 -->
+  <!-- Party B: waits in the lower row at x 325; moves +307 along it, then rises 180 -->
   <g class="coalition-majority-bx"><g class="coalition-majority-by"><g class="coalition-majority-b-in">
-    <path class="coalition-majority-seats coalition-majority-party" d="M246 298v28M258 298v28M270 298v28M282 298v28M294 298v28M306 298v28M318 298v28M330 298v28M342 298v28M354 298v28M366 298v28M378 298v28"/>
-    <rect class="coalition-majority-ol coalition-majority-ol-b coalition-majority-b-ol" x="241" y="290" width="142" height="44" rx="6"/>
-    <text class="coalition-majority-t coalition-majority-lbl" x="240" y="250">Party B</text><text class="coalition-majority-mono" x="240" y="276">12 seats</text>
+    <path class="coalition-majority-seats coalition-majority-party" d="M331.5 344v78M344.5 344v78M357.5 344v78M370.5 344v78M383.5 344v78M396.5 344v78M409.5 344v78M422.5 344v78M435.5 344v78M448.5 344v78M461.5 344v78M474.5 344v78"/>
+    <rect class="coalition-majority-ol coalition-majority-ol-b coalition-majority-b-ol" x="326" y="330" width="154" height="106" rx="8"/>
+    <g class="coalition-majority-b-lab"><text class="coalition-majority-t coalition-majority-lbl" x="325" y="286">Party B</text><text class="coalition-majority-mono" x="325" y="314">12 seats</text></g>
   </g></g></g>
-  <!-- Party C: drawn in its own row at the left edge; moves +552, -240 -->
+  <!-- Party C: waits in the lower row at the left edge; moves +598 along it once B has left, then rises 180 -->
   <g class="coalition-majority-cx"><g class="coalition-majority-cy"><g class="coalition-majority-c-in">
-    <path class="coalition-majority-seats coalition-majority-party" d="M246 418v28M258 418v28M270 418v28M282 418v28M294 418v28M306 418v28M318 418v28"/>
-    <rect class="coalition-majority-ol coalition-majority-ol-c coalition-majority-c-ol" x="241" y="410" width="82" height="44" rx="6"/>
-    <text class="coalition-majority-t coalition-majority-lbl" x="240" y="370">Party C</text><text class="coalition-majority-mono" x="240" y="396">7 seats</text>
+    <path class="coalition-majority-seats coalition-majority-party" d="M196.5 344v78M209.5 344v78M222.5 344v78M235.5 344v78M248.5 344v78M261.5 344v78M274.5 344v78"/>
+    <rect class="coalition-majority-ol coalition-majority-ol-c coalition-majority-c-ol" x="191" y="330" width="89" height="106" rx="8"/>
+    <g class="coalition-majority-c-lab"><text class="coalition-majority-t coalition-majority-lbl" x="190" y="286">Party C</text><text class="coalition-majority-mono" x="190" y="314">7 seats</text></g>
   </g></g></g>
   <!-- answer: the joined majority in the accent -->
   <g class="coalition-majority-acc">
-    <rect class="coalition-majority-glow" x="852" y="172" width="24" height="40"/>
-    <rect class="coalition-majority-ol coalition-majority-ol-acc" x="241" y="170" width="634" height="44" rx="6"/>
-    <path class="coalition-majority-seats coalition-majority-over" d="M858 178v28M870 178v28"/>
-    <path class="coalition-majority-maj coalition-majority-maj-acc" d="M852 166V468"/>
-    <text class="coalition-majority-t coalition-majority-lbl coalition-majority-acc" x="852" y="500" text-anchor="middle">majority: 51 of 100</text>
+    <rect class="coalition-majority-glow" x="853" y="154" width="26" height="98"/>
+    <rect class="coalition-majority-ol coalition-majority-ol-acc" x="191" y="150" width="687" height="106" rx="8"/>
+    <path class="coalition-majority-seats coalition-majority-over" d="M859.5 164v78M872.5 164v78"/>
+    <path class="coalition-majority-maj coalition-majority-maj-acc" d="M853 144V448"/>
+    <text class="coalition-majority-t coalition-majority-lbl coalition-majority-acc" x="853" y="482" text-anchor="middle">majority: 51 of 100</text>
   </g>
-  <path class="coalition-majority-cbrk" pathLength="100" d="M241 292V304H875V292"/>
+  <path class="coalition-majority-cbrk" pathLength="100" d="M191 330V344H878V330"/>
   <g class="coalition-majority-tot">
-    <text class="coalition-majority-t coalition-majority-big coalition-majority-acc" x="550" y="354" text-anchor="end">53</text>
-    <text class="coalition-majority-mono" x="562" y="354">seats joined</text>
+    <text class="coalition-majority-t coalition-majority-big coalition-majority-acc" x="526" y="406" text-anchor="end">53</text>
+    <text class="coalition-majority-mono" x="540" y="406">seats joined</text>
   </g>
-  <path class="coalition-majority-brk" pathLength="100" d="M852 220V230H876V220"/>
+  <path class="coalition-majority-brk" pathLength="100" d="M853 264V276H879V264"/>
   <g class="coalition-majority-ans">
-    <text class="coalition-majority-t coalition-majority-lbl coalition-majority-acc" x="894" y="254">2 seats over the line</text>
-    <text class="coalition-majority-mono" x="894" y="280">53 − 51</text>
+    <text class="coalition-majority-t coalition-majority-lbl coalition-majority-acc" x="899" y="302">2 seats over the line</text>
+    <text class="coalition-majority-mono" x="899" y="330">53 − 51</text>
   </g>
   <!-- captions -->
   <text class="coalition-majority-t coalition-majority-note coalition-majority-n0" x="840" y="572" text-anchor="middle">No party has a majority alone</text>
