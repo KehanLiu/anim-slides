@@ -34,11 +34,12 @@ brand. anim-slides owns the animated figures, which take the deck's colours and 
 the match look (`scripts/host_theme.py` on the deck the skill produced). So a source that is
 not an HTML deck yet goes to a deck skill before triage, in this order: the user's own or
 organisation's deck skill; `frontend-slides` when installed (the style preset closest to the
-source's brand unless the user wants a new look); only when neither exists,
-`scripts/md_to_deck.py` as a fallback. Its output is a plain host for integration (full-width
-title, the body as bullets, images as they come), not a design; say so to the user in one
-sentence, because the deck will read like a document until a deck skill or a designer styles
-it. When a deck skill is installed the fallback is not an option at all: do not offer "keep the
+source's brand unless the user wants a new look); only when neither exists, the built-in
+base (`base/README.md`): `base/deck.html` for a topic or repo with no deck, or
+`scripts/md_to_deck.py --ground dark|light` for a Markdown source. md_to_deck takes the
+base's colours and fonts but keeps a document layout (full-width title, the body as bullets,
+images as they come). Either way the hand-over says in one line that the built-in base was
+used and that a deck skill such as frontend-slides offers more looks. When a deck skill is installed the fallback is not an option at all: do not offer "keep the
 existing md_to_deck host" at intake, and do not read a `deck.md` or a fallback deck already in
 the folder as the user's decision (a 12-slide run did exactly that and delivered three good
 figures inside nine raw text slides). Converting a pptx to Markdown and then to `md_to_deck.py` throws away the pptx's own

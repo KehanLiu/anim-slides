@@ -3,8 +3,8 @@
 
 Usage:
   check_look.py FRAGMENT.html --rendered-width PX [--stage-width PX] [--slot W H] [--theme FILE]
-  check_look.py --page DECK.html --slide N [--stage-width PX] [--window W H] [--keep-script]
-  common: [--gate visible] [--bg COLOUR] [--json] [--chrome PATH] [--save-probe FILE]
+  check_look.py --page DECK.html --slide N [--stage-width PX] [--window W H] [--keep-script] [--min-gap PX]
+  common: [--at-marks] [--gate visible] [--bg COLOUR] [--json] [--chrome PATH] [--save-probe FILE]
 
 check_fragment.py reads the source; this script measures the rendered result in headless Chrome
 (no extra packages): a probe page inlines the fragment (or the deck with its slide N brought into
@@ -32,6 +32,12 @@ through --dump-dom. Checks (references/style.md principles and "Checklist before
   text-size smallest rendered text below the check_fragment.py floor             FAIL
   fonts     a requested font family that is not available (fallback used)       WARN
   rest      resting frame differs from the last mark (opacity or position)      WARN
+  gap       --page: fragment ink covering the slide's own text or pictures      FAIL
+            nearer to them than --min-gap (default 24 px at a 1920 window)       WARN
+Clip and overlap run on every frame. Contrast, text-size and gap run on the resting frame;
+--at-marks runs them on every phase mark too (a label shown at a mark must be readable there,
+not only at rest) and prints one INFO line per mark:
+  INFO marks: at 2s: clip 0, overlap 0, contrast 0, text-size 0, gap 31px
 The ground is --anim-bg as the fragment resolves it (or --anim-theme-bg from --theme, or the
 slide's own background in --page mode); --bg overrides it.
 --page mode strips the deck's scripts (--keep-script keeps them) and measures every
@@ -95,9 +101,23 @@ try{var root,gate=CFG.gate,pe=document.createElement('style');
    var bl=s.tag==='rect';if(!bl&&(s.tag==='path'||s.tag==='polygon')){bl=true;[[.5,.5],[.12,.12],[.88,.12],[.12,.88],[.88,.88]].forEach(function(f){
     if(!pin(s.x+f[0]*s.w,s.y+f[1]*s.h))bl=false;});}if(bl)boxlike.push(si);
    texts.forEach(function(t){if(t.op>0.05&&pin(t.x+t.w/2,t.y+t.h/2))inside.push([t.i,si]);});});
-  return {name:w.getAttribute('data-anim'),vb:[vb.x,vb.y,vb.width,vb.height],view:[a[0],a[1],b[0]-a[0],b[1]-a[1]],scale:ss,
+  return {name:w.getAttribute('data-anim'),vb:[vb.x,vb.y,vb.width,vb.height],view:[a[0],a[1],b[0]-a[0],b[1]-a[1]],scale:ss,ctm:[S.a,S.b,S.c,S.d,S.e,S.f],
    control:w.getAttribute('data-anim-control')||'once',tok:tok,tokc:{bg:col(tok.bg),line:col(tok.line),fg:col(tok.fg),muted:col(tok.muted),panel:col(tok.panel)},
    els:els,inside:inside,boxlike:boxlike,missing:Object.keys(missing),boxesok:/anim-look:\s*boxes-ok/.test((w.parentNode||w).innerHTML)};}
+ function neighbours(){var nb=[];if(!CFG.page)return nb;   // the slide's own text and pictures, in screen px
+  function mine(e){return W.some(function(w){return w.contains(e);});}
+  function shown(e){var op=1;for(var x=e;x&&x.nodeType===1;x=x.parentNode){var c=getComputedStyle(x);
+   if(c.display==='none'||c.visibility==='hidden')return 0;op*=parseFloat(c.opacity);}return op;}
+  function add(r,e,txt){if(r.width<1||r.height<1)return;var op=shown(e);if(op<=0.05)return;
+   nb.push({x:r.left,y:r.top,w:r.width,h:r.height,txt:txt,op:+op.toFixed(2)});}
+  var tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),tn;
+  while((tn=tw.nextNode())){var p=tn.parentElement;if(!tn.nodeValue.trim()||!p||mine(p)||p.closest('script,style,template,aside.notes,.notes,svg'))continue;
+   var rg=document.createRange();rg.selectNodeContents(tn);var t=tn.nodeValue.trim().replace(/\s+/g,' ').slice(0,30);
+   Array.prototype.forEach.call(rg.getClientRects(),function(r){add(r,p,t);});}
+  root.querySelectorAll('img,svg,video,canvas,iframe,object,embed').forEach(function(e){
+   if(mine(e)||(e.tagName.toLowerCase()==='svg'&&e.parentElement&&e.parentElement.closest('svg')))return;
+   add(e.getBoundingClientRect(),e,'<'+e.tagName.toLowerCase()+(e.id?'#'+e.id:'')+'>');});
+  return nb;}
  function hitbox(el,L,T,R,B){var sv=el.ownerSVGElement;if(!sv)return null;sv.setAttribute('data-look-pe','');
    var pv=el.style.getPropertyValue('pointer-events'),pp=el.style.getPropertyPriority('pointer-events');el.style.setProperty('pointer-events','all','important');
    function on(x,y){if(x<0||y<0||x>=innerWidth||y>=innerHeight)return null;var t=document.elementFromPoint(x,y);return !!(t&&(t===el||el.contains(t)));}
@@ -125,7 +145,7 @@ try{var root,gate=CFG.gate,pe=document.createElement('style');
   return {left:L,top:T,right:Math.max(L,R),bottom:Math.max(T,B),out:R<L-0.5||B<T-0.5};}
  function ground(w){var cs=[];for(var x=w;x&&x.nodeType===1;x=x.parentNode)cs.push(col(getComputedStyle(x).backgroundColor));
   var g=[255,255,255];for(var i=cs.length-1;i>=0;i--){var c=cs[i];if(c&&c[3]>0)g=[0,1,2].map(function(k){return c[k]*c[3]+g[k]*(1-c[3]);});}return g;}
- [null].concat(times).forEach(function(t){setFrame(t);OUT.frames.push({t:t===null?'rest':t,frags:W.map(measure)});});
+ [null].concat(times).forEach(function(t){setFrame(t);OUT.frames.push({t:t===null?'rest':t,frags:W.map(measure),nb:neighbours()});});
  setFrame(null);OUT.ground=W.map(function(w){return CFG.page?ground(w):col(getComputedStyle(w).getPropertyValue('--anim-bg').trim())||ground(w);});
 }catch(e){OUT.error=String(e&&e.stack||e);}
 document.getElementById('look').textContent=JSON.stringify(OUT).replace(/</g,'\\u003c');})();
@@ -205,6 +225,80 @@ def few(items, n=3):
 
 
 # ---------------------------------------------------------------------------- analysis
+def contrast_bad(T, g, tok, a):
+    """Labels under their contrast floor on ground g: [(ratio, message)], worst run per label."""
+    bad = []
+
+    def twin_over(e):  # a brighter copy drawn at the same place covers a dimmed base label
+        return any(q is not e and q['txt'] == e['txt'] and q['op'] > e['op'] + 0.05 and
+                   abs(q['x'] - e['x']) < 3 and abs(q['y'] - e['y']) < 3 for q in T)
+    for e in T:
+        if twin_over(e):
+            continue
+        worst = None
+        for fill, fo, om, txt in e.get('runs') or []:
+            op = e['op'] * om
+            if not fill or op <= 0.05:
+                continue
+            c = ratio(over(fill, fill[3] * fo * op, g), g)
+            px1920 = e['px'] * 1920.0 / a.stage_width
+            muted = bool(tok.get('muted') and dist(fill, tok['muted']) < 10) or op < 0.6
+            need = 2.5 if muted else 4.5 if px1920 < 20 else 3.0
+            if c < need and (worst is None or c < worst[0]):
+                worst = (c, '"%s" %.2f:1 < %.1f (%s %s%s)' % (txt, math.floor(c * 100) / 100, need, hexc(fill), 'muted' if muted else
+                         '%.0fpx' % px1920, ', opacity %.2f' % op if op < 0.99 else ''))
+        if worst:
+            bad.append(worst)
+    return bad
+
+
+def painted(e, g):
+    """A visible element that puts ink on the ground (not an invisible hit area or a ground-coloured fill)."""
+    if e['op'] <= 0.05 or e['glow'] or (e['w'] <= 0 and e['h'] <= 0):
+        return False
+    if e['tag'] == 'text':
+        return True
+    if e['stroke'] and e['sw'] > 0 and e['stroke'][3] * e['so'] * e['op'] > 0.05:
+        return True
+    return bool(e['fill']) and e['fill'][3] * e['fo'] * e['op'] > 0.05 and \
+        dist(over(e['fill'], e['fill'][3] * e['fo'] * e['op'], g), g) >= 6
+
+
+def gap_check(t, frames, fr, k, g, a, R, pre, per):
+    """--page: the fragment's ink against the slide's own text and pictures, in screen px."""
+    nb = next((f.get('nb') for f in frames if f['t'] == t), None)
+    if not a.page or not nb:
+        return
+    m = fr['ctm']
+    def scr(x, y):
+        return m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]
+    floor = a.min_gap
+    best, worst, hits = None, None, []
+    when = 'rest' if t == 'rest' else '%gs' % t
+    for e in fr['els']:
+        if not painted(e, g):
+            continue
+        p, q = scr(e['x'], e['y']), scr(e['x'] + e['w'], e['y'] + e['h'])
+        x0, x1, y0, y1 = min(p[0], q[0]), max(p[0], q[0]), min(p[1], q[1]), max(p[1], q[1])
+        for n in nb:
+            ix = min(x1, n['x'] + n['w']) - max(x0, n['x'])
+            iy = min(y1, n['y'] + n['h']) - max(y0, n['y'])
+            if ix > 2 and iy > 2:
+                hits.append('%s covers the slide\'s "%s"' % (label(e), n['txt']))
+                continue
+            d = max(n['x'] - x1, x0 - (n['x'] + n['w']), n['y'] - y1, y0 - (n['y'] + n['h']), 0)
+            if best is None or d < best:
+                best, worst = d, (e, n)
+    per.setdefault(t, {})['gap'] = best
+    for h in sorted(set(hits))[:4]:
+        R.fail(pre + 'gap', 'at %s: %s: keep the figure inside its slot, crop the viewBox or move the label' % (when, h))
+    if best is not None and best < floor and not hits:
+        R.warn(pre + 'gap', 'at %s: %s is %.0fpx from the slide\'s "%s" (< %gpx): give the slide content room '
+               '(smaller viewBox, slot padding)' % (when, label(worst[0]), best, worst[1]['txt'], floor))
+    elif best is not None and t == 'rest' and not hits:
+        R.info(pre + 'gap', 'nearest slide content %.0fpx away at rest (floor %gpx)' % (best, floor))
+
+
 def analyse(frames, k, gcol, a, R, pre):
     rest = frames[0]['frags'][k]
     F = [(fr['t'], fr['frags'][k]) for fr in frames]
@@ -221,8 +315,10 @@ def analyse(frames, k, gcol, a, R, pre):
 
     # 1 clipping, 2 overlap: every frame
     clipped, overl = {}, {}
+    per = {}  # per frame: elements clipped and label pairs overlapping in that frame
     for t, fr in F:
         cx0, cy0, cw, ch = clip
+        pc = per.setdefault(t, {'clip': 0, 'overlap': 0})
         for e in fr['els']:
             if not vis(e) or e['glow']:
                 continue
@@ -233,6 +329,8 @@ def analyse(frames, k, gcol, a, R, pre):
                 ox = 0 if e['h'] >= 0.25 * ch else ox
                 oy = 0 if e['w'] >= 0.25 * cw else oy
             lim = 1 if e['tag'] == 'text' else 2
+            if ox > lim or oy > lim:
+                pc['clip'] += 1
             if (ox > lim or oy > lim) and e['i'] not in clipped:
                 clipped[e['i']] = '%s %s by %.0f units at %s' % (label(e), 'sticks out', max(ox, oy), t if t == 'rest' else '%gs' % t)
         T = [e for e in fr['els'] if e['tag'] == 'text' and vis(e)]
@@ -245,6 +343,8 @@ def analyse(frames, k, gcol, a, R, pre):
                 key = (p['i'], q['i'])
                 if p['txt'] == q['txt'] and max(abs(p['x'] - q['x']), abs(p['y'] - q['y']), abs(p['w'] - q['w'])) < 3:
                     continue  # a highlight twin drawn over its base label reads as one label
+                if ix > 2 and iy > 2:
+                    pc['overlap'] += 1
                 if ix > 2 and iy > 2 and key not in overl:
                     overl[key] = '%s and %s overlap by %.0fx%.0f at %s' % (label(p), label(q), ix, iy, t if t == 'rest' else '%gs' % t)
     for m in clipped.values():
@@ -280,28 +380,8 @@ def analyse(frames, k, gcol, a, R, pre):
         R.warn(pre + 'overlap', '%d label(s) sit on a filled shape: %s; put labels on the ground or on a plate in --anim-bg'
                % (len(on_shape), few([label(els[i]) for i in on_shape])))
 
-    # 3 contrast (rest)
-    bad = []
-    def twin_over(e):  # a brighter copy drawn at the same place covers a dimmed base label
-        return any(q is not e and q['txt'] == e['txt'] and q['op'] > e['op'] + 0.05 and
-                   abs(q['x'] - e['x']) < 3 and abs(q['y'] - e['y']) < 3 for q in T)
-    for e in T:
-        if twin_over(e):
-            continue
-        worst = None
-        for fill, fo, om, txt in e.get('runs') or []:
-            op = e['op'] * om
-            if not fill or op <= 0.05:
-                continue
-            c = ratio(over(fill, fill[3] * fo * op, g), g)
-            px1920 = e['px'] * 1920.0 / a.stage_width
-            muted = bool(tok.get('muted') and dist(fill, tok['muted']) < 10) or op < 0.6
-            need = 2.5 if muted else 4.5 if px1920 < 20 else 3.0
-            if c < need and (worst is None or c < worst[0]):
-                worst = (c, '"%s" %.2f:1 < %.1f (%s %s%s)' % (txt, math.floor(c * 100) / 100, need, hexc(fill), 'muted' if muted else
-                         '%.0fpx' % px1920, ', opacity %.2f' % op if op < 0.99 else ''))
-        if worst:
-            bad.append(worst)
+    # 3 contrast (rest; every mark under --at-marks)
+    bad = contrast_bad(T, g, tok, a)
     for c, m in sorted(bad)[:6]:
         R.fail(pre + 'contrast', m + ' on ground %s: use --anim-fg/--anim-muted, raise the opacity' % hexc(g))
     if len(bad) > 6:
@@ -386,7 +466,7 @@ def analyse(frames, k, gcol, a, R, pre):
 
     # 7 smallest rendered text
     small = sorted((e['px'], label(e)) for e in T)
-    under = [s for s in small if s[0] < floor - 0.05]
+    under = [x for x in small if x[0] < floor - 0.05]
     for px, lb in under[:5]:
         R.fail(pre + 'text-size', '%s renders at %.1fpx < floor %gpx: raise its font-size in viewBox units' % (lb, px, floor))
     if small and not under:
@@ -409,6 +489,35 @@ def analyse(frames, k, gcol, a, R, pre):
         if diff:
             R.warn(pre + 'rest', 'rest differs from last mark (%gs) in %d element(s): %s; the 100 %% keyframe must equal '
                    'the resting frame' % (last_t, len(diff), few(diff)))
+
+    # 10 gap to the slide's own content (--page): rest, and every mark under --at-marks
+    for t, fr in F if a.at_marks else F[:1]:
+        gap_check(t, frames, fr, k, g, a, R, pre, per)
+
+    # 11 the same rendered checks at every phase mark (--at-marks), one summary line per mark
+    if not a.at_marks:
+        return
+    def key(m):  # the label a contrast message is about
+        return m.split('" ')[0]
+    said_c = {key(m) for _, m in bad}
+    said_t = {lb for _, lb in under}
+    for t, fr in F[1:]:
+        Tm = [e for e in fr['els'] if e['tag'] == 'text' and vis(e)]
+        badm = contrast_bad(Tm, g, tok, a)
+        for c, m in sorted(x for x in badm if key(x[1]) not in said_c)[:6]:
+            said_c.add(key(m))
+            R.fail(pre + 'contrast', 'at %gs: %s on ground %s: a label shown at a mark must be readable; raise its '
+                   'opacity or colour, or set the mark at a settled moment' % (t, m, hexc(g)))
+        smallm = [e for e in Tm if e['px'] < floor - 0.05]
+        for e in [x for x in smallm if label(x) not in said_t][:5]:
+            said_t.add(label(e))
+            R.fail(pre + 'text-size', 'at %gs: %s renders at %.1fpx < floor %gpx: a scaled or zoomed label must stay '
+                   'above the floor' % (t, label(e), e['px'], floor))
+        pc = per.get(t, {})
+        gp = pc.get('gap')
+        R.info(pre + 'marks', 'at %gs: clip %d, overlap %d, contrast %d, text-size %d%s' % (
+            t, pc.get('clip', 0), pc.get('overlap', 0), len(badm), len(smallm),
+            '' if gp is None else ', gap %.0fpx' % gp))
 
 
 class Report:
@@ -442,6 +551,10 @@ def main():
     ap.add_argument('--gate', default='visible', help='gate class (default visible)')
     ap.add_argument('--bg', help='ground colour override, e.g. #FFFFFF')
     ap.add_argument('--chrome', help='Chrome binary (else $CHROME or auto-detected)')
+    ap.add_argument('--at-marks', action='store_true',
+                    help='also run contrast, text-size and gap at every phase mark; one summary line per mark')
+    ap.add_argument('--min-gap', type=float, metavar='PX',
+                    help='page mode: clearance to the slide\'s own content (default 24 px at a 1920 window)')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--save-probe', metavar='FILE', help='also write the probe page (ends on the resting frame) to FILE')
     a = ap.parse_args()
@@ -496,6 +609,8 @@ def main():
         a.stage_width = data.get('stage') if a.page and data.get('stage') else 1920.0
     if a.min_text is None:
         a.min_text = round(max(10.0, 18 * a.stage_width / 1920), 2)
+    if a.min_gap is None:
+        a.min_gap = round(24.0 * (data.get('stage') or 1920) / 1920, 1)
     R = Report()
     frames = data['frames']
     nfr = len(frames[0]['frags'])

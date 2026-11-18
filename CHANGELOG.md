@@ -2,6 +2,55 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## Unreleased
+
+Figures inside a deck skill's draft. Driver: the owner wants "Make five slides introducing
+this project" to work as a chain: the deck skill builds a finished draft with figure slots,
+anim-slides fills the slots without changing the layout, and the figures look native and stay
+readable through the whole pass, not only at rest. A Codex test the same day showed the chain
+breaking: frontend-slides was installed on disk but not registered in Codex, so anim-slides
+drew the deck itself on its lean dark ground and the deck's look came afterwards as a reskin.
+
+- **Deck from a topic:** a new Mode A row for "make N slides about X" with no deck. A deck
+  skill builds the base first, with slots; anim-slides never designs the deck's look and never
+  reskins afterwards. A deck skill counts when its SKILL.md is on disk in any harness's skills
+  folder (`~/.claude`, `~/.agents`, `~/.codex`, `~/.config/opencode`, `~/.cursor`, `~/.gemini`,
+  and the project's), not only when this harness lists it; `md_to_deck.py` stays the labelled
+  fallback when none is found.
+- **Short prompt:** no intake message; the defaults (the deck skill's recommended style, match,
+  once, not bundled) are taken, recorded and reported. Match is the stated default for any deck
+  a deck skill built.
+- **Stay in the layout, match the deck:** new hard rule. The figure fills the slot at its
+  measured size; slide layout, headlines and deck CSS stay. Labels take 0.7 to 1x the deck's
+  body size in its family and weight.
+- **`check_look.py --at-marks`:** contrast and the text floor run at every phase mark too (clip
+  and overlap already did), with one `marks` line per mark. A caption that is only on screen
+  mid-pass is now checked; on `canal-lock` over a white ground the rest-only run missed three
+  such captions. New `gap` check in `--page` mode: fragment ink covering the slide's own text
+  or pictures fails, nearer than `--min-gap` (24 px at a 1920 window) warns.
+- **`measure_slot.py`:** a fourth output line, `type body PX WEIGHT "FAMILY"; title ...`, the
+  slide's own type as rendered, for sizing the fragment's labels.
+- **`host_theme.py`:** a `font` shorthand with a leading weight (`400 39px/1.35 Nunito`) gave
+  the size as part of the family; the family is now read after the sized token.
+- **Built-in base deck (`base/`):** for a topic with no deck when no deck skill is found
+  anywhere. `base/deck.html` is a template: 16:9 stage, keyboard and swipe navigation, the
+  `.visible` gate, progress bar, print and reduced-motion rules, the five slide types (cover,
+  live demo, benefits, workflow, call to action) with named slots, all colours and fonts as
+  variables with every `--anim-theme-*` mapped to them. One look, two grounds via
+  `data-ground="dark|light"` on `<html>`; the light ground is designed for contrast (text
+  14.9:1, muted 6.5:1, accent 5.0:1, ok/warn/danger 5:1 or more), so `canal-lock` passes
+  `check_look.py --at-marks` on it unedited. `base/example.html` is the finished five-slide
+  intro deck on the base (copied to `docs/intro-deck/index.html`); `base/README.md` gives the
+  ground rule and the composition rules with sizes. Order stays base first, figures on top;
+  the hand-over says in one line that the built-in base was used and that a deck skill such
+  as frontend-slides offers more looks. Nothing is installed automatically.
+- **`md_to_deck.py`:** takes its colours and fonts from the base deck's token block and its
+  ground from `--ground dark|light` (`--theme` still accepted); the layout stays a document
+  flow.
+- **`references/reference-case.md`:** the five-slide intro deck (cover still of `canal-lock`,
+  the full `canal-lock` pass, benefits, workflow row, call to action), with what anim-slides
+  adds on each slide and the rule it shows, with a deck skill or on the built-in base.
+
 ## 0.12.0 - 2026-11-18
 
 Motion that carries the meaning. Driver: the owner's review, "we basically just build process

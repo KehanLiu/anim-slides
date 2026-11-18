@@ -30,6 +30,11 @@ Output on stdout, one item per line:
   x y w h                       the box in stage pixels (origin: the stage's top-left)
   viewBox 0 0 VW VH             same aspect ratio, rounded to tens
   --rendered-width W --stage-width SW    flags for check_fragment.py / scaffold_from_spec.py
+  type body PX WEIGHT "FAMILY"; title PX WEIGHT "FAMILY"
+                                the slide's own type (stage px): the font most of its text is set
+                                in, and its largest h1-h3. Fragment labels take 0.7 to 1x the body size,
+                                its family (--anim-font from host_theme.py) and weight; sub-labels smaller,
+                                never under the text floor; nothing in the figure outranks the title.
 Details (which slide, which candidate, the window's display factor) go to stderr.
 
 How: a temp copy of the page gets a <base> and a small script that measures on load and writes
@@ -90,6 +95,18 @@ JS = r"""
                                         : [pl, Math.max(0, oy) + pt, stage[0] - pr, stage[1] - pb];
       out.desc = el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + ' (' + how + ')';
       out.stage = stage; out.scale = k; out.content = C;
+      // the slide's typography: the font the most text is set in (body) and the largest heading
+      var tally = {}, head = null, tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), tx;
+      while ((tx = tw.nextNode())) {
+        var pe = tx.parentElement, n = tx.nodeValue.trim().length;
+        if (!n || !pe || !vis(pe) || pe.closest('.anim, aside.notes, .notes, script, style, template, svg')) continue;
+        var fs = getComputedStyle(pe), fam = fs.fontFamily.split(',')[0].replace(/["']/g, '').trim();
+        var rec = [Math.round(parseFloat(fs.fontSize) * 10) / 10, fs.fontWeight, fam];
+        if (pe.closest('h1, h2, h3')) { if (!head || rec[0] > head[0]) head = rec; continue; }
+        var key = rec.join('|'); tally[key] = (tally[key] || 0) + n;
+      }
+      var top = Object.keys(tally).sort(function (a, b) { return tally[b] - tally[a]; })[0];
+      out.type = {body: top ? top.split('|') : null, head: head};
       if (A.target) {
         var t = el.querySelector(A.target) || document.querySelector(A.target);
         if (!t) { out.error = 'no element matches --selector ' + A.target; return done(out); }
@@ -276,6 +293,10 @@ def main():
     print(f'{x} {y} {w} {h}')
     print(f'viewBox 0 0 {r10(w)} {r10(h)}')
     print(f'--rendered-width {w} --stage-width {sw}')
+    ty = res.get('type') or {}
+    parts = [f'{k} {float(v[0]):g}px {v[1]} "{v[2]}"' for k, v in (('body', ty.get('body')), ('title', ty.get('head'))) if v]
+    if parts:
+        print('type ' + '; '.join(parts))
 
 
 if __name__ == '__main__':

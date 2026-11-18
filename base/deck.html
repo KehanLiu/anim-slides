@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" data-ground="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DECK TITLE</title>
+<!-- anim-slides built-in base deck (base/README.md). Used only when no deck skill is found.
+     One look, two grounds: set data-ground="dark" or "light" on <html> above; nothing else
+     changes. Five slide types follow, each between ==== SLIDE TYPE ==== comments; copy, drop
+     or repeat them, adapt the structure, write your own content. Self-contained: no CDN, no
+     web fonts, no external files. Each figure slot is a fixed-size div (#sN-slot, sized in
+     the CSS below) with the sN-body and /sN-body marker comments inside it: anim-slides
+     integrates a figure between them and keeps the sized div. -->
+<style>
+/* base:tokens:start ==========================================
+   COLOUR AND TYPE TOKENS. All colours and fonts live here; the rest of the CSS reads them.
+   Dark ground: screens in dim rooms. Light ground: bright rooms, projectors with washed-out
+   blacks, print. Text >= 4.5:1 and accent >= 4.5:1 on both grounds.
+   ============================================================ */
+:root {
+    --bg:       #0F1E27;   /* slide ground */
+    --panel:    #0D1820;   /* rare container fill (figures only) */
+    --line:     #2A3D49;   /* hairlines, rules, idle strokes */
+    --fg:       #E6EDF0;   /* text, 14.4:1 on bg */
+    --muted:    #93A7B2;   /* secondary text, 6.8:1 */
+    --accent:   #34D1BF;   /* the one accent, 8.9:1 */
+    --accent-2: #FF8A3D;   /* second accent, only with a meaning, 7.3:1 */
+    --ok:       #8ED7AD;
+    --warn:     #FFD15C;
+    --danger:   #FF6B6B;
+    --stage-bg: #08121A;   /* letterbox round the 16:9 stage */
+    --glow:     rgba(52, 209, 191, 0.08);   /* cover wash */
+    --glow-ring: rgba(52, 209, 191, 0.55);  /* the one glowing element */
+    --font-display: "Avenir Next", "Avenir", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", sans-serif;
+    --font-body:    "Avenir Next", "Avenir", "Segoe UI", "Helvetica Neue", sans-serif;
+    --font-mono:    Menlo, Consolas, "DejaVu Sans Mono", monospace;
+}
+:root[data-ground="light"] {
+    --bg:       #F2F5F5;
+    --panel:    #E3E9EA;
+    --line:     #B4C2C8;   /* 1.7:1, a visible hairline on paper */
+    --fg:       #11222B;   /* 14.9:1 */
+    --muted:    #475B66;   /* 6.5:1 */
+    --accent:   #00776B;   /* 5.0:1, the same teal, deepened */
+    --accent-2: #A84B0A;   /* 5.2:1 */
+    --ok:       #2B744A;   /* 5.2:1 */
+    --warn:     #875F00;   /* 5.2:1 */
+    --danger:   #B3261E;   /* 6.0:1 */
+    --stage-bg: #D9E0E1;
+    --glow:     rgba(0, 119, 107, 0.07);
+    --glow-ring: rgba(0, 119, 107, 0.35);
+}
+:root {
+    /* The contract with embedded anim-slides fragments: every --anim-theme-* is a deck token,
+       so a figure draws in the deck's colours on either ground. */
+    --anim-theme-bg: var(--bg);
+    --anim-theme-panel: var(--panel);
+    --anim-theme-line: var(--line);
+    --anim-theme-fg: var(--fg);
+    --anim-theme-muted: var(--muted);
+    --anim-theme-accent: var(--accent);
+    --anim-theme-accent-2: var(--accent-2);
+    --anim-theme-ok: var(--ok);
+    --anim-theme-warn: var(--warn);
+    --anim-theme-danger: var(--danger);
+    --anim-theme-font: var(--font-body);
+    --anim-theme-mono: var(--font-mono);
+
+    /* Sizes at the 1920 x 1080 stage */
+    --title-size: 96px;
+    --body-size: 34px;
+    --sub-size: 26px;
+    --pad-x: 120px;
+    --pad-top: 96px;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* base:tokens:end */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   STAGE: a fixed 1920 x 1080 stage, scaled to the window by the script.
+   One slide shows at a time; the current one carries .active and .visible
+   (.visible is the gate anim-slides fragments animate under).
+   =========================================== */
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--stage-bg); }
+.deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg); }
+.deck-stage {
+    position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+    overflow: hidden; transform-origin: 0 0; background: var(--bg);
+}
+.slide {
+    position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden;
+    visibility: hidden; opacity: 0; pointer-events: none;
+    background: var(--bg); color: var(--fg); font-family: var(--font-body);
+}
+.slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+svg { max-width: 100%; max-height: 100%; }
+
+/* ===========================================
+   SHARED SLIDE PARTS
+   =========================================== */
+.headline {             /* <= 6 words, one line, a claim */
+    position: absolute; left: var(--pad-x); top: var(--pad-top);
+    font-family: var(--font-display); font-size: var(--title-size);
+    font-weight: 600; line-height: 1.05; letter-spacing: -0.015em;
+}
+.kicker { font-family: var(--font-mono); font-size: var(--sub-size); color: var(--accent); letter-spacing: 0.04em; }
+.mono { font-family: var(--font-mono); }
+.folio {                /* slide number, bottom right; none on the cover */
+    position: absolute; right: var(--pad-x); bottom: 56px;
+    font-family: var(--font-mono); font-size: 22px; color: var(--muted);
+}
+
+/* ===========================================
+   ENTRANCE: one calm pass when the slide becomes current.
+   Without the gate class the finished frame shows (print, scripts off).
+   =========================================== */
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+@keyframes fade { from { opacity: 0; } }
+.slide.visible .reveal { animation: rise 0.7s var(--ease-out) both; }
+.slide.visible .reveal.d1 { animation-delay: 0.15s; }
+.slide.visible .reveal.d2 { animation-delay: 0.3s; }
+.slide.visible .reveal.d3 { animation-delay: 0.45s; }
+.slide.visible .reveal.d4 { animation-delay: 0.6s; }
+
+/* ===========================================
+   TYPE 1: COVER. Title block top-left, figure bleeding along the bottom edge.
+   =========================================== */
+.cover .title-block { position: absolute; left: var(--pad-x); top: 120px; }
+.cover h1 {
+    font-family: var(--font-display); font-size: 168px; font-weight: 700;
+    line-height: 1; letter-spacing: -0.03em;
+}
+.cover h1 .dash { color: var(--accent); }
+.cover .tagline { margin-top: 28px; font-size: 44px; color: var(--fg); max-width: 1300px; }
+.cover .kicker { margin-top: 22px; color: var(--muted); }
+.cover .glow {
+    position: absolute; left: -200px; top: -260px; width: 1100px; height: 900px;
+    background: radial-gradient(closest-side, var(--glow), transparent); pointer-events: none;
+}
+/* slot s1: 1920 x 590 along the bottom edge (55 % of the slide) */
+#s1-slot { position: absolute; left: 0; bottom: 0; width: 1920px; height: 590px; }
+
+/* ===========================================
+   TYPE 2: LIVE DEMO. Headline, one wide figure slot, one caption line.
+   =========================================== */
+/* slot s2: 1760 wide; height = 1760 x (viewBox height / width); 629 fits a 1680 x 600 figure */
+#s2-slot { position: absolute; left: 80px; top: 236px; width: 1760px; height: 629px; }
+.demo .caption {
+    position: absolute; left: var(--pad-x); right: var(--pad-x); top: 900px;
+    font-size: 30px; color: var(--muted);
+}
+.demo .caption b { color: var(--fg); font-weight: 600; }
+
+/* ===========================================
+   TYPE 3: BENEFITS. Up to three columns: line glyph, claim, one supporting line.
+   =========================================== */
+.benefits .cols {
+    position: absolute; left: var(--pad-x); right: var(--pad-x); top: 350px;
+    display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 96px;
+}
+.benefits .glyph { width: 300px; height: 210px; display: block; }
+.benefits h3 { margin-top: 44px; font-family: var(--font-display); font-size: 46px; font-weight: 600; line-height: 1.1; }
+.benefits p { margin-top: 22px; font-size: 32px; line-height: 1.4; color: var(--muted); }
+.benefits code { font-family: var(--font-mono); color: var(--fg); font-size: 0.92em; }
+.g-line { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.g-dash { fill: none; stroke: var(--line); stroke-width: 3; stroke-dasharray: 8 10; }
+.g-acc  { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.g-dot  { fill: var(--accent); }
+.g-txt  { font-family: var(--font-mono); font-size: 24px; fill: var(--muted); }
+
+/* ===========================================
+   TYPE 4: WORKFLOW. Steps as rings on one line, input left, result right.
+   =========================================== */
+/* slot s4: 1760 x 640 below the headline */
+#s4-slot { position: absolute; left: 80px; top: 260px; width: 1760px; height: 640px; }
+.wf-line { fill: none; stroke: var(--line); stroke-width: 3; }
+.wf-ring { fill: var(--bg); stroke: var(--muted); stroke-width: 3; }
+.wf-ring.on { stroke: var(--accent); stroke-width: 4; filter: drop-shadow(0 0 14px var(--glow-ring)); }
+.wf-num { font-family: var(--font-display); font-size: 76px; font-weight: 600; fill: var(--fg); }
+.wf-num.on { fill: var(--accent); }
+.wf-name { font-family: var(--font-display); font-size: 36px; font-weight: 600; fill: var(--fg); }
+.wf-sub { font-family: var(--font-mono); font-size: 24px; fill: var(--muted); }
+.wf-end { font-family: var(--font-mono); font-size: 30px; fill: var(--fg); }
+.wf-head { font-family: var(--font-display); font-size: 32px; font-weight: 600; fill: var(--fg); }
+.wf-arrow { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.slide.visible .wf-step { animation: fade 0.8s var(--ease-out) both; }
+.slide.visible .wf-step.k1 { animation-delay: 0.3s; }
+.slide.visible .wf-step.k2 { animation-delay: 0.9s; }
+.slide.visible .wf-step.k3 { animation-delay: 1.5s; }
+.slide.visible .wf-step.k4 { animation-delay: 2.1s; }
+.slide.visible .wf-step.k5 { animation-delay: 2.7s; }
+
+/* ===========================================
+   TYPE 5: CALL TO ACTION. Two large monospace lines, a short footer.
+   =========================================== */
+.cta .steps { position: absolute; left: var(--pad-x); right: var(--pad-x); top: 350px; }
+.cta .step + .step { margin-top: 84px; }
+.cta .label { font-family: var(--font-mono); font-size: 28px; color: var(--muted); }
+.cta .label b { color: var(--accent); font-weight: 400; }
+.cta .big {
+    margin-top: 20px; font-family: var(--font-mono); font-size: 68px; line-height: 1.2;
+    color: var(--fg); padding-left: 36px; border-left: 4px solid var(--accent);
+}
+.cta .big .prompt { color: var(--accent); }
+.cta .big.ask { border-left-color: var(--accent-2); }
+.cta .foot {
+    position: absolute; left: var(--pad-x); right: var(--pad-x); bottom: 120px;
+    font-size: 28px; color: var(--muted); line-height: 1.5;
+}
+.cta .foot .mono { color: var(--fg); }
+
+/* ===========================================
+   CHROME OUTSIDE THE STAGE: progress bar
+   =========================================== */
+.progress {
+    position: fixed; left: 0; bottom: 0; height: 3px; width: 0;
+    background: var(--accent); z-index: 1000; transition: width 0.3s ease;
+}
+
+/* ===========================================
+   PRINT: one slide per page, at rest, on its own ground
+   =========================================== */
+@media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    html, body { width: 1920px; height: auto; overflow: visible; background: var(--bg); }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .deck-viewport { position: static; overflow: visible; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; }
+    .slide {
+        position: relative; visibility: visible !important; opacity: 1 !important;
+        break-after: page; page-break-after: always;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .slide, .slide * { animation: none !important; transition: none !important; }
+    .progress { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ==================== SLIDE TYPE 1: COVER ====================
+     Job: name the thing, say what it does, show proof.
+     Name 140-170 px; tagline 40-48 px, <= 10 words; one mono kicker 24-28 px.
+     Slot s1 (1920 x 590): a still of the real output. For an animated figure use a still
+     crop of its resting frame (own prefix, static rules only), not a second live copy.
+     No folio on the cover. -->
+<section class="slide cover" aria-label="Cover">
+    <div class="glow"></div>
+    <div class="title-block">
+        <h1 class="reveal">Project<span class="dash">-</span>name</h1>
+        <p class="tagline reveal d1">One line on what it does, ten words at most.</p>
+        <p class="kicker reveal d2">one mono line: what kind of thing it is</p>
+    </div>
+    <div id="s1-slot" aria-label="Describe the cover picture">
+<!-- s1-body -->
+<!-- cover figure: a still of the project's real output, 1920 x 590 -->
+<!-- /s1-body -->
+    </div>
+</section>
+
+<!-- ==================== SLIDE TYPE 2: LIVE DEMO ====================
+     Job: let the audience watch it work once.
+     Headline (a claim, <= 6 words). Slot s2 (1760 x 629, >= 1600 wide) holds the live
+     figure; it plays once when the slide becomes current and rests on its finished frame.
+     One caption line, 28-32 px, <= 22 words: what the figure is, where it comes from. -->
+<section class="slide demo" aria-label="Live demo">
+    <h2 class="headline reveal">A claim about what it does</h2>
+    <div id="s2-slot">
+<!-- s2-body -->
+<!-- live figure: anim-slides integrates it between these two markers -->
+<!-- /s2-body -->
+    </div>
+    <p class="caption"><b>Figure name</b>, what it shows and how long it plays.</p>
+    <span class="folio">02</span>
+</section>
+
+<!-- ==================== SLIDE TYPE 3: BENEFITS ====================
+     Job: three reasons to care. At most three columns.
+     Each: a line glyph (<= 300 x 210, line and accent colours, no fills, no boxes), a claim
+     of 2-4 words at 46 px on ONE line, one supporting line at 32 px, <= 16 words. -->
+<section class="slide benefits" aria-label="Benefits">
+    <h2 class="headline reveal">Three reasons in one line</h2>
+    <div class="cols">
+        <div class="reveal d1">
+            <svg class="glyph" viewBox="0 0 200 140" aria-hidden="true">
+                <circle class="g-acc" cx="100" cy="70" r="34"/>
+            </svg>
+            <h3>First claim</h3>
+            <p>One supporting line, sixteen words at most.</p>
+        </div>
+        <div class="reveal d2">
+            <svg class="glyph" viewBox="0 0 200 140" aria-hidden="true">
+                <path class="g-line" d="M10 70 H170"/><circle class="g-dot" cx="176" cy="70" r="12"/>
+            </svg>
+            <h3>Second claim</h3>
+            <p>One supporting line, sixteen words at most.</p>
+        </div>
+        <div class="reveal d3">
+            <svg class="glyph" viewBox="0 0 200 140" aria-hidden="true">
+                <circle class="g-line" cx="36" cy="70" r="24"/><path class="g-line" d="M60 70 H136" stroke-dasharray="6 8"/>
+                <circle class="g-acc" cx="162" cy="70" r="24"/>
+            </svg>
+            <h3>Third claim</h3>
+            <p>One supporting line, sixteen words at most.</p>
+        </div>
+    </div>
+    <span class="folio">03</span>
+</section>
+
+<!-- ==================== SLIDE TYPE 4: WORKFLOW ====================
+     Job: how a user gets from input to result. A figure, not bullets.
+     3-5 steps as rings (r ~ 100) on one thin line, centres >= 400 px apart; input left
+     (file names in mono), result right after an arrow. Under each ring: name 32-36 px
+     (<= 4 words), at most two mono lines at 24 px (<= 24 characters each). The step the
+     headline is about gets the accent and the only glow. Slot s4 (1760 x 640): this ring
+     row is the deck's own drawing; an anim-slides fragment may replace it. -->
+<section class="slide workflow" aria-label="Workflow">
+    <h2 class="headline reveal">N steps, one claim</h2>
+    <div id="s4-slot">
+<!-- s4-body -->
+        <svg viewBox="0 0 1760 640" width="1760" height="640" role="img" aria-label="Describe the steps">
+            <g class="wf-step k1">
+                <text class="wf-head" x="0" y="196">Input</text>
+                <text class="wf-end" x="0" y="256">source.file</text>
+            </g>
+            <path class="wf-line" d="M240 272 H1440"/>
+            <path class="wf-arrow" d="M1440 272 H1476 M1462 258 L1478 272 L1462 286"/>
+            <g class="wf-step k2">
+                <circle class="wf-ring on" cx="470" cy="272" r="104"/>
+                <text class="wf-num on" x="470" y="299" text-anchor="middle">1</text>
+                <text class="wf-name" x="470" y="450" text-anchor="middle">Step one</text>
+                <text class="wf-sub" x="470" y="500" text-anchor="middle">mono sub-label</text>
+            </g>
+            <g class="wf-step k3">
+                <circle class="wf-ring" cx="870" cy="272" r="104"/>
+                <text class="wf-num" x="870" y="299" text-anchor="middle">2</text>
+                <text class="wf-name" x="870" y="450" text-anchor="middle">Step two</text>
+                <text class="wf-sub" x="870" y="500" text-anchor="middle">mono sub-label</text>
+            </g>
+            <g class="wf-step k4">
+                <circle class="wf-ring" cx="1270" cy="272" r="104"/>
+                <text class="wf-num" x="1270" y="299" text-anchor="middle">3</text>
+                <text class="wf-name" x="1270" y="450" text-anchor="middle">Step three</text>
+                <text class="wf-sub" x="1270" y="500" text-anchor="middle">mono sub-label</text>
+            </g>
+            <g class="wf-step k5">
+                <text class="wf-head" x="1504" y="196">Result</text>
+                <text class="wf-end" x="1504" y="256">result.file</text>
+            </g>
+        </svg>
+<!-- /s4-body -->
+    </div>
+    <span class="folio">04</span>
+</section>
+
+<!-- ==================== SLIDE TYPE 5: CALL TO ACTION ====================
+     Job: what to type next. Two steps: a 28 px mono label over a 68 px mono line (<= 40
+     characters) with a 4 px accent rule. The command is copied from the project's README
+     verbatim; the sample request is one the project documents. Footer <= 2 lines, 28 px. -->
+<section class="slide cta" aria-label="Call to action">
+    <h2 class="headline reveal">Install once, then use it</h2>
+    <div class="steps">
+        <div class="step reveal d1">
+            <p class="label"><b>1</b> &nbsp;install</p>
+            <p class="big"><span class="prompt">$</span> command from the README</p>
+        </div>
+        <div class="step reveal d2">
+            <p class="label"><b>2</b> &nbsp;then</p>
+            <p class="big ask">&ldquo;a documented example&rdquo;</p>
+        </div>
+    </div>
+    <p class="foot reveal d3">Where it runs, licence.<br>Link: <span class="mono">example.org</span></p>
+    <span class="folio">05</span>
+</section>
+
+</main>
+</div>
+
+<div class="progress" id="progress"></div>
+
+<script>
+/* Slide controller. Keys: arrows, Space, PageUp/PageDown, Home/End; swipe.
+   #N in the URL opens slide N (1-based). The current slide gets .active and .visible. */
+(function () {
+    var slides = document.querySelectorAll('.slide');
+    var stage = document.getElementById('deckStage');
+    var bar = document.getElementById('progress');
+    var cur = 0;
+    function fit() {
+        var f = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+        var x = (window.innerWidth - 1920 * f) / 2, y = (window.innerHeight - 1080 * f) / 2;
+        stage.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + f + ')';
+    }
+    function fromHash() {
+        var n = parseInt(location.hash.slice(1), 10);
+        return isFinite(n) ? n - 1 : 0;
+    }
+    function show(i, writeHash) {
+        i = Math.max(0, Math.min(i, slides.length - 1));
+        cur = i;
+        slides.forEach(function (s, k) {
+            s.classList.toggle('active', k === i);
+            s.classList.toggle('visible', k === i);
+        });
+        bar.style.width = ((i + 1) / slides.length * 100) + '%';
+        if (writeHash !== false) history.replaceState(null, '', '#' + (i + 1));
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
+        if (['ArrowRight', 'ArrowDown', ' ', 'PageDown'].indexOf(e.key) >= 0) show(cur + 1);
+        else if (['ArrowLeft', 'ArrowUp', 'PageUp'].indexOf(e.key) >= 0) show(cur - 1);
+        else if (e.key === 'Home') show(0);
+        else if (e.key === 'End') show(slides.length - 1);
+        else return;
+        e.preventDefault();
+    });
+    var x0 = null;
+    document.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+        if (x0 === null) return;
+        var dx = e.changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+        x0 = null;
+    });
+    window.addEventListener('hashchange', function () { show(fromHash(), false); });
+    window.addEventListener('resize', fit);
+    fit();
+    show(fromHash(), false);
+})();
+</script>
+</body>
+</html>

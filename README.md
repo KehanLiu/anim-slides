@@ -27,8 +27,15 @@ into your deck.
 
 It animates figures; it does not design decks. **Deck first:** a PowerPoint or Markdown source
 is turned into a designed HTML deck by a deck skill (your own, or e.g. `frontend-slides`)
-before anim-slides adds the figures. `scripts/md_to_deck.py` is only a fallback host for when
-no deck skill is installed: it makes a plain HTML deck to integrate into, not a design.
+before anim-slides adds the figures.
+
+**Built-in base.** When no deck skill is installed at all, a request like "Make five slides
+introducing this project" still gets a designed deck: anim-slides builds it from its own small
+base ([`base/`](base/README.md): five slide types, one look on a dark or a light ground), then
+adds the figures on top, and says so in one line. A deck skill such as frontend-slides offers
+more looks; nothing is installed for you. See the [example deck](base/example.html), built on
+the base. For a Markdown source, `scripts/md_to_deck.py --ground dark|light` makes a plain
+deck in the base's colours and fonts.
 
 ## Pool
 

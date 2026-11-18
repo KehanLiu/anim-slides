@@ -98,6 +98,13 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
 
 ## Host decks
 
+- 2026-11-18, Codex, "Make five slides introducing this project": frontend-slides was on disk
+  but not registered in Codex, so anim-slides built the whole deck on its own lean dark ground
+  and the frontend-slides look was applied afterwards as a reskin. A deck skill counts when its
+  SKILL.md is in any harness's skills folder; a topic with no deck goes to it first.
+- `host_theme.py` read `font: 400 39px/1.35 Nunito` as the family "39px/1.35 Nunito" (the
+  weight came before the size), so fragments fell back to the default font; fixed 2026-11-18.
+  Check the `font` row of its table against the deck once.
 - A branded deck full of rounded panels tempts the builder to redraw the panels in SVG and
   animate the wires between them; the user then sees "almost no change". The host theme gives
   colours and fonts only; the boxes become rings and labels on lines (style.md, "Under a host

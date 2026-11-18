@@ -386,7 +386,9 @@ def derive_match(deck, slide_sel):
     if d:
         f = deck.resolve(d[2])
         if d[1] == 'font':  # shorthand: the family is what follows the size
-            m = re.search(r'\d[\w.%]*(?:\s*/\s*[\w.%]+)?\s+(.+)$', f)
+            # (a leading weight or style such as "400 39px/1.35 Nunito" is skipped: the size has a unit)
+            m = re.search(r'(?:^|\s)(?:[\d.]+[a-z%]+|(?:clamp|calc|min|max|var)\([^)]*\)\)?)'
+                          r'(?:\s*/\s*[\w.%()-]+)?\s+(.+)$', f)
             f = m.group(1) if m else ''
         if f:
             tok['font'], src['font'] = clean_font(f), f'{d[0]} {{{d[1]}}}'

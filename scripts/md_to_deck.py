@@ -2,13 +2,15 @@
 """Fallback host: turn a Markdown deck into one plain, self-contained HTML slide deck.
 
 This is a fallback for integration when no deck skill is available (the user's own deck
-skill, or frontend-slides); it is not a designed deck. The output reads like a document
-(full-width title, body as bullets, images as they come) until a deck skill or a designer
-styles it. When a deck skill is installed, build the deck with it instead and integrate
-fragments into that deck.
+skill, or frontend-slides). It takes its colours and fonts from the built-in base deck
+(base/deck.html, the block between "base:tokens:start" and "base:tokens:end") and its ground
+from --ground, so a converted deck matches the base's look; the layout stays a document flow
+(title, body as bullets, images as they come), not the base's five designed slide types. When
+a deck skill is installed, build the deck with it instead and integrate fragments into that
+deck.
 
 Usage:
-    md_to_deck.py deck.md [-o deck.html] [--title T] [--stage W H] [--theme light|dark]
+    md_to_deck.py deck.md [-o deck.html] [--title T] [--stage W H] [--ground dark|light]
 
 Slides are split exactly as extract_slides.py splits them (`---` rules, else #/##
 headings; remark `???` notes, `--` reveals, `.class[...]` wrappers and leading
@@ -184,28 +186,34 @@ def slide_html(n, chunk, ctx):
     return "\n".join(parts)
 
 
-THEMES = {
-    "dark": dict(bg="#0F1E27", panel="#0D1820", line="#2A3D49", fg="#E6EDF0", muted="#93A7B2",
-                 accent="#34D1BF", accent2="#FF8A3D", page="#05070a"),
-    "light": dict(bg="#ffffff", panel="#eef1f6", line="#c4ccd8", fg="#16202e", muted="#5a6678",
-                  accent="#0b6bcb", accent2="#c2410c", page="#d9dde3"),
-}
+GROUNDS = ("dark", "light")
+BASE_DECK = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "base", "deck.html")
+
+
+def base_tokens(path=BASE_DECK):
+    """The colour and type tokens of the built-in base deck (both grounds, --anim-theme-* map)."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            src = f.read()
+    except OSError:
+        raise SystemExit("base deck not found: %s (md_to_deck.py takes its tokens from it)" % path)
+    m = re.search(r"/\* base:tokens:start.*?\*/(.*?)/\* base:tokens:end \*/", src, re.S)
+    if not m:
+        raise SystemExit("no base:tokens block in %s" % path)
+    return m.group(1).strip()
+
 
 CSS = """
-:root{--bg:%(bg)s;--panel:%(panel)s;--line:%(line)s;--fg:%(fg)s;--muted:%(muted)s;--accent:%(accent)s;
---accent-2:%(accent2)s;--page:%(page)s;--W:%(W)dpx;--H:%(H)dpx;
---font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
---mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
---anim-theme-bg:var(--bg);--anim-theme-panel:var(--panel);--anim-theme-line:var(--line);
---anim-theme-fg:var(--fg);--anim-theme-muted:var(--muted);--anim-theme-accent:var(--accent);
---anim-theme-accent-2:var(--accent-2);--anim-theme-font:var(--font);--anim-theme-mono:var(--mono)}
+%(tokens)s
+:root{--W:%(W)dpx;--H:%(H)dpx;--page:var(--stage-bg);--font:var(--font-body);--mono:var(--font-mono)}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--page);color:var(--fg);font-family:var(--font)}
 .deck{width:var(--W)}
 .slide{position:relative;width:var(--W);height:var(--H);overflow:hidden;background:var(--bg);
 display:flex;flex-direction:column;padding:%(padY)dpx %(padX)dpx;font-size:%(fs)dpx;line-height:1.35}
-.slide-title{margin:0 0 .6em;font-size:1.6em;line-height:1.15;font-weight:700;color:var(--fg)}
-.slide-title.lvl-1{font-size:2em}
+.slide-title{margin:0 0 .6em;font-family:var(--font-display);font-size:%(titleFs)dpx;line-height:1.05;
+font-weight:600;letter-spacing:-.015em;color:var(--fg)}
+.slide-title.lvl-1{font-size:%(titleFs)dpx}
 .body{flex:0 1 auto;min-height:0;overflow:hidden}
 .body>*:first-child{margin-top:0}
 .body h1{font-size:1.8em;margin:.3em 0}.body h2{font-size:1.5em;margin:.3em 0}
@@ -229,10 +237,10 @@ display:flex;flex-direction:column;padding:%(padY)dpx %(padX)dpx;font-size:%(fs)
 .slot{flex:1 1 0;min-height:0;position:relative;display:flex;align-items:center;justify-content:center}
 .slot>*{width:100%%;height:100%%}
 .slide.cover{justify-content:center;text-align:center}
-.slide.cover .slide-title{font-size:2.4em}.slide.cover .body{color:var(--muted)}
+.slide.cover .slide-title{font-size:%(coverFs)dpx;font-weight:700;letter-spacing:-.03em}.slide.cover .body{color:var(--muted)}
 .slide.cover .slot{flex:0 0 0}
 .notes{display:none}
-.counter{position:absolute;right:%(padX)dpx;bottom:28px;font-size:22px;color:var(--muted)}
+.counter{position:absolute;right:%(padX)dpx;bottom:28px;font-family:var(--mono);font-size:22px;color:var(--muted)}
 /* presenting (script present): one slide at a time, scaled to the window */
 html.js,html.js body{height:100%%;overflow:hidden}
 html.js .deck{position:absolute;left:50%%;top:50%%;height:var(--H);transform-origin:0 0}
@@ -311,7 +319,7 @@ JS = """
 """
 
 
-def build(path, title=None, stage=(1920, 1080), theme="dark"):
+def build(path, title=None, stage=(1920, 1080), ground="dark"):
     with open(path, encoding="utf-8", errors="replace") as f:
         chunks = md_chunks(f.read())
     if not chunks:
@@ -320,8 +328,8 @@ def build(path, title=None, stage=(1920, 1080), theme="dark"):
     W, H = stage
     k = W / 1920
     fs = max(18, round(40 * k))
-    vals = dict(THEMES[theme], W=W, H=H, padX=round(120 * k), padY=round(84 * k), fs=fs,
-                imgH=round(H * 0.6))
+    vals = dict(tokens=base_tokens(), W=W, H=H, padX=round(120 * k), padY=round(84 * k), fs=fs,
+                imgH=round(H * 0.6), titleFs=round(80 * k), coverFs=round(140 * k))
     sections = [slide_html(i, c, ctx) for i, c in enumerate(chunks, 1)]
     total = len(sections)
     sections = [s.replace("</section>", '<div class="counter">%d / %d</div>\n</section>' % (i, total), 1)
@@ -329,11 +337,11 @@ def build(path, title=None, stage=(1920, 1080), theme="dark"):
     if not title:
         first = next((b[2] for b in md_blocks(chunks[0]["body"]) if b[0] == "heading"), "")
         title = md_inline_text(first) or os.path.splitext(os.path.basename(path))[0]
-    page = ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
+    page = ("<!doctype html>\n<html lang=\"en\" data-ground=\"%s\">\n<head>\n<meta charset=\"utf-8\">\n"
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
             "<title>%s</title>\n<style>%s</style>\n</head>\n<body>\n<main class=\"deck\">\n%s\n</main>\n"
             "<script>%s</script>\n</body>\n</html>\n") % (
-        html.escape(title), CSS % vals, "\n".join(sections), JS % dict(W=W, H=H, fs=fs))
+        ground, html.escape(title), CSS % vals, "\n".join(sections), JS % dict(W=W, H=H, fs=fs))
     if ctx.missing:
         miss = list(dict.fromkeys(ctx.missing))
         ctx.warnings.append("%d image(s) referenced by the .md are missing, shown as placeholders: %s\n"
@@ -345,25 +353,30 @@ def build(path, title=None, stage=(1920, 1080), theme="dark"):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=(
         "Fallback host: turn a Markdown deck into one plain, self-contained HTML slide deck "
-        "for integrating anim-slides fragments when no deck skill is available. Not a designed "
-        "deck; use a deck skill (your own, or frontend-slides) first when one is installed."))
+        "for integrating anim-slides fragments when no deck skill is available. Colours and fonts "
+        "come from the built-in base deck (base/deck.html); the layout is a plain document flow. "
+        "Use a deck skill (your own, or frontend-slides) first when one is installed."))
     ap.add_argument("source", help="Markdown deck (.md)")
     ap.add_argument("-o", "--output", help="output HTML (default: <source>.html next to the source)")
     ap.add_argument("--title", help="page title (default: the first heading)")
     ap.add_argument("--stage", nargs=2, type=int, metavar=("W", "H"), default=[1920, 1080])
-    ap.add_argument("--theme", choices=sorted(THEMES), default="dark")
+    ap.add_argument("--ground", choices=GROUNDS, default=None,
+                    help="the base deck's ground: dark (screens, dim rooms; default) or light "
+                         "(lit rooms, print)")
+    ap.add_argument("--theme", choices=GROUNDS, help=argparse.SUPPRESS)  # old name of --ground
     a = ap.parse_args(argv)
     if a.stage[0] < 320 or a.stage[1] < 180:
         ap.error("--stage too small")
-    page, total, warnings = build(a.source, a.title, tuple(a.stage), a.theme)
+    ground = a.ground or a.theme or "dark"
+    page, total, warnings = build(a.source, a.title, tuple(a.stage), ground)
     out = a.output or os.path.splitext(a.source)[0] + ".html"
     with open(out, "w", encoding="utf-8") as f:
         f.write(page)
     for w in dict.fromkeys(warnings):
         print("warning: " + w, file=sys.stderr)
-    print("wrote %s: %d slides, stage %dx%d, theme %s; body markers '<!-- sN-body -->' ... '<!-- /sN-body -->', "
+    print("wrote %s: %d slides, stage %dx%d, ground %s; body markers '<!-- sN-body -->' ... '<!-- /sN-body -->', "
           "slot anchor 'id=\"sN-slot\">'"
-          % (out, total, a.stage[0], a.stage[1], a.theme), file=sys.stderr)
+          % (out, total, a.stage[0], a.stage[1], ground), file=sys.stderr)
     return 0
 
 
