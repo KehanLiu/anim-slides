@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
   author: Kehan Liu
-  version: "0.11.0"
+  version: "0.12.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 

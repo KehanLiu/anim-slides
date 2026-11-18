@@ -2,7 +2,7 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
-## Unreleased
+## 0.12.0 - 2026-11-18
 
 Motion that carries the meaning. Driver: the owner's review, "we basically just build process
 diagrams and have a moving point from start to end". An audit found 17 of 22 pool entries
