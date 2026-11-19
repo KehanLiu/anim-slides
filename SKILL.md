@@ -256,8 +256,9 @@ cheap; write them all before building), then builds.
    one folder per slide; `review_page.py --help` lists the other names it accepts), and make sure the source renders
    of those slides are in `anim/render/full/` (`render_deck.py --pages`).
 3. `python3 <skill-dir>/scripts/review_page.py --deck deck.html --before anim/render/full --after anim/review/after --triage anim/triage.md --title "<deck name>" -o anim/review/index.html`
-   (optional `--only animated`, `--previous DIR`, `--link-images`). Open it and the
-   deck.
+   (optional `--only animated`, `--previous DIR`, `--link-images`). Animated slides play live
+   on the page, on the deck's ground and theme, once in view and again with Replay; the resting
+   still stays under them for print. Open it and the deck.
 4. Send a few lines: N of M slides animated; the review page path; the deck path (the bundled
    one if shared); the two switches for later, one line each:
    `integrate_fragment.py ... --control step` (figures by click) and

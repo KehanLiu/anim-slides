@@ -28,6 +28,15 @@ drew the deck itself on its lean dark ground and the deck's look came afterwards
   mid-pass is now checked; on `canal-lock` over a white ground the rest-only run missed three
   such captions. New `gap` check in `--page` mode: fragment ink covering the slide's own text
   or pictures fails, nearer than `--min-gap` (24 px at a 1920 window) warns.
+- **`review_page.py` shows the motion:** the owner opened a review page and said "but that has
+  no animation effect": it held PNG stills only. Each animated slide's after column now shows
+  the fragment live, taken from `--deck` (between its markers, or by its `div.anim.anim-NAME`
+  wrapper and `.anim-NAME` rules), on the slide's ground with the deck's `--anim-theme-*`
+  values resolved (`anim/host-theme.css` fills gaps); a deck gate such as `section.present` is
+  rewritten to `.visible`. It plays one pass when scrolled into view, Replay plays it again
+  (the gallery's technique), reduced motion shows the resting frame, print shows the still,
+  which stays below at a smaller size. A fragment that cannot be extracted keeps the still with
+  a WARN naming the slide; `--no-live` gives the stills-only page.
 - **`measure_slot.py`:** a fourth output line, `type body PX WEIGHT "FAMILY"; title ...`, the
   slide's own type as rendered, for sizing the fragment's labels.
 - **`host_theme.py`:** a `font` shorthand with a leading weight (`400 39px/1.35 Nunito`) gave
