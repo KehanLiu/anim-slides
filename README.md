@@ -7,11 +7,49 @@
 
 **Turn boring bullet slides into animated diagrams, with the coding agent you already use.**
 
+> ⭐ **If this skill helps you, please [give it a star](https://github.com/KehanLiu/anim-slides).** It is how other speakers find it.
+
 ![Before: a bullet slide. After: the same content as an animated diagram, built by anim-slides](docs/media/hero.gif)
 
 ```bash
 npx skills add KehanLiu/anim-slides     # then ask your agent: "animate slide 4 of deck.pptx"
 ```
+
+The GIF is one real slide: the "before" frame is [`examples/first-slide/source.html`](examples/first-slide/source.html)
+as a browser renders it, and every label in the "after" figure is taken from that slide's own
+words (`tests/test_readme_demo.py` fails the build if one is not).
+
+## Try it on one slide
+
+One source slide, one prompt, one result. All three are in [`examples/first-slide/`](examples/first-slide/).
+
+1. **Source:** [`source.html`](examples/first-slide/source.html), a six-bullet slide ("How a
+   package gets delivered").
+2. **Prompt**, typed in the folder that holds the slide, with the skill installed:
+
+   ```text
+   Turn the slide in source.html into an animated diagram that explains it. Write one self-contained HTML file, result.html, that opens from disk.
+   ```
+
+3. **Result:** [`result.html`](examples/first-slide/result.html), the unedited first output of
+   that prompt (Claude Code, `claude-opus-5-5`, 213 s, no follow-up). Open it from disk: it
+   plays one pass and rests on the finished figure; reload to replay.
+
+**Output format.** One HTML file with a `<style>` block and one inline `<svg>`, animated with
+CSS keyframes: no script, no framework, no network loads. It plays once when shown, and prints
+and honours reduced motion as the finished figure. Inside a deck the same figure is a
+*fragment* you paste into a slide (see [What you get](#what-you-get)).
+
+**With and without the skill.** The same prompt and slide were run once in a fresh session
+without the skill, same model and tools. Both made a real diagram. The run without the skill
+looped, showed two status labels the slide does not contain, and printed a half-finished
+step; the run with the skill needed no corrections. That is one run per arm on one slide, so
+read it as an example, not a measurement:
+[`docs/benchmark/first-slide/`](docs/benchmark/first-slide/README.md) has both outputs, timings,
+screenshots and limits.
+
+Then try the slide you find hardest to explain: "animate slide 4 of `deck.pptx`", or paste a
+process and ask for a diagram.
 
 An agent skill that turns boring slides into animation-rich HTML, and turns written processes
 and dependencies into animated diagrams. It uses the open
@@ -45,7 +83,10 @@ itself, a river bend that becomes a lake, a boundary that closes around an outag
 travelling along a line appears only where a named thing really travels. The agent picks the
 motion from the slide's claim ([`references/motion-verbs.md`](references/motion-verbs.md)) and
 starts from the closest entry before building from scratch. See them all
-animating in the **[live gallery](https://kehanliu.github.io/anim-slides/)**. Resting frames:
+animating in the **[live gallery](https://kehanliu.github.io/anim-slides/)**, which opens on
+one question ("When the payment provider goes down, can orders still go through?"), answers it
+with the `service-deps` figure, and lets you download any entry as a playable demo (one HTML
+file that opens from disk, with Replay) or copy it as embeddable HTML. Resting frames:
 
 <table>
 <tr>
@@ -166,8 +207,22 @@ marketplaces). For a one-off trial from a local clone: `claude --plugin-dir ./an
 
 Python 3.9+ and a Chrome or Chromium binary (for phase rendering). Optional: `pyyaml` for full
 YAML in specs (a built-in reader covers plain specs like the pool's, and JSON always works).
-PowerPoint is read with the standard library; legacy `.ppt` needs one `soffice --headless
---convert-to pptx` first. The harness must
+
+PowerPoint needs different things for reading and for rendering:
+
+| Step | Script | Needs |
+|---|---|---|
+| Read a `.pptx` (text, bullets, notes, tables) | `extract_slides.py` | Python standard library only |
+| Render a `.pptx`, `.ppt` or `.odp` to page images for triage | `render_deck.py` | LibreOffice (`soffice`), poppler (`pdftoppm`), Chrome or Chromium |
+| Render an HTML deck or a fragment | `render_deck.py`, `render-phases.sh` | Chrome or Chromium (`CHROME=/path` overrides detection); `render_deck.py` also needs `pdftoppm` |
+| Read a legacy `.ppt` | `extract_slides.py` | one `soffice --headless --convert-to pptx deck.ppt` first |
+
+Install on macOS with `brew install --cask libreoffice` and `brew install poppler`; on
+Debian or Ubuntu with `apt install libreoffice-impress poppler-utils`. Without LibreOffice the
+skill still reads a PowerPoint's text; it cannot look at the slides. An HTML slide, like the
+example above, needs only Python and Chrome.
+
+The harness must
 be able to run shell commands and view PNG files; the scripts are called by their path inside the
 skill folder, which Claude Code exposes as `$CLAUDE_SKILL_DIR` and other harnesses report when
 they load the skill.
@@ -253,6 +308,10 @@ A fragment adds motion, not facts. The skill is built to keep it that way:
   numbers with the source slide (title, bullets, notes, tables): an invented number, date or
   ratio fails the build, untraceable wording is listed for review, and facts pulled from a
   neighbouring slide are reported separately. Illustrative values must say so on the slide.
+- **Values stay with their labels.** With "Checkout latency: 200 ms" and "Search latency:
+  80 ms" on the slide, a figure that shows Checkout at 80 ms fails `--strict`; the right pairs
+  pass in any row order; a case the tool cannot decide is listed for a person to review
+  (`tests/test_verify_facts.py`).
 - **Source wording wins.** Labels use the slide's own words; "approved" stays "approved" and
   does not become "signed into law".
 - **Checked on real decks.** The rules come from converting six openly licensed decks (CDC,
@@ -290,7 +349,9 @@ agents/openai.yaml       optional Codex metadata; other harnesses ignore it
 references/              contract, accuracy, spec format, archetypes, input stage, brief, layouts, motion rules, lessons
 scripts/                 extract, scaffold, check, verify facts, render, integrate, check page, bundle, gallery; host snippets
 pool/                    finished fragments, one or more per archetype, with thumbnails, specs and index.yaml
-docs/                    design notes and history
+examples/first-slide/    one source slide, the prompt, and the result it produced
+tests/                   unit tests: fact pairing, the README demo, the built gallery and playable demo
+docs/                    design notes, history, and the first-slide run with and without the skill
 ```
 
 ## Background

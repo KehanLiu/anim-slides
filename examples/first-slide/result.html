@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a package gets delivered</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #e9e9e6; }
+  body { display: grid; place-items: center; font-family: "Helvetica Neue", Arial, system-ui, sans-serif; }
+  .slide { box-sizing: border-box; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; background: #f9f9f7;
+           color: #1b1f24; padding: 5.2% 5.4%; position: relative; container-type: inline-size; }
+  h1 { margin: 0; font-size: 3.4cqw; color: #1d2b4a; }
+  h1::after { content: ""; display: block; width: 10cqw; height: 0.35cqw; background: #1d2b4a; margin-top: 0.9cqw; }
+  footer { position: absolute; left: 5.4%; right: 5.4%; bottom: 4.5%; display: flex; justify-content: space-between;
+           font-size: 1.05cqw; color: #8a8f96; }
+  #s1-slot { position: absolute; left: 5.4%; right: 5.4%; top: 21%; bottom: 11%; }
+  /* anim-theme (match): the slide's own palette and font */
+  :root {
+    --anim-theme-bg: #f9f9f7; --anim-theme-panel: #f9f9f7; --anim-theme-line: #c3cbd6;
+    --anim-theme-fg: #1b1f24; --anim-theme-muted: #5d636b; --anim-theme-accent: #1d2b4a;
+    --anim-theme-font: "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+</style>
+<style>
+.anim-parcel-route{
+  --anim-bg:       var(--anim-theme-bg,       #0F1E27);
+  --anim-panel:    var(--anim-theme-panel,    #0D1820);
+  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
+  --anim-muted:    var(--anim-theme-muted,    #93A7B2);
+  --anim-accent:   var(--anim-theme-accent,   #34D1BF);
+  --anim-accent-2: var(--anim-theme-accent-2, #FF8A3D);
+  --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
+  --anim-warn:     var(--anim-theme-warn,     #FFD15C);
+  --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
+  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  display:block;width:100%;height:100%
+}
+.anim-parcel-route svg{display:block;width:100%;height:100%}
+.anim-parcel-route .parcel-route-lbl{font-family:var(--anim-font);font-size:30px;font-weight:700;fill:var(--anim-accent)}
+.anim-parcel-route .parcel-route-sub{font-family:var(--anim-font);font-size:23px;font-weight:400;fill:var(--anim-muted)}
+.anim-parcel-route .parcel-route-note{font-family:var(--anim-font);font-size:30px;font-weight:400;fill:var(--anim-fg)}
+.anim-parcel-route .parcel-route-hi{fill:var(--anim-accent);font-weight:700}
+.anim-parcel-route .parcel-route-rail{stroke:var(--anim-line);stroke-width:3;stroke-linecap:round}
+.anim-parcel-route .parcel-route-rail-on{stroke:var(--anim-accent);stroke-width:4;stroke-linecap:round;stroke-dasharray:100 100;stroke-dashoffset:0}
+.anim-parcel-route .parcel-route-ring{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2.5}
+.anim-parcel-route .parcel-route-ring-on{fill:none;stroke:var(--anim-accent);stroke-width:3.5}
+.anim-parcel-route .parcel-route-glow{fill:none;stroke:var(--anim-accent);stroke-width:12;opacity:0;filter:blur(7px)}
+.anim-parcel-route .parcel-route-glyph{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-parcel-route .parcel-route-parcel{fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:3;stroke-linejoin:round;stroke-linecap:round;offset-path:path('M190 192 H1510');offset-rotate:0deg;offset-distance:100%}
+.anim-parcel-route .parcel-route-bracket{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 100;stroke-dashoffset:0}
+.anim-parcel-route [class*="parcel-route-in"],.anim-parcel-route [class*="parcel-route-sb"],.anim-parcel-route .parcel-route-cap{transform-box:fill-box}
+@keyframes parcel-route-in0{0%,0.56%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}7.22%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-lb0{0%,11.11%{opacity:.55}13.89%,100%{opacity:1}}
+@keyframes parcel-route-dn0{0%,11.11%{opacity:0}13.89%,100%{opacity:1}}
+@keyframes parcel-route-sb0{0%,12.22%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}16.67%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-gl0{0%,11.11%{opacity:0}13.33%,16.11%{opacity:.3}17.78%,100%{opacity:0}}
+@keyframes parcel-route-in1{0%,1.44%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}8.11%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-lb1{0%,28.89%{opacity:.55}31.67%,100%{opacity:1}}
+@keyframes parcel-route-dn1{0%,28.89%{opacity:0}31.67%,100%{opacity:1}}
+@keyframes parcel-route-sb1{0%,30.00%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}34.44%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-gl1{0%,28.89%{opacity:0}31.11%,33.89%{opacity:.3}35.56%,100%{opacity:0}}
+@keyframes parcel-route-in2{0%,2.33%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}9.00%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-lb2{0%,46.67%{opacity:.55}49.44%,100%{opacity:1}}
+@keyframes parcel-route-dn2{0%,46.67%{opacity:0}49.44%,100%{opacity:1}}
+@keyframes parcel-route-sb2{0%,47.78%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}52.22%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-gl2{0%,46.67%{opacity:0}48.89%,51.67%{opacity:.3}53.33%,100%{opacity:0}}
+@keyframes parcel-route-in3{0%,3.22%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}9.89%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-lb3{0%,64.44%{opacity:.55}67.22%,100%{opacity:1}}
+@keyframes parcel-route-dn3{0%,64.44%{opacity:0}67.22%,100%{opacity:1}}
+@keyframes parcel-route-sb3{0%,65.56%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}70.00%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-gl3{0%,64.44%{opacity:0}66.67%,69.44%{opacity:.3}71.11%,100%{opacity:0}}
+@keyframes parcel-route-in4{0%,4.11%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}10.78%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-lb4{0%,82.22%{opacity:.55}85.00%,100%{opacity:1}}
+@keyframes parcel-route-dn4{0%,82.22%{opacity:0}85.00%,100%{opacity:1}}
+@keyframes parcel-route-sb4{0%,83.33%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}87.78%,100%{opacity:1;transform:translateY(0)}}
+@keyframes parcel-route-gl4{0%,82.22%{opacity:0}84.44%,91.67%{opacity:.3}93.33%,100%{opacity:0}}
+@keyframes parcel-route-pk{0%,8.89%{opacity:0;offset-distance:0%}11.11%{opacity:1;offset-distance:0%}17.78%{offset-distance:0%;animation-timing-function:cubic-bezier(.45,0,.25,1)}28.89%{offset-distance:25%}35.56%{offset-distance:25%;animation-timing-function:cubic-bezier(.45,0,.25,1)}46.67%{offset-distance:50%}53.33%{offset-distance:50%;animation-timing-function:cubic-bezier(.45,0,.25,1)}64.44%{offset-distance:75%}71.11%{offset-distance:75%;animation-timing-function:cubic-bezier(.45,0,.25,1)}82.22%{offset-distance:100%}100%{opacity:1;offset-distance:100%}}
+@keyframes parcel-route-rd{0%,11.11%{stroke-dashoffset:100}17.78%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(.45,0,.25,1)}28.89%{stroke-dashoffset:75}35.56%{stroke-dashoffset:75;animation-timing-function:cubic-bezier(.45,0,.25,1)}46.67%{stroke-dashoffset:50}53.33%{stroke-dashoffset:50;animation-timing-function:cubic-bezier(.45,0,.25,1)}64.44%{stroke-dashoffset:25}71.11%{stroke-dashoffset:25;animation-timing-function:cubic-bezier(.45,0,.25,1)}82.22%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes parcel-route-road{0%{opacity:0}6.67%,100%{opacity:1}}
+@keyframes parcel-route-br{0%,84.44%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(.2,.7,.2,1)}92.22%,100%{stroke-dashoffset:0}}
+@keyframes parcel-route-cap{0%,86.67%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(.2,.7,.2,1)}93.33%,100%{opacity:1;transform:translateY(0)}}
+.visible .anim-parcel-route .parcel-route-in0{animation:parcel-route-in0 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-lb0{animation:parcel-route-lb0 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-dn0{animation:parcel-route-dn0 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-sb0{animation:parcel-route-sb0 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-gl0{animation:parcel-route-gl0 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-in1{animation:parcel-route-in1 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-lb1{animation:parcel-route-lb1 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-dn1{animation:parcel-route-dn1 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-sb1{animation:parcel-route-sb1 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-gl1{animation:parcel-route-gl1 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-in2{animation:parcel-route-in2 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-lb2{animation:parcel-route-lb2 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-dn2{animation:parcel-route-dn2 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-sb2{animation:parcel-route-sb2 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-gl2{animation:parcel-route-gl2 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-in3{animation:parcel-route-in3 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-lb3{animation:parcel-route-lb3 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-dn3{animation:parcel-route-dn3 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-sb3{animation:parcel-route-sb3 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-gl3{animation:parcel-route-gl3 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-in4{animation:parcel-route-in4 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-lb4{animation:parcel-route-lb4 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-dn4{animation:parcel-route-dn4 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-sb4{animation:parcel-route-sb4 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-gl4{animation:parcel-route-gl4 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-pk{animation:parcel-route-pk 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-rd{animation:parcel-route-rd 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-road{animation:parcel-route-road 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-br{animation:parcel-route-br 9.0s linear 1 both}
+.visible .anim-parcel-route .parcel-route-cap{animation:parcel-route-cap 9.0s linear 1 both}
+@media (prefers-reduced-motion: reduce){ .anim-parcel-route *{animation:none !important} }
+@media print{ .anim-parcel-route *{animation:none !important} }
+</style>
+</head>
+<body>
+<section class="slide visible">
+  <h1>How a package gets delivered</h1>
+  <div id="s1-slot">
+<div class="anim anim-parcel-route" data-anim="parcel-route" data-anim-cycle="9" data-anim-control="once" data-anim-phases="1.6,3.2,4.8,6.4,8.4" data-anim-verb="travel">
+<svg viewBox="0 110 1700 590" width="100%" height="100%" role="img" aria-label="A parcel travels five stages, order placed, picked at the warehouse, sorted at the regional hub, out for delivery and delivered, in about 28 hours from order to doorstep.">
+<line class="parcel-route-road parcel-route-rail" x1="190" y1="192" x2="1510" y2="192"/>
+<line class="parcel-route-rd parcel-route-rail-on" x1="190" y1="192" x2="1510" y2="192" pathLength="100"/>
+<g class="parcel-route-in0"><g transform="translate(190 290)"><circle class="parcel-route-gl0 parcel-route-glow" r="58"/><circle class="parcel-route-ring" r="58"/><circle class="parcel-route-dn0 parcel-route-ring-on" r="58"/><g class="parcel-route-glyph"><rect x="-26" y="-24" width="52" height="34" rx="4"/><path d="M0 10V20M-12 22H12M-10 -8l7 7 13-13"/></g></g><g class="parcel-route-lb0"><text class="parcel-route-lbl" x="190" y="418" text-anchor="middle">Order placed</text></g><g class="parcel-route-sb0"><text class="parcel-route-sub" x="190" y="486" text-anchor="middle">checkout online,</text><text class="parcel-route-sub" x="190" y="516" text-anchor="middle">e-mail + tracking no.</text></g></g>
+<g class="parcel-route-in1"><g transform="translate(520 290)"><circle class="parcel-route-gl1 parcel-route-glow" r="58"/><circle class="parcel-route-ring" r="58"/><circle class="parcel-route-dn1 parcel-route-ring-on" r="58"/><g class="parcel-route-glyph"><path d="M-26 -26V26M26 -26V26M-26 0H26M-26 24H26"/><rect x="-16" y="-18" width="18" height="16" rx="2"/><rect x="4" y="8" width="16" height="14" rx="2"/></g></g><g class="parcel-route-lb1"><text class="parcel-route-lbl" x="520" y="400" text-anchor="middle">Picked at</text><text class="parcel-route-lbl" x="520" y="436" text-anchor="middle">the warehouse</text></g><g class="parcel-route-sb1"><text class="parcel-route-sub" x="520" y="486" text-anchor="middle">aisle 14 · pack,</text><text class="parcel-route-sub" x="520" y="516" text-anchor="middle">label, scan out</text></g></g>
+<g class="parcel-route-in2"><g transform="translate(850 290)"><circle class="parcel-route-gl2 parcel-route-glow" r="58"/><circle class="parcel-route-ring" r="58"/><circle class="parcel-route-dn2 parcel-route-ring-on" r="58"/><g class="parcel-route-glyph"><path d="M-28 0H-6M-6 0L24 -20M-6 0H24M-6 0L24 20M18 -24l6 4-3 7M18 -4l6 4-6 4M21 13l3 7-7 2"/></g></g><g class="parcel-route-lb2"><text class="parcel-route-lbl" x="850" y="400" text-anchor="middle">Sorted at the</text><text class="parcel-route-lbl" x="850" y="436" text-anchor="middle">regional hub</text></g><g class="parcel-route-sb2"><text class="parcel-route-sub" x="850" y="486" text-anchor="middle">scanned, routed onto</text><text class="parcel-route-sub" x="850" y="516" text-anchor="middle">trucks by postcode</text></g></g>
+<g class="parcel-route-in3"><g transform="translate(1180 290)"><circle class="parcel-route-gl3 parcel-route-glow" r="58"/><circle class="parcel-route-ring" r="58"/><circle class="parcel-route-dn3 parcel-route-ring-on" r="58"/><g class="parcel-route-glyph"><path d="M-28 14V-14H8V14M8 -4H19L28 6V14M-28 14H-22M-10 14H10M22 14H28"/><circle cx="-16" cy="16" r="6"/><circle cx="16" cy="16" r="6"/></g></g><g class="parcel-route-lb3"><text class="parcel-route-lbl" x="1180" y="400" text-anchor="middle">Out for</text><text class="parcel-route-lbl" x="1180" y="436" text-anchor="middle">delivery</text></g><g class="parcel-route-sb3"><text class="parcel-route-sub" x="1180" y="486" text-anchor="middle">local van with</text><text class="parcel-route-sub" x="1180" y="516" text-anchor="middle">about 30 other stops</text></g></g>
+<g class="parcel-route-in4"><g transform="translate(1510 290)"><circle class="parcel-route-gl4 parcel-route-glow" r="58"/><circle class="parcel-route-ring" r="58"/><circle class="parcel-route-dn4 parcel-route-ring-on" r="58"/><g class="parcel-route-glyph"><path d="M-26 -2L0 -26L26 -2M-18 -8V24H18V-8M-6 24V8H6V24"/></g></g><g class="parcel-route-lb4"><text class="parcel-route-lbl" x="1510" y="418" text-anchor="middle">Delivered</text></g><g class="parcel-route-sb4"><text class="parcel-route-sub" x="1510" y="486" text-anchor="middle">signature collected,</text><text class="parcel-route-sub" x="1510" y="516" text-anchor="middle">status: <tspan class="parcel-route-hi">“Delivered”</tspan></text></g></g>
+<g class="parcel-route-pk parcel-route-parcel"><rect x="-20" y="-34" width="40" height="32" rx="3"/><path d="M0 -34V-22M-20 -24H20"/></g>
+<path class="parcel-route-br parcel-route-bracket" d="M190 586V600H1510V586" pathLength="100"/>
+<g class="parcel-route-cap"><text class="parcel-route-note" x="850" y="656" text-anchor="middle">Typical lead time: <tspan class="parcel-route-hi parcel-route-big">about 28 hours</tspan> from order to doorstep</text></g>
+</svg>
+</div>
+  </div>
+  <footer><span>Logistics 101 · Operations onboarding</span><span>4</span></footer>
+</section>
+</body>
+</html>

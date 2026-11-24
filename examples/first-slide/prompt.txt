@@ -1,0 +1,1 @@
+Turn the slide in source.html into an animated diagram that explains it. Write one self-contained HTML file, result.html, that opens from disk.

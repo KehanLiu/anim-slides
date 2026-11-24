@@ -8,6 +8,8 @@
 #     skipped with a notice when no Chrome/Chromium is found (set CHROME=/path to force one)
 #  5. check_verbs.py --pool: every entry names a verb, at most a third use a travelling marker
 #  6. python3 -m py_compile scripts/*.py
+#  7. python3 -m unittest discover -s tests (fact pairing, README demo, built gallery and
+#     playable demo; the rendered checks skip themselves when no Chrome/Chromium is found)
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 pool="${1:-$root/pool}"
@@ -75,5 +77,10 @@ fi
 
 echo "== py_compile"
 "$py" -m py_compile "$root"/scripts/*.py && echo "ok" || fail=1
+
+echo "== unit tests (tests/)"
+if [ -d "$root/tests" ]; then
+  (cd "$root" && "$py" -m unittest discover -s tests) || fail=1
+fi
 
 exit "$fail"

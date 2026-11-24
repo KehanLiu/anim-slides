@@ -1,0 +1,3 @@
+# raw session transcripts stay local: they carry machine paths and session ids
+transcript.jsonl
+harness/probe-*.jsonl

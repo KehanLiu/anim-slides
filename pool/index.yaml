@@ -153,8 +153,8 @@
   cycle: 7.5
   phases: [1.2, 2.4, 3.6, 4.8, 6.5]
   spec: false
-  story: A parcel hops through five stations from order to doorstep, each turning green when passed, ending on the 28-hour lead time.
-  tags: [delivery, logistics, e-commerce, stations, lead-time]
+  story: A parcel hops from order placed through picked, sorted and out for delivery to delivered, each station turning green when passed, ending on the typical lead time of about 28 hours from order to doorstep.
+  tags: [delivery, logistics, e-commerce, stations, lead-time, readme-demo]
 
 - name: water-cycle
   archetype: pipeline

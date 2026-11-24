@@ -26,7 +26,17 @@ content: strings. Numbers are strict: each must match a source number (10B = $10
 10 B$, 8% = 8 percent, 1993-95 = 1993-1995 = 1993 to 1995), be an axis tick (linear positions
 on an evenly spaced grid), a structural index (1..k badges), a rounding of a source number,
 or a simple derivation (a-b, a+b, a/b, percent change) of two source numbers, which is
-reported. Anything else FAILs. Words are fuzzy (lowercase, simple stemming, small stop list);
+reported. Anything else FAILs.
+"pairing" checks that a number sits beside the label the source gives it. Source pairs come
+from one line, bullet or table row (a row's cells pair with its first cell and column header):
+"Checkout latency: 200 ms". In the fragment a number pairs with the words of its own <text>
+(tspans included), or, when it stands alone, with the nearest short label in its <g>, else in
+the same row or column (x/y plus translate()). Label words weigh by how specific they are
+('latency' seen with every value weighs nothing). A clear swap (the label's one source value
+differs, and another source label owns the number shown) is WARN, FAIL with --strict (WARN when
+illustrative). Ambiguity is a WARN starting "review:" in both modes: a label the source gives
+several values, or a lone number about equally near two labels. Prose ("rose from 10% to 12%"),
+long labels and numbers whose nearest label is not in the source are not paired. Words are fuzzy (lowercase, simple stemming, small stop list);
 unmatched words WARN per text element, capitalised terms, acronyms and codes separately as
 "names". "splice" warns when a label joins words that never share one source bullet (meaning
 added between them); "causal-slot" warns when text in a why/reason/cause slot (class or id)
@@ -41,6 +51,7 @@ Standard library only.
 """
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -90,6 +101,8 @@ class Elem:
     def __init__(self, tag, attrs, line):
         self.tag, self.attrs, self.line = tag, attrs, line
         self.parts, self.slot, self.depth = [], '', 0
+        self.gx = self.gy = None  # x/y plus ancestor translate(), when known (pairing)
+        self.gid = None           # the nearest enclosing <g>, numbered in document order
 
     @property
     def text(self):
@@ -124,7 +137,26 @@ class FragmentParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.elems, self.cur, self.css, self.skip = [], None, [], None
         self.anc = []   # open ancestors: (tag, "class id")
+        self.geo = []   # parallel to anc: (tx, ty, gid); tx/ty None under a non-translate transform
+        self.gcount = 0
         self.fo = 0     # depth inside foreignObject
+
+    def _geo(self, tag, a):
+        """Offset and group of an element: its ancestors' translate() plus its own."""
+        tx, ty, gid = self.geo[-1] if self.geo else (0.0, 0.0, None)
+        tr = a.get('transform') or ''
+        if tr and tx is not None:
+            for op, argstr in re.findall(r'([A-Za-z]+)\s*\(([^)]*)\)', tr):
+                if op != 'translate':
+                    tx = ty = None
+                    break
+                v = [float(x) for x in re.findall(r'[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?', argstr)]
+                tx += v[0] if v else 0.0
+                ty += v[1] if len(v) > 1 else 0.0
+        if tag == 'g':
+            self.gcount += 1
+            gid = self.gcount
+        return tx, ty, gid
 
     def _slot(self, a):
         return ' '.join(x for _, x in self.anc) + ' ' + (a.get('class') or '') + ' ' + (a.get('id') or '')
@@ -147,10 +179,15 @@ class FragmentParser(HTMLParser):
             e.slot = self._slot(a)
             e.parts.append(a['aria-label'])
             self.elems.append(e)
+        g = self._geo(tag, a)
         if self.cur is None and (tag in TEXT_TAGS or self.fo):
             self.cur = Elem(tag if not self.fo else 'foreignObject/' + tag, a, line)
             self.cur.slot = self._slot(a)
             self.cur.depth = len(self.anc)
+            self.cur.gid = g[2]
+            x, y = coord(self.cur, 'x'), coord(self.cur, 'y')
+            if g[0] is not None and x is not None and y is not None:
+                self.cur.gx, self.cur.gy = x + g[0], y + g[1]
         elif self.cur is not None:
             if (tag == 'tspan' and 'x' in a) or tag in ('br', 'p', 'div', 'li'):
                 self.cur.parts.append(' ')  # a new line inside the element
@@ -160,6 +197,7 @@ class FragmentParser(HTMLParser):
             self.fo += 1
         if not void:
             self.anc.append((tag, (a.get('class') or '') + ' ' + (a.get('id') or '')))
+            self.geo.append(g)
 
     def handle_endtag(self, tag):
         if self.skip:
@@ -170,6 +208,7 @@ class FragmentParser(HTMLParser):
             self.fo = max(0, self.fo - 1)
         while self.anc:
             t, _ = self.anc.pop()
+            self.geo.pop()
             if t == tag:
                 break
         if self.cur is not None and len(self.anc) <= self.cur.depth:
@@ -354,10 +393,15 @@ def parse_slides(specs):
 
 def slide_text(s):
     parts = [s.get('title') or '', *(s.get('bullets') or []), s.get('notes') or '', s.get('text') or '']
+    rows = []
     for t in s.get('tables') or []:
         for row in t:
             parts.extend(c for c in row if c)
+            cells = [str(c or '').replace('|', '/').replace('\n', ' ') for c in row]
+            if sum(1 for c in cells if c.strip()) > 1:
+                rows.append('| ' + ' | '.join(cells) + ' |')  # one line per row, for pairing
     parts.extend(s.get('mermaid') or [])
+    parts.extend(rows)
     return '\n'.join(parts)
 
 
@@ -618,6 +662,208 @@ def derive(n, src):
     return None
 
 
+# ----------------------------------------------------------------------------- label-value pairing
+# A source segment: one line (bullet, table row joined with ' | '), cut at ';', bullets, ' — '
+# and sentence ends. A segment with one number pairs it with all its words; with several numbers
+# it is cut after each number (label, then value) and kept only when every piece has words.
+# between two pairs of one segment: a list separator, after an optional unit word
+LIST_SEP_RE = re.compile(r'\s*(?:[a-z]{1,6}\b\.?)?\s*(?:[,;|/]|\band\b|\bvs\.?|\bversus\b)', re.I)
+PAIR_MAX_STEMS = 4  # a label longer than this is prose: it does not pair
+PAIR_SPLIT_RE = re.compile(r'\s*[;•·]\s*|\s+—\s+|(?<=[A-Za-z%)][.!?])\s+(?=[A-Z])')
+
+
+def num_spans(text):
+    """(start, end, Num or None) for each quantity in text; None for a range. Names like
+    'Step 3' and codes like 'Q3' are not quantities."""
+    for m in IDENT_RE.finditer(text):
+        text = text[:m.start()] + ' ' * (m.end() - m.start()) + text[m.end():]
+    labels = [(m.start(), m.end()) for m in LABEL_RE.finditer(text)]
+    out = []
+    for m in NUM_RE.finditer(text):
+        if any(x <= m.start() < y for x, y in labels):
+            continue
+        ns = numbers_in(m.group(0), spelled=False)
+        n = ns[0] if len(ns) == 1 else None
+        if n is not None:
+            u = None if m.group('unit') else re.match(r'\s?([a-z]{1,6})\b', text[m.end():])
+            n.shown = m.group(0).strip() + (' ' + u.group(1) if u else '')  # '80 ms' for messages
+        out.append((m.start(), m.end(), n))
+    return out
+
+
+def shown(n):
+    return getattr(n, 'shown', n.raw)
+
+
+def unit_stems(text):
+    """Lower-case words right after a number ('200 ms', '5 days'): units, never label keys."""
+    out = set()
+    for m in NUM_RE.finditer(text):
+        w = None if m.group('unit') else re.match(r'\s?([a-z]{1,6})\b', text[m.end():])
+        if w:
+            out.add(stem(w.group(1)))
+    return out
+
+
+def value_pairs(text, units):
+    """Label-value pairs in one segment: [(label stems, Num, snippet)], and the number count.
+    Only label-shaped pieces pair: at most PAIR_MAX_STEMS label words; prose does not."""
+    spans = num_spans(text)
+    if not spans:
+        return [], 0
+    if len(spans) == 1:
+        s, e, n = spans[0]
+        chunks = [(text[:s] + ' ' + text[e:], n, text)]
+    else:
+        chunks, prev = [], 0
+        for s, e, n in spans:
+            if prev and not LIST_SEP_RE.match(text[prev:s]):
+                return [], len(spans)  # 'from the 1844 telegraph to the 1989 web': prose
+            lead = LIST_SEP_RE.match(text[prev:s]).end() if prev else 0
+            chunks.append((text[prev:s], n, text[prev + lead:e]))
+            prev = e
+    out = []
+    for words, n, snip in chunks:
+        st = frozenset(content_stems(words)) - units
+        if not st or len(st) > PAIR_MAX_STEMS:
+            if len(spans) > 1:
+                return [], len(spans)  # 'from 10% to 12%', a sentence: one claim, not pairs
+            continue
+        if n is not None:
+            snip = clean_text(snip).strip(' ,:;|-')
+            if len(spans) > 1 and shown(n) != n.raw.strip():
+                snip += shown(n)[len(n.raw.strip()):]  # '... 80' -> '... 80 ms'
+            out.append((st, n, snip))
+    return out, len(spans)
+
+
+class Pairing:
+    """The source's label-value pairs and the weight of each label word: a word seen with
+    every value ('latency', 'ms') weighs 0, a word seen with one value ('Checkout') most."""
+
+    def __init__(self, corpus):
+        self.units = set()
+        for _, tier, text in corpus:
+            if tier == 'primary':
+                self.units |= unit_stems(INVISIBLE_RE.sub('', text))
+        self.pairs = []  # (stems, Num, snippet, source label)
+        for lab, tier, text in corpus:
+            if tier != 'primary':
+                continue
+            header = None
+            for line in URL_RE.sub(' ', INVISIBLE_RE.sub('', text)).split('\n'):
+                if line.count('|') >= 2 or ' | ' in line:  # a table row: Markdown or outline
+                    header = self._row(line, header, lab)
+                    continue
+                header = None
+                for seg in PAIR_SPLIT_RE.split(line):
+                    ps, _ = value_pairs(seg, self.units)
+                    self.pairs.extend((st, n, snip, lab) for st, n, snip in ps)
+        vals = {}
+        for st, n, _, _ in self.pairs:
+            for s in st:
+                vals.setdefault(s, set()).add(self.key(n))
+        total = len({self.key(p[1]) for p in self.pairs})
+        self.idf = {s: math.log(total / len(v)) for s, v in vals.items()} if total > 1 else {}
+
+    def _row(self, line, header, lab):
+        """Pair each value cell with its row label (first cell) and column header. Returns the
+        header to use for the next row: a row with no numbers is a header."""
+        cells = [c.strip() for c in line.strip().strip('|').split('|')]
+        if all(re.fullmatch(r':?-{2,}:?|', c) for c in cells):
+            return header  # Markdown separator row
+        if not any(num_spans(c) for c in cells):
+            return cells
+        for j, c in enumerate(cells[1:], 1):
+            if len(num_spans(c)) != 1:
+                continue
+            col = header[j] if header and j < len(header) else ''
+            ps, _ = value_pairs(f'{cells[0]} {col}: {c}', self.units)  # ':' keeps 'Stage: 25' a value
+            self.pairs.extend((st, n, f'{cells[0]} | {col + ": " if col else ""}{c}'.strip(), lab)
+                              for st, n, _ in ps)
+        return header
+
+    @staticmethod
+    def key(n):
+        return (round(n.scaled, 9), n.pct)
+
+    def score(self, stems):
+        return sum(self.idf.get(s, 0.0) for s in stems)
+
+    def top(self, stems, pct=None):
+        """The source pairs whose label best matches these stems ([] when none does); with
+        pct given, only values of that kind (percent or not) compete."""
+        sc = [(sum(self.idf.get(s, 0.0) for s in stems & p[0]), p) for p in self.pairs
+              if pct is None or p[1].pct == pct]
+        best = max((s for s, _ in sc), default=0.0)
+        return [p for s, p in sc if s > 1e-9 and s >= best - 1e-9]
+
+
+def _pair_dist(v, lab):
+    """Distance from a value to a candidate label: rows and columns are near, diagonals far,
+    and a label to the right of its value in the same row counts double."""
+    dx, dy = lab.gx - v.gx, lab.gy - v.gy
+    d = min(abs(dx) + 8 * abs(dy), 8 * abs(dx) + abs(dy))
+    return d * 2 if dx > 0 and abs(dy) < abs(dx) else d
+
+
+def fragment_pairs(elems, P, skip):
+    """[(label stems, Num, label text, where)] the fragment shows, plus review findings for
+    values that sit equally near two labels. skip(e, n) drops axis ticks and step badges.
+    A value element (one number, no label words) belongs to the nearest short label element
+    in its <g>, else in the figure; every short label competes, so a value whose nearest label
+    is not one the source pairs ('pleadings') is left alone, never matched to a distant one."""
+    out, review, labels, values = [], [], [], []
+    seen = set()
+    for e in elems:
+        if e.text in seen and e.tag != 'text':
+            continue
+        seen.add(e.text)
+        ps, k = value_pairs(e.text, P.units)
+        for st, n, snip in ps:
+            if P.score(st) > 0 and not skip(e, n):
+                out.append((st, n, snip, e.where()))
+        if e.tag != 'text':
+            continue
+        st = frozenset(content_stems(e.text)) - P.units
+        if k == 0 and 0 < len(st) <= PAIR_MAX_STEMS:
+            labels.append((e, st))
+        elif k == 1 and P.score(st) == 0:
+            sp = num_spans(e.text)
+            if sp and sp[0][2] is not None and not skip(e, sp[0][2]):
+                values.append((e, sp[0][2]))
+    for v, n in values:
+        def vals(st):  # source values of n's kind for a label; None: not a source label
+            top = P.top(st, n.pct) if P.score(st) > 0 else []
+            return {Pairing.key(p[1]) for p in top} or None
+        # source labels with no value of n's kind ('to next stage' for a count) step aside
+        pool = [(L, st) for L, st in labels if P.score(st) == 0 or vals(st)]
+        same_g = [(L, st) for L, st in pool if v.gid is not None and L.gid == v.gid]
+        if len(same_g) == 1:
+            L1, st1 = same_g[0]
+        else:
+            if v.gx is None:
+                continue
+            ranked = sorted(((_pair_dist(v, L), L, st) for L, st in (same_g or pool)
+                             if L.gx is not None), key=lambda r: r[0])
+            if not ranked:
+                continue
+            d1, L1, st1 = ranked[0]
+            near = [r for r in ranked[1:] if r[0] <= 1.2 * d1 + 1e-6]
+            if vals(st1) is None or any(vals(r[2]) is None for r in near):
+                continue  # its label, or an equally near one, is not a source label
+            rival = next((r for r in near if vals(r[2]) != vals(st1)), None)
+            if rival:
+                review.append(f"review: {shown(n)} ({v.where()}) sits about equally near '{L1.text[:40]}' "
+                              f"and '{rival[1].text[:40]}', which the source gives different values: "
+                              'check which label it belongs to')
+                continue
+        if vals(st1) is None:
+            continue
+        out.append((st1, n, f'{L1.text[:50]} ... {shown(n)}', f'{L1.where()} + {v.where()}'))
+    return out, review
+
+
 URL_RE = re.compile(r'(?:https?://|www\.)\S+|\S+@[\d.]+\S*')
 ILLUS_RE = re.compile(r'\billustrative\b|\bfor illustration\b|\bexample (?:data|values|figures|numbers)\b|'
                       r'^\s*(?:example|e\.g\.)\s*$', re.I)
@@ -653,7 +899,8 @@ def build_parser():
     ap.add_argument('--illustrative', action='store_true')
     ap.add_argument('--strict', action='store_true',
                     help='word, name, splice, causal-slot and cross-slide findings on visible '
-                         'labels FAIL instead of WARN (aria-label prose stays WARN)')
+                         'labels and swapped label-value pairs FAIL instead of WARN (aria-label '
+                         'prose and "review:" pairing findings stay WARN)')
     ap.add_argument('--quiet-ok', action='store_true', help='print only WARN and FAIL lines')
     ap.add_argument('--self-test', action='store_true', help='run the built-in tests and exit')
     return ap
@@ -795,6 +1042,44 @@ def verify(args):
               'transcription of a figure: check it against the rendered slide): '
               + ', '.join(sorted(set(outside['spec-only']))))
 
+    # ---- label-value pairing: each number sits next to the label the source gives it
+    P = Pairing(corpus)
+
+    def skip(e, n):
+        if n.label or n.spelled or id(e) in ticks:
+            return True
+        m = INDEX_RE.match(e.text.strip())
+        return bool(m and int(m.group(1)) in idx_set)
+
+    fpairs, review = fragment_pairs(elems, P, skip) if P.idf else ([], [])
+    for msg in review:
+        R.add('WARN', 'pairing', msg)
+    swap_lvl = 'FAIL' if args.strict and not illustrative else 'WARN'
+    n_paired = 0
+    for st, n, lab_txt, where in fpairs:
+        if find_match(n, nums['primary'])[0] != 'ok':
+            continue  # not a source number: the numbers check reports it
+        top = P.top(st, n.pct)
+        if not top:
+            continue
+        if any(find_match(n, [(p[1], '')])[0] in ('ok', 'rounded', 'unit') for p in top):
+            n_paired += 1
+            continue
+        tvals = {Pairing.key(p[1]) for p in top}
+        others = [p for p in P.pairs if p not in top and find_match(n, [(p[1], '')])[0] == 'ok']
+        head = f"'{lab_txt[:60]}' ({where}) shows {shown(n)}"
+        if len(tvals) == 1 and others:
+            t, o = top[0], others[0]
+            R.add(swap_lvl, 'pairing', f'{head}, but the source gives {shown(t[1])} for this label: '
+                  f'"{t[2][:70]}" ({t[3]}); {shown(n)} belongs to "{o[2][:70]}" ({o[3]})')
+        elif len(tvals) > 1 and others:
+            R.add('WARN', 'pairing', f'review: {head}; the source gives this label several values: '
+                  + '; '.join(f'"{p[2][:50]}"' for p in top[:4]) + ': check which one is meant')
+        # else: no other source label claims the value: too weak a signal to report
+    if n_paired:
+        R.add('OK', 'pairing', f'{n_paired} number{"s" if n_paired > 1 else ""} beside the label '
+              'the source gives them')
+
     # ---- words, names, cross-slide words, sentence splices, causal slots
     def check_words(e, t):
         """Findings for the words of one reading t of e: (findings, words ok, words total)."""
@@ -903,6 +1188,15 @@ SELF_TESTS = [
      'FloorConsideration', True),
     ('unrelated words still warn', '<text x="0" y="0"><tspan>Floor</tspan><tspan>Pancake</tspan></text>',
      'Floor consideration', False),
+    ('label-value pairs, rows reordered', '<text x="0" y="0">Search latency: 80 ms</text>'
+     '<text x="0" y="20">Checkout latency: 200 ms</text>',
+     'Checkout latency: 200 ms\nSearch latency: 80 ms', True),
+    ('label and value in separate texts', '<text x="0" y="0">Search</text><text x="60" y="0">80 ms</text>'
+     '<text x="0" y="20">Checkout</text><text x="60" y="20">200 ms</text>',
+     'Checkout latency: 200 ms\nSearch latency: 80 ms', True),
+    ('swapped values warn (FAIL with --strict)', '<text x="0" y="0">Checkout latency: 80 ms</text>'
+     '<text x="0" y="20">Search latency: 200 ms</text>',
+     'Checkout latency: 200 ms\nSearch latency: 80 ms', False),
 ]
 
 

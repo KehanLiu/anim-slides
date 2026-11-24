@@ -1,0 +1,15 @@
+# inside the arm's project directory (bytes, path); .claude/skills/anim-slides (the installed skill copy) excluded; verified unchanged against the prepared copy with diff -rq
+533 ./anim/frames/contact.html
+39948 ./anim/frames/contact.png
+92752 ./anim/frames/phase-1.6.png
+110315 ./anim/frames/phase-4.8.png
+115676 ./anim/frames/phase-7.4.png
+134109 ./anim/frames/phase-8.4.png
+121778 ./anim/frames/phase-rest.png
+17323 ./anim/frames/preview-1.6.html
+17321 ./anim/frames/preview-4.8.html
+17321 ./anim/frames/preview-7.4.html
+17321 ./anim/frames/preview-8.4.html
+17216 ./anim/frames/preview-rest.html
+16373 ./result.html
+1864 ./source.html
