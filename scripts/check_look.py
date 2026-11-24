@@ -40,7 +40,8 @@ through --dump-dom. Checks (references/style.md principles and "Checklist before
   density   bbox union < 35 % or > 90 % of the viewBox, > 40 text elements,
             drawn extent < 60 % of the slot (or viewBox) both ways               WARN
   text-size smallest rendered text below the check_fragment.py floor             FAIL
-  fonts     a requested font family that is not available (fallback used)       WARN
+  fonts     a requested font family that is not available (fallback used), unless
+            the stack names system-ui or ui-monospace as its fallback          WARN
   rest      resting frame differs from the last mark (opacity or position)      WARN
   gap       --page: fragment ink covering the slide's own text or pictures      FAIL
             nearer to them than --min-gap (default 24 px at a 1920 window)       WARN
@@ -109,7 +110,7 @@ try{var root,gate=CFG.gate,pe=document.createElement('style');
    if(e.tag==='text'){e.px=+(parseFloat(cs.fontSize)*es).toFixed(2);e.txt=el.textContent.trim().replace(/\s+/g,' ').slice(0,40);e.runs=[];
     Array.prototype.forEach.call(el.childNodes,function(n){var c=n.nodeType===3?cs:n.nodeType===1?getComputedStyle(n):null;
      if(c&&n.textContent.trim())e.runs.push([col(c.fill),+c.fillOpacity,n.nodeType===1?+c.opacity:1,n.textContent.trim().slice(0,30)]);});
-    var f=cs.fontFamily.split(',')[0].trim().replace(/["']/g,'');e.font=f;if(e.op>0.05&&f&&!GEN.test(f)&&!hasFont(f))missing[f]=1;texts.push(e);}
+    var f=cs.fontFamily.split(',')[0].trim().replace(/["']/g,'');e.font=f;if(e.op>0.05&&f&&!GEN.test(f)&&!hasFont(f)&&!/(^|,)\s*(system-ui|ui-sans-serif|ui-serif|ui-monospace|-apple-system)\s*(,|$)/.test(cs.fontFamily))missing[f]=1;texts.push(e);}
    nodes.push(el);els.push(e);});
   var inside=[],boxlike=[];els.forEach(function(s,si){var el=nodes[si];
    if(s.tag==='text'||s.tag==='use'||!s.fill||s.op<=0.05||!el.isPointInFill)return;var M=el.getScreenCTM(),Mi;try{Mi=M.inverse();}catch(x){return;}
@@ -515,8 +516,10 @@ def analyse(frames, k, gcol, a, R, pre, px=None, pauses=None, ptimes=None):
                 ix = min(p['x'] + p['w'], q['x'] + q['w']) - max(p['x'], q['x'])
                 iy = min(p['y'] + p['h'] - ip, q['y'] + q['h'] - iq) - max(p['y'] + ip, q['y'] + iq)
                 key = (p['i'], q['i'])
-                if p['txt'] == q['txt'] and max(abs(p['x'] - q['x']), abs(p['y'] - q['y']), abs(p['w'] - q['w'])) < 3:
-                    continue  # a highlight twin drawn over its base label reads as one label
+                if p['txt'] == q['txt'] and abs(p['y'] - q['y']) < 3 and abs(p['w'] - q['w']) <= 0.25 * max(p['w'], q['w']) \
+                        and min(abs(p['x'] - q['x']), abs(p['x'] + p['w'] - q['x'] - q['w']),
+                                abs(p['x'] + p['w'] / 2 - q['x'] - q['w'] / 2)) < 3:
+                    continue  # a highlight twin drawn over its base label (same anchor; a bolder twin may be wider) reads as one
                 if ix > 2 and iy > 2:
                     pc['overlap'] += 1
                 if ix > 2 and iy > 2 and key not in overl:
@@ -837,8 +840,10 @@ def pause_check(pauses, times, k, clip, floor, clipped, overl, a, R, pre):
                 p, q = T[i], T[j]
                 if p['op'] < 0.6 or q['op'] < 0.6 or (p['i'], q['i']) in said_o:
                     continue  # a cross-fade: one label leaves while the other arrives
-                if p['txt'] == q['txt'] and max(abs(p['x'] - q['x']), abs(p['y'] - q['y']), abs(p['w'] - q['w'])) < 3:
-                    continue
+                if p['txt'] == q['txt'] and abs(p['y'] - q['y']) < 3 and abs(p['w'] - q['w']) <= 0.25 * max(p['w'], q['w']) \
+                        and min(abs(p['x'] - q['x']), abs(p['x'] + p['w'] - q['x'] - q['w']),
+                                abs(p['x'] + p['w'] / 2 - q['x'] - q['w'] / 2)) < 3:
+                    continue  # a highlight twin over its base label
                 ip, iq = 0.15 * p['h'], 0.15 * q['h']
                 ix = min(p['x'] + p['w'], q['x'] + q['w']) - max(p['x'], q['x'])
                 iy = min(p['y'] + p['h'] - ip, q['y'] + q['h'] - iq) - max(p['y'] + ip, q['y'] + iq)
