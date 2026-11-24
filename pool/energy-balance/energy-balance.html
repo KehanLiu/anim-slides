@@ -11,11 +11,11 @@
   origins. Tilt rule of a real beam balance: level when the sides are equal, otherwise tipped by
   one fixed angle (10 deg) to the heavier side. The block heights carry the magnitudes. So the beam
   tips right when the first use block lands and stays there as the other two land, then swings
-  through level to 10 deg left when intake lands. Move curve / ease-in-out, no overshoot, no wobble.
+  through level to 10 deg left when intake lands. Move curve, no overshoot, no wobble.
   Weights: outlined blocks of equal width (170), height proportional to value:
   100 kcal = 10 px (2,500 -> 250 px; 1,400 -> 140; 450 -> 45; 150 -> 15), so the stacks compare
   directly and the 500 kcal surplus is the top 50 px of the intake block.
-  Once pass 9.3 s: set 0-0.6 s, use stacks 0.6-4.05 s, intake lands and the beam tips 4.3-6.7 s,
+  Once pass 9.3 s: set 0-0.6 s, use stacks 0.6-4.05 s, intake lands and the beam tips 4.3-6.48 s, stillness 6.48-6.9 s,
   answer 6.9-8.1 s, hold 8.3-9.3 s. Phases 0.6, 4.2, 6.9, 8.3.
   Facts:
   - Energy balance principle (intake vs expenditure; a surplus is stored): stated qualitative fact,
@@ -31,7 +31,7 @@
 .anim-energy-balance{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -39,32 +39,33 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-energy-balance svg{display:block;width:100%;height:100%;max-width:none}
-.anim-energy-balance .energy-balance-t{font-family:var(--anim-font);fill:var(--anim-fg)}
+.anim-energy-balance .energy-balance-t{font-family:var(--anim-font);fill:var(--anim-fg);font-variant-numeric:tabular-nums}
+/* type ladder: hero 64, labels and caption 26, sub-labels 20 */
 .anim-energy-balance .energy-balance-ttl{font-size:26px;font-weight:600}
-.anim-energy-balance .energy-balance-lbl{font-size:24px;font-weight:600}
+.anim-energy-balance .energy-balance-lbl{font-size:26px;font-weight:600}
 .anim-energy-balance .energy-balance-note{font-size:26px;font-weight:400}
-.anim-energy-balance .energy-balance-mono{font-family:var(--anim-mono);font-size:22px;font-weight:400;fill:var(--anim-muted)}
-.anim-energy-balance .energy-balance-small{font-size:18px}
+.anim-energy-balance .energy-balance-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-energy-balance .energy-balance-sub{font-family:var(--anim-font);font-size:20px;font-weight:400;fill:var(--anim-muted)}
 .anim-energy-balance .energy-balance-acc{fill:var(--anim-accent)}
-.anim-energy-balance .energy-balance-ans{font-size:26px;font-weight:600}
+.anim-energy-balance .energy-balance-hero{font-size:64px;font-weight:500;letter-spacing:-0.02em}
 /* structure: thin strokes, no panels */
-.anim-energy-balance .energy-balance-post{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.anim-energy-balance .energy-balance-beam-s{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round}
-.anim-energy-balance .energy-balance-knob{fill:var(--anim-bg);stroke:var(--anim-fg);stroke-width:2.5}
-.anim-energy-balance .energy-balance-level{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-dasharray:6 8;stroke-linecap:round}
-.anim-energy-balance .energy-balance-string{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
-.anim-energy-balance .energy-balance-tray{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round}
-.anim-energy-balance .energy-balance-wt{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linejoin:round}
-.anim-energy-balance .energy-balance-lead{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
-.anim-energy-balance .energy-balance-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
-/* answer: the surplus band of the intake block, its glow, the "used" level and the bracket */
+.anim-energy-balance .energy-balance-post{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-energy-balance .energy-balance-beam-s{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linejoin:round}
+.anim-energy-balance .energy-balance-knob{fill:var(--anim-bg);stroke:var(--anim-fg);stroke-width:2}
+.anim-energy-balance .energy-balance-level{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-dasharray:6 8;stroke-linecap:round}
+.anim-energy-balance .energy-balance-string{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-energy-balance .energy-balance-tray{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linejoin:round}
+.anim-energy-balance .energy-balance-wt{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linejoin:round}
+.anim-energy-balance .energy-balance-lead{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-linecap:round}
+.anim-energy-balance .energy-balance-tag{fill:none;stroke:var(--anim-line);stroke-width:1.5}
+.anim-energy-balance .energy-balance-draw{stroke-dasharray:100 120;stroke-dashoffset:0}
+/* answer: the surplus band of the intake block, the "used" level and the bracket */
 .anim-energy-balance .energy-balance-band{fill:color-mix(in srgb,var(--anim-accent) 22%,transparent);stroke:none}
-.anim-energy-balance .energy-balance-glow{fill:var(--anim-accent);opacity:.3;filter:blur(8px)}
 .anim-energy-balance .energy-balance-cut{fill:none;stroke:var(--anim-accent);stroke-width:2;stroke-dasharray:6 6}
 .anim-energy-balance .energy-balance-brk{fill:none;stroke:var(--anim-accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 /* pivot and hang-point origins (transform-box view-box, px origins; lessons.md) */
@@ -74,27 +75,27 @@
 /* resting frame = the end: intake side down by 10 deg, pans hanging straight, surplus marked */
 .anim-energy-balance .energy-balance-beam{transform:rotate(-10deg)}
 .anim-energy-balance .energy-balance-pan-l,.anim-energy-balance .energy-balance-pan-r{transform:rotate(10deg)}
-.anim-energy-balance .energy-balance-in-wt{stroke:var(--anim-accent)}
 .anim-energy-balance .energy-balance-n0,.anim-energy-balance .energy-balance-n1,.anim-energy-balance .energy-balance-n2{opacity:0}
 
 /* ---- motion (9.3 s once pass), only when the slide is visible. percent = s / 9.3 ---- */
-/* scene fades in 0-0.5 s */
-@keyframes energy-balance-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.376%{opacity:1}100%{opacity:1}}
-/* beam: level 0-1.1 s; tips right 1.1-1.9 s (10deg) and stays; swings through level 4.9-6.7 s to -10deg (hero) */
+/* scene fades in 0-0.3 s while the balance itself draws on 0-0.5 s */
+@keyframes energy-balance-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.226%{opacity:1}100%{opacity:1}}
+@keyframes energy-balance-draw{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.376%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+/* beam: level 0-1.1 s; tips right 1.1-1.9 s (10deg) and stays; swings through level 4.9-6.48 s to -10deg (hero); nothing moves 6.48-6.9 s */
 @keyframes energy-balance-beam{
   0%{transform:rotate(0deg)}
   11.828%{transform:rotate(0deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}   /* 1.1 s */
   20.43%{transform:rotate(10deg)}                                                      /* 1.9 s */
-  52.688%{transform:rotate(10deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}/* 4.9 s */
-  72.043%{transform:rotate(-10deg)}                                                    /* 6.7 s */
+  52.688%{transform:rotate(10deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}/* 4.9 s */
+  69.677%{transform:rotate(-10deg)}                                                    /* 6.48 s */
   100%{transform:rotate(-10deg)}}
 /* pans: the exact negative of the beam about their hang points, so they hang straight */
 @keyframes energy-balance-pan{
   0%{transform:rotate(0deg)}
   11.828%{transform:rotate(0deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}
   20.43%{transform:rotate(-10deg)}
-  52.688%{transform:rotate(-10deg);animation-timing-function:cubic-bezier(0.45,0,0.25,1)}
-  72.043%{transform:rotate(10deg)}
+  52.688%{transform:rotate(-10deg);animation-timing-function:cubic-bezier(0.2,0,0,1)}
+  69.677%{transform:rotate(10deg)}
   100%{transform:rotate(10deg)}}
 /* weights land (drop 28 px and fade in, enter curve) with their labels:
    resting 0.6-1.05 s, activity 2.0-2.4 s, digesting 3.1-3.5 s, intake 4.3-4.8 s */
@@ -102,9 +103,7 @@
 @keyframes energy-balance-w2{0%{opacity:0;transform:translateY(-28px)}21.505%{opacity:0;transform:translateY(-28px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}25.806%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
 @keyframes energy-balance-w3{0%{opacity:0;transform:translateY(-28px)}33.333%{opacity:0;transform:translateY(-28px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.634%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
 @keyframes energy-balance-win{0%{opacity:0;transform:translateY(-28px)}46.237%{opacity:0;transform:translateY(-28px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}51.613%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-/* the heavier side takes the accent 6.9-7.3 s */
-@keyframes energy-balance-in-wt{0%{stroke:var(--anim-fg)}74.194%{stroke:var(--anim-fg);animation-timing-function:cubic-bezier(0.2,0,0,1)}78.495%{stroke:var(--anim-accent)}100%{stroke:var(--anim-accent)}}
-/* surplus band, glow and "used" level appear 6.95-7.4 s */
+/* surplus band and "used" level appear 6.95-7.4 s */
 @keyframes energy-balance-surplus{0%{opacity:0}74.731%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.57%{opacity:1}100%{opacity:1}}
 /* bracket draws on 7.35-7.85 s */
 @keyframes energy-balance-brk{0%{stroke-dashoffset:101}79.032%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.409%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
@@ -117,13 +116,13 @@
 @keyframes energy-balance-n3{0%{opacity:0}75.269%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.645%{opacity:1}100%{opacity:1}}
 
 .visible .anim-energy-balance .energy-balance-scene{animation:energy-balance-scene 9.3s linear 1 both}
+.visible .anim-energy-balance .energy-balance-draw{animation:energy-balance-draw 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-beam{animation:energy-balance-beam 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-pan-l,.visible .anim-energy-balance .energy-balance-pan-r{animation:energy-balance-pan 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-w1{animation:energy-balance-w1 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-w2{animation:energy-balance-w2 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-w3{animation:energy-balance-w3 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-win{animation:energy-balance-win 9.3s linear 1 both}
-.visible .anim-energy-balance .energy-balance-in-wt{animation:energy-balance-in-wt 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-surplus{animation:energy-balance-surplus 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-brk{animation:energy-balance-brk 9.3s linear 1 both}
 .visible .anim-energy-balance .energy-balance-ans-g{animation:energy-balance-ans 9.3s linear 1 both}
@@ -137,21 +136,21 @@
 <div class="anim anim-energy-balance" data-anim="energy-balance" data-anim-cycle="9.3" data-anim-control="once" data-anim-phases="0.6,4.2,6.9,8.3" data-anim-verb="balance">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustrative energy balance drawn as a beam balance: energy used (resting metabolism 1,400, activity 450, digesting food 150 kcal a day) lands on the right pan, then energy in from food and drink (2,500 kcal a day) lands on the left pan and the beam tips to the intake side; the surplus of 500 kcal a day is stored.">
 <g class="energy-balance-scene">
-  <text class="energy-balance-mono energy-balance-small" x="40" y="526">values in kcal a day · block height ∝ value</text>
+  <text class="energy-balance-sub" x="40" y="526">values in kcal a day · block height ∝ value</text>
   <rect class="energy-balance-tag" x="1424" y="20" width="232" height="36" rx="6"/>
-  <text class="energy-balance-mono energy-balance-small" x="1540" y="44" text-anchor="middle">illustrative numbers</text>
+  <text class="energy-balance-sub" x="1540" y="45" text-anchor="middle">illustrative numbers</text>
   <!-- post and base (static) -->
-  <path class="energy-balance-post" d="M800 120 V470"/>
-  <path class="energy-balance-post" d="M746 486 L766 470 H834 L854 486 Z"/>
+  <path class="energy-balance-post energy-balance-draw" pathLength="100" d="M800 120 V470"/>
+  <path class="energy-balance-post energy-balance-draw" pathLength="100" d="M746 486 L766 470 H834 L854 486 Z"/>
   <!-- level reference through the pivot -->
   <path class="energy-balance-level" d="M532 110 H1068"/>
   <!-- beam with both pans; pans counter-rotate about their hang points -->
   <g class="energy-balance-beam">
-    <path class="energy-balance-beam-s" d="M560 110 L800 100 L1040 110 L800 120 Z"/>
+    <path class="energy-balance-beam-s energy-balance-draw" pathLength="100" d="M560 110 L800 100 L1040 110 L800 120 Z"/>
     <!-- left pan: energy in -->
     <g class="energy-balance-pan-l">
-      <path class="energy-balance-string" d="M560 110 V136 M455 136 H665 M455 136 V398 M665 136 V398"/>
-      <path class="energy-balance-tray" d="M440 398 H680 L658 410 H462 Z"/>
+      <path class="energy-balance-string energy-balance-draw" pathLength="100" d="M560 110 V136 M455 136 H665 M455 136 V398 M665 136 V398"/>
+      <path class="energy-balance-tray energy-balance-draw" pathLength="100" d="M440 398 H680 L658 410 H462 Z"/>
       <text class="energy-balance-t energy-balance-ttl" x="560" y="446" text-anchor="middle">energy in</text>
       <g class="energy-balance-win">
         <rect class="energy-balance-wt energy-balance-in-wt" x="475" y="148" width="170" height="250" rx="5"/>
@@ -159,21 +158,23 @@
         <text class="energy-balance-mono" x="430" y="362" text-anchor="end">2,500</text>
       </g>
       <!-- answer: the part of intake above energy used (2,000 = 200 px) -->
+      <g data-anim-focal="">
       <g class="energy-balance-surplus">
-        <rect class="energy-balance-glow" x="478" y="151" width="164" height="47"/>
         <rect class="energy-balance-band" x="476" y="149" width="168" height="49"/>
         <path class="energy-balance-cut" d="M475 198 H645"/>
       </g>
       <path class="energy-balance-brk" pathLength="100" d="M440 148 H430 V198 H440"/>
       <g class="energy-balance-ans-g">
-        <text class="energy-balance-t energy-balance-ans energy-balance-acc" x="416" y="180" text-anchor="end">+500 kcal a day</text>
-        <text class="energy-balance-mono" x="416" y="206" text-anchor="end">stored</text>
+        <text class="energy-balance-t energy-balance-hero energy-balance-acc" x="408" y="196" text-anchor="end">+500</text>
+        <text class="energy-balance-sub" x="408" y="226" text-anchor="end">kcal a day</text>
+        <text class="energy-balance-sub" x="408" y="252" text-anchor="end">stored</text>
+      </g>
       </g>
     </g>
     <!-- right pan: energy used -->
     <g class="energy-balance-pan-r">
-      <path class="energy-balance-string" d="M1040 110 V136 M935 136 H1145 M935 136 V398 M1145 136 V398"/>
-      <path class="energy-balance-tray" d="M920 398 H1160 L1138 410 H942 Z"/>
+      <path class="energy-balance-string energy-balance-draw" pathLength="100" d="M1040 110 V136 M935 136 H1145 M935 136 V398 M1145 136 V398"/>
+      <path class="energy-balance-tray energy-balance-draw" pathLength="100" d="M920 398 H1160 L1138 410 H942 Z"/>
       <text class="energy-balance-t energy-balance-ttl" x="1040" y="446" text-anchor="middle">energy used</text>
       <g class="energy-balance-w1">
         <rect class="energy-balance-wt" x="955" y="258" width="170" height="140" rx="5"/>

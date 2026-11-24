@@ -7,7 +7,7 @@
   short, turns danger and a cross draws on, outline danger; Queued again = dashed and low, with a
   thin timer arc drawing once in row 2 next to "retry · 2 s"; Running again = a second progress
   stroke in row 2 (the counter steps to "attempt 2 of 3" at that same moment); Succeeded = the
-  second stroke completes, turns accent, a tick draws on, outline accent, the one glow on the word.
+  second stroke completes (it stays foreground), an accent tick draws on, the one glow on the word.
   Support: a static state map at the left (the four state names, thin arcs, no token, nothing lit)
   as a quiet legend; the event log, muted, gains its line 100 to 250 ms after each change.
   Verb: switch. Technique: one outline path whose stroke colour, dash and width switch at each
@@ -17,7 +17,8 @@
   Once pass 9.8 s: set 0-0.45; picked 0.55-1.05; run 1 1.6-2.6; error 2.6-3.3 (cross 2.8-3.3);
   retry 4.2-4.6, timer 4.9-5.5; picked again 5.8-6.3; run 2 6.4-7.4; exit 0 7.5-8.3; log
   lines 0.1-0.15 s after each change; hold 8.8-9.8. Phases 0.5, 3.8, 5.7, 7.45, 8.8.
-  Colours: foreground = queued/running; danger = failed; accent = succeeded (the outcome). No other.
+  Colours: foreground = queued/running; danger = failed; accent = succeeded (the outcome: word and
+  tick; the bar and the outline stay foreground). No other. Focal: the word Succeeded (hero, the one glow).
   Facts:
   - State names Queued, Running, Failed, Succeeded; transitions picked, error, retry · 2 s, exit 0;
     "attempt 1 of 3" / "attempt 2 of 3"; job 4812; log times 00:00, 00:02, 00:31, 00:33, 00:35,
@@ -30,7 +31,7 @@
 .anim-job-states{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -38,8 +39,8 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-job-states svg{display:block;width:100%;height:100%;max-width:none}
@@ -47,58 +48,58 @@
 .anim-job-states .job-states-k-f{--job-states-k:var(--anim-danger)}
 .anim-job-states .job-states-k-ok{--job-states-k:var(--anim-accent)}
 /* the ticket: outline only, no fill */
-.anim-job-states .job-states-sheet{fill:none;stroke:var(--anim-accent);stroke-width:3px;stroke-dasharray:12 0;stroke-linejoin:round;stroke-linecap:round}
-.anim-job-states .job-states-rule{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
-.anim-job-states .job-states-id{font-family:var(--anim-mono);font-size:22px;fill:var(--anim-muted)}
-.anim-job-states .job-states-word{font-family:var(--anim-font);font-size:56px;font-weight:600;fill:var(--job-states-k)}
-.anim-job-states .job-states-glow{opacity:.35;filter:blur(8px)}
-.anim-job-states .job-states-att{font-family:var(--anim-mono);font-size:24px;fill:var(--anim-fg)}
-.anim-job-states .job-states-num{font-family:var(--anim-mono);font-size:26px;fill:var(--anim-muted)}
-.anim-job-states .job-states-trk{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-dasharray:2 8;stroke-linecap:round}
+.anim-job-states .job-states-sheet{fill:none;stroke:var(--anim-fg);stroke-width:2.5px;stroke-dasharray:12 0;stroke-linejoin:round;stroke-linecap:round}
+.anim-job-states .job-states-rule{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-linecap:round}
+.anim-job-states .job-states-id{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-job-states .job-states-word{font-family:var(--anim-font);font-size:64px;font-weight:500;letter-spacing:-0.02em;fill:var(--job-states-k)}
+.anim-job-states .job-states-glow{opacity:.2;filter:blur(5px)}
+.anim-job-states .job-states-att{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-job-states .job-states-num{font-family:var(--anim-mono);font-size:26px;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-job-states .job-states-trk{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-dasharray:2 8;stroke-linecap:round}
 .anim-job-states .job-states-prog{fill:none;stroke:var(--anim-fg);stroke-width:8;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-job-states .job-states-prog-f{stroke:var(--anim-danger)}
-.anim-job-states .job-states-prog-ok{stroke:var(--anim-accent)}
 .anim-job-states .job-states-mark{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-job-states .job-states-x1{stroke:var(--anim-danger)}
 .anim-job-states .job-states-tick{stroke:var(--anim-accent)}
-.anim-job-states .job-states-ttrack{fill:none;stroke:var(--anim-line);stroke-width:2.5}
+.anim-job-states .job-states-ttrack{fill:none;stroke:var(--anim-line);stroke-width:2}
 .anim-job-states .job-states-tarc{fill:none;stroke:var(--anim-fg);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-job-states .job-states-sub{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted)}
+.anim-job-states .job-states-sub{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
 /* the state map */
-.anim-job-states .job-states-edge{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 60%,var(--anim-bg));stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-job-states .job-states-edge{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .anim-job-states .job-states-dash{stroke-dasharray:5 8}
-.anim-job-states .job-states-ring{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 70%,var(--anim-bg));stroke-width:2.5}
-.anim-job-states .job-states-mlbl{font-family:var(--anim-mono);font-size:22px;fill:var(--anim-muted)}
+.anim-job-states .job-states-ring{fill:none;stroke:var(--anim-line);stroke-width:2}
+.anim-job-states .job-states-mlbl{font-family:var(--anim-font);font-size:20px;fill:var(--anim-muted)}
 /* the log */
-.anim-job-states .job-states-title{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted);letter-spacing:.04em}
-.anim-job-states .job-states-ts{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted)}
-.anim-job-states .job-states-ev{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted)}
-.anim-job-states .job-states-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
-.anim-job-states .job-states-tagt{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-job-states .job-states-title{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-fg);font-variant-numeric:tabular-nums}
+.anim-job-states .job-states-ts{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-job-states .job-states-ev{font-family:var(--anim-font);font-size:20px;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-job-states .job-states-tag{fill:none;stroke:var(--anim-line);stroke-width:1.5}
+.anim-job-states .job-states-tagt{font-family:var(--anim-font);font-size:20px;fill:var(--anim-muted)}
 /* resting frame = the end: Succeeded on attempt 2 (run 1 stopped with a cross, run 2 complete
    with a tick), full log */
 .anim-job-states .job-states-c-q,.anim-job-states .job-states-c-r,.anim-job-states .job-states-c-f,
 .anim-job-states .job-states-tm,.anim-job-states .job-states-a1{opacity:0}
 
 /* ---- motion (9.8 s once pass), only when the slide is visible. percent = s / 9.8 ---- */
-/* cross-fades between states use ease-in-out; arrivals (scene, log lines) the enter curve */
+/* cross-fades between states use the move curve; arrivals (scene, log lines) the enter curve;
+   progress strokes are linear (they track run time); run 2 completes at 7.0 s, then 500 ms of
+   stillness before exit 0 at 7.5 s */
 @keyframes job-states-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.082%{opacity:1}100%{opacity:1}}
 @keyframes job-states-tk{0%{transform:translateY(20px)}5.612%{transform:translateY(20px);animation-timing-function:cubic-bezier(0.2,0,0,1)}10.714%{transform:translateY(0px)}42.857%{transform:translateY(0px);animation-timing-function:cubic-bezier(0.2,0,0,1)}46.939%{transform:translateY(20px)}59.184%{transform:translateY(20px);animation-timing-function:cubic-bezier(0.2,0,0,1)}64.286%{transform:translateY(0px)}100%{transform:translateY(0px)}}
-@keyframes job-states-sheet{0%{stroke:var(--anim-muted);stroke-dasharray:12 10;stroke-width:2.5px}5.612%{stroke:var(--anim-muted);stroke-dasharray:12 10;stroke-width:2.5px;animation-timing-function:ease-in-out}10.714%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px}26.531%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px;animation-timing-function:ease-in-out}31.633%{stroke:var(--anim-danger);stroke-dasharray:12 0;stroke-width:2.5px}42.857%{stroke:var(--anim-danger);stroke-dasharray:12 0;stroke-width:2.5px;animation-timing-function:ease-in-out}46.939%{stroke:var(--anim-muted);stroke-dasharray:12 10;stroke-width:2.5px}59.184%{stroke:var(--anim-muted);stroke-dasharray:12 10;stroke-width:2.5px;animation-timing-function:ease-in-out}64.286%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px}76.531%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px;animation-timing-function:ease-in-out}82.653%{stroke:var(--anim-accent);stroke-dasharray:12 0;stroke-width:3px}100%{stroke:var(--anim-accent);stroke-dasharray:12 0;stroke-width:3px}}
-@keyframes job-states-c-q{0%{opacity:1}5.612%{opacity:1;animation-timing-function:ease-in-out}8.163%{opacity:0}44.898%{opacity:0;animation-timing-function:ease-in-out}46.939%{opacity:1}59.184%{opacity:1;animation-timing-function:ease-in-out}61.735%{opacity:0}100%{opacity:0}}
-@keyframes job-states-c-r{0%{opacity:0}8.163%{opacity:0;animation-timing-function:ease-in-out}10.714%{opacity:1}26.531%{opacity:1;animation-timing-function:ease-in-out}28.571%{opacity:0}61.735%{opacity:0;animation-timing-function:ease-in-out}64.286%{opacity:1}76.531%{opacity:1;animation-timing-function:ease-in-out}79.082%{opacity:0}100%{opacity:0}}
-@keyframes job-states-c-f{0%{opacity:0}28.571%{opacity:0;animation-timing-function:ease-in-out}33.163%{opacity:1}42.857%{opacity:1;animation-timing-function:ease-in-out}44.898%{opacity:0}100%{opacity:0}}
-@keyframes job-states-c-ok{0%{opacity:0}79.082%{opacity:0;animation-timing-function:ease-in-out}84.694%{opacity:1}100%{opacity:1}}
-@keyframes job-states-a1{0%{opacity:1}59.184%{opacity:1;animation-timing-function:ease-in-out}61.735%{opacity:0}100%{opacity:0}}
-@keyframes job-states-a2{0%{opacity:0}61.735%{opacity:0;animation-timing-function:ease-in-out}64.286%{opacity:1}100%{opacity:1}}
-@keyframes job-states-row2{0%{opacity:0}61.735%{opacity:0;animation-timing-function:ease-in-out}64.286%{opacity:1}100%{opacity:1}}
-@keyframes job-states-tm{0%{opacity:0}45.918%{opacity:0;animation-timing-function:ease-in-out}48.469%{opacity:1}59.184%{opacity:1;animation-timing-function:ease-in-out}61.735%{opacity:0}100%{opacity:0}}
+@keyframes job-states-sheet{0%{stroke:var(--anim-muted);stroke-dasharray:12 10;stroke-width:2.5px}5.612%{stroke:var(--anim-muted);stroke-dasharray:12 10;stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1)}10.714%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px}26.531%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1)}31.633%{stroke:var(--anim-danger);stroke-dasharray:12 0;stroke-width:2.5px}42.857%{stroke:var(--anim-danger);stroke-dasharray:12 0;stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1)}46.939%{stroke:var(--anim-muted);stroke-dasharray:12 10;stroke-width:2.5px}59.184%{stroke:var(--anim-muted);stroke-dasharray:12 10;stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1)}64.286%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px}76.531%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1)}82.653%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px}100%{stroke:var(--anim-fg);stroke-dasharray:12 0;stroke-width:2.5px}}
+@keyframes job-states-c-q{0%{opacity:1}5.612%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}8.163%{opacity:0}44.898%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}46.939%{opacity:1}59.184%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}61.735%{opacity:0}100%{opacity:0}}
+@keyframes job-states-c-r{0%{opacity:0}8.163%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}10.714%{opacity:1}26.531%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}28.571%{opacity:0}61.735%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}64.286%{opacity:1}76.531%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}79.082%{opacity:0}100%{opacity:0}}
+@keyframes job-states-c-f{0%{opacity:0}28.571%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}33.163%{opacity:1}42.857%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}44.898%{opacity:0}100%{opacity:0}}
+@keyframes job-states-c-ok{0%{opacity:0}79.082%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}84.694%{opacity:1}100%{opacity:1}}
+@keyframes job-states-a1{0%{opacity:1}59.184%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}61.735%{opacity:0}100%{opacity:0}}
+@keyframes job-states-a2{0%{opacity:0}61.735%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}64.286%{opacity:1}100%{opacity:1}}
+@keyframes job-states-row2{0%{opacity:0}61.735%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}64.286%{opacity:1}100%{opacity:1}}
+@keyframes job-states-tm{0%{opacity:0}45.918%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}48.469%{opacity:1}59.184%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}61.735%{opacity:0}100%{opacity:0}}
 @keyframes job-states-tarc{0%{stroke-dashoffset:101}50%{stroke-dashoffset:101;animation-timing-function:linear}56.122%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes job-states-p1{0%{stroke-dashoffset:101}16.327%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.4,0,0.6,1)}26.531%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes job-states-p1x{0%{opacity:0}26.531%{opacity:0;animation-timing-function:ease-in-out}31.633%{opacity:1}100%{opacity:1}}
+@keyframes job-states-p1{0%{stroke-dashoffset:101}16.327%{stroke-dashoffset:101;animation-timing-function:linear}26.531%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes job-states-p1x{0%{opacity:0}26.531%{opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}31.633%{opacity:1}100%{opacity:1}}
 @keyframes job-states-x1{0%{stroke-dashoffset:101}28.571%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}33.673%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes job-states-p2{0%{stroke-dashoffset:101}65.306%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.4,0,0.6,1)}75.51%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes job-states-p2ok{0%{opacity:0}76.531%{opacity:0;animation-timing-function:ease-in-out}82.653%{opacity:1}100%{opacity:1}}
+@keyframes job-states-p2{0%{stroke-dashoffset:101}65.306%{stroke-dashoffset:101;animation-timing-function:linear}71.429%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
 @keyframes job-states-tick{0%{stroke-dashoffset:101}79.592%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.694%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
 @keyframes job-states-log0{0%{opacity:0;transform:translateY(8px)}2.041%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.592%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
 @keyframes job-states-log1{0%{opacity:0;transform:translateY(8px)}12.245%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}14.796%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
@@ -123,7 +124,6 @@
 .visible .anim-job-states .job-states-p1x{animation:job-states-p1x 9.8s linear 1 both}
 .visible .anim-job-states .job-states-x1{animation:job-states-x1 9.8s linear 1 both}
 .visible .anim-job-states .job-states-p2{animation:job-states-p2 9.8s linear 1 both}
-.visible .anim-job-states .job-states-p2ok{animation:job-states-p2ok 9.8s linear 1 both}
 .visible .anim-job-states .job-states-tick{animation:job-states-tick 9.8s linear 1 both}
 .visible .anim-job-states .job-states-log0{animation:job-states-log0 9.8s linear 1 both}
 .visible .anim-job-states .job-states-log1{animation:job-states-log1 9.8s linear 1 both}
@@ -170,7 +170,7 @@
       <g class="job-states-c-q job-states-k-q"><text class="job-states-word" x="590" y="206" text-anchor="middle">Queued</text></g>
       <g class="job-states-c-r job-states-k-r"><text class="job-states-word" x="590" y="206" text-anchor="middle">Running</text></g>
       <g class="job-states-c-f job-states-k-f"><text class="job-states-word" x="590" y="206" text-anchor="middle">Failed</text></g>
-      <g class="job-states-c-ok job-states-k-ok">
+      <g class="job-states-c-ok job-states-k-ok" data-anim-focal>
         <text class="job-states-word job-states-glow" x="590" y="206" text-anchor="middle">Succeeded</text>
         <text class="job-states-word" x="590" y="206" text-anchor="middle">Succeeded</text>
       </g>
@@ -182,7 +182,6 @@
       </g>
       <path class="job-states-prog job-states-p2" pathLength="100" d="M482 420 H712"/>
       <path class="job-states-prog job-states-prog-f job-states-p1x" pathLength="100" d="M482 330 H596"/>
-      <path class="job-states-prog job-states-prog-ok job-states-p2ok" pathLength="100" d="M482 420 H712"/>
       <g class="job-states-tm">
         <circle class="job-states-ttrack" cx="498" cy="420" r="16"/>
         <path class="job-states-tarc" pathLength="100" d="M498 404 A16 16 0 1 1 497.99 404"/>

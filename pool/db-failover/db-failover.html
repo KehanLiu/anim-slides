@@ -1,9 +1,11 @@
-<!-- db-failover (pool, archetype graph, domain software). Error rate, p99 latency and the replica state are illustrative, not measurements. -->
+<!-- db-failover (pool, archetype graph, domain software). Focal: the promoted db-b (data-anim-focal), the largest ring,
+  4 px, with the one glow at rest. Check dots land, the promoted node and the halo ring land, the approval settles.
+  Mono only for values; role words in sentence case. Error rate, p99 latency and the replica state are illustrative, not measurements. -->
 <style>
 .anim-db-failover {
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -11,17 +13,16 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display: block; width: 100%; height: 100%;
 }
 .anim-db-failover svg{width:100%;height:100%;display:block}
 /* type */
-.anim-db-failover .db-failover-mono{font-family:var(--anim-mono);font-size:18px}
-.anim-db-failover .db-failover-sans{font-family:var(--anim-font);font-size:18px}
-.anim-db-failover .db-failover-lbl{font-family:var(--anim-font);font-size:22px;font-weight:600;fill:var(--anim-fg)}
-.anim-db-failover .db-failover-title{font-size:22px;font-weight:600}
-.anim-db-failover .db-failover-st{letter-spacing:.08em}
+.anim-db-failover .db-failover-mono{font-family:var(--anim-mono);font-size:19px;font-variant-numeric:tabular-nums}
+.anim-db-failover .db-failover-sans{font-family:var(--anim-font);font-size:19px;font-variant-numeric:tabular-nums}
+.anim-db-failover .db-failover-lbl{font-family:var(--anim-font);font-size:24px;font-weight:600;fill:var(--anim-fg)}
+.anim-db-failover .db-failover-title{font-size:24px;font-weight:600}
 .anim-db-failover .db-failover-fg{fill:var(--anim-fg)}
 .anim-db-failover .db-failover-dim{fill:var(--anim-muted)}
 .anim-db-failover .db-failover-cy{fill:var(--anim-accent)}
@@ -38,13 +39,13 @@
 .anim-db-failover .db-failover-req.db-failover-new{stroke:var(--anim-ok);opacity:1}
 .anim-db-failover .db-failover-repl{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-dasharray:6 10}
 /* nodes: rings with a line glyph, labels outside */
-.anim-db-failover .db-failover-ring{fill:var(--anim-bg);stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5}
+.anim-db-failover .db-failover-ring{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2}
 .anim-db-failover .db-failover-glyph{fill:none;stroke:var(--anim-muted);stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
 .anim-db-failover .db-failover-r-pri{fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:3}
 .anim-db-failover .db-failover-r-pri+.db-failover-glyph{stroke:var(--anim-accent)}
 .anim-db-failover .db-failover-r-down{fill:var(--anim-bg);stroke:var(--anim-danger);stroke-width:3;stroke-dasharray:6 6}
 .anim-db-failover .db-failover-r-down+.db-failover-glyph{stroke:var(--anim-danger)}
-.anim-db-failover .db-failover-r-up{fill:var(--anim-bg);stroke:var(--anim-ok);stroke-width:3}
+.anim-db-failover .db-failover-r-up{fill:var(--anim-bg);stroke:var(--anim-ok);stroke-width:4}
 .anim-db-failover .db-failover-r-up+.db-failover-glyph{stroke:var(--anim-ok)}
 .anim-db-failover .db-failover-glow{fill:none;stroke:var(--anim-ok);stroke-width:12;stroke-opacity:.3;filter:blur(6px)}
 .anim-db-failover .db-failover-halo circle{fill:none;stroke:var(--anim-accent)}
@@ -52,20 +53,22 @@
 .anim-db-failover .db-failover-halo .db-failover-hr{stroke-width:2;stroke-dasharray:4 7}
 .anim-db-failover .db-failover-client path{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* orchestrator: a hairline bracket, no panel */
-.anim-db-failover .db-failover-brk{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-db-failover .db-failover-brk{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .anim-db-failover .db-failover-dot-ok{fill:var(--anim-ok)}
 .anim-db-failover .db-failover-dot-bad{fill:var(--anim-danger)}
 .anim-db-failover .db-failover-rule{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round}
 .anim-db-failover .db-failover-appr .db-failover-human{fill:none;stroke:var(--anim-ok);stroke-width:2;stroke-linecap:round}
 .anim-db-failover .db-failover-appr .db-failover-head{fill:none;stroke:var(--anim-ok);stroke-width:2}
-.anim-db-failover .db-failover-tagbox{fill:none;stroke:var(--anim-line);stroke-width:2}
+.anim-db-failover .db-failover-tagbox{fill:none;stroke:var(--anim-line);stroke-width:1.5}
+/* entrances by kind: check dots land, the promoted node and the halo ring land, centred on themselves */
+.anim-db-failover .db-failover-chk,.anim-db-failover .db-failover-after,.anim-db-failover .db-failover-hr{transform-box:fill-box;transform-origin:50% 50%}
 .anim-db-failover .db-failover-legend path{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:0 16}
 .anim-db-failover .db-failover-lg-req{stroke:var(--anim-accent)}
 .anim-db-failover .db-failover-lg-err{stroke:var(--anim-danger)}
 .anim-db-failover .db-failover-lg-new{stroke:var(--anim-ok)}
 
 /* Plays once, 9.4 s pass. 0-2.7 s normal | 2.7 s db-a fails | 4.5 s checks exhausted, promotion proposed (5.67 s card)
-   | 7.56 s approved | 8.1 s rerouted | 8.4 s panel confirms | final state from 8.7 s; request dots march at the old speed for 9 s in one pass, then stop */
+   | 7.14 s approved | 7.52-8.1 s stillness | 8.1 s rerouted | 8.4 s panel confirms | final state from 8.7 s; request dots march at the old speed for 9 s in one pass, then stop */
 @keyframes db-failover-dots{to{stroke-dashoffset:-240}}
 @keyframes db-failover-repl{to{stroke-dashoffset:-108}}
 @keyframes db-failover-scene{0%,100%{opacity:1}}
@@ -86,42 +89,45 @@
 /* visible until the reroute at 8.1 s */
 @keyframes db-failover-was{0%,86.18%{opacity:1}89.04%,100%{opacity:0}}
 /* visible from the reroute at 8.1 s */
-@keyframes db-failover-after{0%,86.18%{opacity:0}89.04%,100%{opacity:1}}
+@keyframes db-failover-after{0%,86.18%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.04%,100%{opacity:1;transform:scale(1)}}
 /* health checks fail one by one: 3.06 s, 3.78 s, 4.5 s */
-@keyframes db-failover-c1{0%,32.56%{opacity:0}34.46%,100%{opacity:1}}
-@keyframes db-failover-c2{0%,40.21%{opacity:0}42.13%,100%{opacity:1}}
-@keyframes db-failover-c3{0%,47.87%{opacity:0}49.78%,100%{opacity:1}}
-/* replica highlighted while it is being promoted: 4.68 s - 7.56 s */
-@keyframes db-failover-halo{0%,49.78%{opacity:0}53.62%,80.43%{opacity:1}82.34%,100%{opacity:0}}
+@keyframes db-failover-c1{0%,32.56%{opacity:0;transform:scale(.92)}34.46%,100%{opacity:1;transform:scale(1)}}
+@keyframes db-failover-c2{0%,40.21%{opacity:0;transform:scale(.92)}42.13%,100%{opacity:1;transform:scale(1)}}
+@keyframes db-failover-c3{0%,47.87%{opacity:0;transform:scale(.92)}49.78%,100%{opacity:1;transform:scale(1)}}
+/* replica highlighted while it is being promoted: 4.68 s - 7.14 s */
+@keyframes db-failover-halo{0%,49.78%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.62%,75.96%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}77.87%,100%{opacity:0}}
+/* the halo ring lands with the halo */
+@keyframes db-failover-hring{0%,49.78%{transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.62%,100%{transform:scale(1)}}
 /* proposal card slides in at 5.67 s */
 @keyframes db-failover-card{0%,60.32%{opacity:0;transform:translateX(30px)}66.07%,100%{opacity:1;transform:translateX(0)}}
-@keyframes db-failover-cardstroke{0%,80.43%{stroke:var(--anim-accent)}84.26%,100%{stroke:var(--anim-ok)}}
-/* approval at 7.56 s */
-@keyframes db-failover-appr{0%,80.43%{opacity:0}84.26%,100%{opacity:1}}
+@keyframes db-failover-cardstroke{0%,75.96%{stroke:var(--anim-accent)}80%,100%{stroke:var(--anim-ok)}}
+/* approval 7.14-7.52 s, then nothing moves until the reroute at 8.1 s */
+@keyframes db-failover-appr{0%,75.96%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80%,100%{opacity:1;transform:translateY(0px)}}
 
-.visible .anim-db-failover .db-failover-scene{animation:db-failover-scene 9.4s ease-in-out 1 forwards}
+.visible .anim-db-failover .db-failover-scene{animation:db-failover-scene 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
 .visible .anim-db-failover .db-failover-req{animation:db-failover-dots 9s linear 1 forwards}
-.visible .anim-db-failover .db-failover-req.db-failover-pre{animation:db-failover-dots 9s linear 1 forwards,db-failover-pre 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-req.db-failover-err{animation:db-failover-fail 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-req.db-failover-new{animation:db-failover-dots 9s linear 1 forwards,db-failover-after 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-repl.db-failover-pre{animation:db-failover-repl 8.4s linear 1 forwards,db-failover-pre 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-pre{animation:db-failover-pre 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-post{animation:db-failover-post 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-fail{animation:db-failover-fail 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-pl{animation:db-failover-pl 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-fl{animation:db-failover-fl 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-al{animation:db-failover-al 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-s1{animation:db-failover-s1 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-s2{animation:db-failover-s2 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-was{animation:db-failover-was 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-after{animation:db-failover-after 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-c1{animation:db-failover-c1 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-c2{animation:db-failover-c2 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-c3{animation:db-failover-c3 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-halo{animation:db-failover-halo 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-card{animation:db-failover-card 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-card .db-failover-rule{animation:db-failover-cardstroke 9.4s ease-in-out 1 forwards}
-.visible .anim-db-failover .db-failover-appr{animation:db-failover-appr 9.4s ease-in-out 1 forwards}
+.visible .anim-db-failover .db-failover-req.db-failover-pre{animation:db-failover-dots 9s linear 1 forwards,db-failover-pre 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-req.db-failover-err{animation:db-failover-fail 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-req.db-failover-new{animation:db-failover-dots 9s linear 1 forwards,db-failover-after 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-repl.db-failover-pre{animation:db-failover-repl 8.4s linear 1 forwards,db-failover-pre 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-pre{animation:db-failover-pre 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-post{animation:db-failover-post 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-fail{animation:db-failover-fail 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-pl{animation:db-failover-pl 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-fl{animation:db-failover-fl 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-al{animation:db-failover-al 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-s1{animation:db-failover-s1 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-s2{animation:db-failover-s2 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-was{animation:db-failover-was 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-after{animation:db-failover-after 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-c1{animation:db-failover-c1 9.4s cubic-bezier(0.3,1.3,0.5,1) 1 forwards}
+.visible .anim-db-failover .db-failover-c2{animation:db-failover-c2 9.4s cubic-bezier(0.3,1.3,0.5,1) 1 forwards}
+.visible .anim-db-failover .db-failover-c3{animation:db-failover-c3 9.4s cubic-bezier(0.3,1.3,0.5,1) 1 forwards}
+.visible .anim-db-failover .db-failover-halo{animation:db-failover-halo 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-card{animation:db-failover-card 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-card .db-failover-rule{animation:db-failover-cardstroke 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-halo .db-failover-hr{animation:db-failover-hring 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-db-failover .db-failover-appr{animation:db-failover-appr 9.4s cubic-bezier(0.2,0,0,1) 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-db-failover * { animation: none !important; } }
 </style>
@@ -134,7 +140,7 @@
   </g>
   <!-- ===== replication db-a to db-b (normal phase only) ===== -->
   <path class="db-failover-repl db-failover-pre" d="M545 214 V326"/>
-  <text class="db-failover-mono db-failover-dim db-failover-pre" x="557" y="276">repl</text>
+  <text class="db-failover-sans db-failover-dim db-failover-pre" x="557" y="276">repl</text>
   <!-- ===== request dots ===== -->
   <g>
     <path class="db-failover-req" d="M96 170 L171 242"/>
@@ -153,7 +159,7 @@
   </g>
   <!-- ===== clients: line glyphs ===== -->
   <g class="db-failover-client"><path d="M50 156 H90 V180 H50 Z M70 180 V188 M60 188 H80"/><path d="M50 256 H90 V280 H50 Z M70 280 V288 M60 288 H80"/><path d="M50 356 H90 V380 H50 Z M70 380 V388 M60 388 H80"/></g>
-  <text class="db-failover-mono db-failover-dim" x="70" y="426" text-anchor="middle">clients</text>
+  <text class="db-failover-sans db-failover-dim" x="70" y="426" text-anchor="middle">clients</text>
   <!-- ===== load balancer and apps ===== -->
   <circle class="db-failover-ring" cx="200" cy="270" r="34"/><path class="db-failover-glyph" transform="translate(200 270)" d="M-13 0 H-3 M-3 0 L11 -9 M-3 0 L11 9 M-3 0 H11 M7 -12 L11 -9 L7 -6 M7 6 L11 9 L7 12"/>
   <text class="db-failover-lbl" x="200" y="336" text-anchor="middle">LB</text>
@@ -167,41 +173,41 @@
   <g class="db-failover-post"><circle class="db-failover-ring db-failover-r-down" cx="545" cy="170" r="36"/><path class="db-failover-glyph" transform="translate(545 170)" d="M-11 -8 A11 4 0 0 0 11 -8 A11 4 0 0 0 -11 -8 V8 A11 4 0 0 0 11 8 V-8 M-11 0 A11 4 0 0 0 11 0"/></g>
   <text class="db-failover-lbl" x="545" y="90" text-anchor="middle">db-a</text>
   <circle class="db-failover-ring" cx="545" cy="370" r="36"/><path class="db-failover-glyph" transform="translate(545 370)" d="M-11 -8 A11 4 0 0 0 11 -8 A11 4 0 0 0 -11 -8 V8 A11 4 0 0 0 11 8 V-8 M-11 0 A11 4 0 0 0 11 0"/>
-  <g class="db-failover-after"><circle class="db-failover-glow" cx="545" cy="370" r="36"/><circle class="db-failover-ring db-failover-r-up" cx="545" cy="370" r="36"/><path class="db-failover-glyph" transform="translate(545 370)" d="M-11 -8 A11 4 0 0 0 11 -8 A11 4 0 0 0 -11 -8 V8 A11 4 0 0 0 11 8 V-8 M-11 0 A11 4 0 0 0 11 0"/></g>
-  <text class="db-failover-lbl" x="545" y="436" text-anchor="middle">db-b</text>
-  <g class="db-failover-halo"><circle class="db-failover-hb" cx="545" cy="370" r="36"/><circle class="db-failover-hr" cx="545" cy="370" r="48"/></g>
+  <g class="db-failover-after" data-anim-focal=""><circle class="db-failover-glow" cx="545" cy="370" r="44"/><circle class="db-failover-ring db-failover-r-up" cx="545" cy="370" r="44"/><path class="db-failover-glyph" transform="translate(545 370)" d="M-11 -8 A11 4 0 0 0 11 -8 A11 4 0 0 0 -11 -8 V8 A11 4 0 0 0 11 8 V-8 M-11 0 A11 4 0 0 0 11 0"/></g>
+  <text class="db-failover-lbl" x="545" y="444" text-anchor="middle">db-b</text>
+  <g class="db-failover-halo"><circle class="db-failover-hb" cx="545" cy="370" r="36"/><circle class="db-failover-hr" cx="545" cy="370" r="54"/></g>
   <!-- ===== role words: plain coloured mono under / over the label ===== -->
-  <text class="db-failover-mono db-failover-st db-failover-cy db-failover-pre" x="545" y="116" text-anchor="middle">PRIMARY</text>
-  <text class="db-failover-mono db-failover-st db-failover-rd db-failover-post" x="545" y="116" text-anchor="middle">DOWN</text>
-  <text class="db-failover-mono db-failover-st db-failover-dim db-failover-was" x="545" y="460" text-anchor="middle">REPLICA</text>
-  <text class="db-failover-mono db-failover-st db-failover-gn db-failover-after" x="545" y="460" text-anchor="middle">PRIMARY</text>
-  <text class="db-failover-mono db-failover-st db-failover-rd db-failover-fail" x="446" y="156" text-anchor="middle">TIMEOUT</text>
+  <text class="db-failover-sans db-failover-cy db-failover-pre" x="545" y="116" text-anchor="middle">Primary</text>
+  <text class="db-failover-sans db-failover-rd db-failover-post" x="545" y="116" text-anchor="middle">Down</text>
+  <text class="db-failover-sans db-failover-dim db-failover-was" x="545" y="470" text-anchor="middle">Replica</text>
+  <text class="db-failover-sans db-failover-gn db-failover-after" x="545" y="470" text-anchor="middle">Primary</text>
+  <text class="db-failover-sans db-failover-rd db-failover-fail" x="446" y="156" text-anchor="middle">Timeout</text>
   <!-- ===== legend ===== -->
   <g class="db-failover-legend" transform="translate(20 535)">
-    <path class="db-failover-lg-req" d="M4 0 H40"/><text class="db-failover-mono db-failover-dim" x="54" y="6">requests</text>
-    <path class="db-failover-lg-err" d="M174 0 H210"/><text class="db-failover-mono db-failover-dim" x="224" y="6">stalled</text>
-    <path class="db-failover-lg-new" d="M334 0 H370"/><text class="db-failover-mono db-failover-dim" x="384" y="6">rerouted</text>
+    <path class="db-failover-lg-req" d="M4 0 H40"/><text class="db-failover-sans db-failover-dim" x="54" y="6">requests</text>
+    <path class="db-failover-lg-err" d="M174 0 H210"/><text class="db-failover-sans db-failover-dim" x="224" y="6">stalled</text>
+    <path class="db-failover-lg-new" d="M334 0 H370"/><text class="db-failover-sans db-failover-dim" x="384" y="6">rerouted</text>
   </g>
   <!-- ===== orchestrator: bracket open on the text side ===== -->
   <g class="db-failover-panel">
     <path class="db-failover-brk" d="M682 44 H666 V516 H682"/>
     <text class="db-failover-sans db-failover-title db-failover-fg" x="690" y="70">Orchestrator</text>
-    <g class="db-failover-mono">
+    <g class="db-failover-sans">
       <text class="db-failover-gn db-failover-pl" x="690" y="102">all checks passing</text>
       <text class="db-failover-rd db-failover-s1" x="690" y="102">db-a not responding</text>
       <text class="db-failover-cy db-failover-s2" x="690" y="102">promote db-b?</text>
       <text class="db-failover-gn db-failover-al" x="690" y="102">failover complete</text>
     </g>
     <g class="db-failover-mono">
-      <text class="db-failover-dim" x="690" y="142">error rate</text>
+      <text class="db-failover-sans db-failover-dim" x="690" y="142">error rate</text>
       <text class="db-failover-cy db-failover-pl" x="970" y="142" text-anchor="end">0.0 %</text>
       <text class="db-failover-rd db-failover-fl" x="970" y="142" text-anchor="end">41 %</text>
       <text class="db-failover-gn db-failover-al" x="970" y="142" text-anchor="end">0.1 %</text>
-      <text class="db-failover-dim" x="690" y="174">p99 latency</text>
+      <text class="db-failover-sans db-failover-dim" x="690" y="174">p99 latency</text>
       <text class="db-failover-cy db-failover-pl" x="970" y="174" text-anchor="end">38 ms</text>
       <text class="db-failover-rd db-failover-fl" x="970" y="174" text-anchor="end">&gt; 5 s</text>
       <text class="db-failover-gn db-failover-al" x="970" y="174" text-anchor="end">40 ms</text>
-      <text class="db-failover-dim" x="690" y="206">checks db-a</text>
+      <text class="db-failover-sans db-failover-dim" x="690" y="206">checks db-a</text>
     </g>
     <g transform="translate(0 200)">
       <circle class="db-failover-dot-ok" cx="916" r="6"/><circle class="db-failover-dot-ok" cx="940" r="6"/><circle class="db-failover-dot-ok" cx="964" r="6"/>
@@ -210,18 +216,18 @@
     <g class="db-failover-card">
       <path class="db-failover-rule" d="M692 252 V346"/>
       <text class="db-failover-sans db-failover-fg" font-weight="600" x="710" y="274">Proposal: promote db-b</text>
-      <text class="db-failover-mono db-failover-cy" x="710" y="306">replica in sync</text>
+      <text class="db-failover-sans db-failover-cy" x="710" y="306">replica in sync</text>
       <text class="db-failover-mono db-failover-gn" x="710" y="336">0 writes lost</text>
     </g>
     <g class="db-failover-appr">
       <circle class="db-failover-head" cx="700" cy="388" r="5"/><path class="db-failover-human" d="M691 405 a9 9 0 0 1 18 0"/>
-      <text class="db-failover-mono db-failover-gn" x="720" y="404">✓ APPROVED BY ON-CALL</text>
+      <text class="db-failover-sans db-failover-gn" x="720" y="404">✓ Approved by on-call</text>
     </g>
     <text class="db-failover-sans db-failover-dim" x="690" y="497">detect · promote · reroute</text>
   </g>
   <!-- ===== illustrative values tag ===== -->
   <rect class="db-failover-tagbox" x="20" y="20" width="146" height="32" rx="4"/>
-  <text class="db-failover-mono db-failover-dim" x="93" y="42" text-anchor="middle">illustrative</text>
+  <text class="db-failover-sans db-failover-dim" x="93" y="42" text-anchor="middle">illustrative</text>
 </g>
 </svg>
 </div>

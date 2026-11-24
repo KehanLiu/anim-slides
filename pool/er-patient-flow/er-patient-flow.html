@@ -1,13 +1,15 @@
 <!-- er-patient-flow (lean restyle sample, archetype pipeline, domain health). Hand-built.
   Story: an emergency department visit in eight steps on a thin line, wrapped into two rows: a glowing
-  token hops ring to ring, the active ring lights in the accent, a passed ring settles in ok; the quiet
-  wrap carries the token from step 4 down to step 5. Once-play pass 10 s, ends on the resting frame; hold 8.94-10 s.
+  token hops ring to ring, the active ring lights in the accent, a reached ring settles to the text colour
+  (the route to muted), since every step is reached; the quiet wrap carries the token from step 4 down to step 5. Entrance: the route draws on in
+  order, each ring lands as its wire reaches it, its label settles just after. Step 8 (discharge) is the
+  focal: a larger ring that stays lit. Once-play pass 10 s, ends on the resting frame; hold 9.0-10 s.
   Illustrative, not clinical guidance. -->
 <style>
 .anim-er-patient-flow{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -15,23 +17,24 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-er-patient-flow svg{display:block;width:100%;height:100%;max-width:none}
 .anim-er-patient-flow .er-patient-flow-lbl{font-family:var(--anim-font);font-size:26px;font-weight:600;fill:var(--anim-fg)}
-.anim-er-patient-flow .er-patient-flow-sub{font-family:var(--anim-mono);font-size:19px;font-weight:400;fill:var(--anim-muted)}
-.anim-er-patient-flow .er-patient-flow-num{font-family:var(--anim-mono);font-size:22px;font-weight:500;fill:var(--anim-muted)}
+.anim-er-patient-flow .er-patient-flow-sub{font-family:var(--anim-font);font-size:19px;font-weight:400;fill:var(--anim-muted)}
+.anim-er-patient-flow .er-patient-flow-num{font-family:var(--anim-mono);font-size:26px;font-weight:500;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
 .anim-er-patient-flow .er-patient-flow-num-run{fill:var(--anim-accent)}
-.anim-er-patient-flow .er-patient-flow-num-ok{fill:var(--anim-ok)}
+.anim-er-patient-flow .er-patient-flow-num-ok{fill:var(--anim-fg)}
 .anim-er-patient-flow .er-patient-flow-note{font-family:var(--anim-font);font-size:26px;font-weight:400;fill:var(--anim-fg)}
-.anim-er-patient-flow .er-patient-flow-wire{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120}
-.anim-er-patient-flow .er-patient-flow-done{fill:none;stroke:var(--anim-ok);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.anim-er-patient-flow .er-patient-flow-ring{fill:none;stroke:var(--anim-line);stroke-width:2.5}
+.anim-er-patient-flow .er-patient-flow-wire{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120}
+.anim-er-patient-flow .er-patient-flow-done{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-er-patient-flow .er-patient-flow-ring{fill:none;stroke:var(--anim-line);stroke-width:2}
 .anim-er-patient-flow .er-patient-flow-ring-run{stroke:var(--anim-accent);stroke-width:4}
 .anim-er-patient-flow .er-patient-flow-ring-glow{fill:none;stroke:var(--anim-accent);stroke-width:10;opacity:.3;filter:blur(7px)}
-.anim-er-patient-flow .er-patient-flow-ring-ok{stroke:var(--anim-ok);stroke-width:2.5}
+.anim-er-patient-flow .er-patient-flow-ring-ok{stroke:var(--anim-fg);stroke-width:2}
+.anim-er-patient-flow .er-patient-flow-ring-end{stroke:var(--anim-accent);stroke-width:2}
 .anim-er-patient-flow .er-patient-flow-pkt{fill:var(--anim-accent);opacity:0;offset-rotate:0deg}
 .anim-er-patient-flow .er-patient-flow-pkt-glow{fill:var(--anim-accent);opacity:0;offset-rotate:0deg;filter:blur(8px)}
 .anim-er-patient-flow .er-patient-flow-pop{transform-box:fill-box;transform-origin:center}
@@ -41,47 +44,85 @@
 .anim-er-patient-flow .er-patient-flow-h3{offset-path:path('M1294 110 H1370 Q1410 110 1410 150 V280 Q1410 320 1370 320 H1294')}
 .anim-er-patient-flow .er-patient-flow-h4{offset-path:path('M1226 320 H994')}
 .anim-er-patient-flow .er-patient-flow-h5{offset-path:path('M926 320 H694')}
-.anim-er-patient-flow .er-patient-flow-h6{offset-path:path('M626 320 H394')}
-/* resting frame = visit complete: every ring settled in ok, final caption */
-.anim-er-patient-flow .er-patient-flow-run0,.anim-er-patient-flow .er-patient-flow-run1,.anim-er-patient-flow .er-patient-flow-run2,.anim-er-patient-flow .er-patient-flow-run3,.anim-er-patient-flow .er-patient-flow-run4,.anim-er-patient-flow .er-patient-flow-run5,.anim-er-patient-flow .er-patient-flow-run6,.anim-er-patient-flow .er-patient-flow-run7,.anim-er-patient-flow .er-patient-flow-pkt,.anim-er-patient-flow .er-patient-flow-pkt-glow,.anim-er-patient-flow .er-patient-flow-n0,.anim-er-patient-flow .er-patient-flow-n1,.anim-er-patient-flow .er-patient-flow-n2,.anim-er-patient-flow .er-patient-flow-n3,.anim-er-patient-flow .er-patient-flow-n4,.anim-er-patient-flow .er-patient-flow-n5,.anim-er-patient-flow .er-patient-flow-n6{opacity:0}
+.anim-er-patient-flow .er-patient-flow-h6{offset-path:path('M626 320 H410')}
+/* resting frame = visit complete: steps 1-7 reached, settled to the text colour (route muted), step 8 lit in the accent as the focal, final caption */
+.anim-er-patient-flow .er-patient-flow-run0,.anim-er-patient-flow .er-patient-flow-run1,.anim-er-patient-flow .er-patient-flow-run2,.anim-er-patient-flow .er-patient-flow-run3,.anim-er-patient-flow .er-patient-flow-run4,.anim-er-patient-flow .er-patient-flow-run5,.anim-er-patient-flow .er-patient-flow-run6,.anim-er-patient-flow .er-patient-flow-pkt,.anim-er-patient-flow .er-patient-flow-pkt-glow,.anim-er-patient-flow .er-patient-flow-n0,.anim-er-patient-flow .er-patient-flow-n1,.anim-er-patient-flow .er-patient-flow-n2,.anim-er-patient-flow .er-patient-flow-n3,.anim-er-patient-flow .er-patient-flow-n4,.anim-er-patient-flow .er-patient-flow-n5,.anim-er-patient-flow .er-patient-flow-n6{opacity:0}
 
-/* ---- motion (one 10 s pass, played once), only when the slide is visible; step starts at 0.82, 1.85, 2.87, 3.9, 5.17, 6.19, 7.22 and 8.24 s; hold from 8.94 s ---- */
-/* fade in, then stay */
-@keyframes er-patient-flow-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.46%,100%{opacity:1}}
-/* in at 0.04s */
-@keyframes er-patient-flow-row0{0%,0.41%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.1%,100%{opacity:1;transform:translateY(0)}}
-/* in at 0.25s */
-@keyframes er-patient-flow-row1{0%,2.46%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.15%,100%{opacity:1;transform:translateY(0)}}
-/* all wires draw on together as one group track, 0.62s - 1.17s, after the nodes are in */
-@keyframes er-patient-flow-wires{0%,6.2%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.7%,100%{stroke-dashoffset:0}}
-/* in at 1.84s */
-@keyframes er-patient-flow-wd0{0%,18.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.91%,100%{opacity:1}}
+/* ---- motion (one 10 s pass, played once), only when the slide is visible; entrance 0-1.26 s; step starts at 0.82, 1.85, 2.87, 3.9, 5.17, 6.19, 7.22 and 8.62 s; stillness 7.46-7.88 s; hold from 9.0 s ---- */
+/* wire 1 draws on 0.10s - 0.42s */
+@keyframes er-patient-flow-w0{0%,1%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.2%,100%{stroke-dashoffset:0}}
+/* wire 2 draws on 0.18s - 0.50s */
+@keyframes er-patient-flow-w1{0%,1.8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5%,100%{stroke-dashoffset:0}}
+/* wire 3 draws on 0.26s - 0.58s */
+@keyframes er-patient-flow-w2{0%,2.6%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.8%,100%{stroke-dashoffset:0}}
+/* wire 4 draws on 0.34s - 0.66s */
+@keyframes er-patient-flow-w3{0%,3.4%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.6%,100%{stroke-dashoffset:0}}
+/* wire 5 draws on 0.41s - 0.73s */
+@keyframes er-patient-flow-w4{0%,4.1%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.3%,100%{stroke-dashoffset:0}}
+/* wire 6 draws on 0.48s - 0.80s */
+@keyframes er-patient-flow-w5{0%,4.8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8%,100%{stroke-dashoffset:0}}
+/* wire 7 draws on 0.54s - 0.86s */
+@keyframes er-patient-flow-w6{0%,5.4%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.6%,100%{stroke-dashoffset:0}}
+/* ring 1 lands 0.00s - 0.30s */
+@keyframes er-patient-flow-r0{0%,0%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3%,100%{opacity:1;transform:scale(1)}}
+/* ring 2 lands 0.38s - 0.68s */
+@keyframes er-patient-flow-r1{0%,3.8%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.8%,100%{opacity:1;transform:scale(1)}}
+/* ring 3 lands 0.46s - 0.76s */
+@keyframes er-patient-flow-r2{0%,4.6%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.6%,100%{opacity:1;transform:scale(1)}}
+/* ring 4 lands 0.54s - 0.84s */
+@keyframes er-patient-flow-r3{0%,5.4%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.4%,100%{opacity:1;transform:scale(1)}}
+/* ring 5 lands 0.62s - 0.92s */
+@keyframes er-patient-flow-r4{0%,6.2%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.2%,100%{opacity:1;transform:scale(1)}}
+/* ring 6 lands 0.69s - 0.99s */
+@keyframes er-patient-flow-r5{0%,6.9%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.9%,100%{opacity:1;transform:scale(1)}}
+/* ring 7 lands 0.76s - 1.06s */
+@keyframes er-patient-flow-r6{0%,7.6%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.6%,100%{opacity:1;transform:scale(1)}}
+/* ring 8 lands 0.82s - 1.12s */
+@keyframes er-patient-flow-r7{0%,8.2%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.2%,100%{opacity:1;transform:scale(1)}}
+/* label 1 settles 0.09s - 0.44s */
+@keyframes er-patient-flow-l0{0%,0.9%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.4%,100%{opacity:1;transform:translateY(0)}}
+/* label 2 settles 0.47s - 0.82s */
+@keyframes er-patient-flow-l1{0%,4.7%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.2%,100%{opacity:1;transform:translateY(0)}}
+/* label 3 settles 0.55s - 0.90s */
+@keyframes er-patient-flow-l2{0%,5.5%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9%,100%{opacity:1;transform:translateY(0)}}
+/* label 4 settles 0.63s - 0.98s */
+@keyframes er-patient-flow-l3{0%,6.3%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.8%,100%{opacity:1;transform:translateY(0)}}
+/* label 5 settles 0.71s - 1.06s */
+@keyframes er-patient-flow-l4{0%,7.1%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.6%,100%{opacity:1;transform:translateY(0)}}
+/* label 6 settles 0.78s - 1.13s */
+@keyframes er-patient-flow-l5{0%,7.8%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.3%,100%{opacity:1;transform:translateY(0)}}
+/* label 7 settles 0.85s - 1.20s */
+@keyframes er-patient-flow-l6{0%,8.5%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12%,100%{opacity:1;transform:translateY(0)}}
+/* label 8 settles 0.91s - 1.26s */
+@keyframes er-patient-flow-l7{0%,9.1%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.6%,100%{opacity:1;transform:translateY(0)}}
 /* hop 1.27s - 1.84s */
 @keyframes er-patient-flow-h0{0%,12.71%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}13.37%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}17.79%{offset-distance:97%;opacity:1}18.45%,100%{offset-distance:100%;opacity:0}}
-/* in at 2.87s */
-@keyframes er-patient-flow-wd1{0%,28.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.16%,100%{opacity:1}}
+/* in at 1.84s */
+@keyframes er-patient-flow-wd0{0%,18.45%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.91%,100%{opacity:1}}
 /* hop 2.3s - 2.87s */
 @keyframes er-patient-flow-h1{0%,22.96%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}23.61%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}28.05%{offset-distance:97%;opacity:1}28.7%,100%{offset-distance:100%;opacity:0}}
-/* in at 3.89s */
-@keyframes er-patient-flow-wd2{0%,38.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.41%,100%{opacity:1}}
+/* in at 2.87s */
+@keyframes er-patient-flow-wd1{0%,28.7%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}31.16%,100%{opacity:1}}
 /* hop 3.32s - 3.89s */
 @keyframes er-patient-flow-h2{0%,33.21%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}33.87%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}38.29%{offset-distance:97%;opacity:1}38.95%,100%{offset-distance:100%;opacity:0}}
-/* in at 5.17s */
-@keyframes er-patient-flow-wd3{0%,51.66%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.12%,100%{opacity:1}}
+/* in at 3.89s */
+@keyframes er-patient-flow-wd2{0%,38.95%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}41.41%,100%{opacity:1}}
 /* hop 4.35s - 5.17s */
 @keyframes er-patient-flow-h3{0%,43.46%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}44.11%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}51.01%{offset-distance:97%;opacity:1}51.66%,100%{offset-distance:100%;opacity:0}}
-/* in at 6.19s */
-@keyframes er-patient-flow-wd4{0%,61.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.37%,100%{opacity:1}}
+/* in at 5.17s */
+@keyframes er-patient-flow-wd3{0%,51.66%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.12%,100%{opacity:1}}
 /* hop 5.62s - 6.19s */
 @keyframes er-patient-flow-h4{0%,56.17%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}56.83%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}61.25%{offset-distance:97%;opacity:1}61.91%,100%{offset-distance:100%;opacity:0}}
-/* in at 7.22s */
-@keyframes er-patient-flow-wd5{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.62%,100%{opacity:1}}
+/* in at 6.19s */
+@keyframes er-patient-flow-wd4{0%,61.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.37%,100%{opacity:1}}
 /* hop 6.64s - 7.22s */
 @keyframes er-patient-flow-h5{0%,66.42%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}67.07%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}71.51%{offset-distance:97%;opacity:1}72.16%,100%{offset-distance:100%;opacity:0}}
-/* in at 8.24s */
-@keyframes er-patient-flow-wd6{0%,82.41%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.87%,100%{opacity:1}}
-/* hop 7.67s - 8.24s */
-@keyframes er-patient-flow-h6{0%,76.67%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}77.33%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}81.75%{offset-distance:97%;opacity:1}82.41%,100%{offset-distance:100%;opacity:0}}
+/* in at 7.22s */
+@keyframes er-patient-flow-wd5{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.62%,100%{opacity:1}}
+/* hop 8.05s - 8.62s (after a 0.42 s stillness from 7.46 s: the answer step) */
+@keyframes er-patient-flow-h6{0%,80.47%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}81.13%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}85.55%{offset-distance:97%;opacity:1}86.21%,100%{offset-distance:100%;opacity:0}}
+/* in at 8.62s */
+@keyframes er-patient-flow-wd6{0%,86.21%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.67%,100%{opacity:1}}
 /* 0.82s - 1.27s */
 @keyframes er-patient-flow-run0{0%,8.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}9.8%{opacity:1}11.07%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}12.71%,100%{opacity:0}}
 /* in at 1.27s */
@@ -106,14 +147,14 @@
 @keyframes er-patient-flow-run5{0%,61.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.51%{opacity:1}64.78%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.42%,100%{opacity:0}}
 /* in at 6.64s */
 @keyframes er-patient-flow-ok5{0%,66.42%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.88%,100%{opacity:1}}
-/* 7.22s - 7.67s */
-@keyframes er-patient-flow-run6{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.76%{opacity:1}75.03%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}76.67%,100%{opacity:0}}
-/* in at 7.67s */
-@keyframes er-patient-flow-ok6{0%,76.67%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.13%,100%{opacity:1}}
-/* 8.24s - 8.69s */
-@keyframes er-patient-flow-run7{0%,82.41%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.01%{opacity:1}85.28%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.92%,100%{opacity:0}}
-/* in at 8.69s */
-@keyframes er-patient-flow-ok7{0%,86.92%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.38%,100%{opacity:1}}
+/* 7.22s - 8.05s */
+@keyframes er-patient-flow-run6{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.76%{opacity:1}78.83%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80.47%,100%{opacity:0}}
+/* in at 8.05s */
+@keyframes er-patient-flow-ok6{0%,80.47%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.93%,100%{opacity:1}}
+/* 8.62s in, stays lit: the visit's end is the focal */
+@keyframes er-patient-flow-run7{0%,86.21%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.81%,100%{opacity:1}}
+/* in at 8.78s */
+@keyframes er-patient-flow-ok7{0%,87.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90%,100%{opacity:1}}
 /* 0s - 1.84s */
 @keyframes er-patient-flow-n0{0%{opacity:1}18.45%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.09%,100%{opacity:0}}
 /* 1.84s - 2.87s */
@@ -126,29 +167,48 @@
 @keyframes er-patient-flow-n4{0%,51.66%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.12%{opacity:1}61.91%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.55%,100%{opacity:0}}
 /* 6.19s - 7.22s */
 @keyframes er-patient-flow-n5{0%,61.91%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.37%{opacity:1}72.16%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}73.8%,100%{opacity:0}}
-/* 7.22s - 8.24s */
-@keyframes er-patient-flow-n6{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.62%{opacity:1}82.41%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}84.05%,100%{opacity:0}}
-/* in at 8.24s */
-@keyframes er-patient-flow-n7{0%,82.41%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84.87%,100%{opacity:1}}
+/* 7.22s - 8.62s */
+@keyframes er-patient-flow-n6{0%,72.16%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.62%{opacity:1}86.21%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.85%,100%{opacity:0}}
+/* in at 8.62s */
+@keyframes er-patient-flow-n7{0%,86.21%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}88.67%,100%{opacity:1}}
 
-.visible .anim-er-patient-flow .er-patient-flow-scene{animation:er-patient-flow-scene 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-row0{animation:er-patient-flow-row0 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-row1{animation:er-patient-flow-row1 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-wires{animation:er-patient-flow-wires 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-wd0{animation:er-patient-flow-wd0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-w0{animation:er-patient-flow-w0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-w1{animation:er-patient-flow-w1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-w2{animation:er-patient-flow-w2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-w3{animation:er-patient-flow-w3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-w4{animation:er-patient-flow-w4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-w5{animation:er-patient-flow-w5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-w6{animation:er-patient-flow-w6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-r0{animation:er-patient-flow-r0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-r1{animation:er-patient-flow-r1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-r2{animation:er-patient-flow-r2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-r3{animation:er-patient-flow-r3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-r4{animation:er-patient-flow-r4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-r5{animation:er-patient-flow-r5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-r6{animation:er-patient-flow-r6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-r7{animation:er-patient-flow-r7 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-l0{animation:er-patient-flow-l0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-l1{animation:er-patient-flow-l1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-l2{animation:er-patient-flow-l2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-l3{animation:er-patient-flow-l3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-l4{animation:er-patient-flow-l4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-l5{animation:er-patient-flow-l5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-l6{animation:er-patient-flow-l6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-l7{animation:er-patient-flow-l7 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-h0{animation:er-patient-flow-h0 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-wd1{animation:er-patient-flow-wd1 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-h1{animation:er-patient-flow-h1 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-wd2{animation:er-patient-flow-wd2 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-h2{animation:er-patient-flow-h2 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-wd3{animation:er-patient-flow-wd3 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-h3{animation:er-patient-flow-h3 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-wd4{animation:er-patient-flow-wd4 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-h4{animation:er-patient-flow-h4 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-wd5{animation:er-patient-flow-wd5 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-h5{animation:er-patient-flow-h5 10s linear 1 forwards}
-.visible .anim-er-patient-flow .er-patient-flow-wd6{animation:er-patient-flow-wd6 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-h6{animation:er-patient-flow-h6 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd0{animation:er-patient-flow-wd0 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd1{animation:er-patient-flow-wd1 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd2{animation:er-patient-flow-wd2 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd3{animation:er-patient-flow-wd3 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd4{animation:er-patient-flow-wd4 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd5{animation:er-patient-flow-wd5 10s linear 1 forwards}
+.visible .anim-er-patient-flow .er-patient-flow-wd6{animation:er-patient-flow-wd6 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-run0{animation:er-patient-flow-run0 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-ok0{animation:er-patient-flow-ok0 10s linear 1 forwards}
 .visible .anim-er-patient-flow .er-patient-flow-run1{animation:er-patient-flow-run1 10s linear 1 forwards}
@@ -178,86 +238,70 @@
 </style>
 <div class="anim anim-er-patient-flow" data-anim="er-patient-flow" data-anim-cycle="10" data-anim-phases="1.1,2.11,3.14,4.16,5.43,6.46,7.48,9.0" data-anim-control="once" data-anim-verb="travel">
 <svg viewBox="0 0 1680 560" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Emergency department visit in eight numbered steps over two rows: arrival, triage, registration, assessment, tests, treatment, a decision to send home or admit, and discharge; each step lights up in turn and settles as done.">
-<g class="er-patient-flow-scene">
-  <g class="er-patient-flow-wires">
-    <path class="er-patient-flow-wire" pathLength="100" d="M394 110 H626"/>
-    <path class="er-patient-flow-wire" pathLength="100" d="M694 110 H926"/>
-    <path class="er-patient-flow-wire" pathLength="100" d="M994 110 H1226"/>
-    <path class="er-patient-flow-wire" pathLength="100" d="M1294 110 H1370 Q1410 110 1410 150 V280 Q1410 320 1370 320 H1294"/>
-    <path class="er-patient-flow-wire" pathLength="100" d="M1226 320 H994"/>
-    <path class="er-patient-flow-wire" pathLength="100" d="M926 320 H694"/>
-    <path class="er-patient-flow-wire" pathLength="100" d="M626 320 H394"/>
+<g>
+  <g>
+    <path class="er-patient-flow-wire er-patient-flow-w0" pathLength="100" d="M394 110 H626"/>
+    <path class="er-patient-flow-wire er-patient-flow-w1" pathLength="100" d="M694 110 H926"/>
+    <path class="er-patient-flow-wire er-patient-flow-w2" pathLength="100" d="M994 110 H1226"/>
+    <path class="er-patient-flow-wire er-patient-flow-w3" pathLength="100" d="M1294 110 H1370 Q1410 110 1410 150 V280 Q1410 320 1370 320 H1294"/>
+    <path class="er-patient-flow-wire er-patient-flow-w4" pathLength="100" d="M1226 320 H994"/>
+    <path class="er-patient-flow-wire er-patient-flow-w5" pathLength="100" d="M926 320 H694"/>
+    <path class="er-patient-flow-wire er-patient-flow-w6" pathLength="100" d="M626 320 H410"/>
   </g>
-  <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd0" d="M394 110 H626"/></g>
-  <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd1" d="M694 110 H926"/></g>
-  <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd2" d="M994 110 H1226"/></g>
-  <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd3" d="M1294 110 H1370 Q1410 110 1410 150 V280 Q1410 320 1370 320 H1294"/></g>
-  <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd4" d="M1226 320 H994"/></g>
-  <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd5" d="M926 320 H694"/></g>
-  <g opacity=".4"><path class="er-patient-flow-done er-patient-flow-wd6" d="M626 320 H394"/></g>
-  <g class="er-patient-flow-row0">
-    <circle class="er-patient-flow-ring" cx="360" cy="110" r="34"/>
-    <text class="er-patient-flow-num" x="360" y="118" text-anchor="middle">1</text>
-    <g class="er-patient-flow-run0"><circle class="er-patient-flow-ring-glow" cx="360" cy="110" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="360" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="360" y="118" text-anchor="middle">1</text></g>
-    <g class="er-patient-flow-ok0"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="360" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="360" y="118" text-anchor="middle">1</text></g>
-    <text class="er-patient-flow-lbl" x="360" y="184" text-anchor="middle">Arrival</text>
-    <text class="er-patient-flow-sub" x="360" y="214" text-anchor="middle">on foot or ambulance</text>
+  <path class="er-patient-flow-done er-patient-flow-wd0" d="M394 110 H626"/>
+  <path class="er-patient-flow-done er-patient-flow-wd1" d="M694 110 H926"/>
+  <path class="er-patient-flow-done er-patient-flow-wd2" d="M994 110 H1226"/>
+  <path class="er-patient-flow-done er-patient-flow-wd3" d="M1294 110 H1370 Q1410 110 1410 150 V280 Q1410 320 1370 320 H1294"/>
+  <path class="er-patient-flow-done er-patient-flow-wd4" d="M1226 320 H994"/>
+  <path class="er-patient-flow-done er-patient-flow-wd5" d="M926 320 H694"/>
+  <path class="er-patient-flow-done er-patient-flow-wd6" d="M626 320 H410"/>
+  <g>
+    <g class="er-patient-flow-pop er-patient-flow-r0"><circle class="er-patient-flow-ring" cx="360" cy="110" r="34"/><text class="er-patient-flow-num" x="360" y="119" text-anchor="middle">1</text></g>
+    <g class="er-patient-flow-run0"><circle class="er-patient-flow-ring-glow" cx="360" cy="110" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="360" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="360" y="119" text-anchor="middle">1</text></g>
+    <g class="er-patient-flow-ok0"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="360" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="360" y="119" text-anchor="middle">1</text></g>
+    <g class="er-patient-flow-l0"><text class="er-patient-flow-lbl" x="360" y="194" text-anchor="middle">Arrival</text><text class="er-patient-flow-sub" x="360" y="224" text-anchor="middle">on foot or ambulance</text></g>
   </g>
-  <g class="er-patient-flow-row0">
-    <circle class="er-patient-flow-ring" cx="660" cy="110" r="34"/>
-    <text class="er-patient-flow-num" x="660" y="118" text-anchor="middle">2</text>
-    <g class="er-patient-flow-run1"><circle class="er-patient-flow-ring-glow" cx="660" cy="110" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="660" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="660" y="118" text-anchor="middle">2</text></g>
-    <g class="er-patient-flow-ok1"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="660" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="660" y="118" text-anchor="middle">2</text></g>
-    <text class="er-patient-flow-lbl" x="660" y="184" text-anchor="middle">Triage</text>
-    <text class="er-patient-flow-sub" x="660" y="214" text-anchor="middle">urgency level set</text>
+  <g>
+    <g class="er-patient-flow-pop er-patient-flow-r1"><circle class="er-patient-flow-ring" cx="660" cy="110" r="34"/><text class="er-patient-flow-num" x="660" y="119" text-anchor="middle">2</text></g>
+    <g class="er-patient-flow-run1"><circle class="er-patient-flow-ring-glow" cx="660" cy="110" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="660" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="660" y="119" text-anchor="middle">2</text></g>
+    <g class="er-patient-flow-ok1"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="660" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="660" y="119" text-anchor="middle">2</text></g>
+    <g class="er-patient-flow-l1"><text class="er-patient-flow-lbl" x="660" y="194" text-anchor="middle">Triage</text><text class="er-patient-flow-sub" x="660" y="224" text-anchor="middle">urgency level set</text></g>
   </g>
-  <g class="er-patient-flow-row0">
-    <circle class="er-patient-flow-ring" cx="960" cy="110" r="34"/>
-    <text class="er-patient-flow-num" x="960" y="118" text-anchor="middle">3</text>
-    <g class="er-patient-flow-run2"><circle class="er-patient-flow-ring-glow" cx="960" cy="110" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="960" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="960" y="118" text-anchor="middle">3</text></g>
-    <g class="er-patient-flow-ok2"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="960" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="960" y="118" text-anchor="middle">3</text></g>
-    <text class="er-patient-flow-lbl" x="960" y="184" text-anchor="middle">Registration</text>
-    <text class="er-patient-flow-sub" x="960" y="214" text-anchor="middle">visit record opened</text>
+  <g>
+    <g class="er-patient-flow-pop er-patient-flow-r2"><circle class="er-patient-flow-ring" cx="960" cy="110" r="34"/><text class="er-patient-flow-num" x="960" y="119" text-anchor="middle">3</text></g>
+    <g class="er-patient-flow-run2"><circle class="er-patient-flow-ring-glow" cx="960" cy="110" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="960" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="960" y="119" text-anchor="middle">3</text></g>
+    <g class="er-patient-flow-ok2"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="960" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="960" y="119" text-anchor="middle">3</text></g>
+    <g class="er-patient-flow-l2"><text class="er-patient-flow-lbl" x="960" y="194" text-anchor="middle">Registration</text><text class="er-patient-flow-sub" x="960" y="224" text-anchor="middle">visit record opened</text></g>
   </g>
-  <g class="er-patient-flow-row0">
-    <circle class="er-patient-flow-ring" cx="1260" cy="110" r="34"/>
-    <text class="er-patient-flow-num" x="1260" y="118" text-anchor="middle">4</text>
-    <g class="er-patient-flow-run3"><circle class="er-patient-flow-ring-glow" cx="1260" cy="110" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="1260" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="1260" y="118" text-anchor="middle">4</text></g>
-    <g class="er-patient-flow-ok3"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="1260" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="1260" y="118" text-anchor="middle">4</text></g>
-    <text class="er-patient-flow-lbl" x="1260" y="184" text-anchor="middle">Assessment</text>
-    <text class="er-patient-flow-sub" x="1260" y="214" text-anchor="middle">clinician examines</text>
+  <g>
+    <g class="er-patient-flow-pop er-patient-flow-r3"><circle class="er-patient-flow-ring" cx="1260" cy="110" r="34"/><text class="er-patient-flow-num" x="1260" y="119" text-anchor="middle">4</text></g>
+    <g class="er-patient-flow-run3"><circle class="er-patient-flow-ring-glow" cx="1260" cy="110" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="1260" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="1260" y="119" text-anchor="middle">4</text></g>
+    <g class="er-patient-flow-ok3"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="1260" cy="110" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="1260" y="119" text-anchor="middle">4</text></g>
+    <g class="er-patient-flow-l3"><text class="er-patient-flow-lbl" x="1260" y="194" text-anchor="middle">Assessment</text><text class="er-patient-flow-sub" x="1260" y="224" text-anchor="middle">clinician examines</text></g>
   </g>
-  <g class="er-patient-flow-row1">
-    <circle class="er-patient-flow-ring" cx="1260" cy="320" r="34"/>
-    <text class="er-patient-flow-num" x="1260" y="328" text-anchor="middle">5</text>
-    <g class="er-patient-flow-run4"><circle class="er-patient-flow-ring-glow" cx="1260" cy="320" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="1260" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="1260" y="328" text-anchor="middle">5</text></g>
-    <g class="er-patient-flow-ok4"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="1260" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="1260" y="328" text-anchor="middle">5</text></g>
-    <text class="er-patient-flow-lbl" x="1260" y="394" text-anchor="middle">Tests</text>
-    <text class="er-patient-flow-sub" x="1260" y="424" text-anchor="middle">bloods and imaging</text>
+  <g>
+    <g class="er-patient-flow-pop er-patient-flow-r4"><circle class="er-patient-flow-ring" cx="1260" cy="320" r="34"/><text class="er-patient-flow-num" x="1260" y="329" text-anchor="middle">5</text></g>
+    <g class="er-patient-flow-run4"><circle class="er-patient-flow-ring-glow" cx="1260" cy="320" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="1260" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="1260" y="329" text-anchor="middle">5</text></g>
+    <g class="er-patient-flow-ok4"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="1260" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="1260" y="329" text-anchor="middle">5</text></g>
+    <g class="er-patient-flow-l4"><text class="er-patient-flow-lbl" x="1260" y="404" text-anchor="middle">Tests</text><text class="er-patient-flow-sub" x="1260" y="434" text-anchor="middle">bloods and imaging</text></g>
   </g>
-  <g class="er-patient-flow-row1">
-    <circle class="er-patient-flow-ring" cx="960" cy="320" r="34"/>
-    <text class="er-patient-flow-num" x="960" y="328" text-anchor="middle">6</text>
-    <g class="er-patient-flow-run5"><circle class="er-patient-flow-ring-glow" cx="960" cy="320" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="960" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="960" y="328" text-anchor="middle">6</text></g>
-    <g class="er-patient-flow-ok5"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="960" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="960" y="328" text-anchor="middle">6</text></g>
-    <text class="er-patient-flow-lbl" x="960" y="394" text-anchor="middle">Treatment</text>
-    <text class="er-patient-flow-sub" x="960" y="424" text-anchor="middle">medication and care</text>
+  <g>
+    <g class="er-patient-flow-pop er-patient-flow-r5"><circle class="er-patient-flow-ring" cx="960" cy="320" r="34"/><text class="er-patient-flow-num" x="960" y="329" text-anchor="middle">6</text></g>
+    <g class="er-patient-flow-run5"><circle class="er-patient-flow-ring-glow" cx="960" cy="320" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="960" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="960" y="329" text-anchor="middle">6</text></g>
+    <g class="er-patient-flow-ok5"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="960" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="960" y="329" text-anchor="middle">6</text></g>
+    <g class="er-patient-flow-l5"><text class="er-patient-flow-lbl" x="960" y="404" text-anchor="middle">Treatment</text><text class="er-patient-flow-sub" x="960" y="434" text-anchor="middle">medication and care</text></g>
   </g>
-  <g class="er-patient-flow-row1">
-    <circle class="er-patient-flow-ring" cx="660" cy="320" r="34"/>
-    <text class="er-patient-flow-num" x="660" y="328" text-anchor="middle">7</text>
-    <g class="er-patient-flow-run6"><circle class="er-patient-flow-ring-glow" cx="660" cy="320" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="660" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="660" y="328" text-anchor="middle">7</text></g>
-    <g class="er-patient-flow-ok6"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="660" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="660" y="328" text-anchor="middle">7</text></g>
-    <text class="er-patient-flow-lbl" x="660" y="394" text-anchor="middle">Decision</text>
-    <text class="er-patient-flow-sub" x="660" y="424" text-anchor="middle">home or admit?</text>
+  <g>
+    <g class="er-patient-flow-pop er-patient-flow-r6"><circle class="er-patient-flow-ring" cx="660" cy="320" r="34"/><text class="er-patient-flow-num" x="660" y="329" text-anchor="middle">7</text></g>
+    <g class="er-patient-flow-run6"><circle class="er-patient-flow-ring-glow" cx="660" cy="320" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="660" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="660" y="329" text-anchor="middle">7</text></g>
+    <g class="er-patient-flow-ok6"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="660" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="660" y="329" text-anchor="middle">7</text></g>
+    <g class="er-patient-flow-l6"><text class="er-patient-flow-lbl" x="660" y="404" text-anchor="middle">Decision</text><text class="er-patient-flow-sub" x="660" y="434" text-anchor="middle">home or admit?</text></g>
   </g>
-  <g class="er-patient-flow-row1">
-    <circle class="er-patient-flow-ring" cx="360" cy="320" r="34"/>
-    <text class="er-patient-flow-num" x="360" y="328" text-anchor="middle">8</text>
-    <g class="er-patient-flow-run7"><circle class="er-patient-flow-ring-glow" cx="360" cy="320" r="34"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" cx="360" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-run" x="360" y="328" text-anchor="middle">8</text></g>
-    <g class="er-patient-flow-ok7"><circle class="er-patient-flow-ring er-patient-flow-ring-ok" cx="360" cy="320" r="34"/><text class="er-patient-flow-num er-patient-flow-num-ok" x="360" y="328" text-anchor="middle">8</text></g>
-    <text class="er-patient-flow-lbl" x="360" y="394" text-anchor="middle">Discharge</text>
-    <text class="er-patient-flow-sub" x="360" y="424" text-anchor="middle">home, with follow-up</text>
+  <g>
+    <g class="er-patient-flow-pop er-patient-flow-r7"><circle class="er-patient-flow-ring" cx="360" cy="320" r="50"/><text class="er-patient-flow-num" x="360" y="329" text-anchor="middle">8</text></g>
+    <g class="er-patient-flow-run7"><circle class="er-patient-flow-ring-glow" cx="360" cy="320" r="50"/><circle class="er-patient-flow-ring er-patient-flow-ring-run" data-anim-focal="" cx="360" cy="320" r="50"/><text class="er-patient-flow-num er-patient-flow-num-run" x="360" y="329" text-anchor="middle">8</text></g>
+    <g class="er-patient-flow-ok7"><circle class="er-patient-flow-ring er-patient-flow-ring-end" cx="360" cy="320" r="50"/><text class="er-patient-flow-num er-patient-flow-num-run" x="360" y="329" text-anchor="middle">8</text></g>
+    <g class="er-patient-flow-l7"><text class="er-patient-flow-lbl" x="360" y="404" text-anchor="middle">Discharge</text><text class="er-patient-flow-sub" x="360" y="434" text-anchor="middle">home, with follow-up</text></g>
   </g>
   <g opacity=".45"><circle class="er-patient-flow-pkt-glow er-patient-flow-h0" r="14"/></g>
   <circle class="er-patient-flow-pkt er-patient-flow-h0" r="8"/>

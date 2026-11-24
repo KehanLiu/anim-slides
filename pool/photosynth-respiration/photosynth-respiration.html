@@ -1,10 +1,12 @@
 <!-- photosynth-respiration (pool, archetype compare, domain biology), lean restyle (references/style.md).
-  Down arrow (accent-2) = taken in, up arrow (accent) = given off; the gutter ring flips as each respiration row enters. -->
+  Down arrow (accent-2) = taken in, up arrow (accent) = given off; the gutter ring flips as each respiration row enters.
+  Focal: the centre column (data-anim-focal), molecule names at 30 px with heavier rings. The table rules draw on
+  as one staggered series, headers settle with a small rise. -->
 <style>
 .anim-photosynth-respiration{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -12,21 +14,22 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-photosynth-respiration svg{width:100%;height:100%;display:block}
 
 .anim-photosynth-respiration .photosynth-respiration-sans{font-family:var(--anim-font)}
 .anim-photosynth-respiration .photosynth-respiration-mono{font-family:var(--anim-mono)}
-.anim-photosynth-respiration .photosynth-respiration-head{font-size:26px;font-weight:600;fill:var(--anim-fg)}
-.anim-photosynth-respiration .photosynth-respiration-sub{font-size:19px;fill:var(--anim-muted)}
+.anim-photosynth-respiration .photosynth-respiration-head{font-size:30px;font-weight:600;fill:var(--anim-fg)}
+.anim-photosynth-respiration .photosynth-respiration-sub{font-size:19px;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
 .anim-photosynth-respiration .photosynth-respiration-lbl{font-size:24px;font-weight:600;fill:var(--anim-fg)}
-.anim-photosynth-respiration .photosynth-respiration-note{font-size:26px;font-weight:400;fill:var(--anim-fg)}
-.anim-photosynth-respiration .photosynth-respiration-form{font-size:24px;font-weight:600;fill:var(--anim-fg)}
-.anim-photosynth-respiration .photosynth-respiration-arclbl{font-size:18px;fill:var(--anim-muted)}
+.anim-photosynth-respiration .photosynth-respiration-note{font-size:24px;font-variant-numeric:tabular-nums;font-weight:400;fill:var(--anim-fg)}
+.anim-photosynth-respiration .photosynth-respiration-form{font-size:30px;font-weight:600;fill:var(--anim-fg)}
+.anim-photosynth-respiration .photosynth-respiration-arclbl{font-size:19px;font-variant-numeric:tabular-nums;fill:var(--anim-muted)}
 .anim-photosynth-respiration .photosynth-respiration-rule{fill:none;stroke:var(--anim-line);stroke-width:2px;stroke-linecap:round}
+.anim-photosynth-respiration .photosynth-respiration-rd{stroke-dasharray:100 100;stroke-dashoffset:0}
 .anim-photosynth-respiration .photosynth-respiration-arrow{fill:none;stroke-width:2px;stroke-linecap:round;stroke-linejoin:round}
 .anim-photosynth-respiration .photosynth-respiration-in .photosynth-respiration-arrow{stroke:var(--anim-accent-2)}
 .anim-photosynth-respiration .photosynth-respiration-out .photosynth-respiration-arrow{stroke:var(--anim-accent)}
@@ -51,72 +54,85 @@
 
 .anim-photosynth-respiration .photosynth-respiration-pkt1{offset-path:path("M704,56 C760,22 920,22 976,56")}
 .anim-photosynth-respiration .photosynth-respiration-pkt2{offset-path:path("M976,82 C920,116 760,116 704,82")}
-/* scene: in 0-0.36 s, then holds (once-play, no reset) */
-@keyframes photosynth-respiration-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}3.56%{opacity:1;}100%{opacity:1;}}
+/* table rules draw on 0-0.40 s, one per row, staggered 70/50/40/40 ms */
+@keyframes photosynth-respiration-rd0{0%{stroke-dashoffset:100}0%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes photosynth-respiration-rd1{0%{stroke-dashoffset:100}0.7%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}2.7%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes photosynth-respiration-rd2{0%{stroke-dashoffset:100}1.2%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.2%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes photosynth-respiration-rd3{0%{stroke-dashoffset:100}1.6%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.6%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes photosynth-respiration-rd4{0%{stroke-dashoffset:100}2%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+/* headers settle with a small rise, the chloroplast glyph fades up */
+@keyframes photosynth-respiration-hd{0%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.6%{opacity:1;transform:translateY(0px)}100%{opacity:1;transform:translateY(0px)}}
+@keyframes photosynth-respiration-gl{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.6%{opacity:1}100%{opacity:1}}
 /* left row 1 lands 0.53 s */
 @keyframes photosynth-respiration-rowl0{0%{opacity:0;transform:translateX(-30px);}5.35%{opacity:0;transform:translateX(-30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}9.81%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
 @keyframes photosynth-respiration-bdg0{0%{opacity:0;}5.88%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}9.81%{opacity:1;}100%{opacity:1;}}
-/* right row 1 lands 2.85 s, badge flips 2.99-3.34 s */
+/* right row 1 lands 2.85 s; the arrow flips first, then its ring takes the new colour */
 @keyframes photosynth-respiration-rowr0{0%{opacity:0;transform:translateX(30px);}28.52%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}32.97%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes photosynth-respiration-flip0{0%{transform:rotate(180deg);}29.86%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}33.42%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
-@keyframes photosynth-respiration-bst0{0%{stroke:var(--anim-accent-2);}29.86%{stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}32.53%{stroke:var(--anim-accent);}100%{stroke:var(--anim-accent);}}
-@keyframes photosynth-respiration-bfl0{0%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}29.86%{fill:var(--anim-bg);stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}32.53%{fill:var(--anim-bg);stroke:var(--anim-accent);}100%{fill:var(--anim-bg);stroke:var(--anim-accent);}}
+@keyframes photosynth-respiration-flip0{0%{transform:rotate(180deg);}30.29%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}33.85%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
+@keyframes photosynth-respiration-bst0{0%{stroke:var(--anim-accent-2);}30.29%{stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}32.96%{stroke:var(--anim-accent);}100%{stroke:var(--anim-accent);}}
+@keyframes photosynth-respiration-bfl0{0%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}33.85%{fill:var(--anim-bg);stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}36.52%{fill:var(--anim-bg);stroke:var(--anim-accent);}100%{fill:var(--anim-bg);stroke:var(--anim-accent);}}
 @keyframes photosynth-respiration-hl0{0%{stroke:var(--anim-line);stroke-width:2px;}28.52%{stroke:var(--anim-line);stroke-width:2px;animation-timing-function:cubic-bezier(0.2,0,0,1);}30.29%{stroke:var(--anim-fg);stroke-width:2.5px;}35.64%{stroke:var(--anim-fg);stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1);}37.43%{stroke:var(--anim-line);stroke-width:2px;}100%{stroke:var(--anim-line);stroke-width:2px;}}
 /* left row 2 lands 0.61 s */
 @keyframes photosynth-respiration-rowl1{0%{opacity:0;transform:translateX(-30px);}6.06%{opacity:0;transform:translateX(-30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}10.51%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
 @keyframes photosynth-respiration-bdg1{0%{opacity:0;}6.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}10.51%{opacity:1;}100%{opacity:1;}}
-/* right row 2 lands 3.74 s, badge flips 3.88-4.23 s */
+/* right row 2 lands 3.74 s; the arrow flips first, then its ring takes the new colour */
 @keyframes photosynth-respiration-rowr1{0%{opacity:0;transform:translateX(30px);}37.43%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}41.88%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes photosynth-respiration-flip1{0%{transform:rotate(180deg);}38.76%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}42.32%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
-@keyframes photosynth-respiration-bst1{0%{stroke:var(--anim-accent-2);}38.76%{stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}41.44%{stroke:var(--anim-accent);}100%{stroke:var(--anim-accent);}}
-@keyframes photosynth-respiration-bfl1{0%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}38.76%{fill:var(--anim-bg);stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}41.44%{fill:var(--anim-bg);stroke:var(--anim-accent);}100%{fill:var(--anim-bg);stroke:var(--anim-accent);}}
+@keyframes photosynth-respiration-flip1{0%{transform:rotate(180deg);}39.21%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}42.77%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
+@keyframes photosynth-respiration-bst1{0%{stroke:var(--anim-accent-2);}39.21%{stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}41.88%{stroke:var(--anim-accent);}100%{stroke:var(--anim-accent);}}
+@keyframes photosynth-respiration-bfl1{0%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}42.77%{fill:var(--anim-bg);stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}45.44%{fill:var(--anim-bg);stroke:var(--anim-accent);}100%{fill:var(--anim-bg);stroke:var(--anim-accent);}}
 @keyframes photosynth-respiration-hl1{0%{stroke:var(--anim-line);stroke-width:2px;}37.43%{stroke:var(--anim-line);stroke-width:2px;animation-timing-function:cubic-bezier(0.2,0,0,1);}39.21%{stroke:var(--anim-fg);stroke-width:2.5px;}44.56%{stroke:var(--anim-fg);stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1);}46.33%{stroke:var(--anim-line);stroke-width:2px;}100%{stroke:var(--anim-line);stroke-width:2px;}}
 /* left row 3 lands 0.68 s */
 @keyframes photosynth-respiration-rowl2{0%{opacity:0;transform:translateX(-30px);}6.77%{opacity:0;transform:translateX(-30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}11.23%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
 @keyframes photosynth-respiration-bdg2{0%{opacity:0;}7.3%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}11.23%{opacity:1;}100%{opacity:1;}}
-/* right row 3 lands 4.63 s, badge flips 4.77-5.12 s */
+/* right row 3 lands 4.63 s; the arrow flips first, then its ring takes the new colour */
 @keyframes photosynth-respiration-rowr2{0%{opacity:0;transform:translateX(30px);}46.33%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}50.79%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes photosynth-respiration-flip2{0%{transform:rotate(180deg);}47.67%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}51.24%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
-@keyframes photosynth-respiration-bst2{0%{stroke:var(--anim-accent-2);}47.67%{stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}50.34%{stroke:var(--anim-accent);}100%{stroke:var(--anim-accent);}}
-@keyframes photosynth-respiration-bfl2{0%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}47.67%{fill:var(--anim-bg);stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}50.34%{fill:var(--anim-bg);stroke:var(--anim-accent);}100%{fill:var(--anim-bg);stroke:var(--anim-accent);}}
+@keyframes photosynth-respiration-flip2{0%{transform:rotate(180deg);}48.12%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}51.68%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
+@keyframes photosynth-respiration-bst2{0%{stroke:var(--anim-accent-2);}48.12%{stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}50.79%{stroke:var(--anim-accent);}100%{stroke:var(--anim-accent);}}
+@keyframes photosynth-respiration-bfl2{0%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}51.68%{fill:var(--anim-bg);stroke:var(--anim-accent-2);animation-timing-function:cubic-bezier(0.2,0,0,1);}54.35%{fill:var(--anim-bg);stroke:var(--anim-accent);}100%{fill:var(--anim-bg);stroke:var(--anim-accent);}}
 @keyframes photosynth-respiration-hl2{0%{stroke:var(--anim-line);stroke-width:2px;}46.33%{stroke:var(--anim-line);stroke-width:2px;animation-timing-function:cubic-bezier(0.2,0,0,1);}48.12%{stroke:var(--anim-fg);stroke-width:2.5px;}53.47%{stroke:var(--anim-fg);stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1);}55.25%{stroke:var(--anim-line);stroke-width:2px;}100%{stroke:var(--anim-line);stroke-width:2px;}}
 /* left row 4 lands 0.75 s */
 @keyframes photosynth-respiration-rowl3{0%{opacity:0;transform:translateX(-30px);}7.49%{opacity:0;transform:translateX(-30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}11.94%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
 @keyframes photosynth-respiration-bdg3{0%{opacity:0;}8.02%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}11.94%{opacity:1;}100%{opacity:1;}}
-/* right row 4 lands 5.52 s, badge flips 5.66-6.01 s */
+/* right row 4 lands 5.52 s; the arrow flips first, then its ring takes the new colour */
 @keyframes photosynth-respiration-rowr3{0%{opacity:0;transform:translateX(30px);}55.25%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}59.7%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes photosynth-respiration-flip3{0%{transform:rotate(180deg);}56.59%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}60.15%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
-@keyframes photosynth-respiration-bst3{0%{stroke:var(--anim-accent);}56.59%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}59.26%{stroke:var(--anim-accent-2);}100%{stroke:var(--anim-accent-2);}}
-@keyframes photosynth-respiration-bfl3{0%{fill:var(--anim-bg);stroke:var(--anim-accent);}56.59%{fill:var(--anim-bg);stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}59.26%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}100%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}}
+@keyframes photosynth-respiration-flip3{0%{transform:rotate(180deg);}57.03%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}60.59%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
+@keyframes photosynth-respiration-bst3{0%{stroke:var(--anim-accent);}57.03%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}59.7%{stroke:var(--anim-accent-2);}100%{stroke:var(--anim-accent-2);}}
+@keyframes photosynth-respiration-bfl3{0%{fill:var(--anim-bg);stroke:var(--anim-accent);}60.59%{fill:var(--anim-bg);stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}63.26%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}100%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}}
 @keyframes photosynth-respiration-hl3{0%{stroke:var(--anim-line);stroke-width:2px;}55.25%{stroke:var(--anim-line);stroke-width:2px;animation-timing-function:cubic-bezier(0.2,0,0,1);}57.03%{stroke:var(--anim-fg);stroke-width:2.5px;}62.37%{stroke:var(--anim-fg);stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1);}64.16%{stroke:var(--anim-line);stroke-width:2px;}100%{stroke:var(--anim-line);stroke-width:2px;}}
 /* left row 5 lands 0.82 s */
 @keyframes photosynth-respiration-rowl4{0%{opacity:0;transform:translateX(-30px);}8.2%{opacity:0;transform:translateX(-30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}12.65%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
 @keyframes photosynth-respiration-bdg4{0%{opacity:0;}8.74%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}12.65%{opacity:1;}100%{opacity:1;}}
-/* right row 5 lands 6.42 s, badge flips 6.55-6.91 s */
+/* right row 5 lands 6.42 s; the arrow flips first, then its ring takes the new colour */
 @keyframes photosynth-respiration-rowr4{0%{opacity:0;transform:translateX(30px);}64.16%{opacity:0;transform:translateX(30px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}68.62%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
-@keyframes photosynth-respiration-flip4{0%{transform:rotate(180deg);}65.5%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}69.06%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
-@keyframes photosynth-respiration-bst4{0%{stroke:var(--anim-accent);}65.5%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}68.17%{stroke:var(--anim-accent-2);}100%{stroke:var(--anim-accent-2);}}
-@keyframes photosynth-respiration-bfl4{0%{fill:var(--anim-bg);stroke:var(--anim-accent);}65.5%{fill:var(--anim-bg);stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}68.17%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}100%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}}
-@keyframes photosynth-respiration-hl4{0%{stroke:var(--anim-line);stroke-width:2px;}64.16%{stroke:var(--anim-line);stroke-width:2px;animation-timing-function:cubic-bezier(0.2,0,0,1);}65.94%{stroke:var(--anim-fg);stroke-width:2.5px;}71.29%{stroke:var(--anim-fg);stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1);}73.07%{stroke:var(--anim-line);stroke-width:2px;}100%{stroke:var(--anim-line);stroke-width:2px;}}
+@keyframes photosynth-respiration-flip4{0%{transform:rotate(180deg);}65.94%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.2,0,0,1);}69.5%{transform:rotate(0deg);}100%{transform:rotate(0deg);}}
+@keyframes photosynth-respiration-bst4{0%{stroke:var(--anim-accent);}65.94%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}68.61%{stroke:var(--anim-accent-2);}100%{stroke:var(--anim-accent-2);}}
+@keyframes photosynth-respiration-bfl4{0%{fill:var(--anim-bg);stroke:var(--anim-accent);}69.5%{fill:var(--anim-bg);stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}72.17%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}100%{fill:var(--anim-bg);stroke:var(--anim-accent-2);}}
+@keyframes photosynth-respiration-hl4{0%{stroke:var(--anim-line);stroke-width:2px;}64.16%{stroke:var(--anim-line);stroke-width:2px;animation-timing-function:cubic-bezier(0.2,0,0,1);}65.94%{stroke:var(--anim-fg);stroke-width:2.5px;}69.5%{stroke:var(--anim-fg);stroke-width:2.5px;animation-timing-function:cubic-bezier(0.2,0,0,1);}71.28%{stroke:var(--anim-line);stroke-width:2px;}100%{stroke:var(--anim-line);stroke-width:2px;}}
 /* right header wakes as glucose arrives */
-@keyframes photosynth-respiration-rhead{0%{opacity:.35;}20.5%{opacity:.35;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}24.06%{opacity:1;}100%{opacity:1;}}
+@keyframes photosynth-respiration-rhead{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}3.56%{opacity:.65;}20.5%{opacity:.65;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}24.06%{opacity:1;}100%{opacity:1;}}
 /* packet 1: 1.51-2.41 s */
-@keyframes photosynth-respiration-pk1{0%{opacity:0;offset-distance:0%;}15.15%{opacity:0;offset-distance:0%;}15.59%{opacity:1;offset-distance:3%;animation-timing-function:ease-in-out;}23.61%{opacity:1;offset-distance:97%;}24.06%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-@keyframes photosynth-respiration-arc1{0%{stroke-dashoffset:101;}15.15%{stroke-dashoffset:101;animation-timing-function:ease-in-out;}24.06%{stroke-dashoffset:0;}100%{stroke-dashoffset:0;}}
+@keyframes photosynth-respiration-pk1{0%{opacity:0;offset-distance:0%;}15.15%{opacity:0;offset-distance:0%;}15.59%{opacity:1;offset-distance:3%;animation-timing-function:cubic-bezier(0.2,0,0,1);}23.61%{opacity:1;offset-distance:97%;}24.06%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+@keyframes photosynth-respiration-arc1{0%{stroke-dashoffset:101;}15.15%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1);}24.06%{stroke-dashoffset:0;}100%{stroke-dashoffset:0;}}
 @keyframes photosynth-respiration-al1{0%{opacity:0;}16.93%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}20.5%{opacity:1;}100%{opacity:1;}}
 @keyframes photosynth-respiration-tp1{0%{opacity:0;}23.17%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}25.4%{opacity:1;}100%{opacity:1;}}
-/* packet 2: 7.4-8.29 s */
-@keyframes photosynth-respiration-pk2{0%{opacity:0;offset-distance:0%;}73.96%{opacity:0;offset-distance:0%;}74.4%{opacity:1;offset-distance:3%;animation-timing-function:ease-in-out;}82.42%{opacity:1;offset-distance:97%;}82.87%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
-@keyframes photosynth-respiration-arc2{0%{stroke-dashoffset:101;}73.96%{stroke-dashoffset:101;animation-timing-function:ease-in-out;}82.87%{stroke-dashoffset:0;}100%{stroke-dashoffset:0;}}
-@keyframes photosynth-respiration-al2{0%{opacity:0;}75.74%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}79.31%{opacity:1;}100%{opacity:1;}}
-@keyframes photosynth-respiration-tp2{0%{opacity:0;}81.98%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}84.21%{opacity:1;}100%{opacity:1;}}
+/* packet 2: 7.14-7.94 s */
+@keyframes photosynth-respiration-pk2{0%{opacity:0;offset-distance:0%;}71.4%{opacity:0;offset-distance:0%;}71.84%{opacity:1;offset-distance:3%;animation-timing-function:cubic-bezier(0.2,0,0,1);}79%{opacity:1;offset-distance:97%;}79.4%{opacity:0;offset-distance:100%;}100%{opacity:0;offset-distance:100%;}}
+@keyframes photosynth-respiration-arc2{0%{stroke-dashoffset:101;}71.4%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1);}79.4%{stroke-dashoffset:0;}100%{stroke-dashoffset:0;}}
+@keyframes photosynth-respiration-al2{0%{opacity:0;}73.18%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}76.75%{opacity:1;}100%{opacity:1;}}
+@keyframes photosynth-respiration-tp2{0%{opacity:0;}78.5%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}80.73%{opacity:1;}100%{opacity:1;}}
 /* note 1 0.45-2.81 s */
 @keyframes photosynth-respiration-n1{0%{opacity:0;}4.46%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}8.02%{opacity:1;}25.85%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}28.07%{opacity:0;}100%{opacity:0;}}
-/* note 2 2.85-8.42 s */
-@keyframes photosynth-respiration-n2{0%{opacity:0;}28.52%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}32.08%{opacity:1;}81.98%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}84.21%{opacity:0;}100%{opacity:0;}}
+/* note 2 2.85-8.07 s, then 0.48 s of stillness before the verdict */
+@keyframes photosynth-respiration-n2{0%{opacity:0;}28.52%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}32.08%{opacity:1;}78.5%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}80.73%{opacity:0;}100%{opacity:0;}}
 /* verdict */
 @keyframes photosynth-respiration-n3{0%{opacity:0;transform:translateY(12px);}85.54%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}90%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-.visible .anim-photosynth-respiration .photosynth-respiration-scene{animation:photosynth-respiration-scene 10s linear 1 both}
+.visible .anim-photosynth-respiration .photosynth-respiration-rd0{animation:photosynth-respiration-rd0 10s linear 1 both}
+.visible .anim-photosynth-respiration .photosynth-respiration-rd1{animation:photosynth-respiration-rd1 10s linear 1 both}
+.visible .anim-photosynth-respiration .photosynth-respiration-rd2{animation:photosynth-respiration-rd2 10s linear 1 both}
+.visible .anim-photosynth-respiration .photosynth-respiration-rd3{animation:photosynth-respiration-rd3 10s linear 1 both}
+.visible .anim-photosynth-respiration .photosynth-respiration-rd4{animation:photosynth-respiration-rd4 10s linear 1 both}
+.visible .anim-photosynth-respiration .photosynth-respiration-hdl{animation:photosynth-respiration-hd 10s linear 1 both}
+.visible .anim-photosynth-respiration .photosynth-respiration-gll{animation:photosynth-respiration-gl 10s linear 1 both}
 .visible .anim-photosynth-respiration .photosynth-respiration-rowl0{animation:photosynth-respiration-rowl0 10s linear 1 both}
 .visible .anim-photosynth-respiration .photosynth-respiration-bdg0{animation:photosynth-respiration-bdg0 10s linear 1 both}
 .visible .anim-photosynth-respiration .photosynth-respiration-rowr0{animation:photosynth-respiration-rowr0 10s linear 1 both}
@@ -169,14 +185,14 @@
 </style>
 <div class="anim anim-photosynth-respiration" data-anim="photosynth-respiration" data-anim-cycle="10" data-anim-phases="0.4,2.56,3.5,4.4,5.3,6.2,8.5,9" data-anim-control="once" data-anim-verb="switch travel">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Photosynthesis and cellular respiration side by side: photosynthesis in the chloroplast takes in carbon dioxide, water and light and makes glucose and oxygen; respiration in the mitochondria takes in glucose and oxygen and gives off carbon dioxide, water and energy as ATP. Every row runs in the opposite direction.">
-<g class="photosynth-respiration-scene">
-<text class="photosynth-respiration-sans photosynth-respiration-head" x="60" y="62">Photosynthesis</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="60" y="92">in the chloroplast</text>
-<g class="photosynth-respiration-glyph" transform="translate(650,68)"><ellipse rx="56" ry="29"/><path d="M-34,0 H34"/><path d="M-34,-11 h16"/><path d="M-34,-4 h16"/><path d="M-34,4 h16"/><path d="M-34,11 h16"/><path d="M-8,-11 h16"/><path d="M-8,-4 h16"/><path d="M-8,4 h16"/><path d="M-8,11 h16"/><path d="M18,-11 h16"/><path d="M18,-4 h16"/><path d="M18,4 h16"/><path d="M18,11 h16"/></g>
+<g>
+<text class="photosynth-respiration-sans photosynth-respiration-head photosynth-respiration-hdl" x="60" y="62">Photosynthesis</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub photosynth-respiration-hdl" x="60" y="92">in the chloroplast</text>
+<g class="photosynth-respiration-gll"><g class="photosynth-respiration-glyph" transform="translate(650,68)"><ellipse rx="56" ry="29"/><path d="M-34,0 H34"/><path d="M-34,-11 h16"/><path d="M-34,-4 h16"/><path d="M-34,4 h16"/><path d="M-34,11 h16"/><path d="M-8,-11 h16"/><path d="M-8,-4 h16"/><path d="M-8,4 h16"/><path d="M-8,11 h16"/><path d="M18,-11 h16"/><path d="M18,-4 h16"/><path d="M18,4 h16"/><path d="M18,11 h16"/></g></g>
 <g class="photosynth-respiration-rhead">
 <g class="photosynth-respiration-glyph" transform="translate(1030,68)"><ellipse rx="56" ry="29"/><path d="M-42,4 C-38,-16 -32,-16 -30,0 S-20,16 -16,0 S-6,-16 -2,0 S8,16 12,0 S22,-16 26,0 S36,16 42,-4"/></g>
 <text class="photosynth-respiration-sans photosynth-respiration-head" x="1106" y="62">Cellular respiration</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="1106" y="92">mainly in the mitochondria</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="1106" y="92">mainly in the mitochondria</text>
 </g>
 <path class="photosynth-respiration-arc photosynth-respiration-arc1" d="M704,56 C760,22 920,22 976,56" pathLength="100"/>
 <path class="photosynth-respiration-tip photosynth-respiration-tip1" d="M964,42 L976,56 L958,59"/>
@@ -184,90 +200,90 @@
 <path class="photosynth-respiration-tip photosynth-respiration-tip2" d="M716,96 L704,82 L722,79"/>
 <text class="photosynth-respiration-mono photosynth-respiration-arclbl photosynth-respiration-al1" x="840" y="62" text-anchor="middle">glucose + O₂</text>
 <text class="photosynth-respiration-mono photosynth-respiration-arclbl photosynth-respiration-al2" x="840" y="90" text-anchor="middle">CO₂ + H₂O</text>
-<path class="photosynth-respiration-rule" d="M60 196 H720"/>
-<path class="photosynth-respiration-rule" d="M960 196 H1620"/>
+<g class="photosynth-respiration-rules" data-anim-series="photosynth-respiration-rules">
+<path class="photosynth-respiration-rule photosynth-respiration-rd photosynth-respiration-rd0" pathLength="100" d="M60 196 H720 M960 196 H1620"/>
+<path class="photosynth-respiration-rule photosynth-respiration-rd photosynth-respiration-rd1" pathLength="100" d="M60 276 H720 M960 276 H1620"/>
+<path class="photosynth-respiration-rule photosynth-respiration-rd photosynth-respiration-rd2" pathLength="100" d="M60 356 H720 M960 356 H1620"/>
+<path class="photosynth-respiration-rule photosynth-respiration-rd photosynth-respiration-rd3" pathLength="100" d="M60 436 H720 M960 436 H1620"/>
+<path class="photosynth-respiration-rule photosynth-respiration-rd photosynth-respiration-rd4" pathLength="100" d="M60 516 H720 M960 516 H1620"/>
+</g>
 <g class="photosynth-respiration-rowl0 photosynth-respiration-in">
 <path class="photosynth-respiration-rule photosynth-respiration-boxl0" d="M60 196 H720"/>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="60" y="164">taken in</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="668" y="163" text-anchor="end">6 CO₂ from the air</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="668" y="163" text-anchor="end">6 CO₂ from the air</text>
 <g transform="translate(704,156)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,-8 V8 M-6,2 L0,8 L6,2"/></g>
-</g>
-<g class="photosynth-respiration-bdg0" transform="translate(840,156)">
-<text class="photosynth-respiration-sans photosynth-respiration-form" x="-22" y="8" text-anchor="middle">CO₂</text>
-<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot0" r="15" style="fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:2px"/><g class="photosynth-respiration-flip photosynth-respiration-flip0"><path class="photosynth-respiration-arrow photosynth-respiration-bar0" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2" style="stroke:var(--anim-accent)"/></g></g>
 </g>
 <g class="photosynth-respiration-rowr0 photosynth-respiration-out">
 <g transform="translate(976,156)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2"/></g>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="1012" y="164">given off</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="1620" y="163" text-anchor="end">6 CO₂, breathed out</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="1620" y="163" text-anchor="end">6 CO₂, breathed out</text>
 </g>
-<path class="photosynth-respiration-rule" d="M60 276 H720"/>
-<path class="photosynth-respiration-rule" d="M960 276 H1620"/>
 <g class="photosynth-respiration-rowl1 photosynth-respiration-in">
 <path class="photosynth-respiration-rule photosynth-respiration-boxl1" d="M60 276 H720"/>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="60" y="244">taken in</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="668" y="243" text-anchor="end">6 H₂O, split by light</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="668" y="243" text-anchor="end">6 H₂O, split by light</text>
 <g transform="translate(704,236)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,-8 V8 M-6,2 L0,8 L6,2"/></g>
-</g>
-<g class="photosynth-respiration-bdg1" transform="translate(840,236)">
-<text class="photosynth-respiration-sans photosynth-respiration-form" x="-22" y="8" text-anchor="middle">H₂O</text>
-<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot1" r="15" style="fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:2px"/><g class="photosynth-respiration-flip photosynth-respiration-flip1"><path class="photosynth-respiration-arrow photosynth-respiration-bar1" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2" style="stroke:var(--anim-accent)"/></g></g>
 </g>
 <g class="photosynth-respiration-rowr1 photosynth-respiration-out">
 <g transform="translate(976,236)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2"/></g>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="1012" y="244">given off</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="1620" y="243" text-anchor="end">6 H₂O, as a product</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="1620" y="243" text-anchor="end">6 H₂O, as a product</text>
 </g>
-<path class="photosynth-respiration-rule" d="M60 356 H720"/>
-<path class="photosynth-respiration-rule" d="M960 356 H1620"/>
 <g class="photosynth-respiration-rowl2 photosynth-respiration-in">
 <path class="photosynth-respiration-rule photosynth-respiration-boxl2" d="M60 356 H720"/>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="60" y="324">captured</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="668" y="323" text-anchor="end">light, stored in glucose</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="668" y="323" text-anchor="end">light, stored in glucose</text>
 <g transform="translate(704,316)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,-8 V8 M-6,2 L0,8 L6,2"/></g>
-</g>
-<g class="photosynth-respiration-bdg2" transform="translate(840,316)">
-<text class="photosynth-respiration-sans photosynth-respiration-form" x="-22" y="8" text-anchor="middle">Energy</text>
-<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot2" r="15" style="fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:2px"/><g class="photosynth-respiration-flip photosynth-respiration-flip2"><path class="photosynth-respiration-arrow photosynth-respiration-bar2" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2" style="stroke:var(--anim-accent)"/></g></g>
 </g>
 <g class="photosynth-respiration-rowr2 photosynth-respiration-out">
 <g transform="translate(976,316)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2"/></g>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="1012" y="324">released</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="1620" y="323" text-anchor="end">as ATP, plus heat</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="1620" y="323" text-anchor="end">as ATP, plus heat</text>
 </g>
-<path class="photosynth-respiration-rule" d="M60 436 H720"/>
-<path class="photosynth-respiration-rule" d="M960 436 H1620"/>
 <g class="photosynth-respiration-rowl3 photosynth-respiration-out">
 <path class="photosynth-respiration-rule photosynth-respiration-boxl3" d="M60 436 H720"/>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="60" y="404">made</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="668" y="403" text-anchor="end">glucose, built from CO₂</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="668" y="403" text-anchor="end">glucose, built from CO₂</text>
 <g transform="translate(704,396)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2"/></g>
-</g>
-<g class="photosynth-respiration-bdg3" transform="translate(840,396)">
-<text class="photosynth-respiration-sans photosynth-respiration-form" x="-22" y="8" text-anchor="middle">C₆H₁₂O₆</text>
-<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot3" r="15" style="fill:var(--anim-bg);stroke:var(--anim-accent-2);stroke-width:2px"/><g class="photosynth-respiration-flip photosynth-respiration-flip3"><path class="photosynth-respiration-arrow photosynth-respiration-bar3" d="M0,-8 V8 M-6,2 L0,8 L6,2" style="stroke:var(--anim-accent-2)"/></g></g>
 </g>
 <g class="photosynth-respiration-rowr3 photosynth-respiration-in">
 <g transform="translate(976,396)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,-8 V8 M-6,2 L0,8 L6,2"/></g>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="1012" y="404">broken down</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="1620" y="403" text-anchor="end">glucose is the fuel</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="1620" y="403" text-anchor="end">glucose is the fuel</text>
 </g>
-<path class="photosynth-respiration-rule" d="M60 516 H720"/>
-<path class="photosynth-respiration-rule" d="M960 516 H1620"/>
 <g class="photosynth-respiration-rowl4 photosynth-respiration-out">
 <path class="photosynth-respiration-rule photosynth-respiration-boxl4" d="M60 516 H720"/>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="60" y="484">given off</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="668" y="483" text-anchor="end">6 O₂, from the split water</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="668" y="483" text-anchor="end">6 O₂, from the split water</text>
 <g transform="translate(704,476)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2"/></g>
-</g>
-<g class="photosynth-respiration-bdg4" transform="translate(840,476)">
-<text class="photosynth-respiration-sans photosynth-respiration-form" x="-22" y="8" text-anchor="middle">O₂</text>
-<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot4" r="15" style="fill:var(--anim-bg);stroke:var(--anim-accent-2);stroke-width:2px"/><g class="photosynth-respiration-flip photosynth-respiration-flip4"><path class="photosynth-respiration-arrow photosynth-respiration-bar4" d="M0,-8 V8 M-6,2 L0,8 L6,2" style="stroke:var(--anim-accent-2)"/></g></g>
 </g>
 <g class="photosynth-respiration-rowr4 photosynth-respiration-in">
 <g transform="translate(976,476)"><circle class="photosynth-respiration-dot" r="15"/><path class="photosynth-respiration-arrow" d="M0,-8 V8 M-6,2 L0,8 L6,2"/></g>
 <text class="photosynth-respiration-sans photosynth-respiration-lbl photosynth-respiration-vb" x="1012" y="484">taken in</text>
-<text class="photosynth-respiration-mono photosynth-respiration-sub" x="1620" y="483" text-anchor="end">6 O₂ from the air</text>
+<text class="photosynth-respiration-sans photosynth-respiration-sub" x="1620" y="483" text-anchor="end">6 O₂ from the air</text>
+</g>
+<!-- the centre column, the claim: each molecule with its direction ring, flipped as the respiration row enters -->
+<g class="photosynth-respiration-centre" data-anim-focal="">
+<g class="photosynth-respiration-bdg0" transform="translate(840,156)">
+<text class="photosynth-respiration-sans photosynth-respiration-form" x="-36" y="8" text-anchor="middle">CO₂</text>
+<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot0" r="18" style="fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:3px"/><g class="photosynth-respiration-flip photosynth-respiration-flip0"><path class="photosynth-respiration-arrow photosynth-respiration-bar0" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2" style="stroke:var(--anim-accent);stroke-width:3px"/></g></g>
+</g>
+<g class="photosynth-respiration-bdg1" transform="translate(840,236)">
+<text class="photosynth-respiration-sans photosynth-respiration-form" x="-36" y="8" text-anchor="middle">H₂O</text>
+<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot1" r="18" style="fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:3px"/><g class="photosynth-respiration-flip photosynth-respiration-flip1"><path class="photosynth-respiration-arrow photosynth-respiration-bar1" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2" style="stroke:var(--anim-accent);stroke-width:3px"/></g></g>
+</g>
+<g class="photosynth-respiration-bdg2" transform="translate(840,316)">
+<text class="photosynth-respiration-sans photosynth-respiration-form" x="-36" y="8" text-anchor="middle">Energy</text>
+<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot2" r="18" style="fill:var(--anim-bg);stroke:var(--anim-accent);stroke-width:3px"/><g class="photosynth-respiration-flip photosynth-respiration-flip2"><path class="photosynth-respiration-arrow photosynth-respiration-bar2" d="M0,8 V-8 M-6,-2 L0,-8 L6,-2" style="stroke:var(--anim-accent);stroke-width:3px"/></g></g>
+</g>
+<g class="photosynth-respiration-bdg3" transform="translate(840,396)">
+<text class="photosynth-respiration-sans photosynth-respiration-form" x="-36" y="8" text-anchor="middle">C₆H₁₂O₆</text>
+<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot3" r="18" style="fill:var(--anim-bg);stroke:var(--anim-accent-2);stroke-width:3px"/><g class="photosynth-respiration-flip photosynth-respiration-flip3"><path class="photosynth-respiration-arrow photosynth-respiration-bar3" d="M0,-8 V8 M-6,2 L0,8 L6,2" style="stroke:var(--anim-accent-2);stroke-width:3px"/></g></g>
+</g>
+<g class="photosynth-respiration-bdg4" transform="translate(840,476)">
+<text class="photosynth-respiration-sans photosynth-respiration-form" x="-36" y="8" text-anchor="middle">O₂</text>
+<g transform="translate(56,0)"><circle class="photosynth-respiration-dot photosynth-respiration-bdot4" r="18" style="fill:var(--anim-bg);stroke:var(--anim-accent-2);stroke-width:3px"/><g class="photosynth-respiration-flip photosynth-respiration-flip4"><path class="photosynth-respiration-arrow photosynth-respiration-bar4" d="M0,-8 V8 M-6,2 L0,8 L6,2" style="stroke:var(--anim-accent-2);stroke-width:3px"/></g></g>
+</g>
 </g>
 <g class="photosynth-respiration-pkt photosynth-respiration-pkt1"><g class="photosynth-respiration-pkt-glow"><path class="photosynth-respiration-pkt-hex" d="M-12,0 L-6,-10 L6,-10 L12,0 L6,10 L-6,10 Z"/><circle class="photosynth-respiration-pkt-o" cx="20" cy="-4" r="5"/><circle class="photosynth-respiration-pkt-o" cx="28" cy="-4" r="5"/></g></g>
 <g class="photosynth-respiration-pkt photosynth-respiration-pkt2"><g class="photosynth-respiration-pkt-glow"><circle class="photosynth-respiration-pkt-c" cx="0" cy="0" r="7"/><circle class="photosynth-respiration-pkt-w" cx="-10" cy="0" r="5"/><circle class="photosynth-respiration-pkt-w" cx="10" cy="0" r="5"/><circle class="photosynth-respiration-pkt-o" cx="-26" cy="0" r="5"/><circle class="photosynth-respiration-pkt-w" cx="-34" cy="-7" r="3.5"/><circle class="photosynth-respiration-pkt-w" cx="-34" cy="7" r="3.5"/></g></g>

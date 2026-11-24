@@ -12,12 +12,13 @@
 /* base:tokens:start ==========================================
    COLOUR AND TYPE TOKENS. All colours and fonts live here; the rest of the CSS reads them.
    Dark ground: screens in dim rooms. Light ground: bright rooms, projectors with washed-out
-   blacks, print. Text >= 4.5:1 and accent >= 4.5:1 on both grounds.
+   blacks, print. Text and accent >= 4.5:1 on both grounds (accent 8.9:1 dark,
+   5.0:1 light); structure lines (--line) >= 3:1.
    ============================================================ */
 :root {
     --bg:       #0F1E27;   /* slide ground */
     --panel:    #0D1820;   /* rare container fill (figures only) */
-    --line:     #2A3D49;   /* hairlines, rules, idle strokes */
+    --line:     #56707F;   /* structure lines, rules, idle strokes, 3.3:1 */
     --fg:       #E6EDF0;   /* text, 14.4:1 on bg */
     --muted:    #93A7B2;   /* secondary text, 6.8:1 */
     --accent:   #34D1BF;   /* the one accent, 8.9:1 */
@@ -30,12 +31,12 @@
     --glow-ring: rgba(52, 209, 191, 0.55);  /* the one glowing element */
     --font-display: "Avenir Next", "Avenir", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", sans-serif;
     --font-body:    "Avenir Next", "Avenir", "Segoe UI", "Helvetica Neue", sans-serif;
-    --font-mono:    Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;   /* data only: numbers, codes, file names */
 }
 :root[data-ground="light"] {
     --bg:       #F2F5F5;
     --panel:    #E3E9EA;
-    --line:     #B4C2C8;   /* 1.7:1, a visible hairline on paper */
+    --line:     #768A95;   /* 3.3:1, structure lines on paper */
     --fg:       #11222B;   /* 14.9:1 */
     --muted:    #475B66;   /* 6.5:1 */
     --accent:   #00776B;   /* 5.0:1, the same teal, deepened */
@@ -69,7 +70,8 @@
     --sub-size: 26px;
     --pad-x: 120px;
     --pad-top: 96px;
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);   /* enter */
+    --ease-move: cubic-bezier(0.2, 0, 0, 1);    /* move */
 }
 /* base:tokens:end */
 
@@ -178,7 +180,7 @@ svg { max-width: 100%; max-height: 100%; }
 .wf-num { font-family: var(--font-display); font-size: 76px; font-weight: 600; fill: var(--fg); }
 .wf-num.on { fill: var(--accent); }
 .wf-name { font-family: var(--font-display); font-size: 36px; font-weight: 600; fill: var(--fg); }
-.wf-sub { font-family: var(--font-mono); font-size: 24px; fill: var(--muted); }
+.wf-sub { font-family: var(--font-body); font-size: 24px; fill: var(--muted); }
 .wf-end { font-family: var(--font-mono); font-size: 30px; fill: var(--fg); }
 .wf-head { font-family: var(--font-display); font-size: 32px; font-weight: 600; fill: var(--fg); }
 .wf-arrow { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
@@ -213,7 +215,7 @@ svg { max-width: 100%; max-height: 100%; }
    =========================================== */
 .progress {
     position: fixed; left: 0; bottom: 0; height: 3px; width: 0;
-    background: var(--accent); z-index: 1000; transition: width 0.3s ease;
+    background: var(--accent); z-index: 1000; transition: width 0.3s var(--ease-move);
 }
 
 /* ===========================================
@@ -244,7 +246,7 @@ svg { max-width: 100%; max-height: 100%; }
 .anim-canal-still{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -252,15 +254,15 @@ svg { max-width: 100%; max-height: 100%; }
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-canal-still svg{display:block;width:100%;height:100%}
 .anim-canal-still .canal-still-t{font-family:var(--anim-font);fill:var(--anim-fg)}
 .anim-canal-still .canal-still-lbl{font-size:24px;font-weight:600}
 .anim-canal-still .canal-still-note{font-size:26px}
-.anim-canal-still .canal-still-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-canal-still .canal-still-mono{font-family:var(--anim-font);font-size:18px;fill:var(--anim-muted)}
 .anim-canal-still .canal-still-mono.canal-still-fgt{fill:var(--anim-fg)}
 .anim-canal-still .canal-still-mono.canal-still-okt{fill:var(--anim-ok)}
 .anim-canal-still .canal-still-mono.canal-still-cyt{fill:var(--anim-accent)}
@@ -277,8 +279,8 @@ svg { max-width: 100%; max-height: 100%; }
 .anim-canal-still .canal-still-dl{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .anim-canal-still .canal-still-gp{fill:var(--anim-bg);stroke:var(--anim-muted);stroke-width:2}
 .anim-canal-still .canal-still-gx{fill:none;stroke:var(--anim-line);stroke-width:2}
-.anim-canal-still .canal-still-ground{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 50%,var(--anim-bg));stroke-width:2;stroke-linejoin:round}
-.anim-canal-still .canal-still-cv-o{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 50%,var(--anim-bg));stroke-width:20;stroke-linejoin:round}
+.anim-canal-still .canal-still-ground{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
+.anim-canal-still .canal-still-cv-o{fill:none;stroke:var(--anim-line);stroke-width:20;stroke-linejoin:round}
 .anim-canal-still .canal-still-cv-i{fill:none;stroke:var(--anim-bg);stroke-width:16;stroke-linejoin:round}
 .anim-canal-still .canal-still-fd{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:10 14}
 .anim-canal-still .canal-still-fa{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
@@ -299,7 +301,7 @@ svg { max-width: 100%; max-height: 100%; }
 .anim-canal-lock{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -307,15 +309,15 @@ svg { max-width: 100%; max-height: 100%; }
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-canal-lock svg{display:block;width:100%;height:100%}
 .anim-canal-lock .canal-lock-t{font-family:var(--anim-font);fill:var(--anim-fg)}
 .anim-canal-lock .canal-lock-lbl{font-size:24px;font-weight:600}
 .anim-canal-lock .canal-lock-note{font-size:26px}
-.anim-canal-lock .canal-lock-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
+.anim-canal-lock .canal-lock-mono{font-family:var(--anim-font);font-size:18px;fill:var(--anim-muted)}
 .anim-canal-lock .canal-lock-mono.canal-lock-fgt{fill:var(--anim-fg)}
 .anim-canal-lock .canal-lock-mono.canal-lock-okt{fill:var(--anim-ok)}
 .anim-canal-lock .canal-lock-mono.canal-lock-cyt{fill:var(--anim-accent)}
@@ -332,8 +334,8 @@ svg { max-width: 100%; max-height: 100%; }
 .anim-canal-lock .canal-lock-dl{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .anim-canal-lock .canal-lock-gp{fill:var(--anim-bg);stroke:var(--anim-muted);stroke-width:2}
 .anim-canal-lock .canal-lock-gx{fill:none;stroke:var(--anim-line);stroke-width:2}
-.anim-canal-lock .canal-lock-ground{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 50%,var(--anim-bg));stroke-width:2;stroke-linejoin:round}
-.anim-canal-lock .canal-lock-cv-o{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 50%,var(--anim-bg));stroke-width:20;stroke-linejoin:round}
+.anim-canal-lock .canal-lock-ground{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linejoin:round}
+.anim-canal-lock .canal-lock-cv-o{fill:none;stroke:var(--anim-line);stroke-width:20;stroke-linejoin:round}
 .anim-canal-lock .canal-lock-cv-i{fill:none;stroke:var(--anim-bg);stroke-width:16;stroke-linejoin:round}
 .anim-canal-lock .canal-lock-fd{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:10 14}
 .anim-canal-lock .canal-lock-fa{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
@@ -353,11 +355,11 @@ svg { max-width: 100%; max-height: 100%; }
 /* fade in 0-0.28 s, then holds (once-play, no reset) */
 @keyframes canal-lock-scene{0%{opacity:0}2.92%{opacity:1}100%{opacity:1}}
 /* boat enters 0.55-1.76 s, rises with the water 3.14-5.91 s, leaves 6.93-8.13 s */
-@keyframes canal-lock-boat{0%{transform:translate(-1090px,120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}5.83%{transform:translate(-1090px,120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}18.48%{transform:translate(-570px,120px);animation-timing-function:ease-in-out}33.07%{transform:translate(-570px,120px);animation-timing-function:ease-in-out}62.24%{transform:translate(-570px,0px);animation-timing-function:cubic-bezier(0.2,0,0,1)}72.94%{transform:translate(-570px,0px);animation-timing-function:cubic-bezier(0.2,0,0,1)}85.58%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
+@keyframes canal-lock-boat{0%{transform:translate(-1090px,120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}5.83%{transform:translate(-1090px,120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}18.48%{transform:translate(-570px,120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}33.07%{transform:translate(-570px,120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}62.24%{transform:translate(-570px,0px);animation-timing-function:cubic-bezier(0.2,0,0,1)}72.94%{transform:translate(-570px,0px);animation-timing-function:cubic-bezier(0.2,0,0,1)}85.58%{transform:translate(0px,0px)}100%{transform:translate(0px,0px)}}
 /* chamber fills 3.14-5.91 s (scaleY about the floor, transform-box view-box) */
-@keyframes canal-lock-water{0%{transform:scaleY(.5);animation-timing-function:ease-in-out}33.07%{transform:scaleY(.5);animation-timing-function:ease-in-out}62.24%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+@keyframes canal-lock-water{0%{transform:scaleY(.5);animation-timing-function:cubic-bezier(0.2,0,0,1)}33.07%{transform:scaleY(.5);animation-timing-function:cubic-bezier(0.2,0,0,1)}62.24%{transform:scaleY(1)}100%{transform:scaleY(1)}}
 /* surface rides the level */
-@keyframes canal-lock-surf{0%{transform:translateY(120px);animation-timing-function:ease-in-out}33.07%{transform:translateY(120px);animation-timing-function:ease-in-out}62.24%{transform:translateY(0px)}100%{transform:translateY(0px)}}
+@keyframes canal-lock-surf{0%{transform:translateY(120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}33.07%{transform:translateY(120px);animation-timing-function:cubic-bezier(0.2,0,0,1)}62.24%{transform:translateY(0px)}100%{transform:translateY(0px)}}
 /* lower gates rise shut 1.94-2.59 s */
 @keyframes canal-lock-gate-lo{0%{transform:translateY(270px);animation-timing-function:cubic-bezier(0.2,0,0,1)}20.42%{transform:translateY(270px);animation-timing-function:cubic-bezier(0.2,0,0,1)}27.23%{transform:translateY(0px)}100%{transform:translateY(0px)}}
 /* upper gates drop open 6.1-6.74 s */

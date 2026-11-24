@@ -42,6 +42,9 @@ One file `<name>.html` containing exactly two top-level things, in this order:
   along a path (`offset-path`) belongs to `travel` (or a token trip under `cycle`), named as
   the main or a supporting verb; otherwise the checker warns. Missing warns (older
   fragments), an unknown value fails.
+- `data-anim-focal` marks the one focal element (on the element or its group): what the eye
+  lands on in the resting frame ([style.md](style.md) principle 11). Exactly one per fragment;
+  none warns, more than one fails.
 - Exactly one `<svg>`. HTML text outside the SVG is not allowed; captions belong to the slide.
 - Nothing else: no `<script>` (under any control), no `<link>`, no `<image>`,
   no `<img>`, `<iframe>`, `<object>`, `<embed>` or `<foreignObject>`, no `href`/`xlink:href`/`src`
@@ -67,7 +70,7 @@ when the host defines the same variables on `:root` or on the slide.
 .anim-<name> {
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -75,12 +78,18 @@ when the host defines the same variables on `:root` or on the slide.
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
 }
 ```
 
 - Inside the SVG use only `var(--anim-*)` for `fill`, `stroke`, `color`, `font-family`.
+- `--anim-line` reaches 3:1 against `--anim-bg` (the light-ground value is about `#768A95`);
+  a host theme darkens or lightens it until it does.
+- A fragment takes the deck's font in both looks: the host sets `--anim-theme-font` to the
+  deck's font (or `inherit`). `--anim-mono` is for data only (numbers, units, codes,
+  timestamps, identifiers, formulas; [style.md](style.md) principle 12). The stacks above are
+  system fonts; never an embedded font or a web font load.
 - Hosts override by setting `--anim-theme-*` once. A light theme is just different values.
   `scripts/host_theme.py DECK.html --mode match|lean` writes that block (match: the deck's palette
   and fonts on `:root`; lean: the lean values plus the lean ground on `.anim-lean` slides) and
@@ -132,13 +141,17 @@ still, the PDF page and the last frame of the pass are one and the same picture.
 ## 6. Legibility and motion budget
 
 - Text at or above 18 px **at rendered size on a 1920-wide stage**:
-  `viewBox_text_px * rendered_width / viewBox_width >= 18`. Titles 22 px and up.
+  `viewBox_text_px * rendered_width / viewBox_width >= 18`. Above the floor, sizes follow
+  the type ladder in [style.md](style.md) principle 5 (hero 56 to 96, label 24 to 30,
+  sub-label 18 to 20, caption 24 to 28; two sizes at least 1.25x apart, at most four). A
+  title inside the fragment is rare (titles belong to the slide) and is 22 px and up.
   On other stage sizes scale the floor by `stage_width / 1920` (12 px at 1280, 15 px at 1600,
   10 px at reveal.js 960, since the floor never goes below 10) and pass the stage as
   `check_fragment.py --stage-width W` (or the floor itself as `--min-text`). `check_fragment.py --rendered-width` computes the rendered size.
   The checker enforces the 18 px body floor, warns on titles under 22 px, and checks that
   `data-anim-cycle` lies in the range of the control (once and step 4 to 10 s, loop 8 to 15 s).
-- Strokes 2 to 3 px at rendered size, round caps and joins, corner radius 4 to 8.
+- Strokes at rendered size on a 1920 stage: structure 2 px, secondary lines 1.5 px, the
+  active path 4 px; round caps and joins, corner radius 4 to 8.
 - At most three things moving at once; roughly one third of the elements active at a time.
 - **One pass (`once`, the default):** 4 to 10 s shaped as a single staggered reveal, the action,
   then a hold of 0.8 to 1.5 s on the finished state, which stays. No element moves twice unless
@@ -150,11 +163,15 @@ still, the PDF page and the last frame of the pass are one and the same picture.
   the units or their parent `<g>`; rule in [motion-rules.md](motion-rules.md), Concurrency).
   The checker warns above 3 and fails above 6.
 - **Glow concurrency:** at most one glow visible at a time (a `filter: blur()`/`drop-shadow()`
-  copy or a `*glow*` class); arrows and lines never glow (warn at 2, fail above 2).
+  copy or a `*glow*` class), only on the element active now or the travelling head; in the
+  resting frame at most one, on the focal element, or none. Arrows and lines never glow
+  (warn at 2, fail above 2).
 - `loop` only: 8 to 15 s with setup, action, resolution and a hold of 1 to 2 s before it restarts.
-- Entrances decelerate (`ease-out`), exits accelerate and take about 65 % of the entrance time.
-- `linear` only for continuous motion (dashes, scrolling traces, spinners).
-- Stagger total under 500 ms; a card's content lands 50 to 150 ms after the card.
+- Curves come only from the easing set in [motion-rules.md](motion-rules.md), Easing (enter,
+  move, exit, land, linear); exits take about 65 % of the entrance time. `linear` only for
+  continuous motion.
+- Stagger 40 to 120 ms between items, not all equal, at most 600 ms for a group; a label
+  settles 60 to 120 ms after the thing it names.
 - Respect `prefers-reduced-motion`: the fragment ends with
   `@media (prefers-reduced-motion: reduce) { .anim-<name> * { animation: none !important; } }`
   which shows the resting frame. A fragment without this block fails the check.

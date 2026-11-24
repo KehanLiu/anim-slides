@@ -18,7 +18,9 @@ This script writes that block, so nobody hand-writes host glue.
   lean   Fragments keep the lean palette, and each animated slide gets the lean ground.
          Output: the lean values as --anim-theme-* on ".anim-lean" plus a background/colour rule.
          Put class="anim-lean" on every slide that carries a fragment (only those).
-         The font stays "inherit", so the deck's own font is kept.
+         The font token is the deck's font, as in match ("inherit" when the deck declares none).
+  Both modes: the mono token is the deck's monospace family, else a system monospace stack.
+  match lightens or darkens the derived line colour (same hue) until it reaches 3:1 on bg.
 
   --slide-selector SEL  the deck's slide element (default: auto, ".slide" if the deck styles it,
          else "section"). match: the slide background is sampled from it first. lean: the ground
@@ -48,10 +50,12 @@ import sys
 
 TOKENS = ['bg', 'panel', 'line', 'fg', 'muted', 'accent', 'accent-2', 'ok', 'warn', 'danger',
           'font', 'mono']
-LEAN = {'bg': '#0F1E27', 'panel': '#0D1820', 'line': '#2A3D49', 'fg': '#E6EDF0',
+LEAN = {'bg': '#0F1E27', 'panel': '#0D1820', 'line': '#56707F', 'fg': '#E6EDF0',
         'muted': '#93A7B2', 'accent': '#34D1BF', 'accent-2': '#FF8A3D', 'ok': '#8ED7AD',
         'warn': '#FFD15C', 'danger': '#FF6B6B', 'font': 'inherit',
-        'mono': 'ui-monospace,SFMono-Regular,Menlo,monospace'}
+        'mono': 'ui-monospace,"SF Mono",Menlo,Consolas,monospace'}
+MONO_FALLBACK = LEAN['mono']  # mono is for data only, so never the body font
+LINE_MIN = 3.0  # --anim-line against the ground (structure must read)
 LIGHT_STATUS = {'ok': '#1B7A36', 'warn': '#B35A00', 'danger': '#C62828'}  # >= 4.5:1 on white at 18 px
 NAMED = {'white': 'FFFFFF', 'black': '000000', 'red': 'FF0000', 'green': '008000',
          'blue': '0000FF', 'gray': '808080', 'grey': '808080', 'orange': 'FFA500',
@@ -192,6 +196,35 @@ class Deck:
         self.vars = {}
         for sels, decls in self.rules:
             if any(s in (':root', 'html', ':root, html') for s in sels):
+                for p, v in decls:
+                    if p.startswith('--'):
+                        self.vars[p] = v
+        # :root / html rules qualified by the deck's own <html> attributes or classes
+        # (e.g. :root[data-ground="light"], html.theme-light) are the deck's active palette:
+        # they override the plain :root values, as they do in the browser.
+        root_tag = re.search(r'<html\b([^>]*)>', self.body, re.I)
+        attrs = dict((k.lower(), v if v is not None else '') for k, v in (
+            (m.group(1), next((g for g in m.group(2, 3, 4) if g is not None), None))
+            for m in re.finditer(r'([\w:-]+)(?:\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+)))?',
+                                 root_tag.group(1) if root_tag else '')))
+        classes = attrs.get('class', '').split()
+
+        def root_matches(sel):
+            m = re.fullmatch(r'(?::root|html)((?:\[[^\]]+\]|\.[\w-]+)+)', sel)
+            if not m:
+                return False
+            for cond in re.findall(r'\[[^\]]+\]|\.[\w-]+', m.group(1)):
+                if cond.startswith('.'):
+                    if cond[1:] not in classes:
+                        return False
+                    continue
+                a = re.fullmatch(r'\[\s*([\w:-]+)\s*(?:=\s*["\']?([^"\'\]]*)["\']?\s*)?\]', cond)
+                if not a or a.group(1).lower() not in attrs or \
+                        (a.group(2) is not None and attrs[a.group(1).lower()] != a.group(2)):
+                    return False
+            return True
+        for sels, decls in self.rules:
+            if any(root_matches(s) for s in sels):
                 for p, v in decls:
                     if p.startswith('--'):
                         self.vars[p] = v
@@ -369,7 +402,9 @@ def derive_match(deck, slide_sel):
               'warn': (r'^(warn|warning|amber|yellow|orange|caution)$', (30, 62)),
               'danger': (r'^(danger|error|red|negative|bad|alert)$', (-20, 15))}
     for key, (pat, (lo, hi)) in status.items():
-        v = deck.var_color(pat, ok=saturated)
+        # a var the deck names ok/warn/danger is its own status colour: any clearly hued value
+        # counts (a muted deck green like #2B744A is below the accent's saturation bar)
+        v = deck.var_color(pat, ok=lambda c: chroma(c) >= 0.15)
         if v:
             tok[key], src[key] = v[1], v[0]
             continue
@@ -381,6 +416,26 @@ def derive_match(deck, slide_sel):
             tok[key] = LEAN[key] if dark else LIGHT_STATUS[key]
             src[key] = f'default for {"dark" if dark else "light"} bg'
 
+    for k, (v, why) in derive_fonts(deck, slide_sels).items():
+        tok[k], src[k] = v, why
+
+    if contrast(tok['line'], bg) < LINE_MIN:
+        old = tok['line']
+        tok['line'] = reach_contrast(old, bg, LINE_MIN)
+        src['line'] += f'; adjusted from {old} ({contrast(old, bg):.2f}:1) to reach {LINE_MIN:g}:1 on bg'
+
+    cfb = contrast(fg, bg)
+    if cfb < 4.5:
+        warns.append(f'fg/bg contrast {cfb:.2f} < 4.5')
+    cab = contrast(acc, bg)
+    if cab < 3:
+        warns.append(f'accent/bg contrast {cab:.2f} < 3')
+    return tok, src, warns
+
+
+def derive_fonts(deck, slide_sels):
+    """{'font': (value, source), 'mono': (value, source)} from the deck, used in both modes."""
+    out = {}
     d = (deck.decl(['body', 'html', ':root'] + slide_sels, ('font-family',))
          or deck.decl(['body', 'html', ':root'] + slide_sels, ('font',)))
     if d:
@@ -391,35 +446,40 @@ def derive_match(deck, slide_sel):
                           r'(?:\s*/\s*[\w.%()-]+)?\s+(.+)$', f)
             f = m.group(1) if m else ''
         if f:
-            tok['font'], src['font'] = clean_font(f), f'{d[0]} {{{d[1]}}}'
-    if 'font' not in tok:  # no font rule: a declared font variable (body text first, then display)
+            out['font'] = (clean_font(f), f'{d[0]} {{{d[1]}}}')
+    if 'font' not in out:  # no font rule: a declared font variable (body text first, then display)
         name = next((n for n in ('--font-body', '--font-sans', '--font-text', '--font',
                                  '--font-display', '--font-heading')
                      if deck.resolve(deck.vars.get(n, '')).strip()), None)
         if name:
-            tok['font'], src['font'] = clean_font(deck.resolve(deck.vars[name])), name
-    if 'font' not in tok:
-        tok['font'], src['font'] = 'inherit', 'default (no font-family found)'
+            out['font'] = (clean_font(deck.resolve(deck.vars[name])), name)
+    if 'font' not in out:
+        out['font'] = ('inherit', 'default (no font-family found)')
     mono_name = next((n for n in ('--font-mono', '--mono', '--font-code') if n in deck.vars), None) \
         or next((n for n in deck.vars if re.search(r'mono|code', n)), None)
     if mono_name:
-        tok['mono'] = clean_font(deck.resolve(deck.vars[mono_name]))
-        src['mono'] = mono_name
+        out['mono'] = (clean_font(deck.resolve(deck.vars[mono_name])), mono_name)
     else:
         fams = [deck.resolve(v) for _, ds in deck.rules for p, v in ds if p == 'font-family']
         hit = next((f for f in fams if re.search(r'mono|courier|consolas|menlo|code', f, re.I)), None)
         if hit:
-            tok['mono'], src['mono'] = clean_font(hit), 'first monospace font-family'
+            out['mono'] = (clean_font(hit), 'first monospace font-family')
         else:
-            tok['mono'], src['mono'] = tok['font'], 'body font (no monospace family found)'
+            out['mono'] = (MONO_FALLBACK, 'system monospace stack (no monospace family found)')
+    return out
 
-    cfb = contrast(fg, bg)
-    if cfb < 4.5:
-        warns.append(f'fg/bg contrast {cfb:.2f} < 4.5')
-    cab = contrast(acc, bg)
-    if cab < 3:
-        warns.append(f'accent/bg contrast {cab:.2f} < 3')
-    return tok, src, warns
+
+def reach_contrast(c, bg, need):
+    """c lightened (on a dark bg) or darkened (on a light bg), hue and saturation kept, until it
+    reaches need:1 against bg."""
+    h, l, sat = hls(c)
+    up = luminance(bg) < 0.2
+    for i in range(1, 101):
+        l2 = min(1.0, l + i / 100) if up else max(0.0, l - i / 100)
+        r = '#%02X%02X%02X' % tuple(round(x * 255) for x in colorsys.hls_to_rgb(h, l2, sat))
+        if contrast(r, bg) >= need:
+            return r
+    return '#FFFFFF' if up else '#000000'
 
 
 def var_name(deck, c):
@@ -553,6 +613,9 @@ def main():
             print(f'WARN {x}', file=sys.stderr)
     else:
         tok, src, warns = dict(LEAN), {k: 'lean fallback (fragment-contract.md section 3)' for k in LEAN}, []
+        sels = [slide_sel] if slide_sel else ['.slide', 'section']
+        for k, (v, why) in derive_fonts(deck, sels).items():
+            tok[k], src[k] = v, why + ' (the deck\'s own)'
         print('host_theme: put class="anim-lean" on each slide that carries a fragment'
               + (f' (ground rule also targets {slide_sel}.anim-lean)' if slide_sel else ''),
               file=sys.stderr)

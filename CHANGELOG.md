@@ -2,6 +2,93 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## 0.14.0 - 2026-11-24
+
+Look v2. Driver: the owner still found the slides "too ugly" and had six outside sources read
+for what they could teach: the design skills oil-ui, taste-skill, impeccable and huashu-design,
+and the motion galleries designbookmark.com/motion and prompt-motion.com. A read of our own
+rules found the causes: all text between 18 and 30 px with size contrast forbidden, structure
+lines at 1.5:1, the same centred even row in most figures, fade after fade on one curve, four
+different easing values across the files, and a teal glow with mono labels, which two of the
+sources name as the default AI-generated look. Rules were adopted, no code or assets copied.
+
+- **Question first:** a paired review (plain agent, one sentence of guidance, full skill) showed
+  the skill building a figure for every source it was handed, a lookup table included. Each
+  slide now starts from the question its audience should be able to answer. A base that
+  answers it (a lookup table, a list, a statement) ships complete and at once, with no figure,
+  intake or review page. A figure needs an Insight sentence ("by seeing X unfold, the audience
+  understands Y better than from the still"), and its resting frame must show that insight and
+  answer the question without the motion. Triage gains Question and Insight columns, the brief
+  the same fields; the short-deck budget floor is gone (the budget is a cap, zero is valid).
+
+- **Type ladder:** hero 56 to 96 px (one per figure, only a number or word the source states),
+  label 24 to 30, sub-label 18 to 20; any two sizes at least 1.25x apart, at most four sizes,
+  tabular numerals, sentence case. "No size jumps" is gone.
+- **One focal element:** `data-anim-focal` on the one thing the eye lands on at rest.
+- **Accent only in the light:** structure in `--anim-line` at 2 px and at least 3:1 (fallback
+  `#56707F` on dark, `#768A95` on light, was 1.5:1), active path 4 px accent, reached parts
+  stay accent without glow, one glow at most, accent at most about a fifth of the ink at rest;
+  when every part ends up reached, the reached parts settle to the foreground colour.
+- **Mono is for data:** numbers, units, codes, formulas. Names and terms use the text font.
+- **Fonts:** a figure takes the deck's font in match and lean; better standalone fallback
+  stacks; still no embedded or web fonts.
+- **One easing set:** enter, move, exit, land (about 3 % overshoot, small marks only), linear.
+  These literal curves are the only ones allowed, in every file.
+- **Entrance by kind:** lines draw on, nodes land when their line arrives, areas reveal by
+  clip, labels rise just after what they name. Stagger 40 to 120 ms and uneven, 600 ms per
+  group at most; 400 to 600 ms of stillness before the answer step.
+- **Composition:** not a centred even row by habit; the focal step gets room; anchor lines;
+  at least 60 % of the slot; at most 12 nodes and 8 spokes.
+- **Setup, then payoff:** the first frame leaves a visible gap (an empty jar, a level short
+  of its line, two groups apart) that the pass closes; a "moving poster", where everything
+  already stands in place and only animates in, is a fault. The brief names the gap and the
+  beat that closes it; rubric item 13 is now Entrance and payoff.
+- **Form from the data relationship:** a share becomes a scaled object or a split whole, a
+  change over time one curve or level, a composition one split whole, a scale one large thing
+  beside a familiar reference, before and after two pictures that differ in one place. No row
+  of big numbers beside a bar chart, no number cards. A slide's own figure keeps its form.
+- **Brief:** a beat table (time, on screen, what moves, end state, why) and the focal element
+  are written before any SVG.
+- **Review:** `look-rubric.md` has 13 items with a squint test, a labels-covered test and a
+  specificity test; a fresh reviewer sees stills only and answers `ship` or `fix` (at most
+  three problems, ranked), two rounds at most; a figure still being rebuilt after round two
+  goes back to its brief.
+- **Polish loop:** after the first render the builder writes the three worst problems, ranked,
+  fixes only those and renders again, and names the one thing whose removal improves the
+  figure. One round always, a second when the first changed the composition.
+- **Random-pause check:** the stills include three paused frames between the marks; each must
+  look intentional on its own (no half-overlap, no orphan label, at most three things moving).
+- **`check_fragment.py`:** new findings `easing-set`, `fade-after-fade`, `mono-costume`,
+  `type-ladder`, `focal` (WARN; two focal elements FAIL), `overshoot` (FAIL), `node-count`
+  (scaffolded output only), `stillness` (WARN: no 400 to 600 ms stillness before the answer
+  step; a continuous trace is exempt). Draw-ons, lands and clip reveals of things appearing for the first
+  time now count as one staggered reveal, as fades did.
+- **`check_look.py`:** new WARN findings `line-contrast`, `accent-area` (measured from
+  rendered pixels; warns above 25 %), `focal`, and a 60 % extent warning under `density`.
+  `--at-pauses` picks three reproducible times between 0.5 s and the last mark, prints them
+  and checks each frame on its own (finding `pause`, WARN); the reviewer gets the same three
+  frames.
+- **`host_theme.py`:** the line token is moved to 3:1 in match mode; lean keeps the deck's
+  font; the mono fallback is a real mono stack.
+- **`scaffold_from_spec.py`:** output follows all of the above; new optional spec key `focal`.
+  When a story ends with every part reached, the reached marks settle to the foreground colour
+  and the focal element alone keeps the accent. Loop control passes the concurrency check (the
+  figure fades as one group at the reset); step control ends all motion before the last mark;
+  hairlines and brackets draw on. A one-row figure filling under 40 % of its viewBox gets the
+  viewBox height cropped to the strip, with a note in the log.
+- **`host_theme.py` on a light ground:** rules on `:root[...]` or `html.class` that match the
+  deck's `<html>` tag are now applied, and the deck's own status colours are read, so the base
+  deck's light ground no longer hands figures the dark palette's green and yellow.
+- **Pool:** all 37 fragments reworked to the new rules with new thumbs; facts, verbs, pass
+  lengths and viewBoxes unchanged, four fragments have later phase marks. Most gained a hero
+  number or word. Every fragment passes both checkers with no warning, on the dark ground and
+  on the base deck's light ground, at rest, at every phase mark and at three paused frames.
+- **CI:** `check-pool.sh` runs `check_look.py` with `--at-marks --at-pauses`.
+- **Base deck:** new line tokens, mono stack, one true contrast rule; its example figure
+  follows the rules.
+- **`references/archetypes.md`:** now describes what the scaffolder draws (rings, not rects
+  and pills).
+
 ## 0.13.0 - 2026-11-24
 
 Figures inside a deck skill's draft. Driver: the owner wants "Make five slides introducing

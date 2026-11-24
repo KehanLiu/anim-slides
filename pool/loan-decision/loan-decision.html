@@ -3,12 +3,12 @@
   decision diamond. Application 1 passes the credit check; the yes branch forks into a group whose
   two checks run in parallel (progress bars of different length) and join into a loan offer.
   Application 2 fails the check; the no branch leads to a decline and a reason letter. The idle path
-  dims while the other is told. Scores are illustrative. Once-play pass 10 s, ends on the resting frame; hold 9-10 s. -->
+  dims while the other is told. Scores are illustrative. Once-play pass 10 s, ends on the resting frame; hold 9.2-10 s. -->
 <style>
 .anim-loan-decision {
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -16,33 +16,37 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display: block; width: 100%; height: 100%;
 }
 .anim-loan-decision svg{display:block;width:100%;height:100%;max-width:none}
-/* type */
+/* type ladder: label 24, sub-label 18, caption 24 (= label); mono only for the scores */
 .anim-loan-decision .loan-decision-t{font-family:var(--anim-font);fill:var(--anim-fg)}
 .anim-loan-decision .loan-decision-lbl{font-size:24px;font-weight:600}
-.anim-loan-decision .loan-decision-tagbox{fill:none;stroke:var(--anim-line);stroke-width:2}
-.anim-loan-decision .loan-decision-sub{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted)}
-.anim-loan-decision .loan-decision-note{font-size:26px}
-.anim-loan-decision .loan-decision-mono{font-family:var(--anim-mono);font-size:20px;fill:var(--anim-muted)}
+.anim-loan-decision .loan-decision-tagbox{fill:none;stroke:var(--anim-line);stroke-width:1.5}
+.anim-loan-decision .loan-decision-sub{font-family:var(--anim-font);font-size:18px;font-weight:400;fill:var(--anim-muted)}
+.anim-loan-decision .loan-decision-note{font-size:24px}
+.anim-loan-decision .loan-decision-mono{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-loan-decision .loan-decision-word{font-family:var(--anim-font);font-size:18px;fill:var(--anim-muted)}
+.anim-loan-decision .loan-decision-word.loan-decision-gn{fill:var(--anim-ok)}
+.anim-loan-decision .loan-decision-word.loan-decision-wn{fill:var(--anim-warn)}
+.anim-loan-decision .loan-decision-word.loan-decision-b{font-weight:700}
 .anim-loan-decision .loan-decision-mono.loan-decision-gn{fill:var(--anim-ok)}
 .anim-loan-decision .loan-decision-mono.loan-decision-wn{fill:var(--anim-warn)}
 .anim-loan-decision .loan-decision-mono.loan-decision-b{font-weight:700}
-.anim-loan-decision .loan-decision-glbl{font-family:var(--anim-mono);font-size:18px;fill:var(--anim-muted);letter-spacing:.08em}
+.anim-loan-decision .loan-decision-glbl{font-family:var(--anim-font);font-size:18px;fill:var(--anim-muted)}
 /* group: hairline bracket, open on the label side */
-.anim-loan-decision .loan-decision-brk{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-brk{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 /* wires */
-.anim-loan-decision .loan-decision-wire{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 45%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120}
-.anim-loan-decision .loan-decision-arrow{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 60%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-wire{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120}
+.anim-loan-decision .loan-decision-arrow{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .anim-loan-decision .loan-decision-tr{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
 .anim-loan-decision .loan-decision-tr-ok{stroke:var(--anim-ok)}
 .anim-loan-decision .loan-decision-tr-wn{stroke:var(--anim-warn)}
 /* nodes: rings with a line glyph, labels outside */
-.anim-loan-decision .loan-decision-ring{fill:var(--anim-bg);stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5}
-.anim-loan-decision .loan-decision-glyph{fill:none;stroke:var(--anim-muted);stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-ring{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2}
+.anim-loan-decision .loan-decision-glyph{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .anim-loan-decision .loan-decision-halo{fill:none;stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;filter:blur(6px)}
 .anim-loan-decision .loan-decision-hot{fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-bg));stroke:var(--anim-accent);stroke-width:3}
 .anim-loan-decision .loan-decision-hotf{fill:color-mix(in srgb,var(--anim-accent) 14%,var(--anim-bg));stroke:none}
@@ -50,12 +54,12 @@
 .anim-loan-decision .loan-decision-okring{fill:none;stroke:var(--anim-ok);stroke-width:2.5}
 .anim-loan-decision .loan-decision-wnring{fill:none;stroke:var(--anim-warn);stroke-width:2.5}
 .anim-loan-decision .loan-decision-fill{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-/* decision diamond: thin outline */
-.anim-loan-decision .loan-decision-dia{fill:none;stroke:color-mix(in srgb,var(--anim-muted) 55%,var(--anim-bg));stroke-width:2.5;stroke-linejoin:round}
+/* decision diamond (focal): the largest shape, outline in the foreground tone */
+.anim-loan-decision .loan-decision-dia{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linejoin:round}
 .anim-loan-decision .loan-decision-dia-run{fill:color-mix(in srgb,var(--anim-accent) 8%,transparent);stroke:var(--anim-accent);stroke-width:3;stroke-linejoin:round}
 .anim-loan-decision .loan-decision-dia-halo{fill:none;stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;stroke-linejoin:round;filter:blur(6px)}
 .anim-loan-decision .loan-decision-check{fill:none;stroke:var(--anim-ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.anim-loan-decision .loan-decision-env{fill:none;stroke:var(--anim-warn);stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+.anim-loan-decision .loan-decision-env{fill:none;stroke:var(--anim-warn);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .anim-loan-decision .loan-decision-pkt{fill:var(--anim-accent);stroke:var(--anim-accent);stroke-width:12;stroke-opacity:.3;opacity:0;offset-rotate:0deg}
 .anim-loan-decision .loan-decision-p-a1{offset-path:path('M160 150 C230 150 226 253 286 253 H410')}
 .anim-loan-decision .loan-decision-p-b1{offset-path:path('M160 356 C230 356 226 253 286 253 H410')}
@@ -111,8 +115,8 @@
 @keyframes loan-decision-tr-n1{0%,76.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}79.2%,100%{opacity:1}}
 /* in at 1.13s */
 @keyframes loan-decision-wa-n2{0%,11.28%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.88%,100%{opacity:1}}
-/* in at 8.48s */
-@keyframes loan-decision-tr-n2{0%,84.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.2%,100%{opacity:1}}
+/* in at 8.76s */
+@keyframes loan-decision-tr-n2{0%,87.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90%,100%{opacity:1}}
 /* 0.8s - 1.2s */
 @keyframes loan-decision-run-on{0%,8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10%{opacity:1}12%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}13.6%,100%{opacity:0}}
 /* in at 1.2s */
@@ -145,20 +149,20 @@
 @keyframes loan-decision-ok-off{0%,52%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.4%,100%{opacity:1}}
 /* in at 5.24s */
 @keyframes loan-decision-chk-off{0%,52.4%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}54.4%,100%{opacity:1;transform:scale(1)}}
-/* 7.84s - 8.16s */
-@keyframes loan-decision-run-dec{0%,78.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.4%{opacity:1}81.6%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}83.2%,100%{opacity:0}}
-/* in at 8.16s */
-@keyframes loan-decision-ok-dec{0%,81.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}84%,100%{opacity:1}}
-/* 8.48s - 8.72s */
-@keyframes loan-decision-run-let{0%,84.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.8%{opacity:1}87.2%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88.8%,100%{opacity:0}}
-/* in at 8.72s */
-@keyframes loan-decision-ok-let{0%,87.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.6%,100%{opacity:1}}
-/* in at 8.76s */
-@keyframes loan-decision-envg{0%,87.6%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90%,100%{opacity:1;transform:scale(1)}}
+/* 7.8s - 8.44s (stillness 8.0 - 8.44 s before the answer step) */
+@keyframes loan-decision-run-dec{0%,78%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80%{opacity:1}84.4%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86%,100%{opacity:0}}
+/* in at 8.44s */
+@keyframes loan-decision-ok-dec{0%,84.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.8%,100%{opacity:1}}
+/* 8.76s - 8.96s */
+@keyframes loan-decision-run-let{0%,87.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.6%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}91.2%,100%{opacity:0}}
+/* in at 8.96s */
+@keyframes loan-decision-ok-let{0%,89.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}92%,100%{opacity:1}}
+/* in at 8.96s */
+@keyframes loan-decision-envg{0%,89.6%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}92%,100%{opacity:1;transform:scale(1)}}
 /* progress 3.2-4.16 s, then fades out under the ok ring together with the glow */
-@keyframes loan-decision-fill-inc{0%,32%{stroke-dashoffset:101;opacity:1;animation-timing-function:ease-in-out}41.6%{stroke-dashoffset:0;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.2%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes loan-decision-fill-inc{0%,32%{stroke-dashoffset:101;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}41.6%{stroke-dashoffset:0;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}43.2%,100%{stroke-dashoffset:0;opacity:0}}
 /* progress 3.2-4.56 s, then fades out under the ok ring together with the glow */
-@keyframes loan-decision-fill-col{0%,32%{stroke-dashoffset:101;opacity:1;animation-timing-function:ease-in-out}45.6%{stroke-dashoffset:0;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.2%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes loan-decision-fill-col{0%,32%{stroke-dashoffset:101;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}45.6%{stroke-dashoffset:0;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}47.2%,100%{stroke-dashoffset:0;opacity:0}}
 /* 1.36s - 1.68s */
 @keyframes loan-decision-or-a{0%,13.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}15.2%{opacity:1}16.8%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}18.4%,100%{opacity:0}}
 /* 6.16s - 6.48s */
@@ -168,11 +172,11 @@
 /* 6.64s - 7.2s */
 @keyframes loan-decision-dia-b{0%,66.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.4%{opacity:1}72%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}74%,100%{opacity:0}}
 /* threshold readout, hidden while a score shows */
-@keyframes loan-decision-r0{0%{opacity:1}19.2%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.8%{opacity:0}54.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.8%{opacity:1}67.2%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}68.8%{opacity:0}84.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.2%,100%{opacity:1}}
+@keyframes loan-decision-r0{0%{opacity:1}19.2%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20.8%{opacity:0}54.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}56.8%{opacity:1}67.2%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}68.8%{opacity:0}87.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90%,100%{opacity:1}}
 /* 2s - 5.44s */
 @keyframes loan-decision-r1{0%,20%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.4%{opacity:1}54.4%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}56%,100%{opacity:0}}
-/* 6.8s - 8.48s */
-@keyframes loan-decision-r2{0%,68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.4%{opacity:1}84.8%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.4%,100%{opacity:0}}
+/* 6.8s - 8.76s */
+@keyframes loan-decision-r2{0%,68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.4%{opacity:1}87.6%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}89.2%,100%{opacity:0}}
 /* in at 2.4s */
 @keyframes loan-decision-yes{0%,24%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}26%,100%{opacity:1}}
 /* in at 7.2s */
@@ -189,14 +193,14 @@
 @keyframes loan-decision-p-j1{0%,43.2%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}43.84%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}47.36%{offset-distance:97%;opacity:1}48%,100%{offset-distance:100%;opacity:0}}
 /* hop 4.72s - 5.2s, after the collateral glow has faded */
 @keyframes loan-decision-p-j2{0%,47.2%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}47.84%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}51.36%{offset-distance:97%;opacity:1}52%,100%{offset-distance:100%;opacity:0}}
-/* hop 7.2s - 7.84s */
-@keyframes loan-decision-p-n1{0%,72%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}72.64%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}77.76%{offset-distance:97%;opacity:1}78.4%,100%{offset-distance:100%;opacity:0}}
-/* hop 8.16s - 8.48s */
-@keyframes loan-decision-p-n2{0%,81.6%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}82.24%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}84.16%{offset-distance:97%;opacity:1}84.8%,100%{offset-distance:100%;opacity:0}}
+/* hop 7.2s - 7.8s */
+@keyframes loan-decision-p-n1{0%,72%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}72.64%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}77.36%{offset-distance:97%;opacity:1}78%,100%{offset-distance:100%;opacity:0}}
+/* hop 8.44s - 8.76s */
+@keyframes loan-decision-p-n2{0%,84.4%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.2,0,0,1)}85.04%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}86.96%{offset-distance:97%;opacity:1}87.6%,100%{offset-distance:100%;opacity:0}}
 /* decline path dimmed during application 1 */
-@keyframes loan-decision-dimno{0%,8%{opacity:1;animation-timing-function:ease-in-out}10.4%{opacity:.4}53.6%{opacity:.4;animation-timing-function:ease-in-out}56%,100%{opacity:1}}
+@keyframes loan-decision-dimno{0%,8%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}10.4%{opacity:.65}53.6%{opacity:.65;animation-timing-function:cubic-bezier(0.2,0,0,1)}56%,100%{opacity:1}}
 /* offer path dimmed during application 2 */
-@keyframes loan-decision-dimyes{0%,56%{opacity:1;animation-timing-function:ease-in-out}58.4%{opacity:.4}87.2%{opacity:.4;animation-timing-function:ease-in-out}89.6%,100%{opacity:1}}
+@keyframes loan-decision-dimyes{0%,56%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}58.4%{opacity:.65}89.6%{opacity:.65;animation-timing-function:cubic-bezier(0.2,0,0,1)}92%,100%{opacity:1}}
 /* 0s - 0.8s */
 @keyframes loan-decision-n0{0%{opacity:1}8%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}9.6%,100%{opacity:0}}
 /* 0.8s - 1.84s */
@@ -209,12 +213,12 @@
 @keyframes loan-decision-n4{0%,48%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.4%{opacity:1}56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}57.6%,100%{opacity:0}}
 /* 5.6s - 6.64s */
 @keyframes loan-decision-n5{0%,56%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.4%{opacity:1}66.4%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}68%,100%{opacity:0}}
-/* 6.64s - 7.84s */
-@keyframes loan-decision-n6{0%,66.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.8%{opacity:1}78.4%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
-/* 7.84s - 8.72s */
-@keyframes loan-decision-n7{0%,78.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.8%{opacity:1}87.2%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}88.8%,100%{opacity:0}}
-/* in at 8.72s */
-@keyframes loan-decision-n8{0%,87.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.6%,100%{opacity:1}}
+/* 6.64s - 7.8s */
+@keyframes loan-decision-n6{0%,66.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.8%{opacity:1}78%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}79.6%,100%{opacity:0}}
+/* 7.8s - 8.96s */
+@keyframes loan-decision-n7{0%,78%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80%{opacity:1}89.6%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}91.2%,100%{opacity:0}}
+/* in at 8.96s */
+@keyframes loan-decision-n8{0%,89.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}92%,100%{opacity:1}}
 
 .visible .anim-loan-decision .loan-decision-scene{animation:loan-decision-scene 10s linear 1 forwards}
 .visible .anim-loan-decision .loan-decision-e0{animation:loan-decision-e0 10s linear 1 forwards}
@@ -292,7 +296,7 @@
 
 @media (prefers-reduced-motion: reduce) { .anim-loan-decision * { animation: none !important; } }
 </style>
-<div class="anim anim-loan-decision" data-anim="loan-decision" data-anim-cycle="10" data-anim-phases="0.78,1.84,2.4,5.6,6.64,7.2,8.1,9" data-anim-control="once" data-anim-verb="travel">
+<div class="anim anim-loan-decision" data-anim="loan-decision" data-anim-cycle="10" data-anim-phases="0.78,1.84,2.4,5.6,6.64,7.2,8.2,9.2" data-anim-control="once" data-anim-verb="travel">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Loan decision: applications arrive online or in a branch and meet a credit check decision; on yes, income verification and collateral appraisal run in parallel and lead to a loan offer; on no, the application is declined with a reason letter.">
 <g class="loan-decision-scene">
   <g class="loan-decision-dimyes">
@@ -350,9 +354,9 @@
     <text class="loan-decision-t loan-decision-sub" x="1446" y="215">terms sent</text>
     <g class="loan-decision-chk-off" style="transform-box:fill-box;transform-origin:center"><path class="loan-decision-check" d="M1414 153 l6 6 l12 -13"/></g>
   </g>
-  <text class="loan-decision-mono" x="690" y="238" text-anchor="middle">yes</text>
-  <text class="loan-decision-mono loan-decision-gn loan-decision-b loan-decision-yes" x="690" y="238" text-anchor="middle">yes</text>
   </g>
+  <text class="loan-decision-word" x="690" y="238" text-anchor="middle">yes</text>
+  <text class="loan-decision-word loan-decision-gn loan-decision-b loan-decision-yes" x="690" y="238" text-anchor="middle">yes</text>
   <g class="loan-decision-dimno">
   <g class="loan-decision-wg-no">
     <path class="loan-decision-wire" pathLength="100" d="M160 356 C230 356 226 253 286 253"/>
@@ -390,8 +394,8 @@
     <text class="loan-decision-t loan-decision-lbl" x="1446" y="468">Reason letter</text>
     <text class="loan-decision-t loan-decision-sub" x="1446" y="494">why, and what next</text>
   </g>
-  <text class="loan-decision-mono" x="554" y="414">no</text>
-  <text class="loan-decision-mono loan-decision-wn loan-decision-b loan-decision-no" x="554" y="414">no</text>
+  <text class="loan-decision-word" x="554" y="414">no</text>
+  <text class="loan-decision-word loan-decision-wn loan-decision-b loan-decision-no" x="554" y="414">no</text>
   </g>
     <path class="loan-decision-wire loan-decision-w-or" pathLength="100" d="M334 253 H410"/>
     <path class="loan-decision-arrow loan-decision-wa-or" d="M401 245 L410 253 L401 261"/>
@@ -399,8 +403,8 @@
     <circle class="loan-decision-ring" cx="310" cy="253" r="24"/>
     <g class="loan-decision-or-a"><circle class="loan-decision-halo" cx="310" cy="253" r="24"/><circle class="loan-decision-hot" cx="310" cy="253" r="24"/></g>
     <g class="loan-decision-or-b"><circle class="loan-decision-halo" cx="310" cy="253" r="24"/><circle class="loan-decision-hot" cx="310" cy="253" r="24"/></g>
-    <text class="loan-decision-mono loan-decision-b" x="310" y="260" text-anchor="middle" style="fill:var(--anim-fg);font-size:18px">OR</text>
-    <polygon class="loan-decision-dia" points="540,153 670,253 540,353 410,253"/>
+    <text class="loan-decision-word loan-decision-b" x="310" y="259" text-anchor="middle" style="fill:var(--anim-fg)">OR</text>
+    <polygon class="loan-decision-dia" data-anim-focal points="540,153 670,253 540,353 410,253"/>
     <g class="loan-decision-dia-a"><polygon class="loan-decision-dia-halo" points="540,153 670,253 540,353 410,253"/><polygon class="loan-decision-dia-run" points="540,153 670,253 540,353 410,253"/></g>
     <g class="loan-decision-dia-b"><polygon class="loan-decision-dia-halo" points="540,153 670,253 540,353 410,253"/><polygon class="loan-decision-dia-run" points="540,153 670,253 540,353 410,253"/></g>
     <text class="loan-decision-t loan-decision-lbl" x="540" y="246" text-anchor="middle">Credit check</text>

@@ -7,7 +7,7 @@ something really travels.
 
 Limits for every verb ([motion-rules.md](motion-rules.md), [style.md](style.md)): one calm pass
 of 4 to 10 s that rests on the finished frame, nothing loops or repeats, at most three things
-move at once, no overshoot, the lean look, and nothing drawn that the source does not state
+move at once, no overshoot (except a small mark on the `land` curve), the lean look, and nothing drawn that the source does not state
 ([accuracy.md](accuracy.md)). A slide that already has a figure keeps that figure's form; the
 verb then says how that figure moves, not what it turns into.
 
@@ -38,7 +38,9 @@ dot" is not a name.
 **One object from the subject.** Prefer the thing itself over a labelled ring: a jar, a beam,
 a ballot, a cell, a ledger column, a river bed, drawn in a few thin strokes (a scene needs the
 source to describe the physical thing). Rings on a line are the fallback when the source gives
-no object, not the default.
+no object, not the default. For a claim that is a number, the form follows the data
+relationship (a share, a change over time, a composition, a scale, before and after;
+[archetypes.md](archetypes.md) "Form from the data relationship").
 
 ## 2. The verbs
 
@@ -161,8 +163,9 @@ stop); `split` + `grow` (the parts become bars).
 
 Never the main verb of a fragment that has a claim beyond order.
 
-- **`reveal`**: the static frame and items enter in a staggered series, in an order that
-  follows the content (reading order for a sequence, centre out for a hub, bottom up for a
+- **`reveal`**: the static frame and items enter in a staggered series, each by its kind
+  (lines draw on, nodes land as their line reaches them, labels settle last; motion-rules.md,
+  Entrance by kind), in an order that follows the content (reading order for a sequence, centre out for a hub, bottom up for a
   base, cause before effect). It is the whole motion only for an order-only slide.
 - **`mark`**: an annotation drawn onto what is already there: an underline, a ring around a
   value, a bracket with a label, a strike-through. A highlight sits behind the text, a mark
@@ -173,7 +176,10 @@ Never the main verb of a fragment that has a claim beyond order.
 ## 5. Mechanisms
 
 Checked in Chromium with `scripts/render-phases.sh`. Every animated element has one
-full-pass keyframe track that ends on its resting value (motion-rules.md, Techniques).
+full-pass keyframe track that ends on its resting value (motion-rules.md, Techniques). The
+verb's own move (a scale, a rotate, a translate, an `offset-distance`, a `d` morph) runs on
+the move curve; draw-on and reveals on the enter curve; a small mark that lands on the land
+curve; the digit strip on `steps()` (motion-rules.md, Easing).
 
 - **Scale about a point** (`grow`, `zoom`): `transform-box: view-box` and a
   `transform-origin` in px at the baseline, pivot or focus. A level is `scaleY` from the
@@ -208,11 +214,17 @@ second on the claim has the proportions backwards.
 
 | Part | Share | What |
 |---|---|---|
-| set | 10 to 20 % | the static frame and the starting state enter (`reveal`); the start is a readable picture |
+| set | 10 to 20 % | the static frame and the starting state enter by kind (`reveal`): lines draw on, nodes land, labels settle last; not a row of fade-ins. The start is a readable picture with a visible gap the verb will close (setup, below) |
 | action | 40 to 60 % | the verb, in two to four staged steps with a settled moment between them |
+| stillness | 400 to 600 ms | nothing moves, just before the answer step (the verb's last staged step), so the answer is seen to arrive |
 | answer | 10 to 20 % | what the action produced: the gap bracket, the total, the new label, a `mark` |
 | hold | 0.8 to 1.5 s | nothing moves; this is the resting frame |
 
+- **Setup, then payoff.** The set leaves a gap or question in view and the verb closes it:
+  the empty jar (`accumulate`), the level below its threshold line (`grow`), the beam still
+  level (`balance`), two parties apart (`merge`). A pass where everything is already in its
+  final place and only animates in is a moving poster, not a story (motion-rules.md, A once
+  pass).
 - **Stage it.** Change one kind of thing per step: positions first, then colours, then
   labels. A staged change is easier to follow than everything interpolating at once.
 - **Same element, same thing.** An element that stands for something keeps standing for it;
@@ -223,8 +235,9 @@ second on the claim has the proportions backwards.
   as a still.
 - **One hero.** The thing the verb acts on is the largest thing in the slot (about 40 % of
   it or more). Supporting moves are smaller and start 100 to 200 ms after the hero's.
-- **Ease by role.** Arrivals decelerate, moves on screen ease in and out, a level or a bar
-  runs at the move curve; one easing on everything reads as generated (motion-rules.md,
+- **Ease by role.** Arrivals and draw-on take the enter curve, the verb's move and every
+  change of place or size the move curve, exits the exit curve, small marks the land curve;
+  no other curves, and one easing on everything reads as generated (motion-rules.md,
   Easing).
 - **Still is allowed.** A slide that is explained by pointing at parts of one picture gets
   the picture, `dim` and one `mark` per phase. Do not invent a traveller to have motion.

@@ -3,7 +3,7 @@
 .anim-funding-options{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -11,37 +11,37 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-funding-options svg{width:100%;height:100%;display:block}
 
 .anim-funding-options .funding-options-sans{font-family:var(--anim-font)}
-.anim-funding-options .funding-options-mono{font-family:var(--anim-mono)}
-.anim-funding-options .funding-options-head{font-size:26px;font-weight:600;fill:var(--anim-fg)}
+.anim-funding-options .funding-options-mono{font-family:var(--anim-mono);font-variant-numeric:tabular-nums}
+.anim-funding-options .funding-options-head{font-size:30px;font-weight:600;fill:var(--anim-fg)}
 .anim-funding-options .funding-options-hsub{font-size:18px;fill:var(--anim-muted)}
-.anim-funding-options .funding-options-crit{font-size:20px;font-weight:500;fill:var(--anim-muted)}
+.anim-funding-options .funding-options-crit{font-size:24px;font-weight:500;fill:var(--anim-muted)}
 .anim-funding-options .funding-options-csub{font-size:18px;fill:var(--anim-muted)}
-.anim-funding-options .funding-options-val{font-size:24px;font-weight:600;fill:var(--anim-fg)}
-.anim-funding-options .funding-options-pct{font-size:20px;font-weight:600;fill:var(--anim-accent)}
-.anim-funding-options .funding-options-note{font-size:26px;font-weight:400;fill:var(--anim-fg)}
-.anim-funding-options .funding-options-card{fill:none;stroke:var(--anim-line);stroke-width:2px;stroke-linecap:round}
+.anim-funding-options .funding-options-val{font-size:24px;font-weight:500;fill:var(--anim-fg);font-variant-numeric:tabular-nums}
+.anim-funding-options .funding-options-pct{font-size:38px;font-weight:500;letter-spacing:-0.02em;fill:var(--anim-fg);font-variant-numeric:tabular-nums}
+.anim-funding-options .funding-options-note{font-size:24px;font-weight:400;fill:var(--anim-fg)}
+.anim-funding-options .funding-options-card{fill:none;stroke:var(--anim-line);stroke-width:2px;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-funding-options .funding-options-rule{fill:none;stroke:var(--anim-line);stroke-width:1.5px}
 .anim-funding-options .funding-options-track{fill:none;stroke:var(--anim-line);stroke-width:2px;stroke-linecap:round}
 .anim-funding-options .funding-options-fill{transform-box:fill-box;transform-origin:0 50%}
 .anim-funding-options .funding-options-fill-amt{fill:var(--anim-muted)}
-.anim-funding-options .funding-options-fill-ctl{fill:var(--anim-accent)}
-.anim-funding-options .funding-options-band{fill:none;stroke:var(--anim-accent);stroke-width:3px;stroke-linecap:round;stroke-linejoin:round}
-.anim-funding-options .funding-options-glow{opacity:.35;stroke-width:8px;filter:blur(6px)}
-.anim-funding-options .funding-options-glowbar{fill:var(--anim-accent);stroke:none}
-.anim-funding-options .funding-options-hlcrit{fill:var(--anim-accent)}
+.anim-funding-options .funding-options-fill-ctl{fill:currentColor}
+.anim-funding-options .funding-options-ctlrow{color:var(--anim-accent)}
+.anim-funding-options .funding-options-band{fill:none;stroke:var(--anim-accent);stroke-width:2px;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-funding-options .funding-options-dim{opacity:.65}
-.anim-funding-options .funding-options-tag{fill:none;stroke:var(--anim-line);stroke-width:2px}
+.anim-funding-options .funding-options-tag{fill:none;stroke:var(--anim-line);stroke-width:1.5px}
 .anim-funding-options .funding-options-tagt{font-size:18px;fill:var(--anim-muted)}
 .anim-funding-options .funding-options-n0,.anim-funding-options .funding-options-n1,.anim-funding-options .funding-options-n2{opacity:0}
 .anim-funding-options .funding-options-ac{fill:var(--anim-accent);font-weight:600}
 
+/* row rules: drawn on left to right by one clip wipe, 0-0.63 s */
+@keyframes funding-options-rules{0%{clip-path:inset(-4px 100% -4px 0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}7%{clip-path:inset(-4px 0 -4px 0);}100%{clip-path:inset(-4px 0 -4px 0);}}
 /* scene: in 0-0.27 s, then holds (once-play, no reset) */
 @keyframes funding-options-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}3.03%{opacity:1;}100%{opacity:1;}}
 /* row header 1 at 0.27 s */
@@ -54,36 +54,37 @@
 @keyframes funding-options-crit3{0%{opacity:0;transform:translateX(-20px);}5.45%{opacity:0;transform:translateX(-20px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}9.99%{opacity:1;transform:translateX(0);}100%{opacity:1;transform:translateX(0);}}
 /* column 1 card lands 0.82 s, cells follow 0.09 s later, 80 ms apart */
 @keyframes funding-options-col0{0%{opacity:0;transform:translateY(16px);}9.08%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.13%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cst0{0%{stroke:var(--anim-line);}9.08%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}12.11%{stroke:var(--anim-accent);}29.26%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}32.29%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
+@keyframes funding-options-cst0{0%{stroke:var(--anim-line);stroke-dashoffset:101;}9.08%{stroke:var(--anim-line);stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.13%{stroke:var(--anim-accent);stroke-dashoffset:0;}29.26%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}32.29%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
 @keyframes funding-options-cell00{0%{opacity:0;transform:translateY(10px);}10.09%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.13%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
 @keyframes funding-options-fl00{0%{transform:scaleX(0);}12.11%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}18.16%{transform:scaleX(1);}100%{transform:scaleX(1);}}
 @keyframes funding-options-cell01{0%{opacity:0;transform:translateY(10px);}10.9%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}14.93%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
 @keyframes funding-options-cell02{0%{opacity:0;transform:translateY(10px);}11.71%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15.74%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell03{0%{opacity:0;transform:translateY(10px);}12.51%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}16.55%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl03{0%{transform:scaleX(0);}14.53%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}20.59%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes funding-options-cell03{0%{opacity:0;transform:translateY(10px);}12.29%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}16.33%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl03{0%{transform:scaleX(0);}14.31%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}20.37%{transform:scaleX(1);}100%{transform:scaleX(1);}}
 /* column 2 card lands 2.91 s, cells follow 0.09 s later, 80 ms apart */
 @keyframes funding-options-col1{0%{opacity:0;transform:translateY(16px);}32.29%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.33%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cst1{0%{stroke:var(--anim-line);}32.29%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}35.31%{stroke:var(--anim-accent);}52.46%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}55.49%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
+@keyframes funding-options-cst1{0%{stroke:var(--anim-line);stroke-dashoffset:101;}32.29%{stroke:var(--anim-line);stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.33%{stroke:var(--anim-accent);stroke-dashoffset:0;}52.46%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}55.49%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
 @keyframes funding-options-cell10{0%{opacity:0;transform:translateY(10px);}33.3%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}37.33%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
 @keyframes funding-options-fl10{0%{transform:scaleX(0);}35.31%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}41.36%{transform:scaleX(1);}100%{transform:scaleX(1);}}
 @keyframes funding-options-cell11{0%{opacity:0;transform:translateY(10px);}34.11%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.13%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
 @keyframes funding-options-cell12{0%{opacity:0;transform:translateY(10px);}34.9%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}38.94%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell13{0%{opacity:0;transform:translateY(10px);}35.71%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}39.75%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl13{0%{transform:scaleX(0);}37.73%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}43.78%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+@keyframes funding-options-cell13{0%{opacity:0;transform:translateY(10px);}35.49%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}39.53%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl13{0%{transform:scaleX(0);}37.51%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}43.56%{transform:scaleX(1);}100%{transform:scaleX(1);}}
 /* column 3 card lands 4.99 s, cells follow 0.09 s later, 80 ms apart */
 @keyframes funding-options-col2{0%{opacity:0;transform:translateY(16px);}55.49%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60.54%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cst2{0%{stroke:var(--anim-line);}55.49%{stroke:var(--anim-line);animation-timing-function:cubic-bezier(0.2,0,0,1);}58.52%{stroke:var(--anim-accent);}75.67%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}78.7%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
+@keyframes funding-options-cst2{0%{stroke:var(--anim-line);stroke-dashoffset:101;}55.49%{stroke:var(--anim-line);stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60.54%{stroke:var(--anim-accent);stroke-dashoffset:0;}75.67%{stroke:var(--anim-accent);animation-timing-function:cubic-bezier(0.2,0,0,1);}78.7%{stroke:var(--anim-line);}100%{stroke:var(--anim-line);}}
 @keyframes funding-options-cell20{0%{opacity:0;transform:translateY(10px);}56.5%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}60.54%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
 @keyframes funding-options-fl20{0%{transform:scaleX(0);}58.52%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}64.57%{transform:scaleX(1);}100%{transform:scaleX(1);}}
 @keyframes funding-options-cell21{0%{opacity:0;transform:translateY(10px);}57.31%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}61.34%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
 @keyframes funding-options-cell22{0%{opacity:0;transform:translateY(10px);}58.11%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}62.15%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-cell23{0%{opacity:0;transform:translateY(10px);}58.92%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}62.96%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
-@keyframes funding-options-fl23{0%{transform:scaleX(0);}60.94%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}66.99%{transform:scaleX(1);}100%{transform:scaleX(1);}}
-/* highlight row at 7.08 s */
-@keyframes funding-options-band{0%{opacity:0;transform:scaleX(.98);}78.7%{opacity:0;transform:scaleX(.98);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}83.24%{opacity:1;transform:scaleX(1);}100%{opacity:1;transform:scaleX(1);}}
+@keyframes funding-options-cell23{0%{opacity:0;transform:translateY(10px);}58.70%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}62.74%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
+@keyframes funding-options-fl23{0%{transform:scaleX(0);}60.72%{transform:scaleX(0);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}66.77%{transform:scaleX(1);}100%{transform:scaleX(1);}}
+/* highlight bracket and underline draw on, 7.08-7.76 s */
+@keyframes funding-options-band{0%{stroke-dashoffset:101;}78.7%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}86.2%{stroke-dashoffset:0;}100%{stroke-dashoffset:0;}}
 /* other rows recede: one group track */
 @keyframes funding-options-dim{0%{opacity:1;}78.7%{opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1);}83.24%{opacity:.65;}100%{opacity:.65;}}
-@keyframes funding-options-hlc{0%{fill:var(--anim-muted);}78.7%{fill:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1);}81.73%{fill:var(--anim-accent);}100%{fill:var(--anim-accent);}}
+/* the control row (focal) turns from muted to the accent: one group track on color */
+@keyframes funding-options-ctl{0%{color:var(--anim-muted);}78.7%{color:var(--anim-muted);animation-timing-function:cubic-bezier(0.2,0,0,1);}81.73%{color:var(--anim-accent);}100%{color:var(--anim-accent);}}
 /* note 1 */
 @keyframes funding-options-n0{0%{opacity:0;}11.1%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}15.14%{opacity:1;}28.76%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1);}31.28%{opacity:0;}100%{opacity:0;}}
 /* note 2 */
@@ -93,6 +94,7 @@
 /* verdict */
 @keyframes funding-options-n3{0%{opacity:0;transform:translateY(12px);}83.5%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}88.5%{opacity:1;transform:translateY(0);}100%{opacity:1;transform:translateY(0);}}
 .visible .anim-funding-options .funding-options-scene{animation:funding-options-scene 9s linear 1 both}
+.visible .anim-funding-options .funding-options-rules{animation:funding-options-rules 9s linear 1 both}
 .visible .anim-funding-options .funding-options-crit0{animation:funding-options-crit0 9s linear 1 both}
 .visible .anim-funding-options .funding-options-crit1{animation:funding-options-crit1 9s linear 1 both}
 .visible .anim-funding-options .funding-options-crit2{animation:funding-options-crit2 9s linear 1 both}
@@ -121,9 +123,9 @@
 .visible .anim-funding-options .funding-options-cell22{animation:funding-options-cell22 9s linear 1 both}
 .visible .anim-funding-options .funding-options-cell23{animation:funding-options-cell23 9s linear 1 both}
 .visible .anim-funding-options .funding-options-fl23{animation:funding-options-fl23 9s linear 1 both}
-.visible .anim-funding-options g.funding-options-band{animation:funding-options-band 9s linear 1 both}
+.visible .anim-funding-options path.funding-options-band{animation:funding-options-band 9s linear 1 both}
 .visible .anim-funding-options .funding-options-dim{animation:funding-options-dim 9s linear 1 both}
-.visible .anim-funding-options .funding-options-hlcrit{animation:funding-options-hlc 9s linear 1 both}
+.visible .anim-funding-options .funding-options-ctlrow{animation:funding-options-ctl 9s linear 1 both}
 .visible .anim-funding-options .funding-options-n0{animation:funding-options-n0 9s linear 1 both}
 .visible .anim-funding-options .funding-options-n1{animation:funding-options-n1 9s linear 1 both}
 .visible .anim-funding-options .funding-options-n2{animation:funding-options-n2 9s linear 1 both}
@@ -134,105 +136,108 @@
 <div class="anim anim-funding-options" data-anim="funding-options" data-anim-cycle="9" data-anim-phases="2.5,4.6,6.7,8.0" data-anim-control="once" data-anim-verb="reveal">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three ways to fund a company compared on four criteria: bootstrapping keeps all control but raises only what you earn; angel investors give $25k to $500k in weeks to months for a stake; venture capital gives $1M to $50M+ over 3 to 6 months for fast growth and a board seat. The control you keep is highlighted: it shrinks as the money grows.">
 <g class="funding-options-scene">
+<g class="funding-options-rules">
+<!-- amount tracks: structure of the top row, drawn with the row rules so they stay at full strength when that row recedes -->
+<path class="funding-options-track" d="M384 188 H744"/>
+<path class="funding-options-track" d="M824 188 H1184"/>
+<path class="funding-options-track" d="M1264 188 H1624"/>
 <path class="funding-options-rule" d="M60 220 H1624"/>
 <path class="funding-options-rule" d="M60 320 H1624"/>
 <path class="funding-options-rule" d="M60 420 H1624"/>
+</g>
 <g class="funding-options-dim">
 <g class="funding-options-crit0"><g>
-<text class="funding-options-mono funding-options-crit" x="60" y="166">Typical amount</text>
-<text class="funding-options-mono funding-options-csub" x="60" y="194">per round</text>
+<text class="funding-options-sans funding-options-crit" x="60" y="166">Typical amount</text>
+<text class="funding-options-sans funding-options-csub" x="60" y="194">per round</text>
 </g></g>
 <g class="funding-options-crit1"><g>
-<text class="funding-options-mono funding-options-crit" x="60" y="266">Speed to raise</text>
-<text class="funding-options-mono funding-options-csub" x="60" y="294">first pitch to money</text>
+<text class="funding-options-sans funding-options-crit" x="60" y="266">Speed to raise</text>
+<text class="funding-options-sans funding-options-csub" x="60" y="294">first pitch to money</text>
 </g></g>
 <g class="funding-options-crit2"><g>
-<text class="funding-options-mono funding-options-crit" x="60" y="366">What they expect</text>
-<text class="funding-options-mono funding-options-csub" x="60" y="394">in return</text>
+<text class="funding-options-sans funding-options-crit" x="60" y="366">What they expect</text>
+<text class="funding-options-sans funding-options-csub" x="60" y="394">in return</text>
 </g></g>
 <g class="funding-options-cell00"><g>
 <text class="funding-options-sans funding-options-val" x="384" y="164">What you earn</text>
-<path class="funding-options-track" d="M384 188 H744"/>
 <rect class="funding-options-fill funding-options-fill-amt funding-options-fl00" x="384" y="186" width="22" height="4" rx="2"/>
 </g></g>
 <g class="funding-options-cell01"><g>
 <text class="funding-options-sans funding-options-val" x="384" y="264">No raise needed</text>
-<text class="funding-options-mono funding-options-csub" x="384" y="294">grow as cash comes in</text>
+<text class="funding-options-sans funding-options-csub" x="384" y="294">grow as cash comes in</text>
 </g></g>
 <g class="funding-options-cell02"><g>
 <text class="funding-options-sans funding-options-val" x="384" y="364">Nothing</text>
-<text class="funding-options-mono funding-options-csub" x="384" y="394">you answer to customers</text>
+<text class="funding-options-sans funding-options-csub" x="384" y="394">you answer to customers</text>
 </g></g>
 <g class="funding-options-cell10"><g>
 <text class="funding-options-sans funding-options-val" x="824" y="164">$25k to $500k</text>
-<path class="funding-options-track" d="M824 188 H1184"/>
 <rect class="funding-options-fill funding-options-fill-amt funding-options-fl10" x="824" y="186" width="108" height="4" rx="2"/>
 </g></g>
 <g class="funding-options-cell11"><g>
 <text class="funding-options-sans funding-options-val" x="824" y="264">Weeks to months</text>
-<text class="funding-options-mono funding-options-csub" x="824" y="294">a few pitches, light checks</text>
+<text class="funding-options-sans funding-options-csub" x="824" y="294">a few pitches, light checks</text>
 </g></g>
 <g class="funding-options-cell12"><g>
 <text class="funding-options-sans funding-options-val" x="824" y="364">A stake, some say</text>
-<text class="funding-options-mono funding-options-csub" x="824" y="394">updates, often mentoring</text>
+<text class="funding-options-sans funding-options-csub" x="824" y="394">updates, often mentoring</text>
 </g></g>
 <g class="funding-options-cell20"><g>
 <text class="funding-options-sans funding-options-val" x="1264" y="164">$1M to $50M+</text>
-<path class="funding-options-track" d="M1264 188 H1624"/>
 <rect class="funding-options-fill funding-options-fill-amt funding-options-fl20" x="1264" y="186" width="360" height="4" rx="2"/>
 </g></g>
 <g class="funding-options-cell21"><g>
 <text class="funding-options-sans funding-options-val" x="1264" y="264">3 to 6 months</text>
-<text class="funding-options-mono funding-options-csub" x="1264" y="294">per round, deep diligence</text>
+<text class="funding-options-sans funding-options-csub" x="1264" y="294">per round, deep diligence</text>
 </g></g>
 <g class="funding-options-cell22"><g>
 <text class="funding-options-sans funding-options-val" x="1264" y="364">Fast growth, an exit</text>
-<text class="funding-options-mono funding-options-csub" x="1264" y="394">board seat, 10× ambition</text>
+<text class="funding-options-sans funding-options-csub" x="1264" y="394">board seat, 10× ambition</text>
 </g></g>
 </g>
-<g class="funding-options-crit3"><g>
-<text class="funding-options-mono funding-options-crit funding-options-hlcrit" x="60" y="466">Control you keep</text>
-<text class="funding-options-mono funding-options-csub" x="60" y="494">of the company</text>
-</g></g>
 <g class="funding-options-col0">
-<path class="funding-options-card funding-options-card0" d="M384 112 H744"/>
+<path class="funding-options-card funding-options-card0" pathLength="100" d="M384 112 H744"/>
 <text class="funding-options-sans funding-options-head" x="384" y="62">Bootstrapping</text>
-<text class="funding-options-mono funding-options-hsub" x="384" y="92">your savings and revenue</text>
+<text class="funding-options-sans funding-options-hsub" x="384" y="92">your savings and revenue</text>
+</g>
+<g class="funding-options-col1">
+<path class="funding-options-card funding-options-card1" pathLength="100" d="M824 112 H1184"/>
+<text class="funding-options-sans funding-options-head" x="824" y="62">Angel investors</text>
+<text class="funding-options-sans funding-options-hsub" x="824" y="92">wealthy individuals</text>
+</g>
+<g class="funding-options-col2">
+<path class="funding-options-card funding-options-card2" pathLength="100" d="M1264 112 H1624"/>
+<text class="funding-options-sans funding-options-head" x="1264" y="62">Venture capital</text>
+<text class="funding-options-sans funding-options-hsub" x="1264" y="92">professional funds</text>
+</g>
+<!-- control you keep: the focal row; greys until the end, then turns to the accent -->
+<g class="funding-options-ctlrow" data-anim-focal>
+<g class="funding-options-crit3"><g>
+<text class="funding-options-sans funding-options-crit" x="60" y="466">Control you keep</text>
+<text class="funding-options-sans funding-options-csub" x="60" y="494">of the company</text>
+</g></g>
 <g class="funding-options-cell03"><g>
 <text class="funding-options-sans funding-options-val" x="384" y="464">All of it</text>
 <path class="funding-options-track" d="M384 488 H744"/>
-<rect class="funding-options-fill funding-options-fill-ctl funding-options-fl03" x="384" y="486" width="360" height="4" rx="2"/>
-<text class="funding-options-mono funding-options-pct" x="744" y="464" text-anchor="end">100 %</text>
+<rect class="funding-options-fill funding-options-fill-ctl funding-options-fl03" x="384" y="484" width="360" height="8" rx="4"/>
+<text class="funding-options-sans funding-options-pct" x="744" y="464" text-anchor="end">100 %</text>
 </g></g>
-</g>
-<g class="funding-options-col1">
-<path class="funding-options-card funding-options-card1" d="M824 112 H1184"/>
-<text class="funding-options-sans funding-options-head" x="824" y="62">Angel investors</text>
-<text class="funding-options-mono funding-options-hsub" x="824" y="92">wealthy individuals</text>
 <g class="funding-options-cell13"><g>
 <text class="funding-options-sans funding-options-val" x="824" y="464">Most of it</text>
 <path class="funding-options-track" d="M824 488 H1184"/>
-<rect class="funding-options-fill funding-options-fill-ctl funding-options-fl13" x="824" y="486" width="288" height="4" rx="2"/>
-<text class="funding-options-mono funding-options-pct" x="1184" y="464" text-anchor="end">~80 %</text>
+<rect class="funding-options-fill funding-options-fill-ctl funding-options-fl13" x="824" y="484" width="288" height="8" rx="4"/>
+<text class="funding-options-sans funding-options-pct" x="1184" y="464" text-anchor="end">~80 %</text>
 </g></g>
-</g>
-<g class="funding-options-col2">
-<path class="funding-options-card funding-options-card2" d="M1264 112 H1624"/>
-<text class="funding-options-sans funding-options-head" x="1264" y="62">Venture capital</text>
-<text class="funding-options-mono funding-options-hsub" x="1264" y="92">professional funds</text>
 <g class="funding-options-cell23"><g>
 <text class="funding-options-sans funding-options-val" x="1264" y="464">Less each round</text>
 <path class="funding-options-track" d="M1264 488 H1624"/>
-<rect class="funding-options-fill funding-options-fill-ctl funding-options-fl23" x="1264" y="486" width="180" height="4" rx="2"/>
-<text class="funding-options-mono funding-options-pct" x="1624" y="464" text-anchor="end">~50 %</text>
+<rect class="funding-options-fill funding-options-fill-ctl funding-options-fl23" x="1264" y="484" width="180" height="8" rx="4"/>
+<text class="funding-options-sans funding-options-pct" x="1624" y="464" text-anchor="end">~50 %</text>
 </g></g>
 </g>
-<g class="funding-options-band" style="transform-box:fill-box;transform-origin:50% 50%">
-<rect class="funding-options-glowbar funding-options-glow" x="60" y="517" width="1564" height="6" rx="3"/>
-<path class="funding-options-band" d="M52 432 H40 V508 H52 M60 520 H1624"/>
-</g>
+<path class="funding-options-band" pathLength="100" d="M52 432 H40 V508 H52 M60 520 H1624"/>
 <rect class="funding-options-tag" x="60" y="40" width="148" height="32" rx="4"/>
-<text class="funding-options-mono funding-options-tagt" x="134" y="62" text-anchor="middle">illustrative</text>
+<text class="funding-options-sans funding-options-tagt" x="134" y="62" text-anchor="middle">illustrative</text>
 <text class="funding-options-sans funding-options-note funding-options-n0" x="840" y="574" text-anchor="middle">Bootstrapping: no investors, so you grow at the pace of your revenue</text>
 <text class="funding-options-sans funding-options-note funding-options-n1" x="840" y="574" text-anchor="middle">Angels: a first cheque from individuals, in exchange for a stake</text>
 <text class="funding-options-sans funding-options-note funding-options-n2" x="840" y="574" text-anchor="middle">Venture capital: the most money, the most diligence, the highest expectations</text>

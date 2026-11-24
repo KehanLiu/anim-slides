@@ -74,8 +74,9 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
 
 - **Drop-in.** Works in reveal.js, impress.js, Slidev, frontend-slides decks, hand-written HTML
   and plain scrolling pages. No framework, no build tool, no dependency.
-- **Lean by default.** Rings and thin lines on a quiet dark ground, one accent that lights the
-  active step, mono sub-labels, no boxes. `references/style.md` is the guide; the scaffolder
+- **Lean by default.** Rings and thin lines on a quiet dark ground, one focal element, one
+  accent only on what is active or reached, the deck's own font, mono only for numbers and
+  codes, no boxes. `references/style.md` is the guide; the scaffolder
   emits it.
 - **Themed by variables.** Fragments read `--anim-theme-*` CSS variables and carry neutral
   fallbacks, so one `:root` rule rethemes every illustration to your brand.
@@ -263,15 +264,18 @@ A fragment adds motion, not facts. The skill is built to keep it that way:
 
 ```css
 :root {
-  --anim-theme-bg: #0F1E27;  --anim-theme-panel: #0D1820;  --anim-theme-line: #2A3D49;
+  --anim-theme-bg: #0F1E27;  --anim-theme-panel: #0D1820;  --anim-theme-line: #56707F;
   --anim-theme-fg: #E6EDF0;  --anim-theme-muted: #93A7B2;
   --anim-theme-accent: #34D1BF;  --anim-theme-accent-2: #FF8A3D;
   --anim-theme-ok: #8ED7AD;  --anim-theme-warn: #FFD15C;  --anim-theme-danger: #FF6B6B;
-  --anim-theme-font: system-ui, sans-serif;  --anim-theme-mono: ui-monospace, monospace;
+  --anim-theme-font: "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+  --anim-theme-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 ```
 
-These values equal the built-in fallbacks, so a host only overrides what differs.
+These values equal the built-in fallbacks, so a host only overrides what differs. A deck sets
+`--anim-theme-font` to its own font (or `inherit`); the line colour must reach 3:1 against
+the ground.
 `python3 scripts/host_theme.py deck.html --mode match` reads a deck's CSS variables and most
 used colours and prints this block filled with the deck's own values (`--apply deck.html`
 inserts it between markers); `--mode lean` writes the lean palette scoped to a `.anim-lean`
@@ -304,7 +308,8 @@ animated deck) with graders, in the format `claude plugin eval` reads. Run
 `--runs 1` for a quick pass), or run one case by hand as `evals/README.md` describes. Inside a
 run the skill checks itself twice: `scripts/check_look.py` measures the rendered figure
 (clipping, overlap, contrast, boxes, colours, density), and a fresh reviewer that sees only the
-before/after images scores it with `references/look-rubric.md` before "done".
+stills (first frame, phase marks, three paused frames, rest) and the slide's claim answers `ship` or `fix` with
+`references/look-rubric.md` before "done".
 
 ## License
 

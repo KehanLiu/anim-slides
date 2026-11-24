@@ -3,7 +3,7 @@
 .anim-rag-stack {
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -11,23 +11,26 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display: block; width: 100%; height: 100%;
 }
 .anim-rag-stack svg { display: block; width: 100%; height: 100%; max-width: none; }
 /* type */
-.anim-rag-stack .rag-stack-mono { font-family: var(--anim-mono); font-size: 18px; }
-.anim-rag-stack .rag-stack-layer { font-family: var(--anim-mono); font-size: 18px; fill: var(--anim-muted); letter-spacing: .08em; text-transform: uppercase; }
+/* type ladder: answer 30 (focal), label and caption 24, sub-label and data 18 */
+.anim-rag-stack .rag-stack-mono { font-family: var(--anim-mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+.anim-rag-stack .rag-stack-layer { font-family: var(--anim-font); font-size: 18px; fill: var(--anim-muted); }
 .anim-rag-stack .rag-stack-lbl { font-family: var(--anim-font); font-size: 24px; font-weight: 600; fill: var(--anim-fg); }
-.anim-rag-stack .rag-stack-sub { font-family: var(--anim-mono); font-size: 18px; fill: var(--anim-muted); }
-.anim-rag-stack .rag-stack-txt { font-family: var(--anim-font); font-size: 22px; fill: var(--anim-fg); }
-.anim-rag-stack .rag-stack-note { font-family: var(--anim-font); font-size: 26px; fill: var(--anim-fg); }
+.anim-rag-stack .rag-stack-sub { font-family: var(--anim-font); font-size: 18px; fill: var(--anim-muted); }
+.anim-rag-stack .rag-stack-txt { font-family: var(--anim-font); font-size: 24px; fill: var(--anim-fg); }
+.anim-rag-stack .rag-stack-anstxt { font-size: 30px; font-weight: 500; letter-spacing: -0.01em; }
+.anim-rag-stack .rag-stack-note { font-family: var(--anim-font); font-size: 24px; fill: var(--anim-fg); }
 .anim-rag-stack .rag-stack-dim { fill: var(--anim-muted); }
 /* bands: hairlines only */
-.anim-rag-stack .rag-stack-hair { stroke: var(--anim-line); stroke-width: 2; }
+.anim-rag-stack .rag-stack-hair { stroke: var(--anim-line); stroke-width: 1.5; stroke-opacity: .7; stroke-dasharray: 100 101; stroke-dashoffset: 0; }
 /* components: rings with a line glyph, labels outside */
-.anim-rag-stack .rag-stack-ring { fill: var(--anim-bg); stroke: color-mix(in srgb, var(--anim-muted) 55%, var(--anim-bg)); stroke-width: 2.5; }
+.anim-rag-stack .rag-stack-ring { fill: var(--anim-bg); stroke: var(--anim-line); stroke-width: 2; }
+.anim-rag-stack .rag-stack-node { transform-box: fill-box; transform-origin: center; }
 .anim-rag-stack .rag-stack-llmring { stroke-dasharray: 6 6; }
 .anim-rag-stack .rag-stack-glyph { fill: none; stroke: var(--anim-muted); stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
 .anim-rag-stack .rag-stack-dots { stroke-width: 4.5; }
@@ -35,7 +38,7 @@
 .anim-rag-stack .rag-stack-hot { fill: color-mix(in srgb, var(--anim-accent) 14%, var(--anim-bg)); stroke: var(--anim-accent); stroke-width: 3; }
 .anim-rag-stack .rag-stack-hotg { stroke: var(--anim-accent); }
 /* wires and packets */
-.anim-rag-stack .rag-stack-wire { fill: none; stroke: color-mix(in srgb, var(--anim-muted) 45%, var(--anim-bg)); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 100 120; }
+.anim-rag-stack .rag-stack-wire { fill: none; stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 100 120; }
 .anim-rag-stack .rag-stack-wires { stroke-dashoffset: 0; }
 .anim-rag-stack .rag-stack-pkt { fill: var(--anim-accent); stroke: var(--anim-accent); stroke-width: 12; stroke-opacity: .3; offset-rotate: 0deg; opacity: 0; }
 .anim-rag-stack .rag-stack-pkt.rag-stack-resp { fill: var(--anim-ok); stroke: var(--anim-ok); }
@@ -47,21 +50,22 @@
 .anim-rag-stack .rag-stack-p5{offset-path:path('M569 209 H871')}
 .anim-rag-stack .rag-stack-p6{offset-path:path('M871 229 H569')}
 .anim-rag-stack .rag-stack-p7{offset-path:path('M550 191 V113')}
-.anim-rag-stack .rag-stack-wlbl { font-family: var(--anim-mono); font-size: 18px; fill: var(--anim-muted); }
+.anim-rag-stack .rag-stack-wlbl { font-family: var(--anim-font); font-size: 18px; fill: var(--anim-muted); }
 /* conversation: plain text with a thin leader */
 .anim-rag-stack .rag-stack-leadq { stroke: var(--anim-accent); stroke-width: 3; stroke-linecap: round; }
 .anim-rag-stack .rag-stack-leada { stroke: var(--anim-ok); stroke-width: 3; stroke-linecap: round; }
 .anim-rag-stack .rag-stack-badge circle { fill: none; stroke: var(--anim-ok); stroke-width: 2; }
 .anim-rag-stack .rag-stack-badge text { font-family: var(--anim-mono); font-size: 18px; font-weight: 600; fill: var(--anim-ok); }
-.anim-rag-stack .rag-stack-cite { transform-box: fill-box; transform-origin: center; }
+.anim-rag-stack .rag-stack-cite,.anim-rag-stack .rag-stack-cite2 { transform-box: fill-box; transform-origin: center; }
 /* scores: hairline track, thin bar */
-.anim-rag-stack .rag-stack-track { stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; }
-.anim-rag-stack .rag-stack-bar { stroke: color-mix(in srgb, var(--anim-muted) 70%, var(--anim-bg)); stroke-width: 4; stroke-linecap: round; }
+.anim-rag-stack .rag-stack-track { stroke: var(--anim-line); stroke-width: 1.5; stroke-linecap: round; }
+.anim-rag-stack .rag-stack-bar { stroke: color-mix(in srgb, var(--anim-muted) 70%, var(--anim-bg)); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100 101; stroke-dashoffset: 0; }
+.anim-rag-stack .rag-stack-selbar { stroke-dasharray: none; }
 .anim-rag-stack .rag-stack-bar.rag-stack-selbar { stroke: var(--anim-ok); }
 .anim-rag-stack .rag-stack-seltxt { fill: var(--anim-fg); }
 /* documents: thin outlines */
-.anim-rag-stack .rag-stack-doc { fill: none; stroke: color-mix(in srgb, var(--anim-muted) 70%, var(--anim-bg)); stroke-width: 2; stroke-linejoin: round; }
-.anim-rag-stack .rag-stack-docl { stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; }
+.anim-rag-stack .rag-stack-doc { fill: none; stroke: var(--anim-line); stroke-width: 2; stroke-linejoin: round; }
+.anim-rag-stack .rag-stack-docl { stroke: var(--anim-line); stroke-width: 1.5; stroke-linecap: round; }
 .anim-rag-stack .rag-stack-dochi .rag-stack-doc { stroke: var(--anim-ok); }
 .anim-rag-stack .rag-stack-dochi .rag-stack-docl { stroke: var(--anim-ok); }
 /* legend: plain text */
@@ -69,19 +73,19 @@
 .anim-rag-stack .rag-stack-legend .rag-stack-resp { fill: var(--anim-ok); }
 /* resting frame = end of the story: answer with citations in the chat, chat ring active,
    matched chunks and top-k rows marked. Earlier highlights, packets and captions rest at 0. */
-.anim-rag-stack .rag-stack-b0,.anim-rag-stack .rag-stack-b1,.anim-rag-stack .rag-stack-b2,.anim-rag-stack .rag-stack-b3,.anim-rag-stack .rag-stack-c0,.anim-rag-stack .rag-stack-c1,.anim-rag-stack .rag-stack-c2,.anim-rag-stack .rag-stack-c3,.anim-rag-stack .rag-stack-q,.anim-rag-stack .rag-stack-r0,.anim-rag-stack .rag-stack-r1,.anim-rag-stack .rag-stack-r2,.anim-rag-stack .rag-stack-dochi,.anim-rag-stack .rag-stack-sel,.anim-rag-stack .rag-stack-ans,.anim-rag-stack .rag-stack-cite { opacity: 1; }
+.anim-rag-stack .rag-stack-b0,.anim-rag-stack .rag-stack-b1,.anim-rag-stack .rag-stack-b2,.anim-rag-stack .rag-stack-b3,.anim-rag-stack .rag-stack-c0,.anim-rag-stack .rag-stack-c1,.anim-rag-stack .rag-stack-c2,.anim-rag-stack .rag-stack-c3,.anim-rag-stack .rag-stack-q,.anim-rag-stack .rag-stack-r0,.anim-rag-stack .rag-stack-r1,.anim-rag-stack .rag-stack-r2,.anim-rag-stack .rag-stack-dochi,.anim-rag-stack .rag-stack-sel,.anim-rag-stack .rag-stack-ans,.anim-rag-stack .rag-stack-cite,.anim-rag-stack .rag-stack-cite2,.anim-rag-stack .rag-stack-l0,.anim-rag-stack .rag-stack-l1,.anim-rag-stack .rag-stack-l2,.anim-rag-stack .rag-stack-l3,.anim-rag-stack .rag-stack-node { opacity: 1; }
 .anim-rag-stack .rag-stack-hi { opacity: 0; }
 .anim-rag-stack .rag-stack-hi-chat { opacity: 1; }
 .anim-rag-stack .rag-stack-note { opacity: 0; }
 .anim-rag-stack .rag-stack-n8 { opacity: 1; }
 
 /* Plays once, 9.8 s pass. 0-0.64 s layers build bottom-up | 0.8 s question | 1.12-3.68 s question travels down
-   | 4-5.6 s chunks come back up | 5.92-7.52 s LLM round trip | 7.84-8.48 s answer goes up
-   | 8.48-8.84 s answer and citations | hold on the answer to 9.8 s */
+   | 4-5.6 s chunks come back up | 5.92-7.48 s LLM round trip | 7.48-7.92 s stillness | 7.92-8.52 s answer goes up
+   | 8.52-8.84 s answer and citations | hold on the answer to 9.8 s */
 /* hop 1.12-1.76s, question: chat to orchestrator */
 @keyframes rag-stack-p0m{
   0%{offset-distance:0%;}  /* 0s */
-  11.43%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 1.12s */
+  11.43%{offset-distance:0%;animation-timing-function:cubic-bezier(0.2,0,0,1);}  /* 1.12s */
   17.96%{offset-distance:100%;}  /* 1.76s */
   100%{offset-distance:100%;}  /* 9.8s */
 }
@@ -97,7 +101,7 @@
 /* hop 2.08-2.72s, query vector: orchestrator to vector index */
 @keyframes rag-stack-p1m{
   0%{offset-distance:0%;}  /* 0s */
-  21.22%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 2.08s */
+  21.22%{offset-distance:0%;animation-timing-function:cubic-bezier(0.2,0,0,1);}  /* 2.08s */
   27.75%{offset-distance:100%;}  /* 2.72s */
   100%{offset-distance:100%;}  /* 9.8s */
 }
@@ -113,7 +117,7 @@
 /* hop 3.04-3.68s, chunk ids: index to documents */
 @keyframes rag-stack-p2m{
   0%{offset-distance:0%;}  /* 0s */
-  31.02%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 3.04s */
+  31.02%{offset-distance:0%;animation-timing-function:cubic-bezier(0.2,0,0,1);}  /* 3.04s */
   37.55%{offset-distance:100%;}  /* 3.68s */
   100%{offset-distance:100%;}  /* 9.8s */
 }
@@ -129,7 +133,7 @@
 /* hop 4-4.64s, chunk text back up: documents to index */
 @keyframes rag-stack-p3m{
   0%{offset-distance:0%;}  /* 0s */
-  40.81%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 4s */
+  40.81%{offset-distance:0%;animation-timing-function:cubic-bezier(0.2,0,0,1);}  /* 4s */
   47.35%{offset-distance:100%;}  /* 4.64s */
   100%{offset-distance:100%;}  /* 9.8s */
 }
@@ -145,7 +149,7 @@
 /* hop 4.96-5.6s, top-k chunks: index to orchestrator */
 @keyframes rag-stack-p4m{
   0%{offset-distance:0%;}  /* 0s */
-  50.61%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 4.96s */
+  50.61%{offset-distance:0%;animation-timing-function:cubic-bezier(0.2,0,0,1);}  /* 4.96s */
   57.15%{offset-distance:100%;}  /* 5.6s */
   100%{offset-distance:100%;}  /* 9.8s */
 }
@@ -161,7 +165,7 @@
 /* hop 5.92-6.56s, prompt: orchestrator to LLM */
 @keyframes rag-stack-p5m{
   0%{offset-distance:0%;}  /* 0s */
-  60.4%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 5.92s */
+  60.4%{offset-distance:0%;animation-timing-function:cubic-bezier(0.2,0,0,1);}  /* 5.92s */
   66.94%{offset-distance:100%;}  /* 6.56s */
   100%{offset-distance:100%;}  /* 9.8s */
 }
@@ -174,50 +178,50 @@
   66.94%{opacity:0;}  /* 6.56s */
   100%{opacity:0;}  /* 9.8s */
 }
-/* hop 6.88-7.52s, draft answer: LLM to orchestrator */
+/* hop 6.72-7.32s, draft answer: LLM to orchestrator */
 @keyframes rag-stack-p6m{
   0%{offset-distance:0%;}  /* 0s */
-  70.2%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 6.88s */
-  76.74%{offset-distance:100%;}  /* 7.52s */
+  68.57%{offset-distance:0%;animation-timing-function:cubic-bezier(0.2,0,0,1);}  /* 6.72s */
+  74.69%{offset-distance:100%;}  /* 7.32s */
   100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p6 visible 6.88-7.52s */
+/* packet p6 visible 6.72-7.32s */
 @keyframes rag-stack-p6f{
   0%{opacity:0;}  /* 0s */
-  70.2%{opacity:0;}  /* 6.88s */
-  70.86%{opacity:1;}  /* 6.94s */
-  76.08%{opacity:1;}  /* 7.46s */
-  76.74%{opacity:0;}  /* 7.52s */
+  68.57%{opacity:0;}  /* 6.72s */
+  69.18%{opacity:1;}  /* 6.78s */
+  74.08%{opacity:1;}  /* 7.26s */
+  74.69%{opacity:0;}  /* 7.32s */
   100%{opacity:0;}  /* 9.8s */
 }
-/* hop 7.84-8.48s, answer: orchestrator to chat */
+/* hop 7.92-8.52s, answer: orchestrator to chat */
 @keyframes rag-stack-p7m{
   0%{offset-distance:0%;}  /* 0s */
-  80%{offset-distance:0%;animation-timing-function:cubic-bezier(0.45,0,0.55,1);}  /* 7.84s */
-  86.53%{offset-distance:100%;}  /* 8.48s */
+  80.82%{offset-distance:0%;animation-timing-function:cubic-bezier(0.2,0,0,1);}  /* 7.92s */
+  86.94%{offset-distance:100%;}  /* 8.52s */
   100%{offset-distance:100%;}  /* 9.8s */
 }
-/* packet p7 visible 7.84-8.48s */
+/* packet p7 visible 7.92-8.52s */
 @keyframes rag-stack-p7f{
   0%{opacity:0;}  /* 0s */
-  80%{opacity:0;}  /* 7.84s */
-  80.65%{opacity:1;}  /* 7.9s */
-  85.87%{opacity:1;}  /* 8.42s */
-  86.53%{opacity:0;}  /* 8.48s */
+  80.82%{opacity:0;}  /* 7.92s */
+  81.43%{opacity:1;}  /* 7.98s */
+  86.33%{opacity:1;}  /* 8.46s */
+  86.94%{opacity:0;}  /* 8.52s */
   100%{opacity:0;}  /* 9.8s */
 }
-/* chat active 0.8-1.76s, 8.48s-rest */
+/* chat active 0.8-1.76s, 8.6s-rest */
 @keyframes rag-stack-hi-chat{
   0%{opacity:0;}  /* 0s */
   8.98%{opacity:0;}  /* 0.88s */
   9.8%{opacity:1;}  /* 0.96s */
   17.96%{opacity:1;}  /* 1.76s */
   18.78%{opacity:0;}  /* 1.84s */
-  87.35%{opacity:0;}  /* 8.56s */
-  88.16%{opacity:1;}  /* 8.64s */
+  87.76%{opacity:0;}  /* 8.6s */
+  88.57%{opacity:1;}  /* 8.68s */
   100%{opacity:1;}  /* 9.8s */
 }
-/* orch active 1.76-2.72s, 5.6-6.56s, 7.52-8.48s */
+/* orch active 1.76-2.72s, 5.6-6.56s, 7.4-8.6s */
 @keyframes rag-stack-hi-orch{
   0%{opacity:0;}  /* 0s */
   18.78%{opacity:0;}  /* 1.84s */
@@ -228,10 +232,10 @@
   58.78%{opacity:1;}  /* 5.76s */
   66.94%{opacity:1;}  /* 6.56s */
   67.76%{opacity:0;}  /* 6.64s */
-  77.55%{opacity:0;}  /* 7.6s */
-  78.37%{opacity:1;}  /* 7.68s */
-  86.53%{opacity:1;}  /* 8.48s */
-  87.35%{opacity:0;}  /* 8.56s */
+  75.51%{opacity:0;}  /* 7.4s */
+  76.33%{opacity:1;}  /* 7.48s */
+  86.94%{opacity:1;}  /* 8.52s */
+  87.76%{opacity:0;}  /* 8.6s */
   100%{opacity:0;}  /* 9.8s */
 }
 /* index active 2.72-3.68s, 4.64-5.6s */
@@ -256,69 +260,126 @@
   48.16%{opacity:0;}  /* 4.72s */
   100%{opacity:0;}  /* 9.8s */
 }
-/* llm active 6.56-7.52s */
+/* llm active 6.56-7.4s */
 @keyframes rag-stack-hi-llm{
   0%{opacity:0;}  /* 0s */
   67.76%{opacity:0;}  /* 6.64s */
   68.57%{opacity:1;}  /* 6.72s */
-  76.73%{opacity:1;}  /* 7.52s */
-  77.55%{opacity:0;}  /* 7.6s */
+  74.69%{opacity:1;}  /* 7.32s */
+  75.51%{opacity:0;}  /* 7.4s */
   100%{opacity:0;}  /* 9.8s */
 }
-/* band 0 rises at 0s */
+/* hairline 0 draws on 0-0.40s */
 @keyframes rag-stack-b0{
-  0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0s */
-  3.67%{opacity:1;transform:translateY(0px);}  /* 0.36s */
-  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
+  0%{stroke-dashoffset:100;}  /* 0s */
+  0%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0s */
+  4.08%{stroke-dashoffset:0;}  /* 0.40s */
+  100%{stroke-dashoffset:0;}  /* 9.8s */
 }
-/* band 0 content lands at 0.06s */
-@keyframes rag-stack-c0{
-  0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  0.66%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.06s */
-  4.33%{opacity:1;transform:translateY(0px);}  /* 0.42s */
-  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
-}
-/* band 1 rises at 0.08s */
-@keyframes rag-stack-b1{
-  0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  0.82%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.08s */
+/* layer name 0 settles at 0.08s */
+@keyframes rag-stack-l0{
+  0%{opacity:0;transform:translateY(10px);}  /* 0s */
+  0.82%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.08s */
   4.49%{opacity:1;transform:translateY(0px);}  /* 0.44s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 1 content lands at 0.14s */
+/* band 0 content rises at 0.06s */
+@keyframes rag-stack-c0{
+  0%{opacity:0;transform:translateY(10px);}  /* 0s */
+  0.61%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.06s */
+  4.29%{opacity:1;transform:translateY(0px);}  /* 0.42s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
+}
+/* node 0 lands 0.06-0.38s */
+@keyframes rag-stack-k0{
+  0%{opacity:0;transform:scale(0.92);}  /* 0s */
+  0.61%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.06s */
+  3.88%{opacity:1;transform:scale(1);}  /* 0.38s */
+  100%{opacity:1;transform:scale(1);}  /* 9.8s */
+}
+/* hairline 1 draws on 0.1-0.50s */
+@keyframes rag-stack-b1{
+  0%{stroke-dashoffset:100;}  /* 0s */
+  1.02%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.1s */
+  5.1%{stroke-dashoffset:0;}  /* 0.50s */
+  100%{stroke-dashoffset:0;}  /* 9.8s */
+}
+/* layer name 1 settles at 0.18s */
+@keyframes rag-stack-l1{
+  0%{opacity:0;transform:translateY(10px);}  /* 0s */
+  1.84%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.18s */
+  5.51%{opacity:1;transform:translateY(0px);}  /* 0.54s */
+  100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
+}
+/* band 1 content rises at 0.14s */
 @keyframes rag-stack-c1{
-  0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  1.46%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.14s */
-  5.15%{opacity:1;transform:translateY(0px);}  /* 0.5s */
+  0%{opacity:0;transform:translateY(10px);}  /* 0s */
+  1.43%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.14s */
+  5.1%{opacity:1;transform:translateY(0px);}  /* 0.50s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 2 rises at 0.16s */
+/* node 1 lands 0.14-0.46s */
+@keyframes rag-stack-k1{
+  0%{opacity:0;transform:scale(0.92);}  /* 0s */
+  1.43%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.14s */
+  4.69%{opacity:1;transform:scale(1);}  /* 0.46s */
+  100%{opacity:1;transform:scale(1);}  /* 9.8s */
+}
+/* hairline 2 draws on 0.18-0.58s */
 @keyframes rag-stack-b2{
-  0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  1.63%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.16s */
-  5.31%{opacity:1;transform:translateY(0px);}  /* 0.52s */
+  0%{stroke-dashoffset:100;}  /* 0s */
+  1.84%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.18s */
+  5.92%{stroke-dashoffset:0;}  /* 0.58s */
+  100%{stroke-dashoffset:0;}  /* 9.8s */
+}
+/* layer name 2 settles at 0.26s */
+@keyframes rag-stack-l2{
+  0%{opacity:0;transform:translateY(10px);}  /* 0s */
+  2.65%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.26s */
+  6.33%{opacity:1;transform:translateY(0px);}  /* 0.62s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 2 content lands at 0.22s */
+/* band 2 content rises at 0.22s */
 @keyframes rag-stack-c2{
-  0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  2.28%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.22s */
-  5.96%{opacity:1;transform:translateY(0px);}  /* 0.58s */
+  0%{opacity:0;transform:translateY(10px);}  /* 0s */
+  2.24%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.22s */
+  5.92%{opacity:1;transform:translateY(0px);}  /* 0.58s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 3 rises at 0.24s */
+/* node 2 lands 0.22-0.54s */
+@keyframes rag-stack-k2{
+  0%{opacity:0;transform:scale(0.92);}  /* 0s */
+  2.24%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.22s */
+  5.51%{opacity:1;transform:scale(1);}  /* 0.54s */
+  100%{opacity:1;transform:scale(1);}  /* 9.8s */
+}
+/* hairline 3 draws on 0.24-0.64s */
 @keyframes rag-stack-b3{
-  0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  2.45%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.24s */
-  6.12%{opacity:1;transform:translateY(0px);}  /* 0.6s */
+  0%{stroke-dashoffset:100;}  /* 0s */
+  2.45%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.24s */
+  6.53%{stroke-dashoffset:0;}  /* 0.64s */
+  100%{stroke-dashoffset:0;}  /* 9.8s */
+}
+/* layer name 3 settles at 0.32s */
+@keyframes rag-stack-l3{
+  0%{opacity:0;transform:translateY(10px);}  /* 0s */
+  3.27%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.32s */
+  6.94%{opacity:1;transform:translateY(0px);}  /* 0.68s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* band 3 content lands at 0.3s */
+/* band 3 content rises at 0.3s */
 @keyframes rag-stack-c3{
-  0%{opacity:0;transform:translateY(12px);}  /* 0s */
-  3.1%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.3s */
-  6.77%{opacity:1;transform:translateY(0px);}  /* 0.66s */
+  0%{opacity:0;transform:translateY(10px);}  /* 0s */
+  3.06%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.3s */
+  6.73%{opacity:1;transform:translateY(0px);}  /* 0.66s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
+}
+/* node 3 lands 0.3-0.62s */
+@keyframes rag-stack-k3{
+  0%{opacity:0;transform:scale(0.92);}  /* 0s */
+  3.06%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.3s */
+  6.33%{opacity:1;transform:scale(1);}  /* 0.62s */
+  100%{opacity:1;transform:scale(1);}  /* 9.8s */
 }
 /* all wires draw on together 0.4-0.88s: one track on the wire group */
 @keyframes rag-stack-wire{
@@ -336,24 +397,52 @@
 }
 /* score row 0 at 2.72s */
 @keyframes rag-stack-r0{
-  0%{opacity:0;transform:translateY(6px);}  /* 0s */
-  27.75%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.72s */
+  0%{opacity:0;transform:translateY(8px);}  /* 0s */
+  27.75%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.72s */
   30.62%{opacity:1;transform:translateY(0px);}  /* 3s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
 /* score row 1 at 2.78s */
 @keyframes rag-stack-r1{
-  0%{opacity:0;transform:translateY(6px);}  /* 0s */
-  28.41%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.78s */
+  0%{opacity:0;transform:translateY(8px);}  /* 0s */
+  28.41%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.78s */
   31.26%{opacity:1;transform:translateY(0px);}  /* 3.06s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
 /* score row 2 at 2.85s */
 @keyframes rag-stack-r2{
-  0%{opacity:0;transform:translateY(6px);}  /* 0s */
-  29.06%{opacity:0;transform:translateY(6px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.85s */
+  0%{opacity:0;transform:translateY(8px);}  /* 0s */
+  29.06%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.85s */
   31.92%{opacity:1;transform:translateY(0px);}  /* 3.13s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
+}
+/* LLM node lands 0.28-0.60s, just after the orchestrator */
+@keyframes rag-stack-k4{
+  0%{opacity:0;transform:scale(0.92);}  /* 0s */
+  2.86%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 0.28s */
+  6.12%{opacity:1;transform:scale(1);}  /* 0.6s */
+  100%{opacity:1;transform:scale(1);}  /* 9.8s */
+}
+/* score bar 0 grows 2.72-3.12s */
+@keyframes rag-stack-g0{
+  0%{stroke-dashoffset:100;}  /* 0s */
+  27.76%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.72s */
+  31.84%{stroke-dashoffset:0;}  /* 3.12s */
+  100%{stroke-dashoffset:0;}  /* 9.8s */
+}
+/* score bar 1 grows 2.78-3.18s */
+@keyframes rag-stack-g1{
+  0%{stroke-dashoffset:100;}  /* 0s */
+  28.37%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.78s */
+  32.45%{stroke-dashoffset:0;}  /* 3.18s */
+  100%{stroke-dashoffset:0;}  /* 9.8s */
+}
+/* score bar 2 grows 2.85-3.25s */
+@keyframes rag-stack-g2{
+  0%{stroke-dashoffset:100;}  /* 0s */
+  29.08%{stroke-dashoffset:100;animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 2.85s */
+  33.16%{stroke-dashoffset:0;}  /* 3.25s */
+  100%{stroke-dashoffset:0;}  /* 9.8s */
 }
 /* matched chunks light up 3.68s */
 @keyframes rag-stack-dochi{
@@ -369,17 +458,24 @@
   49.39%{opacity:1;}  /* 4.84s */
   100%{opacity:1;}  /* 9.8s */
 }
-/* answer bubble 8.48s */
+/* answer bubble 8.52s */
 @keyframes rag-stack-ans{
   0%{opacity:0;transform:translateY(8px);}  /* 0s */
-  86.53%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 8.48s */
+  86.94%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 8.52s */
   90.2%{opacity:1;transform:translateY(0px);}  /* 8.84s */
   100%{opacity:1;transform:translateY(0px);}  /* 9.8s */
 }
-/* citation badges 8.6s (answer and sources) */
+/* citation badges land 8.56-8.8s */
 @keyframes rag-stack-cite{
   0%{opacity:0;transform:scale(0.92);}  /* 0s */
-  87.75%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1);}  /* 8.6s */
+  87.35%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1);}  /* 8.56s */
+  89.8%{opacity:1;transform:scale(1);}  /* 8.8s */
+  100%{opacity:1;transform:scale(1);}  /* 9.8s */
+}
+/* citation badges land 8.6-8.84s */
+@keyframes rag-stack-cite2{
+  0%{opacity:0;transform:scale(0.92);}  /* 0s */
+  87.76%{opacity:0;transform:scale(0.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1);}  /* 8.6s */
   90.2%{opacity:1;transform:scale(1);}  /* 8.84s */
   100%{opacity:1;transform:scale(1);}  /* 9.8s */
 }
@@ -446,79 +542,92 @@
   70.2%{opacity:0;}  /* 6.88s */
   100%{opacity:0;}  /* 9.8s */
 }
-/* caption 7 6.88-7.84s */
+/* caption 7 6.88-8.08s */
 @keyframes rag-stack-n7{
   0%{opacity:0;}  /* 0s */
   70.2%{opacity:0;}  /* 6.88s */
   72.25%{opacity:1;}  /* 7.08s */
-  77.96%{opacity:1;}  /* 7.64s */
-  80%{opacity:0;}  /* 7.84s */
+  80.82%{opacity:1;}  /* 7.92s */
+  82.45%{opacity:0;}  /* 8.08s */
   100%{opacity:0;}  /* 9.8s */
 }
-/* caption 8 from 7.84s to rest */
+/* caption 8 from 8.08s to rest */
 @keyframes rag-stack-n8{
   0%{opacity:0;}  /* 0s */
-  80%{opacity:0;}  /* 7.84s */
-  82.04%{opacity:1;}  /* 8.04s */
+  82.45%{opacity:0;}  /* 8.08s */
+  84.49%{opacity:1;}  /* 8.28s */
   100%{opacity:1;}  /* 9.8s */
 }
-/* hold 9.12-10.08s, exit 10.08-10.32s, reset */
+/* scene: hold on the answer to the end of the pass */
 @keyframes rag-stack-scene{
   0%{opacity:1;}  /* 0s */
   100%{opacity:1;}  /* 9.8s */
 }
 
-.visible .anim-rag-stack .rag-stack-scene{animation:rag-stack-scene 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-b0{animation:rag-stack-b0 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-c0{animation:rag-stack-c0 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-b1{animation:rag-stack-b1 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-c1{animation:rag-stack-c1 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-b2{animation:rag-stack-b2 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-c2{animation:rag-stack-c2 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-b3{animation:rag-stack-b3 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-c3{animation:rag-stack-c3 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-wires{animation:rag-stack-wire 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-p0{animation:rag-stack-p0m 9.8s ease-in-out 1 forwards,rag-stack-p0f 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-p1{animation:rag-stack-p1m 9.8s ease-in-out 1 forwards,rag-stack-p1f 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-p2{animation:rag-stack-p2m 9.8s ease-in-out 1 forwards,rag-stack-p2f 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-p3{animation:rag-stack-p3m 9.8s ease-in-out 1 forwards,rag-stack-p3f 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-p4{animation:rag-stack-p4m 9.8s ease-in-out 1 forwards,rag-stack-p4f 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-p5{animation:rag-stack-p5m 9.8s ease-in-out 1 forwards,rag-stack-p5f 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-p6{animation:rag-stack-p6m 9.8s ease-in-out 1 forwards,rag-stack-p6f 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-p7{animation:rag-stack-p7m 9.8s ease-in-out 1 forwards,rag-stack-p7f 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-hi-chat{animation:rag-stack-hi-chat 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-hi-orch{animation:rag-stack-hi-orch 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-hi-index{animation:rag-stack-hi-index 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-hi-docs{animation:rag-stack-hi-docs 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-hi-llm{animation:rag-stack-hi-llm 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-q{animation:rag-stack-q 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-r0{animation:rag-stack-r0 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-r1{animation:rag-stack-r1 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-r2{animation:rag-stack-r2 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-dochi{animation:rag-stack-dochi 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-sel{animation:rag-stack-sel 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-ans{animation:rag-stack-ans 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-cite{animation:rag-stack-cite 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n0{animation:rag-stack-n0 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n1{animation:rag-stack-n1 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n2{animation:rag-stack-n2 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n3{animation:rag-stack-n3 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n4{animation:rag-stack-n4 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n5{animation:rag-stack-n5 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n6{animation:rag-stack-n6 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n7{animation:rag-stack-n7 9.8s ease-in-out 1 forwards}
-.visible .anim-rag-stack .rag-stack-n8{animation:rag-stack-n8 9.8s ease-in-out 1 forwards}
+.visible .anim-rag-stack .rag-stack-scene{animation:rag-stack-scene 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-b0{animation:rag-stack-b0 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-c0{animation:rag-stack-c0 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-b1{animation:rag-stack-b1 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-c1{animation:rag-stack-c1 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-b2{animation:rag-stack-b2 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-c2{animation:rag-stack-c2 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-b3{animation:rag-stack-b3 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-c3{animation:rag-stack-c3 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-wires{animation:rag-stack-wire 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-p0{animation:rag-stack-p0m 9.8s cubic-bezier(0.2,0,0,1) 1 forwards,rag-stack-p0f 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-p1{animation:rag-stack-p1m 9.8s cubic-bezier(0.2,0,0,1) 1 forwards,rag-stack-p1f 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-p2{animation:rag-stack-p2m 9.8s cubic-bezier(0.2,0,0,1) 1 forwards,rag-stack-p2f 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-p3{animation:rag-stack-p3m 9.8s cubic-bezier(0.2,0,0,1) 1 forwards,rag-stack-p3f 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-p4{animation:rag-stack-p4m 9.8s cubic-bezier(0.2,0,0,1) 1 forwards,rag-stack-p4f 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-p5{animation:rag-stack-p5m 9.8s cubic-bezier(0.2,0,0,1) 1 forwards,rag-stack-p5f 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-p6{animation:rag-stack-p6m 9.8s cubic-bezier(0.2,0,0,1) 1 forwards,rag-stack-p6f 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-p7{animation:rag-stack-p7m 9.8s cubic-bezier(0.2,0,0,1) 1 forwards,rag-stack-p7f 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-chat{animation:rag-stack-hi-chat 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-orch{animation:rag-stack-hi-orch 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-index{animation:rag-stack-hi-index 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-docs{animation:rag-stack-hi-docs 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-hi-llm{animation:rag-stack-hi-llm 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-q{animation:rag-stack-q 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-r0{animation:rag-stack-r0 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-r1{animation:rag-stack-r1 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-r2{animation:rag-stack-r2 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-dochi{animation:rag-stack-dochi 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-sel{animation:rag-stack-sel 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-ans{animation:rag-stack-ans 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-cite{animation:rag-stack-cite 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n0{animation:rag-stack-n0 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n1{animation:rag-stack-n1 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n2{animation:rag-stack-n2 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n3{animation:rag-stack-n3 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n4{animation:rag-stack-n4 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n5{animation:rag-stack-n5 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n6{animation:rag-stack-n6 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n7{animation:rag-stack-n7 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-n8{animation:rag-stack-n8 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-l0{animation:rag-stack-l0 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-k0{animation:rag-stack-k0 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-l1{animation:rag-stack-l1 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-k1{animation:rag-stack-k1 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-l2{animation:rag-stack-l2 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-k2{animation:rag-stack-k2 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-l3{animation:rag-stack-l3 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-k3{animation:rag-stack-k3 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-k4{animation:rag-stack-k4 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-g0{animation:rag-stack-g0 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-g1{animation:rag-stack-g1 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-g2{animation:rag-stack-g2 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-rag-stack .rag-stack-cite2{animation:rag-stack-cite2 9.8s cubic-bezier(0.2,0,0,1) 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-rag-stack * { animation: none !important; } }
 </style>
 <div class="anim anim-rag-stack" data-anim="rag-stack" data-anim-cycle="9.8" data-anim-phases="1.76,2.72,3.68,4.64,5.6,6.56,7.52,8.84" data-anim-control="once" data-anim-verb="travel">
 <svg viewBox="0 0 1200 640" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A retrieval-augmented generation app in four layers: a chat question travels down through the orchestrator and vector index to the documents, the relevant chunks come back up, the LLM writes an answer from them and the answer returns to the chat with citations.">
 <g class="rag-stack-scene">
-  <!-- ===== bands, bottom-up: a hairline under each layer, mono caps name at the left ===== -->
-  <g class="rag-stack-b0"><path class="rag-stack-hair" d="M24 548 H1176"/><text class="rag-stack-layer" x="48" y="493">Data sources</text></g>
-  <g class="rag-stack-b1"><path class="rag-stack-hair" d="M24 414 H1176"/><text class="rag-stack-layer" x="48" y="359">Retrieval</text></g>
-  <g class="rag-stack-b2"><path class="rag-stack-hair" d="M24 280 H1176"/><text class="rag-stack-layer" x="48" y="225">Orchestration</text></g>
-  <g class="rag-stack-b3"><path class="rag-stack-hair" d="M24 146 H1176"/><text class="rag-stack-layer" x="48" y="91">Interface</text></g>
+  <!-- ===== bands, bottom-up: a hairline under each layer, layer name at the left ===== -->
+  <path class="rag-stack-hair rag-stack-b0" pathLength="100" d="M24 548 H1176"/><text class="rag-stack-layer rag-stack-l0" x="48" y="493">Data sources</text>
+  <path class="rag-stack-hair rag-stack-b1" pathLength="100" d="M24 414 H1176"/><text class="rag-stack-layer rag-stack-l1" x="48" y="359">Retrieval</text>
+  <path class="rag-stack-hair rag-stack-b2" pathLength="100" d="M24 280 H1176"/><text class="rag-stack-layer rag-stack-l2" x="48" y="225">Orchestration</text>
+  <path class="rag-stack-hair rag-stack-b3" pathLength="100" d="M24 146 H1176"/><text class="rag-stack-layer rag-stack-l3" x="48" y="91">Interface</text>
   <!-- ===== wires: down at x 530, up at x 550, LLM round trip at y 209 / 229 ===== -->
   <g class="rag-stack-wires">
   <path class="rag-stack-wire" pathLength="100" d="M530 113 V191"/>
@@ -532,8 +641,10 @@
   </g>
   <!-- ===== layer 0: documents ===== -->
   <g class="rag-stack-c0">
+    <g class="rag-stack-node rag-stack-k0">
     <circle class="rag-stack-ring" cx="540" cy="487" r="30"/>
     <path class="rag-stack-glyph" transform="translate(540 487)" d="M-8 -12 H5 L10 -7 V12 H-8 Z M5 -12 V-7 H10 M-4 -2 H6 M-4 3 H6 M-4 8 H2"/>
+    </g>
     <g class="rag-stack-hi rag-stack-hi-docs"><circle class="rag-stack-halo" cx="540" cy="487" r="30"/><circle class="rag-stack-hot" cx="540" cy="487" r="30"/><path class="rag-stack-glyph rag-stack-hotg" transform="translate(540 487)" d="M-8 -12 H5 L10 -7 V12 H-8 Z M5 -12 V-7 H10 M-4 -2 H6 M-4 3 H6 M-4 8 H2"/></g>
     <text class="rag-stack-lbl" x="492" y="484" text-anchor="end">Documents</text>
     <text class="rag-stack-sub" x="492" y="510" text-anchor="end">split into chunks</text>
@@ -556,48 +667,52 @@
       <path class="rag-stack-doc" d="M640 465 h26 l12 12 v40 h-38 z M666 465 v12 h12"/><path class="rag-stack-docl" d="M648 495 H670"/>
       <path class="rag-stack-doc" d="M830 465 h26 l12 12 v40 h-38 z M856 465 v12 h12"/><path class="rag-stack-docl" d="M838 487 H860"/>
     </g>
-    <g class="rag-stack-cite">
-      <g class="rag-stack-badge"><circle cx="684" cy="462" r="13"/><text x="684" y="468" text-anchor="middle">1</text></g>
-      <g class="rag-stack-badge"><circle cx="874" cy="462" r="13"/><text x="874" y="468" text-anchor="middle">2</text></g>
-    </g>
+    <g class="rag-stack-badge rag-stack-cite"><circle cx="684" cy="462" r="13"/><text x="684" y="468" text-anchor="middle">1</text></g>
+    <g class="rag-stack-badge rag-stack-cite2"><circle cx="874" cy="462" r="13"/><text x="874" y="468" text-anchor="middle">2</text></g>
   </g>
   <!-- ===== layer 1: vector index and scores ===== -->
   <g class="rag-stack-c1">
+    <g class="rag-stack-node rag-stack-k1">
     <circle class="rag-stack-ring" cx="540" cy="353" r="30"/>
     <path class="rag-stack-glyph rag-stack-dots" transform="translate(540 353)" d="M-9 -6 h.01 M3 -10 h.01 M9 1 h.01 M-2 3 h.01 M-10 8 h.01 M4 10 h.01 M-4 -1 h.01"/>
+    </g>
     <g class="rag-stack-hi rag-stack-hi-index"><circle class="rag-stack-halo" cx="540" cy="353" r="30"/><circle class="rag-stack-hot" cx="540" cy="353" r="30"/><path class="rag-stack-glyph rag-stack-hotg rag-stack-dots" transform="translate(540 353)" d="M-9 -6 h.01 M3 -10 h.01 M9 1 h.01 M-2 3 h.01 M-10 8 h.01 M4 10 h.01 M-4 -1 h.01"/></g>
     <text class="rag-stack-lbl" x="492" y="350" text-anchor="end">Vector index</text>
     <text class="rag-stack-sub" x="492" y="376" text-anchor="end">similarity search</text>
     <g class="rag-stack-r0">
       <text class="rag-stack-mono rag-stack-dim" x="640" y="330">0.91</text>
       <path class="rag-stack-track" d="M704 324 H944"/>
-      <path class="rag-stack-bar" d="M704 324 H922"/>
+      <path class="rag-stack-bar rag-stack-g0" pathLength="100" d="M704 324 H922"/>
       <text class="rag-stack-mono rag-stack-dim" x="964" y="330">policy.pdf §4</text>
       <g class="rag-stack-sel"><path class="rag-stack-bar rag-stack-selbar" d="M704 324 H922"/><text class="rag-stack-mono rag-stack-seltxt" x="640" y="330">0.91</text><text class="rag-stack-mono rag-stack-seltxt" x="964" y="330">policy.pdf §4</text></g>
     </g>
     <g class="rag-stack-r1">
       <text class="rag-stack-mono rag-stack-dim" x="640" y="360">0.86</text>
       <path class="rag-stack-track" d="M704 354 H944"/>
-      <path class="rag-stack-bar" d="M704 354 H910"/>
+      <path class="rag-stack-bar rag-stack-g1" pathLength="100" d="M704 354 H910"/>
       <text class="rag-stack-mono rag-stack-dim" x="964" y="360">faq.md #3</text>
       <g class="rag-stack-sel"><path class="rag-stack-bar rag-stack-selbar" d="M704 354 H910"/><text class="rag-stack-mono rag-stack-seltxt" x="640" y="360">0.86</text><text class="rag-stack-mono rag-stack-seltxt" x="964" y="360">faq.md #3</text></g>
     </g>
     <g class="rag-stack-r2">
       <text class="rag-stack-mono rag-stack-dim" x="640" y="390">0.42</text>
       <path class="rag-stack-track" d="M704 384 H944"/>
-      <path class="rag-stack-bar" d="M704 384 H805"/>
+      <path class="rag-stack-bar rag-stack-g2" pathLength="100" d="M704 384 H805"/>
       <text class="rag-stack-mono rag-stack-dim" x="964" y="390">terms.md §9</text>
     </g>
   </g>
   <!-- ===== layer 2: orchestrator and LLM ===== -->
   <g class="rag-stack-c2">
+    <g class="rag-stack-node rag-stack-k2">
     <circle class="rag-stack-ring" cx="540" cy="219" r="30"/>
     <path class="rag-stack-glyph" transform="translate(540 219)" d="M-12 0 H-3 M-3 0 C2 0 3 -8 9 -8 M-3 0 C2 0 3 8 9 8 M6 -11 L9.5 -8 L6 -5 M6 5 L9.5 8 L6 11"/>
+    </g>
     <g class="rag-stack-hi rag-stack-hi-orch"><circle class="rag-stack-halo" cx="540" cy="219" r="30"/><circle class="rag-stack-hot" cx="540" cy="219" r="30"/><path class="rag-stack-glyph rag-stack-hotg" transform="translate(540 219)" d="M-12 0 H-3 M-3 0 C2 0 3 -8 9 -8 M-3 0 C2 0 3 8 9 8 M6 -11 L9.5 -8 L6 -5 M6 5 L9.5 8 L6 11"/></g>
     <text class="rag-stack-lbl" x="492" y="216" text-anchor="end">Orchestrator</text>
     <text class="rag-stack-sub" x="492" y="242" text-anchor="end">retrieve, then prompt</text>
+    <g class="rag-stack-node rag-stack-k4">
     <circle class="rag-stack-ring rag-stack-llmring" cx="900" cy="219" r="30"/>
     <path class="rag-stack-glyph" transform="translate(900 219)" d="M0 -12 C1 -4 4 -1 12 0 C4 1 1 4 0 12 C-1 4 -4 1 -12 0 C-4 -1 -1 -4 0 -12 Z"/>
+    </g>
     <g class="rag-stack-hi rag-stack-hi-llm"><circle class="rag-stack-halo" cx="900" cy="219" r="30"/><circle class="rag-stack-hot" cx="900" cy="219" r="30"/><path class="rag-stack-glyph rag-stack-hotg" transform="translate(900 219)" d="M0 -12 C1 -4 4 -1 12 0 C4 1 1 4 0 12 C-1 4 -4 1 -12 0 C-4 -1 -1 -4 0 -12 Z"/></g>
     <text class="rag-stack-lbl" x="948" y="216" text-anchor="start">LLM</text>
     <text class="rag-stack-sub" x="948" y="242" text-anchor="start">writes the answer</text>
@@ -606,14 +721,19 @@
   </g>
   <!-- ===== layer 3: chat ===== -->
   <g class="rag-stack-c3">
+    <g class="rag-stack-node rag-stack-k3">
     <circle class="rag-stack-ring" cx="540" cy="85" r="30"/>
     <path class="rag-stack-glyph" transform="translate(540 85)" d="M-12 -10 H12 V6 H-2 L-8 11 V6 H-12 Z"/>
-    <g class="rag-stack-hi rag-stack-hi-chat"><circle class="rag-stack-halo" cx="540" cy="85" r="30"/><circle class="rag-stack-hot" cx="540" cy="85" r="30"/><path class="rag-stack-glyph rag-stack-hotg" transform="translate(540 85)" d="M-12 -10 H12 V6 H-2 L-8 11 V6 H-12 Z"/></g>
+    </g>
     <text class="rag-stack-lbl" x="492" y="82" text-anchor="end">Chat UI</text>
     <text class="rag-stack-sub" x="492" y="108" text-anchor="end">question in, answer out</text>
     <g class="rag-stack-q"><path class="rag-stack-leadq" d="M640 47 V71"/><text class="rag-stack-txt" x="658" y="67">What is the refund window?</text></g>
-    <g class="rag-stack-ans"><path class="rag-stack-leada" d="M640 97 V121"/><text class="rag-stack-txt" x="658" y="117">Within 30 days of delivery.</text></g>
-    <g class="rag-stack-cite"><g class="rag-stack-badge"><circle cx="958" cy="110" r="13"/><text x="958" y="116" text-anchor="middle">1</text></g><g class="rag-stack-badge"><circle cx="992" cy="110" r="13"/><text x="992" y="116" text-anchor="middle">2</text></g></g>
+    <g class="rag-stack-focal" data-anim-focal>
+      <g class="rag-stack-hi rag-stack-hi-chat"><circle class="rag-stack-halo" cx="540" cy="85" r="30"/><circle class="rag-stack-hot" cx="540" cy="85" r="30"/><path class="rag-stack-glyph rag-stack-hotg" transform="translate(540 85)" d="M-12 -10 H12 V6 H-2 L-8 11 V6 H-12 Z"/></g>
+      <g class="rag-stack-ans"><path class="rag-stack-leada" d="M640 92 V124"/><text class="rag-stack-txt rag-stack-anstxt" x="658" y="119">Within 30 days of delivery.</text></g>
+      <g class="rag-stack-badge rag-stack-cite"><circle cx="1096" cy="109" r="13"/><text x="1096" y="115" text-anchor="middle">1</text></g>
+      <g class="rag-stack-badge rag-stack-cite2"><circle cx="1130" cy="109" r="13"/><text x="1130" y="115" text-anchor="middle">2</text></g>
+    </g>
   </g>
   <!-- ===== packets: glowing dots ===== -->
   <circle class="rag-stack-pkt rag-stack-p0" r="7"/>
@@ -625,7 +745,7 @@
   <circle class="rag-stack-pkt rag-stack-resp rag-stack-p6" r="7"/>
   <circle class="rag-stack-pkt rag-stack-resp rag-stack-p7" r="7"/>
   <!-- ===== legend and caption: plain text ===== -->
-  <g class="rag-stack-legend"><circle cx="54" cy="601" r="6"/><text class="rag-stack-mono rag-stack-dim" x="68" y="607">request</text><circle class="rag-stack-resp" cx="172" cy="601" r="6"/><text class="rag-stack-mono rag-stack-dim" x="186" y="607">response</text></g>
+  <g class="rag-stack-legend"><circle cx="54" cy="601" r="6"/><text class="rag-stack-sub" x="68" y="607">request</text><circle class="rag-stack-resp" cx="172" cy="601" r="6"/><text class="rag-stack-sub" x="186" y="607">response</text></g>
   <text class="rag-stack-note rag-stack-n0" x="660" y="608" text-anchor="middle">A RAG app in four layers</text>
   <text class="rag-stack-note rag-stack-n1" x="660" y="608" text-anchor="middle">A user asks a question</text>
   <text class="rag-stack-note rag-stack-n2" x="660" y="608" text-anchor="middle">The question is embedded and searched</text>

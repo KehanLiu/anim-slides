@@ -71,8 +71,8 @@ folder. Results and the HTML report go to `evals/results/` (ignored by git).
 3. When it finishes, check each statement in `evals/<case>/graders/` against the transcript
    and the files, and read `expected_outcome` in `case.yaml`.
 4. Review the result by eye with `references/look-rubric.md`: a fresh reviewer that sees
-   only the before and after PNGs. Any score below 3 is a failure of the case, even when all
-   graders pass.
+   only the stills (before, first frame, phase marks, rest) and each slide's claim. A `fix`
+   verdict (any score below 3) is a failure of the case, even when all graders pass.
 
 ## Add a case
 

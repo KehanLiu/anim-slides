@@ -30,7 +30,7 @@
 .anim-coalition-majority{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -38,22 +38,23 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-coalition-majority svg{display:block;width:100%;height:100%;max-width:none}
 .anim-coalition-majority .coalition-majority-t{font-family:var(--anim-font);fill:var(--anim-fg)}
 .anim-coalition-majority .coalition-majority-lbl{font-size:26px;font-weight:600}
 .anim-coalition-majority .coalition-majority-note{font-size:26px;font-weight:400}
-.anim-coalition-majority .coalition-majority-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
-.anim-coalition-majority .coalition-majority-small{font-size:18px}
+.anim-coalition-majority .coalition-majority-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-coalition-majority .coalition-majority-sub{font-family:var(--anim-font);font-size:20px;font-weight:400;fill:var(--anim-muted)}
 .anim-coalition-majority .coalition-majority-mut{fill:var(--anim-muted)}
 .anim-coalition-majority .coalition-majority-acc{fill:var(--anim-accent)}
-.anim-coalition-majority .coalition-majority-big{font-size:52px;font-weight:600}
+.anim-coalition-majority .coalition-majority-big{font-size:80px;font-weight:500;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.anim-coalition-majority .coalition-majority-glow-t{fill:var(--anim-accent);opacity:.3;filter:blur(8px)}
 /* seats: one round-capped mark per seat; empty chamber seats in the line tone, party seats in fg, other parties muted */
 .anim-coalition-majority .coalition-majority-seats{fill:none;stroke-width:7;stroke-linecap:round}
-.anim-coalition-majority .coalition-majority-empty{stroke:var(--anim-line)}
+.anim-coalition-majority .coalition-majority-empty{stroke:var(--anim-line);stroke-width:3}
 .anim-coalition-majority .coalition-majority-party{stroke:var(--anim-fg)}
 .anim-coalition-majority .coalition-majority-other{stroke:var(--anim-muted);opacity:.45}
 .anim-coalition-majority .coalition-majority-over{stroke:var(--anim-accent)}
@@ -62,16 +63,16 @@
 .anim-coalition-majority .coalition-majority-ol-b{stroke-dasharray:10 7}
 .anim-coalition-majority .coalition-majority-ol-c{stroke-dasharray:0 8;stroke-linecap:round;stroke-width:3}
 .anim-coalition-majority .coalition-majority-ol-o{stroke:var(--anim-line)}
-.anim-coalition-majority .coalition-majority-ol-acc{stroke:var(--anim-accent);stroke-width:3}
+.anim-coalition-majority .coalition-majority-ol-acc{stroke:var(--anim-accent);stroke-width:2}
 .anim-coalition-majority .coalition-majority-div{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
-.anim-coalition-majority .coalition-majority-glow{fill:var(--anim-accent);opacity:.35;filter:blur(8px)}
-.anim-coalition-majority .coalition-majority-maj{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round}
+.anim-coalition-majority .coalition-majority-maj{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
 .anim-coalition-majority .coalition-majority-maj-acc{stroke:var(--anim-accent)}
-.anim-coalition-majority .coalition-majority-brk{fill:none;stroke:var(--anim-accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-coalition-majority .coalition-majority-cbrk{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-coalition-majority .coalition-majority-brk{fill:none;stroke:var(--anim-accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-coalition-majority .coalition-majority-cbrk{fill:none;stroke:var(--anim-muted);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-coalition-majority .coalition-majority-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
 /* resting frame = the end: B and C joined to A, dividers between them, one accent outline round 53 seats, 2 over the line */
-.anim-coalition-majority .coalition-majority-bx,.anim-coalition-majority .coalition-majority-by,.anim-coalition-majority .coalition-majority-cx,.anim-coalition-majority .coalition-majority-cy,.anim-coalition-majority .coalition-majority-tot{transform-box:view-box;transform-origin:0px 0px}
+.anim-coalition-majority .coalition-majority-bx,.anim-coalition-majority .coalition-majority-by,.anim-coalition-majority .coalition-majority-cx,.anim-coalition-majority .coalition-majority-cy,.anim-coalition-majority .coalition-majority-tot,.anim-coalition-majority .coalition-majority-b-lab,.anim-coalition-majority .coalition-majority-c-lab{transform-box:view-box;transform-origin:0px 0px}
+.anim-coalition-majority .coalition-majority-a-in,.anim-coalition-majority .coalition-majority-b-in,.anim-coalition-majority .coalition-majority-c-in{clip-path:inset(-12px -12px -12px -12px)}
 .anim-coalition-majority .coalition-majority-bx{transform:translateX(307px)}
 .anim-coalition-majority .coalition-majority-by{transform:translateY(-180px)}
 .anim-coalition-majority .coalition-majority-cx{transform:translateX(598px)}
@@ -82,33 +83,33 @@
    set 0-1.4 s: chamber, line, A in the chamber row, C and B apart in the waiting row (phase 1.4)
    hero 1.4-3.55 s: B's label out, B slides and rises into the seats after A, outlines become one, label back (phase 3.58)
    hero 3.62-6.05 s: the same for C; the joined bar passes the line (phase 6.3)
-   answer 6.35-7.25 s: accent, bracket under the joined bar, total 53 (phase 7.35)
+   answer 6.35-6.95 s: accent, bracket under the joined bar, total 53; still to 7.4 s (phase 7.35)
    answer 7.4-8.05 s: "2 seats over the line" (phase 8.15 = hold start), hold to 9.4 s */
 @keyframes coalition-majority-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.383%{opacity:1}100%{opacity:1}}
-@keyframes coalition-majority-a-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}3.723%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.106%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes coalition-majority-b-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.596%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.979%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes coalition-majority-c-in{0%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.319%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.702%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes coalition-majority-a-in{0%{clip-path:inset(100% -12px -12px -12px)}3.723%{clip-path:inset(100% -12px -12px -12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.638%{clip-path:inset(-12px -12px -12px -12px)}100%{clip-path:inset(-12px -12px -12px -12px)}}
+@keyframes coalition-majority-b-in{0%{clip-path:inset(100% -12px -12px -12px)}5.851%{clip-path:inset(100% -12px -12px -12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.766%{clip-path:inset(-12px -12px -12px -12px)}100%{clip-path:inset(-12px -12px -12px -12px)}}
+@keyframes coalition-majority-c-in{0%{clip-path:inset(100% -12px -12px -12px)}5%{clip-path:inset(100% -12px -12px -12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.915%{clip-path:inset(-12px -12px -12px -12px)}100%{clip-path:inset(-12px -12px -12px -12px)}}
 /* the moving party's label fades out before it moves and back in 120 ms after it has joined */
-@keyframes coalition-majority-b-lab{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}14.894%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}16.596%{opacity:0}34.043%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.766%{opacity:1}100%{opacity:1}}
-@keyframes coalition-majority-c-lab{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}38.511%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}40.213%{opacity:0}60.851%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.362%{opacity:1}100%{opacity:1}}
+@keyframes coalition-majority-b-lab{0%{opacity:1;transform:translateY(0)}14.894%{opacity:1;transform:translateY(0);animation-timing-function:cubic-bezier(0.3,0,1,1)}16.596%{opacity:0;transform:translateY(0)}17%{opacity:0;transform:translateY(10px)}34.043%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}37.766%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes coalition-majority-c-lab{0%{opacity:1;transform:translateY(0)}38.511%{opacity:1;transform:translateY(0);animation-timing-function:cubic-bezier(0.3,0,1,1)}40.213%{opacity:0;transform:translateY(0)}40.5%{opacity:0;transform:translateY(10px)}60.851%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.362%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
 /* hero 1: Party B slides right along the waiting row (still short of the line), then rises into the empty seats after A */
-@keyframes coalition-majority-bx{0%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}16.489%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}26.064%{transform:translateX(307px)}100%{transform:translateX(307px)}}
-@keyframes coalition-majority-by{0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}24.468%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}32.979%{transform:translateY(-180px)}100%{transform:translateY(-180px)}}
+@keyframes coalition-majority-bx{0%{transform:translateX(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}16.489%{transform:translateX(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}26.064%{transform:translateX(307px)}100%{transform:translateX(307px)}}
+@keyframes coalition-majority-by{0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}24.468%{transform:translateY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}32.979%{transform:translateY(-180px)}100%{transform:translateY(-180px)}}
 /* at the join the two outlines become one; a thin divider stays between the parties */
 @keyframes coalition-majority-a-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.979%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}36.702%{opacity:0}100%{opacity:0}}
 @keyframes coalition-majority-b-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32.979%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}36.702%{opacity:0}100%{opacity:0}}
 @keyframes coalition-majority-ab-ol{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.979%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.702%{opacity:1}59.787%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.298%{opacity:0}100%{opacity:0}}
 @keyframes coalition-majority-div1{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}32.979%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.702%{opacity:1}100%{opacity:1}}
 /* hero 2: Party C slides right along the emptied waiting row, then rises into the seats after A+B: the joined bar passes the line */
-@keyframes coalition-majority-cx{0%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}40.957%{transform:translateX(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}52.66%{transform:translateX(598px)}100%{transform:translateX(598px)}}
-@keyframes coalition-majority-cy{0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}51.064%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}59.574%{transform:translateY(-180px)}100%{transform:translateY(-180px)}}
+@keyframes coalition-majority-cx{0%{transform:translateX(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}40.957%{transform:translateX(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}52.66%{transform:translateX(598px)}100%{transform:translateX(598px)}}
+@keyframes coalition-majority-cy{0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}51.064%{transform:translateY(0);animation-timing-function:cubic-bezier(0.2,0,0,1)}59.574%{transform:translateY(-180px)}100%{transform:translateY(-180px)}}
 @keyframes coalition-majority-c-ol{0%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}59.787%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}63.298%{opacity:0}100%{opacity:0}}
 @keyframes coalition-majority-abc-ol{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.787%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.298%{opacity:1}100%{opacity:1}}
 @keyframes coalition-majority-div2{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.787%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}63.298%{opacity:1}100%{opacity:1}}
 /* answer: accent on the joined majority, the bracket under it and the total, then "2 seats over the line" */
-@keyframes coalition-majority-acc{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}67.553%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.872%{opacity:1}100%{opacity:1}}
-@keyframes coalition-majority-cbrk{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.745%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}76.064%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes coalition-majority-tot{0%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.872%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.128%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes coalition-majority-acc{0%{opacity:0}67.553%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.34%{opacity:1}100%{opacity:1}}
+@keyframes coalition-majority-cbrk{0%{stroke-dashoffset:101}68.617%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.404%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes coalition-majority-tot{0%{opacity:0;transform:translateY(12px)}69.681%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}73.936%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
 @keyframes coalition-majority-brk{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}78.723%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.511%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
 @keyframes coalition-majority-ans{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.851%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}85.638%{opacity:1}100%{opacity:1}}
 /* captions cross-fade between the moves */
@@ -147,11 +148,11 @@
 <div class="anim anim-coalition-majority" data-anim="coalition-majority" data-anim-cycle="9.4" data-anim-control="once" data-anim-phases="1.4,3.58,6.3,7.35,8.15" data-anim-verb="merge">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustrative coalition in a parliament of 100 seats with a majority line at 51: Party A (34 seats), Party B (12) and Party C (7) each fall short alone; B joins A, then C joins A and B, and together their 53 seats pass the line by 2 seats. The other 47 seats belong to other parties.">
 <g class="coalition-majority-scene">
-  <text class="coalition-majority-mono coalition-majority-small" x="40" y="500">1 mark = 1 seat · 100 seats</text>
+  <text class="coalition-majority-mono" x="40" y="500">1 mark = 1 seat · 100 seats</text>
   <rect class="coalition-majority-tag" x="1424" y="20" width="232" height="36" rx="6"/>
-  <text class="coalition-majority-mono coalition-majority-small" x="1540" y="44" text-anchor="middle">illustrative numbers</text>
-  <!-- the chamber: 100 seat marks; the 47 seats of other parties as one muted remainder -->
-  <path class="coalition-majority-seats coalition-majority-empty" d="M196.5 164v78M209.5 164v78M222.5 164v78M235.5 164v78M248.5 164v78M261.5 164v78M274.5 164v78M287.5 164v78M300.5 164v78M313.5 164v78M326.5 164v78M339.5 164v78M352.5 164v78M365.5 164v78M378.5 164v78M391.5 164v78M404.5 164v78M417.5 164v78M430.5 164v78M443.5 164v78M456.5 164v78M469.5 164v78M482.5 164v78M495.5 164v78M508.5 164v78M521.5 164v78M534.5 164v78M547.5 164v78M560.5 164v78M573.5 164v78M586.5 164v78M599.5 164v78M612.5 164v78M625.5 164v78M638.5 164v78M651.5 164v78M664.5 164v78M677.5 164v78M690.5 164v78M703.5 164v78M716.5 164v78M729.5 164v78M742.5 164v78M755.5 164v78M768.5 164v78M781.5 164v78M794.5 164v78M807.5 164v78M820.5 164v78M833.5 164v78M846.5 164v78M859.5 164v78M872.5 164v78M885.5 164v78M898.5 164v78M911.5 164v78M924.5 164v78M937.5 164v78M950.5 164v78M963.5 164v78M976.5 164v78M989.5 164v78M1002.5 164v78M1015.5 164v78M1028.5 164v78M1041.5 164v78M1054.5 164v78M1067.5 164v78M1080.5 164v78M1093.5 164v78M1106.5 164v78M1119.5 164v78M1132.5 164v78M1145.5 164v78M1158.5 164v78M1171.5 164v78M1184.5 164v78M1197.5 164v78M1210.5 164v78M1223.5 164v78M1236.5 164v78M1249.5 164v78M1262.5 164v78M1275.5 164v78M1288.5 164v78M1301.5 164v78M1314.5 164v78M1327.5 164v78M1340.5 164v78M1353.5 164v78M1366.5 164v78M1379.5 164v78M1392.5 164v78M1405.5 164v78M1418.5 164v78M1431.5 164v78M1444.5 164v78M1457.5 164v78M1470.5 164v78M1483.5 164v78"/>
+  <text class="coalition-majority-sub" x="1540" y="44" text-anchor="middle">illustrative numbers</text>
+  <!-- the chamber: 100 seat marks; 53 empty seats (thin) and the 47 seats of other parties as one muted remainder -->
+  <path class="coalition-majority-seats coalition-majority-empty" d="M196.5 164v78M209.5 164v78M222.5 164v78M235.5 164v78M248.5 164v78M261.5 164v78M274.5 164v78M287.5 164v78M300.5 164v78M313.5 164v78M326.5 164v78M339.5 164v78M352.5 164v78M365.5 164v78M378.5 164v78M391.5 164v78M404.5 164v78M417.5 164v78M430.5 164v78M443.5 164v78M456.5 164v78M469.5 164v78M482.5 164v78M495.5 164v78M508.5 164v78M521.5 164v78M534.5 164v78M547.5 164v78M560.5 164v78M573.5 164v78M586.5 164v78M599.5 164v78M612.5 164v78M625.5 164v78M638.5 164v78M651.5 164v78M664.5 164v78M677.5 164v78M690.5 164v78M703.5 164v78M716.5 164v78M729.5 164v78M742.5 164v78M755.5 164v78M768.5 164v78M781.5 164v78M794.5 164v78M807.5 164v78M820.5 164v78M833.5 164v78M846.5 164v78M859.5 164v78M872.5 164v78"/>
   <path class="coalition-majority-seats coalition-majority-other" d="M885.5 164v78M898.5 164v78M911.5 164v78M924.5 164v78M937.5 164v78M950.5 164v78M963.5 164v78M976.5 164v78M989.5 164v78M1002.5 164v78M1015.5 164v78M1028.5 164v78M1041.5 164v78M1054.5 164v78M1067.5 164v78M1080.5 164v78M1093.5 164v78M1106.5 164v78M1119.5 164v78M1132.5 164v78M1145.5 164v78M1158.5 164v78M1171.5 164v78M1184.5 164v78M1197.5 164v78M1210.5 164v78M1223.5 164v78M1236.5 164v78M1249.5 164v78M1262.5 164v78M1275.5 164v78M1288.5 164v78M1301.5 164v78M1314.5 164v78M1327.5 164v78M1340.5 164v78M1353.5 164v78M1366.5 164v78M1379.5 164v78M1392.5 164v78M1405.5 164v78M1418.5 164v78M1431.5 164v78M1444.5 164v78M1457.5 164v78M1470.5 164v78M1483.5 164v78"/>
   <rect class="coalition-majority-ol coalition-majority-ol-o" x="880" y="150" width="609" height="106" rx="8"/>
   <text class="coalition-majority-t coalition-majority-lbl coalition-majority-mut" x="1490" y="106" text-anchor="end">other parties</text>
@@ -168,7 +169,7 @@
   <g class="coalition-majority-a-in">
     <path class="coalition-majority-seats coalition-majority-party" d="M196.5 164v78M209.5 164v78M222.5 164v78M235.5 164v78M248.5 164v78M261.5 164v78M274.5 164v78M287.5 164v78M300.5 164v78M313.5 164v78M326.5 164v78M339.5 164v78M352.5 164v78M365.5 164v78M378.5 164v78M391.5 164v78M404.5 164v78M417.5 164v78M430.5 164v78M443.5 164v78M456.5 164v78M469.5 164v78M482.5 164v78M495.5 164v78M508.5 164v78M521.5 164v78M534.5 164v78M547.5 164v78M560.5 164v78M573.5 164v78M586.5 164v78M599.5 164v78M612.5 164v78M625.5 164v78"/>
     <rect class="coalition-majority-ol coalition-majority-a-ol" x="191" y="150" width="440" height="106" rx="8"/>
-    <g class=""><text class="coalition-majority-t coalition-majority-lbl" x="190" y="106">Party A</text><text class="coalition-majority-mono" x="190" y="134">34 seats</text></g>
+    <g><text class="coalition-majority-t coalition-majority-lbl" x="190" y="106">Party A</text><text class="coalition-majority-mono" x="190" y="134">34 seats</text></g>
   </g>
   <!-- Party B: waits in the lower row at x 325; moves +307 along it, then rises 180 -->
   <g class="coalition-majority-bx"><g class="coalition-majority-by"><g class="coalition-majority-b-in">
@@ -184,20 +185,19 @@
   </g></g></g>
   <!-- answer: the joined majority in the accent -->
   <g class="coalition-majority-acc">
-    <rect class="coalition-majority-glow" x="853" y="154" width="26" height="98"/>
-    <rect class="coalition-majority-ol coalition-majority-ol-acc" x="191" y="150" width="687" height="106" rx="8"/>
+        <rect class="coalition-majority-ol coalition-majority-ol-acc" x="191" y="150" width="687" height="106" rx="8"/>
     <path class="coalition-majority-seats coalition-majority-over" d="M859.5 164v78M872.5 164v78"/>
     <path class="coalition-majority-maj coalition-majority-maj-acc" d="M853 144V448"/>
-    <text class="coalition-majority-t coalition-majority-lbl coalition-majority-acc" x="853" y="482" text-anchor="middle">majority: 51 of 100</text>
-  </g>
+      </g>
   <path class="coalition-majority-cbrk" pathLength="100" d="M191 330V344H878V330"/>
-  <g class="coalition-majority-tot">
-    <text class="coalition-majority-t coalition-majority-big coalition-majority-acc" x="526" y="406" text-anchor="end">53</text>
-    <text class="coalition-majority-mono" x="540" y="406">seats joined</text>
+  <g class="coalition-majority-tot" data-anim-focal="">
+    <text class="coalition-majority-t coalition-majority-big coalition-majority-glow-t" x="526" y="424" text-anchor="end" aria-hidden="true">53</text>
+    <text class="coalition-majority-t coalition-majority-big coalition-majority-acc" x="526" y="424" text-anchor="end">53</text>
+    <text class="coalition-majority-sub" x="542" y="424">seats joined</text>
   </g>
   <path class="coalition-majority-brk" pathLength="100" d="M853 264V276H879V264"/>
   <g class="coalition-majority-ans">
-    <text class="coalition-majority-t coalition-majority-lbl coalition-majority-acc" x="899" y="302">2 seats over the line</text>
+    <text class="coalition-majority-t coalition-majority-lbl" x="899" y="302">2 seats over the line</text>
     <text class="coalition-majority-mono" x="899" y="330">53 − 51</text>
   </g>
   <!-- captions -->

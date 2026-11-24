@@ -59,6 +59,21 @@ title-less slide gains about 200 px of height.
 - A 4:3 source (`aspect: "4:3"` in `outline.json`, stage 1920 x 1440) rebuilt on a 16:9 deck
   gets new slots: measure the target deck's layout, not the source's.
 
+## Fill the slot
+
+- The figure's drawn extent spans at least 60 % of the slot's width or height. A figure lost in
+  the middle of a large slot reads as an afterthought.
+- Pick a viewBox that fits the picture, not only the slot. A thin strip (a timeline, a row of
+  steps) in a tall viewBox leaves dead bands above and below: give it a short, wide viewBox and
+  let the slot shrink, or use the free height for the focal element (a hero number, a larger
+  mark).
+- The figure's left edge may share the headline's left anchor line instead of being centred;
+  measure the headline's left edge in stage pixels and place the first shape edge or label
+  start there. Text and shape edges inside the figure share two or three vertical anchor
+  lines.
+- More than 12 nodes, or more than 8 spokes on one hub, does not fit a slot at a legible size:
+  split the slide or keep a list.
+
 ## Rules of thumb
 
 - Keep the deck's own margins; a fragment never extends into the side margin or the title area.

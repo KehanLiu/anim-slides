@@ -2,7 +2,7 @@
 .anim-water-cycle{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -10,42 +10,44 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-water-cycle svg{display:block;width:100%;height:100%;max-width:none}
-.anim-water-cycle .water-cycle-sans{font-family:var(--anim-font);font-size:19px}
-.anim-water-cycle .water-cycle-mono{font-family:var(--anim-mono);font-size:18px;font-weight:400}
+/* type ladder: label 26 (step names), sub-label 20 (descriptions, legend, step numbers) */
+.anim-water-cycle .water-cycle-sans{font-family:var(--anim-font)}
+.anim-water-cycle .water-cycle-sub{font-family:var(--anim-font);font-size:20px;font-weight:400}
 .anim-water-cycle .water-cycle-label{font-size:26px;font-weight:600}
-.anim-water-cycle .water-cycle-n{font-family:var(--anim-mono);font-size:20px;font-weight:500}
+.anim-water-cycle .water-cycle-n{font-family:var(--anim-mono);font-size:20px;font-weight:500;font-variant-numeric:tabular-nums}
 .anim-water-cycle .water-cycle-fg{fill:var(--anim-fg)}
 .anim-water-cycle .water-cycle-dim{fill:var(--anim-muted)}
 .anim-water-cycle .water-cycle-cy{fill:var(--anim-accent)}
 /* landscape: thin strokes, two quiet fills (sea, land) */
 .anim-water-cycle .water-cycle-sea{fill:color-mix(in srgb,var(--anim-accent) 11%,var(--anim-bg))}
-.anim-water-cycle .water-cycle-wave{fill:none;stroke:color-mix(in srgb,var(--anim-accent) 45%,var(--anim-bg));stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.anim-water-cycle .water-cycle-land{fill:color-mix(in srgb,var(--anim-ok) 7%,var(--anim-bg));stroke:color-mix(in srgb,var(--anim-ok) 40%,var(--anim-bg));stroke-width:2.5;stroke-linejoin:round}
-.anim-water-cycle .water-cycle-sun{fill:none;stroke:var(--anim-warn);stroke-width:2.5}
-.anim-water-cycle .water-cycle-rays path{fill:none;stroke:var(--anim-warn);stroke-width:2.5;stroke-linecap:round}
-.anim-water-cycle .water-cycle-cloud{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linejoin:round}
-.anim-water-cycle .water-cycle-raincloud{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linejoin:round}
-.anim-water-cycle .water-cycle-cloud-on{fill:none;stroke:var(--anim-accent);stroke-width:3;stroke-linejoin:round}
-.anim-water-cycle .water-cycle-streaks path{fill:none;stroke:color-mix(in srgb,var(--anim-accent) 50%,var(--anim-bg));stroke-width:2;stroke-linecap:round;stroke-dasharray:8 12}
-.anim-water-cycle .water-cycle-river{fill:none;stroke:color-mix(in srgb,var(--anim-accent) 35%,var(--anim-bg));stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.anim-water-cycle .water-cycle-wave{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-water-cycle .water-cycle-land{fill:color-mix(in srgb,var(--anim-ok) 7%,var(--anim-bg));stroke:color-mix(in srgb,var(--anim-ok) 55%,var(--anim-bg));stroke-width:2;stroke-linejoin:round}
+.anim-water-cycle .water-cycle-sun{fill:none;stroke:var(--anim-warn);stroke-width:2}
+.anim-water-cycle .water-cycle-rays path{fill:none;stroke:var(--anim-warn);stroke-width:2;stroke-linecap:round}
+.anim-water-cycle .water-cycle-cloud{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linejoin:round}
+.anim-water-cycle .water-cycle-raincloud{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linejoin:round}
+.anim-water-cycle .water-cycle-cloud-on{fill:none;stroke:var(--anim-accent);stroke-width:4;stroke-linejoin:round}
+.anim-water-cycle .water-cycle-streaks path{fill:none;stroke:color-mix(in srgb,var(--anim-accent) 50%,var(--anim-bg));stroke-width:1.5;stroke-linecap:round;stroke-dasharray:8 12}
+.anim-water-cycle .water-cycle-river{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .anim-water-cycle .water-cycle-river-on{fill:none;stroke:var(--anim-accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
 /* the loop guide: thin dashed wires, small open arrowheads */
-.anim-water-cycle .water-cycle-guide{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-dasharray:2 9;opacity:.8}
-.anim-water-cycle .water-cycle-head{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-/* step markers: rings, labels outside; a lit ring is the accent colour, no glow */
-.anim-water-cycle .water-cycle-num circle{fill:none;stroke:var(--anim-line);stroke-width:2.5}
-.anim-water-cycle .water-cycle-on circle{fill:none;stroke:var(--anim-accent);stroke-width:4}
+.anim-water-cycle .water-cycle-guide{fill:none;stroke:var(--anim-muted);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:2 9;opacity:.8}
+.anim-water-cycle .water-cycle-head{fill:none;stroke:var(--anim-muted);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* step markers: rings, labels outside; a reached step lights its ring in the text colour (the story
+   reaches every step, so the accent stays on the river, the focal, and on the packets) */
+.anim-water-cycle .water-cycle-num circle{fill:none;stroke:var(--anim-line);stroke-width:2}
+.anim-water-cycle .water-cycle-on circle{fill:none;stroke:var(--anim-fg);stroke-width:3}
 /* packets: dots (vapour), droplets, a stream dot; the travelling packet is the one glowing element,
    its halo goes out when the packets park on their legs */
 .anim-water-cycle .water-cycle-vap circle{fill:var(--anim-accent)}
 .anim-water-cycle .water-cycle-drop{fill:var(--anim-accent)}
 .anim-water-cycle .water-cycle-flow{fill:var(--anim-accent)}
-.anim-water-cycle .water-cycle-halo{filter:blur(7px);opacity:.55}
+.anim-water-cycle .water-cycle-halo{filter:blur(7px);opacity:.3}
 .anim-water-cycle .water-cycle-p-vap{offset-path:path('M432 436 C412 366 472 290 448 214');offset-rotate:0deg;offset-distance:55%;opacity:1}
 .anim-water-cycle .water-cycle-p-wind{offset-path:path('M592 146 C730 104 960 104 1102 140');offset-rotate:0deg;offset-distance:50%;opacity:1}
 .anim-water-cycle .water-cycle-p-rain{offset-path:path('M1252 214 L1240 336');offset-rotate:0deg;offset-distance:55%;opacity:1}
@@ -59,64 +61,64 @@
 
 /* one 10 s pass, played once: a single circuit of the loop, each step lights and stays lit.
    0.24-2.16 s evaporation (vapour rises) | 2.08-4.48 s condensation, wind carries the cloud droplet inland
-   | 4.48-5.36 s precipitation (droplet falls) | 5.44-8.64 s runoff to the sea
-   | 8.7-9.3 s one packet of each kind settles on its leg (the whole loop at once) | 9.3-10 s hold */
+   | 4.48-5.36 s precipitation (droplet falls) | 5.44-8.2 s runoff to the sea | 8.2-8.65 s stillness
+   | 8.65-9.19 s one packet of each kind settles on its leg (the whole loop at once) | 9.2-10 s hold */
 @keyframes water-cycle-vap{
   0%,2.4%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}    /* 0.24 s */
-  4.8%{offset-distance:8%;opacity:1;animation-timing-function:ease-in-out}                       /* 0.48 s */
+  4.8%{offset-distance:8%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}                       /* 0.48 s */
   19.2%{offset-distance:92%;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}         /* 1.92 s */
   21.6%{offset-distance:100%;opacity:0}                                                          /* 2.16 s */
-  21.7%,87%{offset-distance:55%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}  /* parked, 8.7 s */
-  90%,100%{offset-distance:55%;opacity:1}}                                                       /* 9.0 s */
+  21.7%,86.5%{offset-distance:55%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)} /* parked, 8.65 s */
+  89.5%,100%{offset-distance:55%;opacity:1}}                                                     /* 8.95 s */
 @keyframes water-cycle-wind{
   0%,22.4%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}   /* 2.24 s */
-  24.8%{offset-distance:6%;opacity:1;animation-timing-function:ease-in-out}                      /* 2.48 s */
+  24.8%{offset-distance:6%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}                      /* 2.48 s */
   42.4%{offset-distance:94%;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}         /* 4.24 s */
   44.8%{offset-distance:100%;opacity:0}                                                          /* 4.48 s */
-  44.9%,87.8%{offset-distance:50%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)} /* parked, 8.78 s */
-  90.8%,100%{offset-distance:50%;opacity:1}}                                                     /* 9.08 s */
+  44.9%,87.3%{offset-distance:50%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)} /* parked, 8.73 s */
+  90.3%,100%{offset-distance:50%;opacity:1}}                                                     /* 9.03 s */
 @keyframes water-cycle-rain{
   0%,44.8%{offset-distance:0%;opacity:0}                                                         /* 4.48 s */
   45.6%{offset-distance:4%;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}          /* 4.56 s */
   52%{offset-distance:96%;opacity:1}                                                             /* 5.2 s */
   53.6%{offset-distance:100%;opacity:0}                                                          /* 5.36 s */
-  53.7%,88.6%{offset-distance:55%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)} /* parked, 8.86 s */
-  91.6%,100%{offset-distance:55%;opacity:1}}                                                     /* 9.16 s */
+  53.7%,88.1%{offset-distance:55%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)} /* parked, 8.81 s */
+  91.1%,100%{offset-distance:55%;opacity:1}}                                                     /* 9.11 s */
 @keyframes water-cycle-flow{
   0%,54.4%{offset-distance:0%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}   /* 5.44 s */
-  56.8%{offset-distance:3%;opacity:1;animation-timing-function:ease-in-out}                      /* 5.68 s */
-  83.2%{offset-distance:94%;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}         /* 8.32 s */
-  86.4%{offset-distance:100%;opacity:0}                                                          /* 8.64 s, in the sea */
-  86.5%,89.4%{offset-distance:28%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)} /* parked, 8.94 s */
-  92.4%,100%{offset-distance:28%;opacity:1}}                                                     /* 9.24 s */
+  56.8%{offset-distance:3%;opacity:1;animation-timing-function:cubic-bezier(0.2,0,0,1)}                      /* 5.68 s */
+  79%{offset-distance:94%;opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}           /* 7.9 s */
+  82%{offset-distance:100%;opacity:0}                                                            /* 8.2 s, in the sea */
+  82.1%,88.9%{offset-distance:28%;opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)} /* parked, 8.89 s */
+  91.9%,100%{offset-distance:28%;opacity:1}}                                                     /* 9.19 s */
 /* step highlights light in loop order and stay lit */
 @keyframes water-cycle-s2{0%,20.8%{opacity:0}23.2%,100%{opacity:1}}                             /* on at 2.08-2.32 s */
 @keyframes water-cycle-s3{0%,43.2%{opacity:0}45.6%,100%{opacity:1}}                             /* on at 4.32-4.56 s */
 @keyframes water-cycle-s4{0%,52.8%{opacity:0}55.2%,100%{opacity:1}}                             /* on at 5.28-5.52 s */
 /* sun bright while it drives evaporation, quiet during the journey, bright again as the loop closes */
-@keyframes water-cycle-rays{0%,19.2%{opacity:1}23.2%,86.4%{opacity:.4}90%,100%{opacity:1}}
+@keyframes water-cycle-rays{0%,19.2%{opacity:1}23.2%,86.5%{opacity:.4}90%,100%{opacity:1}}
 /* the sea cloud fills as vapour condenses; the rain cloud fills as the droplet arrives */
 @keyframes water-cycle-c1{0%,16.8%{opacity:0}21.6%,28.8%{opacity:1}33.6%,100%{opacity:0}}        /* 1.68-3.36 s */
 @keyframes water-cycle-c2{0%,38.4%{opacity:0}43.2%,48.8%{opacity:1}52.8%,100%{opacity:0}}        /* 3.84-5.28 s */
-@keyframes water-cycle-hg{0%,86.45%{opacity:1}86.5%,100%{opacity:0}}                             /* halos off once parked */
+@keyframes water-cycle-hg{0%,81.95%{opacity:1}82%,100%{opacity:0}}                               /* halos off as the last packet reaches the sea */
 @keyframes water-cycle-riv{0%,52.8%{opacity:0}56.8%,100%{opacity:1}}                             /* on at 5.28-5.68 s, stays */
 
 .visible .anim-water-cycle .water-cycle-p-vap{animation:water-cycle-vap 10s linear 1 forwards}
 .visible .anim-water-cycle .water-cycle-p-wind{animation:water-cycle-wind 10s linear 1 forwards}
 .visible .anim-water-cycle .water-cycle-p-rain{animation:water-cycle-rain 10s linear 1 forwards}
 .visible .anim-water-cycle .water-cycle-p-flow{animation:water-cycle-flow 10s linear 1 forwards}
-.visible .anim-water-cycle .water-cycle-on2{animation:water-cycle-s2 10s ease-in-out 1 forwards}
-.visible .anim-water-cycle .water-cycle-on3{animation:water-cycle-s3 10s ease-in-out 1 forwards}
-.visible .anim-water-cycle .water-cycle-on4{animation:water-cycle-s4 10s ease-in-out 1 forwards}
-.visible .anim-water-cycle .water-cycle-rays{animation:water-cycle-rays 10s ease-in-out 1 forwards}
-.visible .anim-water-cycle .water-cycle-c1{animation:water-cycle-c1 10s ease-in-out 1 forwards}
-.visible .anim-water-cycle .water-cycle-c2{animation:water-cycle-c2 10s ease-in-out 1 forwards}
+.visible .anim-water-cycle .water-cycle-on2{animation:water-cycle-s2 10s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-water-cycle .water-cycle-on3{animation:water-cycle-s3 10s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-water-cycle .water-cycle-on4{animation:water-cycle-s4 10s cubic-bezier(0.16,1,0.3,1) 1 forwards}
+.visible .anim-water-cycle .water-cycle-rays{animation:water-cycle-rays 10s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-water-cycle .water-cycle-c1{animation:water-cycle-c1 10s cubic-bezier(0.2,0,0,1) 1 forwards}
+.visible .anim-water-cycle .water-cycle-c2{animation:water-cycle-c2 10s cubic-bezier(0.2,0,0,1) 1 forwards}
 .visible .anim-water-cycle .water-cycle-hg{animation:water-cycle-hg 10s linear 1 forwards}
-.visible .anim-water-cycle .water-cycle-river-on{animation:water-cycle-riv 10s ease-in-out 1 forwards}
+.visible .anim-water-cycle .water-cycle-river-on{animation:water-cycle-riv 10s cubic-bezier(0.16,1,0.3,1) 1 forwards}
 
 @media (prefers-reduced-motion: reduce) { .anim-water-cycle * { animation: none !important; } }
 </style>
-<div class="anim anim-water-cycle" data-anim="water-cycle" data-anim-cycle="10" data-anim-phases="2.24,4.48,5.36,8.64,9.3" data-anim-control="once" data-anim-verb="cycle">
+<div class="anim anim-water-cycle" data-anim="water-cycle" data-anim-cycle="10" data-anim-phases="2.24,4.48,5.36,8.2,9.2" data-anim-control="once" data-anim-verb="cycle">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The water cycle as a closed loop: the sun evaporates sea water, the vapour condenses into a cloud that wind carries inland, rain falls on the mountains and rivers carry it back to the sea.">
   <!-- ===== sun ===== -->
   <g class="water-cycle-rays">
@@ -126,12 +128,12 @@
   <!-- ===== sea ===== -->
   <path data-anim-scene class="water-cycle-sea" d="M0 452 Q40 442 80 452 T160 452 T240 452 T320 452 T400 452 T480 452 T560 452 T640 452 Q670 443 702 450 V600 H0 Z"/>
   <path class="water-cycle-wave" d="M0 452 Q40 442 80 452 T160 452 T240 452 T320 452 T400 452 T480 452 T560 452 T640 452 Q670 443 702 450"/>
-  <text class="water-cycle-mono water-cycle-dim" x="40" y="566">sea</text>
+  <text class="water-cycle-sub water-cycle-dim" x="40" y="566">sea</text>
   <!-- ===== land with a mountain ===== -->
   <path data-anim-scene class="water-cycle-land" d="M686 602 L700 468 C820 462 940 452 1040 420 L1220 330 L1400 250 L1500 302 L1580 282 L1682 322 V602 Z"/>
   <!-- ===== river (collection and runoff) ===== -->
   <path class="water-cycle-river" d="M1238 348 C1166 388 1104 420 1040 446 C960 478 840 490 720 488 C690 487 670 484 650 478"/>
-  <g class="water-cycle-river-on"><path d="M1238 348 C1166 388 1104 420 1040 446 C960 478 840 490 720 488 C690 487 670 484 650 478"/></g>
+  <g class="water-cycle-river-on" data-anim-focal><path d="M1238 348 C1166 388 1104 420 1040 446 C960 478 840 490 720 488 C690 487 670 484 650 478"/></g>
   <!-- ===== clouds ===== -->
   <path class="water-cycle-cloud" d="M392 196 A30 30 0 0 1 404 142 A36 36 0 0 1 466 118 A44 44 0 0 1 548 120 A40 40 0 0 1 564 196 Z"/>
   <g class="water-cycle-cloud-on water-cycle-c1"><path d="M392 196 A30 30 0 0 1 404 142 A36 36 0 0 1 466 118 A44 44 0 0 1 548 120 A40 40 0 0 1 564 196 Z"/></g>
@@ -153,24 +155,21 @@
     <g class="water-cycle-on water-cycle-on1"><circle r="22"/></g>
     <text class="water-cycle-n water-cycle-fg" y="7" text-anchor="middle">1</text>
     <text class="water-cycle-sans water-cycle-label water-cycle-fg" x="36" y="9">Evaporation</text>
-    <text class="water-cycle-sans water-cycle-label water-cycle-cy water-cycle-on water-cycle-on1" x="36" y="9">Evaporation</text>
-    <text class="water-cycle-mono water-cycle-dim" x="36" y="38">the sun warms the sea surface</text>
+    <text class="water-cycle-sub water-cycle-dim" x="36" y="38">the sun warms the sea surface</text>
   </g>
   <g transform="translate(600 50)">
     <g class="water-cycle-num"><circle r="22"/></g>
     <g class="water-cycle-on water-cycle-on2"><circle r="22"/></g>
     <text class="water-cycle-n water-cycle-fg" y="7" text-anchor="middle">2</text>
     <text class="water-cycle-sans water-cycle-label water-cycle-fg" x="36" y="9">Condensation</text>
-    <text class="water-cycle-sans water-cycle-label water-cycle-cy water-cycle-on water-cycle-on2" x="36" y="9">Condensation</text>
-    <text class="water-cycle-mono water-cycle-dim" x="36" y="38">vapour cools into cloud, wind carries it inland</text>
+    <text class="water-cycle-sub water-cycle-dim" x="36" y="38">vapour cools into cloud, wind carries it inland</text>
   </g>
   <g transform="translate(1540 104)">
     <g class="water-cycle-num"><circle r="22"/></g>
     <g class="water-cycle-on water-cycle-on3"><circle r="22"/></g>
     <text class="water-cycle-n water-cycle-fg" y="7" text-anchor="middle">3</text>
     <text class="water-cycle-sans water-cycle-label water-cycle-fg" y="60" text-anchor="middle">Precipitation</text>
-    <text class="water-cycle-sans water-cycle-label water-cycle-cy water-cycle-on water-cycle-on3" y="60" text-anchor="middle">Precipitation</text>
-    <text class="water-cycle-mono water-cycle-dim" y="92" text-anchor="middle">rain falls on high ground</text>
+    <text class="water-cycle-sub water-cycle-dim" y="92" text-anchor="middle">rain falls on high ground</text>
   </g>
 
   <g transform="translate(860 528)">
@@ -178,8 +177,7 @@
     <g class="water-cycle-on water-cycle-on4"><circle r="22"/></g>
     <text class="water-cycle-n water-cycle-fg" y="7" text-anchor="middle">4</text>
     <text class="water-cycle-sans water-cycle-label water-cycle-fg" x="36" y="9">Runoff and collection</text>
-    <text class="water-cycle-sans water-cycle-label water-cycle-cy water-cycle-on water-cycle-on4" x="36" y="9">Runoff and collection</text>
-    <text class="water-cycle-mono water-cycle-dim" x="36" y="38">rivers carry it back to the sea</text>
+    <text class="water-cycle-sub water-cycle-dim" x="36" y="38">rivers carry it back to the sea</text>
   </g>
   <!-- ===== packets: one moving group each (halo + shape travel as one) ===== -->
   <g class="water-cycle-p-vap"><g class="water-cycle-hg"><g class="water-cycle-vap water-cycle-halo"><circle cx="-11" cy="6" r="6"/><circle cx="1" cy="-7" r="6"/><circle cx="11" cy="5" r="6"/></g></g>
@@ -190,14 +188,14 @@
     <path class="water-cycle-drop" d="M0 -14 C6 -5 10 1 10 5 A10 10 0 0 1 -10 5 C-10 1 -6 -5 0 -14 Z"/></g>
   <g class="water-cycle-p-flow"><g class="water-cycle-hg"><circle class="water-cycle-flow water-cycle-halo" r="13"/></g>
     <circle class="water-cycle-flow" r="8"/></g>
-  <!-- ===== legend: inline glyph + mono text ===== -->
+  <!-- ===== legend: inline glyph + text ===== -->
   <g transform="translate(1290 572)">
     <g class="water-cycle-vap"><circle cx="-9" cy="0" r="4"/><circle cx="0" cy="-9" r="4"/><circle cx="9" cy="-1" r="4"/></g>
-    <text class="water-cycle-mono water-cycle-dim" x="22" y="0">vapour</text>
+    <text class="water-cycle-sub water-cycle-dim" x="22" y="0">vapour</text>
     <path class="water-cycle-drop" d="M142 -15 C147 -8 150 -3 150 0 A8 8 0 0 1 134 0 C134 -3 137 -8 142 -15 Z"/>
-    <text class="water-cycle-mono water-cycle-dim" x="160" y="0">droplet</text>
+    <text class="water-cycle-sub water-cycle-dim" x="160" y="0">droplet</text>
     <circle class="water-cycle-flow" cx="290" cy="-6" r="7"/>
-    <text class="water-cycle-mono water-cycle-dim" x="306" y="0">water</text>
+    <text class="water-cycle-sub water-cycle-dim" x="306" y="0">water</text>
   </g>
 </svg>
 </div>

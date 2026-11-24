@@ -216,7 +216,7 @@ FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
 
 CSS = r"""
 :root{
-  --anim-theme-bg:#0F1E27;--anim-theme-panel:#0D1820;--anim-theme-line:#2A3D49;
+  --anim-theme-bg:#0F1E27;--anim-theme-panel:#0D1820;--anim-theme-line:#56707F;
   --anim-theme-fg:#E6EDF0;--anim-theme-muted:#93A7B2;--anim-theme-accent:#34D1BF;
   --anim-theme-accent-2:#FF8A3D;--anim-theme-ok:#8ED7AD;--anim-theme-warn:#FFD15C;
   --anim-theme-danger:#FF6B6B;
@@ -227,7 +227,7 @@ CSS = r"""
   color-scheme:dark;
 }
 :root[data-theme="light"]{
-  --anim-theme-bg:#ffffff;--anim-theme-panel:#f2f4f8;--anim-theme-line:#c5ccd8;
+  --anim-theme-bg:#ffffff;--anim-theme-panel:#f2f4f8;--anim-theme-line:#768A95;
   --anim-theme-fg:#14181f;--anim-theme-muted:#5b6474;--anim-theme-accent:#0a6cff;
   --anim-theme-accent-2:#d9480f;--anim-theme-ok:#2b8a3e;--anim-theme-warn:#e67700;
   --anim-theme-danger:#c92a2a;

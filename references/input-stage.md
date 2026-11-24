@@ -145,7 +145,17 @@ The suggestions are evidence to weigh, not a decision. The model decides, using 
 Read every slide's `title`, `bullets` and `notes`. Mark each slide **illustrate**, **maybe** or
 **text**.
 
-Illustrate when the content is:
+**The question gate comes first** (SKILL.md Phase 0, "The question"). For every slide write
+the `Question` the audience should be able to answer. When the slide's base (as the deck skill
+built it, or as it stands) answers it at rest, the row is **text**, Why "base answers it", and
+the slide ships as it is: a lookup table, a list, a statement and a figure that already reads
+are all answered by the base. A row is **illustrate** only with an `Insight` sentence: "By
+seeing <what changes> unfold, the audience understands <what> better than from the still",
+where the change is one the source states. The lists below say what kind of content can carry
+an insight and which form it takes; they never make a slide illustrate on their own. A
+comparison table is a lookup unless the source says what changes between its columns.
+
+Illustrate (given an Insight) when the content is:
 - a process or procedure (ordered steps, "then", arrows); its form comes from the picture idea
 - dependencies or an architecture (calls, uses, components and connections) -> `graph` / `layers`
 - a timeline or roadmap (dates, quarters, versions) -> `timeline`
@@ -155,7 +165,9 @@ Illustrate when the content is:
 
 For each illustrate row whose content is prose, bullets, cards or a table, write the picture
 idea and read the form off [archetypes.md](archetypes.md) "Picture idea and form" before naming
-the archetype. A slide with its own figure keeps that figure's form.
+the archetype; when the point is a number, its form comes from the data relationship there
+(a share, a change over time, a composition, a scale, before and after), never a row of big
+numbers or number cards. A slide with its own figure keeps that figure's form.
 
 The `Verb` column holds the main motion. Write the slide's claim as one sentence with a real
 verb in it and pick the verb from [motion-verbs.md](motion-verbs.md) section 1; on a slide with
@@ -172,9 +184,10 @@ Keep as text:
 Budget:
 - 3 to 8 illustrations per 30 slides is normal. One per section is a good rhythm.
   "Add (more) animations" reads as the upper end of this budget, not beyond it.
-- On a short deck (under about 15 slides) the budget is a floor, not a cap: every slide whose
-  content is a process, a structure, a timeline, a comparison or a data series gets one. A
-  10-slide deck with 3 animated slides is the usual reason a user says "I see almost no change".
+- The budget is a cap, never a floor. The count is the number of rows with an Insight; on a
+  short deck that can be every such slide, and it can be none. A deck (or a one-slide source)
+  with no Insight row ships as the complete base, with one line per slide saying which
+  question the base answers. No figure is built to reach a count.
 - Animating every slide is a mistake: motion stops meaning "look here".
 - Never two animated slides in a row unless they are the same story split in two.
 - Prefer the slides the speaker spends longest on (long notes, many bullets, a diagram image).
@@ -195,11 +208,12 @@ Control: once (source builds by click: outline.json builds = 14; step mentioned,
 - Slide 9: steps assumed sequential (bullets are numbered).
 ```
 
-| Slide | Title | Decision | Idea | Form | Verb | Archetype | Replaces | Why |
-|---|---|---|---|---|---|---|---|---|
-| 3 | Release process | illustrate | order only | row | reveal | pipeline | the four step cards | 4 ordered steps, speaker stresses QA gate |
-| 5 | From bill to law | illustrate | the bill crosses from one chamber to the other and back | boundary line crossed | travel: the bill | timeline | the bullet column | the slide names both chambers and the return for amendment |
-| 7 | Our values | text | - | - | - | - | - | - | single statement |
+| Slide | Title | Question | Decision | Insight | Idea | Form | Verb | Archetype | Replaces | Why |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | Release process | Which step can stop a release? | illustrate | by seeing the release wait at the QA gate until it opens, while the earlier steps stay done, the audience understands that QA is the only stop | the gate holds the row | row with a gate | open | pipeline | the four step cards | 4 ordered steps, speaker stresses QA gate |
+| 5 | From bill to law | Where does a bill go when it is amended? | illustrate | by seeing the bill cross to the second chamber and come back, the audience understands that an amendment sends it back | the bill crosses from one chamber to the other and back | boundary line crossed | travel: the bill | timeline | the bullet column | the slide names both chambers and the return for amendment |
+| 6 | Committee rooms | Which room does my committee meet in? | text | - | - | - | - | - | - | base answers it: a lookup table |
+| 7 | Our values | What is the one thing to remember? | text | - | - | - | - | - | - | single statement |
 
 **Forms and verbs across the deck.** After the table is drafted, read down the Form column.
 When the same form appears on consecutive animated slides or on more than about a third of
@@ -308,9 +322,10 @@ For each chosen slide:
 6. **Measure the slot** in the HTML deck and set `size` to its aspect ratio
    ([layouts.md](layouts.md)). The slide's bullets usually move to a caption or speaker notes;
    the fragment replaces the bullet block or the image.
-7. **Write the brief** from [brief-template.md](brief-template.md): composition from the
-   archetype recipe, the verb with its claim sentence and its mechanism from
-   [motion-verbs.md](motion-verbs.md) section 5, phases table copied from the spec,
+7. **Write the brief** from [brief-template.md](brief-template.md) before any SVG is written:
+   composition from the archetype recipe, the verb with its claim sentence and its mechanism
+   from [motion-verbs.md](motion-verbs.md) section 5, the focal element, the beat table (one
+   primary move per beat, each with its reason), phases table copied from the spec,
    verification seconds = each phase `t` plus `rest`.
 
 Nothing here is a question to the user after the intake message. Where the source leaves the

@@ -16,11 +16,16 @@ the brief; only record the choices the contract leaves open.
 
 - **Name:** <kebab-case, 2-24 chars, unique in the deck>
 - **Subject:** <one sentence: what the viewer should understand when the pass ends>
+- **Question:** <the one question the audience should be able to answer from this slide, ending in "?">
+- **Insight:** <"By seeing <what changes> unfold, the audience understands <what> better than from the still."; no such sentence, no fragment: the slide's base ships (SKILL.md Phase 0)>
+- **Insight on the slide:** <what in the resting frame shows the insight to someone who missed the pass: the trace, the marked stretch, the before beside the after, in the source's words>
 - **Audience / tone:** <who watches, how technical, calm or lively>
 - **Picture idea:** <one sentence: what the slide says beyond the order of its items; "order only" when that is all; "source figure: <form>" when the slide has its own figure>
 - **Form:** <from [archetypes.md](archetypes.md) "Picture idea and form", or bespoke; every element of it stated by the source>
 - **Verb:** <one of the twenty verbs or `reveal`, from [motion-verbs.md](motion-verbs.md) section 1>, from the claim: "<the slide's claim as one sentence with a real verb in it>"; supporting verbs, at most two, in sequence
 - **Traveller:** <`travel` only: the thing the source names and the places it names ("a dot" is not a name); otherwise "-">
+- **Focal element:** <the one thing the eye lands on in the resting frame, marked `data-anim-focal`: the hero text or the shape that is the claim (the full jar, the tipped beam)>
+- **Hero:** <the one number or word that is the claim, with where the source states it; "-" when the source states none>
 - **Mechanism:** <the CSS/SVG mechanism of the verb from [motion-verbs.md](motion-verbs.md) section 5, and which elements carry it>
 - **Archetype:** pipeline | graph | timeline | states | compare | layers | chart (the build family whose composition and timing the form borrows; the motion comes from the verb)
 - **Slot:** viewBox `0 0 <W> <H>`, rendered at <w> x <h> px on a <stage> stage
@@ -31,14 +36,21 @@ the brief; only record the choices the contract leaves open.
 <Elements with coordinates in viewBox units, left to right / top to bottom.
 e.g. "ring `build` r 34 at (500, 180), label below at y 254; line build->test along y 180".>
 
-## Phases
-| t (s) | Label | Enters | Highlighted | Flows | Caption |
-|---|---|---|---|---|---|
-| 0.0 | ... | ... | ... | ... | ... |
+## Beats
+- **Setup and payoff:** <the gap or question the first frame leaves open, and the beat that closes it; e.g. "empty jar, total €0; closed at 5.0 s when the full jar's total lands">
+
+| Time (s) | On screen | What moves (one step of the verb) | End state | Why this beat exists |
+|---|---|---|---|---|
+| 0.0 | ... | ... | ... | ... |
+
+<Required, written before any SVG. A first frame where everything already stands in its
+final place has no setup: rethink the picture (motion-rules.md, Setup, then payoff). One primary move per beat; a beat with no reason is cut.
+Things enter by kind (motion-rules.md, Entrance by kind); a 400 to 600 ms stillness comes
+just before the answer beat.>
 
 - **Cycle:** <seconds> (the pass length: 4 to 10 s for once and step, 8 to 15 s for loop, including the hold)
 - **Phases (marks):** <settled moments between narrated steps, nothing visible mid-motion there; three to five (six when the slide narrates six steps), ascending, the last at the hold start; e.g. 2, 4.5, 7> (becomes `data-anim-phases`)
-- **Resting frame:** <what the still shows: final state, which labels, which colours>
+- **Resting frame:** <what the still shows: final state, which labels, which colours; it answers the Question and shows the Insight without the motion>
 - **Control:** once | step | loop (the deck's choice from intake, the same for every fragment; loop only on request; a different value needs a reason in `anim/triage.md`; under step the presenter uses the keyboard or a clicker, since a wheel or swipe skips phases)
 
 ## Theme
@@ -80,38 +92,47 @@ number below is the slide's, except €300, derived as 6 x €50 (accuracy.md ru
 
 - **Name:** savings-jar
 - **Subject:** Twelve monthly deposits of €50 fill the jar to €600 in a year.
+- **Question:** How much is in the jar after a year of €50 a month?
+- **Insight:** By seeing the jar fill coin by coin, the class understands that the €600 is
+  nothing but the twelve small deposits.
+- **Insight on the slide:** the full jar keeps its twelve separate coins beside "€600", with
+  the note "1 coin = €50, one month".
 - **Audience / tone:** secondary-school class; calm, concrete, no jokes in the graphic.
 - **Picture idea:** many small deposits add up to one full jar.
 - **Form:** a jar (the slide names it) filling coin by coin, with a running total beside it
 - **Verb:** `accumulate`, then `count`, from the claim: "Twelve deposits of €50 add up to
   €600 in a year."
 - **Traveller:** -
+- **Focal element:** the total "€600" (`data-anim-focal`), the only hero-size text.
+- **Hero:** "€600", from the slide's second bullet.
 - **Mechanism:** units (motion-verbs.md section 5): 12 coin elements, one coin = one monthly
   deposit of €50 (twelve, not 20 or more: one per deposit the slide states), each a short drop into the jar in a staggered series; the fill is `scaleY`
-  about the jar's base; the total is a digit strip (€0, €300, €600) in `steps()`.
+  about the jar's base on the move curve; the total is a digit strip (€0, €300, €600) in `steps()`.
 - **Archetype:** states (the fill level of `canal-lock` as the bar; the jar is hand-built)
 - **Slot:** viewBox `0 0 1680 600`, rendered at 1680 x 600 px on a 1920x1080 stage; text scale = 1.0
-- **Min text size:** 20 (labels), 26 (the total)
+- **Min text size:** 20 (sub-label), 72 (the hero total)
 
 ## Composition
-Jar outline (thin stroke, open top) x 660-1020, y 70-520, the hero at about 45 % of the slot
-height and more; fill rect inside it, base at y 516. Coins: 12 rings r 16 that rest in two
-stacked rows of six inside the jar, each dropping from y 20. Total `€600` (26 px) at
-(1200, 300) in a clip window; mono note "1 coin = €50, one month" at (1200, 340). Bracket
-along the jar's right side, x 1040, y 70-516. Caption "Small amounts add up".
+Jar outline (thin stroke, open top) x 660-1020, y 70-520, about 45 % of the slot height and
+more; fill rect inside it, base at y 516. Coins: 12 rings r 16 that rest in two stacked rows
+of six inside the jar, each dropping from y 20. Total `€600` (72 px, tabular figures) at
+(1200, 300) in a clip window; mono note "1 coin = €50, one month" (20 px) at (1200, 350).
+Bracket along the jar's right side, x 1040, y 70-516. Caption "Small amounts add up".
 
-## Phases
-| t (s) | Label | Enters | Highlighted | Flows | Caption |
-|---|---|---|---|---|---|
-| 0.0 | set | jar draws on, total "€0", mono note | - | - | - |
-| 1.2 | months 1-6 | coins 1-6 drop, stagger 120 ms; fill rises to half | newest coin | - | - |
-| 2.6 | half | total steps to "€300" | total | - | - |
-| 3.2 | months 7-12 | coins 7-12 drop; fill rises to the top | newest coin | - | - |
-| 4.6 | full | total steps to "€600" | total | - | - |
-| 5.4 | answer | bracket draws on beside the jar | bracket | - | "Small amounts add up" |
-| 6.2 | hold | - | total | - | - |
+## Beats
+- **Setup and payoff:** an empty jar and "€0"; closed at 5.0 s, when the full jar's total
+  "€600" lands.
 
-The hold from 6.2 s to 7.2 s is the finished state and stays (it is the resting frame).
+| Time (s) | On screen | What moves (one step of the verb) | End state | Why this beat exists |
+|---|---|---|---|---|
+| 0.0 | empty jar, "€0", note | jar outline draws on; "€0" and the note settle after it | an empty jar to fill | the viewer sees the container before anything goes in |
+| 1.2 | coins 1-6 | coins drop, stagger 120 ms closing to 60 ms; fill rises to half | six coins, half full | small deposits visibly pile up |
+| 2.6 | the total | steps to "€300" | "€300" | half a year has a number |
+| 3.2 | coins 7-12 | coins drop the same way; fill rises to the top | twelve coins, full jar | the second half fills the jar |
+| 4.5 | full jar | nothing (stillness, 0.5 s) | unchanged | the full jar is seen before its total arrives |
+| 5.0 | the total | steps to "€600" and takes the accent | "€600" | the claim's number lands |
+| 5.6 | bracket, caption | bracket draws on beside the jar; caption cross-fades in | bracket and caption shown | ties the total to the whole jar |
+| 6.2 | - | nothing (hold) | resting frame | the finished picture stays |
 
 - **Cycle:** 7.2 s
 - **Phases (marks):** 2.6, 4.6, 6.2 (half full, full, the hold start)
@@ -126,9 +147,10 @@ The hold from 6.2 s to 7.2 s is the finished state and stays (it is the resting 
 - **Font hints:** system
 
 ## Verification plan
-- Seconds: 0 1.2 2.6 3.2 4.6 5.4 6.2 7.2 rest
+- Seconds: 0 1.2 2.6 3.2 4.6 5.6 6.2 7.2 rest
 - 0: jar outline drawing; 2.6: six coins at rest, fill at half, "€300"; 4.6: twelve coins,
-  jar full, "€600"; 6.2, 7.2 and rest: identical, bracket and caption shown, nothing mid-drop.
+  jar full, still "€300"; 6.2, 7.2 and rest: identical, "€600", bracket and caption shown,
+  nothing mid-drop.
 - Labels hidden, the 2.6 and 4.6 frames still show a jar filling (motion-verbs.md section 6).
 - verify_facts: WARN derived for €300 (6 x €50) and WARN words for "coin" (the unit legend)
   are expected; both are named in the report.

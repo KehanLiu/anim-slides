@@ -3,7 +3,7 @@
   number is a real number: each set of numbers sits inside the next. The natural numbers 1, 2, 3
   stand alone; an outline draws around them and its label lands on it (natural, N). Then 0 and -3
   arrive just outside and a larger outline draws around everything so far (integers, Z); then 1/2
-  and -0.75 (rational, Q); then the square root of 2 and pi (real, R). Answer: one mono line
+  and -0.75 (rational, Q); then the square root of 2 and pi (real, R). Answer: one hero line
   "N subset Z subset Q subset R" in place of the caption.
   Verb: nest. Technique: four rounded outlines centred on the slot (x 840) that share the bottom
   region and grow outward and upward; the innermost set sits where it rests from the first frame
@@ -11,13 +11,13 @@
   one right of the previous outline, all on one baseline) and each label sits in a gap of its own
   top edge (labels step diagonally, no collisions). Each outline is one path with pathLength=100
   that starts at the right end of its label gap and runs clockwise back to it; it draws on by
-  stroke-dashoffset 101 -> 0 (1.1 s; the outermost 1.2 s). Inner outlines are muted; only the
-  outermost (R, the outcome that holds all the others) is drawn in the accent.
+  stroke-dashoffset 101 -> 0 (1.1 s; the outermost 1.0 s). All outlines are in the line colour (the story ends with
+  every set reached); the answer line, the one focal element, carries the accent.
   Nothing travels: no offset-path, no markers, no arrows.
   Once pass 9.9 s: 1, 2, 3 rise in from 0.25 s; N draws 0.8-1.9, label 1.95; Z members 2.3,
   draws 2.85-3.95, label 4.0; Q members 4.35, draws 4.9-6.0, label 6.05; R members 6.4, draws
-  6.95-8.15, label 8.2; the last step caption leaves 8.4-8.62 and the answer line takes its
-  place 8.62-9.02; hold 9.1-9.9. Phases 2.3,4.35,6.4,9.1 (each step settled).
+  6.85-7.85, label 7.9; stillness 8.15-8.6; the last step caption leaves 8.6-8.82 and the
+  answer line (the focal element, hero size) takes its place 8.6-9.0; hold 9.1-9.9. Phases 2.3,4.35,6.4,9.1 (each step settled).
   Facts (school mathematics, stated in the entry's brief):
   - Natural numbers N: 1, 2, 3, ... (0 is left out because some textbooks include it and some do
     not; it is shown among the integers, where it belongs either way).
@@ -33,7 +33,7 @@
 .anim-number-sets{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -41,48 +41,47 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-number-sets svg{display:block;width:100%;height:100%;max-width:none}
-.anim-number-sets .number-sets-t{font-family:var(--anim-font);fill:var(--anim-fg)}
-.anim-number-sets .number-sets-num{font-size:38px;font-weight:600}
-.anim-number-sets .number-sets-note{font-size:26px;font-weight:400}
-.anim-number-sets .number-sets-sym{font-family:var(--anim-font);font-size:32px;font-weight:700;fill:var(--anim-fg)}
-.anim-number-sets .number-sets-s-r .number-sets-sym{fill:var(--anim-accent)}
-.anim-number-sets .number-sets-mono{font-family:var(--anim-mono);font-size:22px;font-weight:400;fill:var(--anim-muted)}
-.anim-number-sets .number-sets-ans{font-family:var(--anim-mono);font-size:26px;font-weight:400;fill:var(--anim-fg)}
+.anim-number-sets .number-sets-t{font-family:var(--anim-font);fill:var(--anim-fg);font-variant-numeric:tabular-nums}
+.anim-number-sets .number-sets-num{font-family:var(--anim-mono);font-size:36px;font-weight:600}
+.anim-number-sets .number-sets-note{font-size:28px;font-weight:400}
+.anim-number-sets .number-sets-sym{font-family:var(--anim-font);font-size:28px;font-weight:600;fill:var(--anim-fg)}
+.anim-number-sets .number-sets-name{font-family:var(--anim-font);font-size:20px;font-weight:400;fill:var(--anim-muted)}
+/* the answer is the claim: hero size, the one focal element, the only accent at rest */
+.anim-number-sets .number-sets-ans{font-family:var(--anim-font);font-size:64px;font-weight:500;letter-spacing:-0.02em;fill:var(--anim-accent)}
 /* outlines: thin rounded strokes in the set's current colour, drawn on with pathLength 100 */
-.anim-number-sets .number-sets-ol{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-/* resting frame = the end: all four outlines drawn, inner three muted, the outermost (the outcome) in the accent */
-.anim-number-sets .number-sets-set{color:var(--anim-muted)}
-.anim-number-sets .number-sets-s-r{color:var(--anim-accent)}
+.anim-number-sets .number-sets-ol{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+/* resting frame = the end: all four outlines drawn in the line colour (every set reached); the accent is on the answer line alone (the focal element) */
+.anim-number-sets .number-sets-set{color:var(--anim-line)}
 .anim-number-sets .number-sets-n0,.anim-number-sets .number-sets-n1,.anim-number-sets .number-sets-n2,.anim-number-sets .number-sets-n3{opacity:0}
 
 /* ---- motion (9.9 s once pass), only when the slide is visible. percent = s / 9.9 ---- */
-@keyframes number-sets-m-n0{0%{opacity:0;transform:translateY(16px)}2.525%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.566%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-m-n1{0%{opacity:0;transform:translateY(16px)}3.434%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.475%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-m-n2{0%{opacity:0;transform:translateY(16px)}4.343%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.384%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-o-n{0%{stroke-dashoffset:101}8.081%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.4,1)}19.192%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes number-sets-m-n0{0%{opacity:0;transform:translateY(10px)}2.525%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}6.566%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-n1{0%{opacity:0;transform:translateY(10px)}3.535%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.576%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-n2{0%{opacity:0;transform:translateY(10px)}4.242%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}8.283%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-o-n{0%{stroke-dashoffset:101}8.081%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}19.192%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
 @keyframes number-sets-l-n{0%{opacity:0;transform:translateY(-10px)}19.697%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.727%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-m-z0{0%{opacity:0;transform:translateY(16px)}23.232%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.273%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-m-z1{0%{opacity:0;transform:translateY(16px)}24.141%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.182%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-o-z{0%{stroke-dashoffset:101}28.788%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.4,1)}39.899%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes number-sets-m-z0{0%{opacity:0;transform:translateY(10px)}23.232%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}27.273%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-z1{0%{opacity:0;transform:translateY(10px)}24.141%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}28.182%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-o-z{0%{stroke-dashoffset:101}28.788%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}39.899%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
 @keyframes number-sets-l-z{0%{opacity:0;transform:translateY(-10px)}40.404%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}43.434%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-m-q0{0%{opacity:0;transform:translateY(16px)}43.939%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.98%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-m-q1{0%{opacity:0;transform:translateY(16px)}44.848%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.889%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-o-q{0%{stroke-dashoffset:101}49.495%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.4,1)}60.606%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes number-sets-m-q0{0%{opacity:0;transform:translateY(10px)}43.939%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.98%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-q1{0%{opacity:0;transform:translateY(10px)}44.848%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.889%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-o-q{0%{stroke-dashoffset:101}49.495%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}60.606%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
 @keyframes number-sets-l-q{0%{opacity:0;transform:translateY(-10px)}61.111%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}64.141%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-m-r0{0%{opacity:0;transform:translateY(16px)}64.646%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.687%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-m-r1{0%{opacity:0;transform:translateY(16px)}65.556%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.596%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-o-r{0%{stroke-dashoffset:101}70.202%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.45,0,0.4,1)}82.323%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes number-sets-l-r{0%{opacity:0;transform:translateY(-10px)}82.828%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}85.859%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes number-sets-ans{0%{opacity:0;transform:translateY(10px)}87.071%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}91.111%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-r0{0%{opacity:0;transform:translateY(10px)}64.646%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.687%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-m-r1{0%{opacity:0;transform:translateY(10px)}65.556%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}69.596%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes number-sets-o-r{0%{stroke-dashoffset:101}69.192%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}79.293%{stroke-dashoffset:0}100%{stroke-dashoffset:0}} /* 6.85 to 7.85 s */
+@keyframes number-sets-l-r{0%{opacity:0;transform:translateY(-10px)}79.798%{opacity:0;transform:translateY(-10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.323%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}} /* 7.9 to 8.15 s; then 0.45 s still */
+@keyframes number-sets-ans{0%{opacity:0;transform:translateY(10px)}86.869%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}90.909%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}} /* 8.6 to 9.0 s */
 @keyframes number-sets-n0{0%{opacity:0}1.01%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.051%{opacity:1}23.232%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}25.455%{opacity:0}100%{opacity:0}}
 @keyframes number-sets-n1{0%{opacity:0}25.455%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}29.495%{opacity:1}43.939%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}46.162%{opacity:0}100%{opacity:0}}
 @keyframes number-sets-n2{0%{opacity:0}46.162%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.202%{opacity:1}64.646%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.869%{opacity:0}100%{opacity:0}}
-@keyframes number-sets-n3{0%{opacity:0}66.869%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.909%{opacity:1}84.848%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}87.071%{opacity:0}100%{opacity:0}}
+@keyframes number-sets-n3{0%{opacity:0}66.869%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.909%{opacity:1}86.869%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}89.091%{opacity:0}100%{opacity:0}}
 
 .visible .anim-number-sets .number-sets-m-n0{animation:number-sets-m-n0 9.9s linear 1 both}
 .visible .anim-number-sets .number-sets-m-n1{animation:number-sets-m-n1 9.9s linear 1 both}
@@ -116,44 +115,44 @@
     <text class="number-sets-t number-sets-num number-sets-m-n0" x="752" y="342" text-anchor="middle">1</text>
     <text class="number-sets-t number-sets-num number-sets-m-n1" x="840" y="342" text-anchor="middle">2</text>
     <text class="number-sets-t number-sets-num number-sets-m-n2" x="928" y="342" text-anchor="middle">3</text>
-    <path class="number-sets-ol number-sets-o-n" pathLength="100" d="M901 264 H944 A36 36 0 0 1 980 300 V356 A36 36 0 0 1 944 392 H736 A36 36 0 0 1 700 356 V300 A36 36 0 0 1 736 264 H748"/>
+    <path class="number-sets-ol number-sets-o-n" pathLength="100" d="M875 264 H944 A36 36 0 0 1 980 300 V356 A36 36 0 0 1 944 392 H736 A36 36 0 0 1 700 356 V300 A36 36 0 0 1 736 264 H748"/>
     <g class="number-sets-l-n">
       <text class="number-sets-sym" x="762" y="276">N</text>
-      <text class="number-sets-mono" x="794" y="272">natural</text>
+      <text class="number-sets-name" x="794" y="272">natural</text>
     </g>
   </g>
   <!-- integers: Z -->
   <g class="number-sets-set number-sets-s-z">
     <text class="number-sets-t number-sets-num number-sets-m-z0" x="630" y="342" text-anchor="middle">0</text>
     <text class="number-sets-t number-sets-num number-sets-m-z1" x="1050" y="342" text-anchor="middle">−3</text>
-    <path class="number-sets-ol number-sets-o-z" pathLength="100" d="M778 184 H1080 A40 40 0 0 1 1120 224 V382 A40 40 0 0 1 1080 422 H600 A40 40 0 0 1 560 382 V224 A40 40 0 0 1 600 184 H612"/>
+    <path class="number-sets-ol number-sets-o-z" pathLength="100" d="M751 184 H1080 A40 40 0 0 1 1120 224 V382 A40 40 0 0 1 1080 422 H600 A40 40 0 0 1 560 382 V224 A40 40 0 0 1 600 184 H612"/>
     <g class="number-sets-l-z">
       <text class="number-sets-sym" x="626" y="196">Z</text>
-      <text class="number-sets-mono" x="658" y="192">integers</text>
+      <text class="number-sets-name" x="658" y="192">integers</text>
     </g>
   </g>
   <!-- rational: Q -->
   <g class="number-sets-set number-sets-s-q">
     <text class="number-sets-t number-sets-num number-sets-m-q0" x="480" y="342" text-anchor="middle">1/2</text>
     <text class="number-sets-t number-sets-num number-sets-m-q1" x="1200" y="342" text-anchor="middle">−0.75</text>
-    <path class="number-sets-ol number-sets-o-q" pathLength="100" d="M622 104 H1236 A44 44 0 0 1 1280 148 V408 A44 44 0 0 1 1236 452 H444 A44 44 0 0 1 400 408 V148 A44 44 0 0 1 444 104 H456"/>
+    <path class="number-sets-ol number-sets-o-q" pathLength="100" d="M588 104 H1236 A44 44 0 0 1 1280 148 V408 A44 44 0 0 1 1236 452 H444 A44 44 0 0 1 400 408 V148 A44 44 0 0 1 444 104 H456"/>
     <g class="number-sets-l-q">
       <text class="number-sets-sym" x="470" y="116">Q</text>
-      <text class="number-sets-mono" x="502" y="112">rational</text>
+      <text class="number-sets-name" x="502" y="112">rational</text>
     </g>
   </g>
   <!-- real: R -->
   <g class="number-sets-set number-sets-s-r">
     <text class="number-sets-t number-sets-num number-sets-m-r0" x="330" y="342" text-anchor="middle">√2</text>
     <text class="number-sets-t number-sets-num number-sets-m-r1" x="1350" y="342" text-anchor="middle">π</text>
-    <path class="number-sets-ol number-sets-o-r" pathLength="100" d="M433 24 H1372 A48 48 0 0 1 1420 72 V434 A48 48 0 0 1 1372 482 H308 A48 48 0 0 1 260 434 V72 A48 48 0 0 1 308 24 H320"/>
+    <path class="number-sets-ol number-sets-o-r" pathLength="100" d="M418 24 H1372 A48 48 0 0 1 1420 72 V434 A48 48 0 0 1 1372 482 H308 A48 48 0 0 1 260 434 V72 A48 48 0 0 1 308 24 H320"/>
     <g class="number-sets-l-r">
       <text class="number-sets-sym" x="334" y="36">R</text>
-      <text class="number-sets-mono" x="366" y="32">real</text>
+      <text class="number-sets-name" x="366" y="32">real</text>
     </g>
   </g>
   <!-- answer -->
-  <text class="number-sets-ans number-sets-ans-g" x="840" y="568" text-anchor="middle">N ⊂ Z ⊂ Q ⊂ R</text>
+  <text class="number-sets-ans number-sets-ans-g" data-anim-focal="" x="840" y="574" text-anchor="middle">N ⊂ Z ⊂ Q ⊂ R</text>
   <!-- captions -->
   <text class="number-sets-t number-sets-note number-sets-n0" x="840" y="570" text-anchor="middle">Start with the natural numbers</text>
   <text class="number-sets-t number-sets-note number-sets-n1" x="840" y="570" text-anchor="middle">Integers add zero and the negatives</text>

@@ -14,8 +14,8 @@
   front passes them; each stage's name and length follow 0.08 s later. Stages are told apart by thin
   dividers, not by fills. Mediation's segments (70 px) are too narrow for their names at 20 px, so
   the names are in the caption while the trial runs on alone.
-  Once pass 7.9 s: set 0-0.4 s, race 0.5-4.93 s (front 0.5-4.5 s, last label lands 4.93 s), answer
-  5.05-6.35 s, hold 6.5-7.9 s. Phases 0.45, 5.0, 6.5.
+  Once pass 7.9 s: set 0-0.4 s, race 0.5-4.93 s (front 0.5-4.5 s, last label lands 4.93 s), stillness
+  4.93-5.4 s, answer 5.4-6.5 s (the hero "15 months longer" is the focal element), hold 6.5-7.9 s. Phases 0.45, 5.0, 6.5.
   Facts:
   - Mediation and a court trial as two routes for the same dispute: the brief's claim.
   - Mediation 3 months in total: prepare 1, sessions 1, agreement 1 (1 + 1 + 1 = 3): ILLUSTRATIVE.
@@ -30,7 +30,7 @@
 .anim-mediation-vs-trial{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -38,41 +38,44 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-mediation-vs-trial svg{display:block;width:100%;height:100%;max-width:none}
 .anim-mediation-vs-trial .mediation-vs-trial-t{font-family:var(--anim-font);fill:var(--anim-fg)}
-.anim-mediation-vs-trial .mediation-vs-trial-row{font-size:28px;font-weight:600}
+/* type ladder: hero 72, label 30 / 24, sub-label 18; caption 24 (= stage label size) */
+.anim-mediation-vs-trial .mediation-vs-trial-row{font-size:30px;font-weight:600}
 .anim-mediation-vs-trial .mediation-vs-trial-lbl{font-size:24px;font-weight:600}
-.anim-mediation-vs-trial .mediation-vs-trial-len{font-size:24px;font-weight:400;fill:var(--anim-muted)}
-.anim-mediation-vs-trial .mediation-vs-trial-note{font-size:26px;font-weight:400}
-.anim-mediation-vs-trial .mediation-vs-trial-ans{font-size:26px;font-weight:600;fill:var(--anim-accent)}
-.anim-mediation-vs-trial .mediation-vs-trial-mono{font-family:var(--anim-mono);font-size:20px;font-weight:400;fill:var(--anim-muted)}
-.anim-mediation-vs-trial .mediation-vs-trial-m22{font-size:22px}
-.anim-mediation-vs-trial .mediation-vs-trial-m18{font-size:18px}
+.anim-mediation-vs-trial .mediation-vs-trial-sub{font-family:var(--anim-font);font-size:18px;font-weight:400;fill:var(--anim-muted)}
+.anim-mediation-vs-trial .mediation-vs-trial-note{font-size:24px;font-weight:400}
+.anim-mediation-vs-trial .mediation-vs-trial-num{font-family:var(--anim-mono);font-size:18px;font-weight:400;fill:var(--anim-muted);font-variant-numeric:tabular-nums}
+.anim-mediation-vs-trial .mediation-vs-trial-hero{font-family:var(--anim-font);font-size:72px;font-weight:500;letter-spacing:-0.02em;fill:var(--anim-accent);font-variant-numeric:tabular-nums}
+.anim-mediation-vs-trial .mediation-vs-trial-herolbl{font-size:30px;font-weight:500}
+.anim-mediation-vs-trial .mediation-vs-trial-glow{fill:var(--anim-accent);opacity:.3;filter:blur(8px)}
 /* the calendar: axis, ticks, dotted month gridlines, the dispute line at month 0 */
-.anim-mediation-vs-trial .mediation-vs-trial-axis{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
-.anim-mediation-vs-trial .mediation-vs-trial-grid{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-dasharray:2 8;stroke-linecap:round}
-.anim-mediation-vs-trial .mediation-vs-trial-start{fill:none;stroke:var(--anim-muted);stroke-width:2.5;stroke-linecap:round}
+.anim-mediation-vs-trial .mediation-vs-trial-axis{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
+.anim-mediation-vs-trial .mediation-vs-trial-grid{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-dasharray:2 8;stroke-linecap:round}
+.anim-mediation-vs-trial .mediation-vs-trial-start{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round}
 /* bars: a quiet band plus top and bottom edges (butt caps: scaleX leaves them intact) */
 .anim-mediation-vs-trial .mediation-vs-trial-band{fill:color-mix(in srgb,var(--anim-fg) 10%,transparent);stroke:none}
-.anim-mediation-vs-trial .mediation-vs-trial-edge{fill:none;stroke:var(--anim-fg);stroke-width:2.5;stroke-linecap:butt}
+.anim-mediation-vs-trial .mediation-vs-trial-edge{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linecap:butt}
 .anim-mediation-vs-trial .mediation-vs-trial-div{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linecap:round}
-.anim-mediation-vs-trial .mediation-vs-trial-end{fill:none;stroke:var(--anim-fg);stroke-width:3;stroke-linecap:round}
+.anim-mediation-vs-trial .mediation-vs-trial-end{fill:none;stroke:var(--anim-fg);stroke-width:2;stroke-linecap:round}
 /* answer */
-.anim-mediation-vs-trial .mediation-vs-trial-guide{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-dasharray:6 7;stroke-linecap:round}
-.anim-mediation-vs-trial .mediation-vs-trial-brk{fill:none;stroke:var(--anim-accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-mediation-vs-trial .mediation-vs-trial-tag{fill:none;stroke:var(--anim-line);stroke-width:2}
+.anim-mediation-vs-trial .mediation-vs-trial-guide{fill:none;stroke:var(--anim-muted);stroke-width:1.5;stroke-dasharray:6 7;stroke-linecap:round}
+.anim-mediation-vs-trial .mediation-vs-trial-brk{fill:none;stroke:var(--anim-accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-mediation-vs-trial .mediation-vs-trial-tag{fill:none;stroke:var(--anim-line);stroke-width:1.5}
 /* bars scale about the dispute line (transform-box view-box, px origin; lessons.md) */
 .anim-mediation-vs-trial .mediation-vs-trial-bar{transform-box:view-box;transform-origin:220px 0px}
 /* resting frame = the end: both bars at full length, every stage labelled, bracket drawn, last caption */
 .anim-mediation-vs-trial .mediation-vs-trial-n0,.anim-mediation-vs-trial .mediation-vs-trial-n1{opacity:0}
 
-/* ---- motion (7.9 s once pass), only when the slide is visible. percent = s / 7.9 ---- */
-/* calendar, row labels and notes fade in 0-0.35 s */
+/* ---- motion (7.9 s once pass), only when the slide is visible. percent = s / 7.9 ----
+   curves: enter cubic-bezier(0.16,1,0.3,1), exit cubic-bezier(0.3,0,1,1), linear for the race */
+/* calendar text, ticks and gridlines fade in 0-0.35 s; the axis and the dispute line draw on 0-0.4 s */
 @keyframes mediation-vs-trial-scene{0%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4.43%{opacity:1}100%{opacity:1}}
+@keyframes mediation-vs-trial-draw{0%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.063%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
 /* THE RACE. Both start at 0.5 s, same linear rate (70 px per month, 4.5 months per second):
    mediation 0 -> 3 months, 0.5-1.167 s */
 @keyframes mediation-vs-trial-med{0%{transform:scaleX(0)}6.329%{transform:scaleX(0);animation-timing-function:linear}14.768%{transform:scaleX(1)}100%{transform:scaleX(1)}}
@@ -84,23 +87,26 @@
 @keyframes mediation-vs-trial-d4{0%{opacity:0}17.581%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}19.48%{opacity:1}100%{opacity:1}}
 @keyframes mediation-vs-trial-d10{0%{opacity:0}34.458%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.357%{opacity:1}100%{opacity:1}}
 @keyframes mediation-vs-trial-d15{0%{opacity:0}48.523%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}50.422%{opacity:1}100%{opacity:1}}
-/* labels land 0.08 s after their divider or end (follow-through), 0.35 s, rise 8 px:
+/* labels land 0.08 s after their divider or end (follow-through), 0.35 s, rise 10 px:
    mediation end 1.247 s, pleadings 1.469, evidence 2.802, waiting 3.913, trial end 4.58 */
-@keyframes mediation-vs-trial-lm{0%{opacity:0;transform:translateY(8px)}15.781%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.211%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes mediation-vs-trial-l4{0%{opacity:0;transform:translateY(8px)}18.594%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.024%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes mediation-vs-trial-l10{0%{opacity:0;transform:translateY(8px)}35.471%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}39.902%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes mediation-vs-trial-l15{0%{opacity:0;transform:translateY(8px)}49.536%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.966%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-@keyframes mediation-vs-trial-lt{0%{opacity:0;transform:translateY(8px)}57.975%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.405%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-/* answer: guide at month 3 5.1-5.4 s, bracket draws 5.45-6.1 s, label 5.95-6.35 s */
-@keyframes mediation-vs-trial-guide{0%{opacity:0}64.557%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.354%{opacity:1}100%{opacity:1}}
-@keyframes mediation-vs-trial-brk{0%{stroke-dashoffset:101}68.987%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}77.215%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
-@keyframes mediation-vs-trial-ans{0%{opacity:0;transform:translateY(8px)}75.316%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}80.38%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
-/* captions: n0 0.05-1.5 s, n1 1.4-5.25 s (after mediation stops), n2 from 5.15 s */
+@keyframes mediation-vs-trial-lm{0%{opacity:0;transform:translateY(10px)}15.781%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}20.211%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes mediation-vs-trial-l4{0%{opacity:0;transform:translateY(10px)}18.594%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.024%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes mediation-vs-trial-l10{0%{opacity:0;transform:translateY(10px)}35.471%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}39.902%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes mediation-vs-trial-l15{0%{opacity:0;transform:translateY(10px)}49.536%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}53.966%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes mediation-vs-trial-lt{0%{opacity:0;transform:translateY(10px)}57.975%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}62.405%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+/* stillness 4.93-5.4 s, then the answer: guide at month 3 5.4-5.65 s, bracket draws 5.6-6.15 s,
+   hero lands 6.0-6.4 s, its glow 6.1-6.5 s */
+@keyframes mediation-vs-trial-guide{0%{opacity:0}68.354%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.519%{opacity:1}100%{opacity:1}}
+@keyframes mediation-vs-trial-brk{0%{stroke-dashoffset:101}70.886%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}77.848%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+@keyframes mediation-vs-trial-ans{0%{opacity:0;transform:translateY(12px)}75.949%{opacity:0;transform:translateY(12px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}81.013%{opacity:1;transform:translateY(0)}100%{opacity:1;transform:translateY(0)}}
+@keyframes mediation-vs-trial-glow{0%{opacity:0}77.215%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.278%{opacity:1}100%{opacity:1}}
+/* captions cross-fade: n0 0.05-1.5 s, n1 1.4-5.6 s (after mediation stops), n2 from 5.5 s */
 @keyframes mediation-vs-trial-n0{0%{opacity:0}0.633%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}5.063%{opacity:1}16.456%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}18.987%{opacity:0}100%{opacity:0}}
-@keyframes mediation-vs-trial-n1{0%{opacity:0}17.722%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.519%{opacity:1}63.924%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}66.456%{opacity:0}100%{opacity:0}}
-@keyframes mediation-vs-trial-n2{0%{opacity:0}65.19%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}68.987%{opacity:1}100%{opacity:1}}
+@keyframes mediation-vs-trial-n1{0%{opacity:0}17.722%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}21.519%{opacity:1}68.354%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}70.886%{opacity:0}100%{opacity:0}}
+@keyframes mediation-vs-trial-n2{0%{opacity:0}69.62%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}74.051%{opacity:1}100%{opacity:1}}
 
 .visible .anim-mediation-vs-trial .mediation-vs-trial-scene{animation:mediation-vs-trial-scene 7.9s linear 1 both}
+.visible .anim-mediation-vs-trial .mediation-vs-trial-drawon{stroke-dasharray:101 101;animation:mediation-vs-trial-draw 7.9s linear 1 both}
 .visible .anim-mediation-vs-trial .mediation-vs-trial-med{animation:mediation-vs-trial-med 7.9s linear 1 both}
 .visible .anim-mediation-vs-trial .mediation-vs-trial-tri{animation:mediation-vs-trial-tri 7.9s linear 1 both}
 .visible .anim-mediation-vs-trial .mediation-vs-trial-d1{animation:mediation-vs-trial-d1 7.9s linear 1 both}
@@ -116,6 +122,7 @@
 .visible .anim-mediation-vs-trial .mediation-vs-trial-guide-g{animation:mediation-vs-trial-guide 7.9s linear 1 both}
 .visible .anim-mediation-vs-trial .mediation-vs-trial-brk{animation:mediation-vs-trial-brk 7.9s linear 1 both}
 .visible .anim-mediation-vs-trial .mediation-vs-trial-ans-g{animation:mediation-vs-trial-ans 7.9s linear 1 both}
+.visible .anim-mediation-vs-trial .mediation-vs-trial-hg{animation:mediation-vs-trial-glow 7.9s linear 1 both}
 .visible .anim-mediation-vs-trial .mediation-vs-trial-n0{animation:mediation-vs-trial-n0 7.9s linear 1 both}
 .visible .anim-mediation-vs-trial .mediation-vs-trial-n1{animation:mediation-vs-trial-n1 7.9s linear 1 both}
 .visible .anim-mediation-vs-trial .mediation-vs-trial-n2{animation:mediation-vs-trial-n2 7.9s linear 1 both}
@@ -126,81 +133,88 @@
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustrative example durations for the same dispute on one month axis: a mediation bar and a court trial bar start together and grow at the same rate; mediation stops at 3 months with an agreement, the trial continues through pleadings, evidence, waiting for a hearing date and hearing and judgment to 18 months; a bracket marks the trial as 15 months longer.">
 <g class="mediation-vs-trial-scene">
   <!-- notes and tag -->
-  <text class="mediation-vs-trial-mono" x="40" y="38">example durations · real ones vary widely by country and case</text>
-  <text class="mediation-vs-trial-mono" x="40" y="64">bar length ∝ months · one scale for both routes</text>
-  <rect class="mediation-vs-trial-tag" x="1500" y="20" width="156" height="36" rx="6"/>
-  <text class="mediation-vs-trial-mono mediation-vs-trial-m18" x="1578" y="44" text-anchor="middle">illustrative</text>
-  <!-- calendar: month gridlines every 3 months (x = 220 + 70 * month), broken where a label sits; axis; dispute line -->
-  <path class="mediation-vs-trial-grid" d="M430 124 V440 M640 210 V440 M850 250 V440 M1060 124 V204 M1060 250 V346 M1060 408 V440 M1270 124 V440 M1480 124 V250 M1480 408 V440"/>
-  <path class="mediation-vs-trial-axis" d="M220 440 H1480 M220 440 V450 M430 440 V450 M640 440 V450 M850 440 V450 M1060 440 V450 M1270 440 V450 M1480 440 V450"/>
-  <text class="mediation-vs-trial-mono" x="220" y="476" text-anchor="middle">0</text>
-  <text class="mediation-vs-trial-mono" x="430" y="476" text-anchor="middle">3</text>
-  <text class="mediation-vs-trial-mono" x="640" y="476" text-anchor="middle">6</text>
-  <text class="mediation-vs-trial-mono" x="850" y="476" text-anchor="middle">9</text>
-  <text class="mediation-vs-trial-mono" x="1060" y="476" text-anchor="middle">12</text>
-  <text class="mediation-vs-trial-mono" x="1270" y="476" text-anchor="middle">15</text>
-  <text class="mediation-vs-trial-mono" x="1480" y="476" text-anchor="middle">18</text>
-  <text class="mediation-vs-trial-mono" x="1510" y="476">months</text>
-  <path class="mediation-vs-trial-start" d="M220 124 V440"/>
+  <text class="mediation-vs-trial-sub" x="40" y="38">example durations · real ones vary widely by country and case</text>
+  <text class="mediation-vs-trial-sub" x="40" y="64">bar length ∝ months · one scale for both routes</text>
+  <rect class="mediation-vs-trial-tag" x="1508" y="20" width="148" height="36" rx="6"/>
+  <text class="mediation-vs-trial-sub" x="1582" y="44" text-anchor="middle">illustrative</text>
+  <!-- calendar: month gridlines every 3 months (x = 220 + 70 * month), broken where a label or the hero sits -->
+  <path class="mediation-vs-trial-grid" d="M430 124 V440 M640 210 V440 M850 250 V440 M1060 250 V346 M1270 124 V440 M1480 124 V250 M1480 408 V440"/>
+  <path class="mediation-vs-trial-axis" d="M220 440 V450 M430 440 V450 M640 440 V450 M850 440 V450 M1060 440 V450 M1270 440 V450 M1480 440 V450"/>
+  <text class="mediation-vs-trial-num" x="220" y="476" text-anchor="middle">0</text>
+  <text class="mediation-vs-trial-num" x="430" y="476" text-anchor="middle">3</text>
+  <text class="mediation-vs-trial-num" x="640" y="476" text-anchor="middle">6</text>
+  <text class="mediation-vs-trial-num" x="850" y="476" text-anchor="middle">9</text>
+  <text class="mediation-vs-trial-num" x="1060" y="476" text-anchor="middle">12</text>
+  <text class="mediation-vs-trial-num" x="1270" y="476" text-anchor="middle">15</text>
+  <text class="mediation-vs-trial-num" x="1480" y="476" text-anchor="middle">18</text>
+  <text class="mediation-vs-trial-sub" x="1510" y="476">months</text>
   <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="220" y="112" text-anchor="middle">dispute</text>
   <!-- row labels -->
-  <text class="mediation-vs-trial-t mediation-vs-trial-row" x="196" y="178" text-anchor="end">mediation</text>
-  <text class="mediation-vs-trial-t mediation-vs-trial-row" x="196" y="300" text-anchor="end">court trial</text>
-
-  <!-- mediation bar: 0-3 months, y 140-196 -->
-  <g class="mediation-vs-trial-bar mediation-vs-trial-med">
-    <rect class="mediation-vs-trial-band" x="220" y="140" width="210" height="56"/>
-    <path class="mediation-vs-trial-edge" d="M220 140 H430 M220 196 H430"/>
-  </g>
-  <path class="mediation-vs-trial-div mediation-vs-trial-d1" d="M290 142 V194"/>
-  <path class="mediation-vs-trial-div mediation-vs-trial-d2" d="M360 142 V194"/>
-  <g class="mediation-vs-trial-lm">
-    <path class="mediation-vs-trial-end" d="M430 130 V206"/>
-    <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="450" y="164">agreement</text>
-    <text class="mediation-vs-trial-t mediation-vs-trial-len" x="450" y="192">3 months</text>
-  </g>
-
-  <!-- trial bar: 0-18 months, y 262-318 -->
-  <g class="mediation-vs-trial-bar mediation-vs-trial-tri">
-    <rect class="mediation-vs-trial-band" x="220" y="262" width="1260" height="56"/>
-    <path class="mediation-vs-trial-edge" d="M220 262 H1480 M220 318 H1480"/>
-  </g>
-  <path class="mediation-vs-trial-div mediation-vs-trial-d4" d="M500 264 V344"/>
-  <path class="mediation-vs-trial-div mediation-vs-trial-d10" d="M920 264 V344"/>
-  <path class="mediation-vs-trial-div mediation-vs-trial-d15" d="M1270 264 V344"/>
-  <g class="mediation-vs-trial-l4">
-    <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="232" y="368">pleadings</text>
-    <text class="mediation-vs-trial-mono mediation-vs-trial-m22" x="232" y="396">4 months</text>
-  </g>
-  <g class="mediation-vs-trial-l10">
-    <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="512" y="368">evidence</text>
-    <text class="mediation-vs-trial-mono mediation-vs-trial-m22" x="512" y="396">6 months</text>
-  </g>
-  <g class="mediation-vs-trial-l15">
-    <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="926" y="368">waiting for a hearing date</text>
-    <text class="mediation-vs-trial-mono mediation-vs-trial-m22" x="926" y="396">5 months</text>
-  </g>
-  <g class="mediation-vs-trial-lt">
-    <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="1302" y="368">hearing and judgment</text>
-    <text class="mediation-vs-trial-mono mediation-vs-trial-m22" x="1302" y="396">3 months</text>
-    <path class="mediation-vs-trial-end" d="M1480 252 V328"/>
-    <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="1500" y="286">judgment</text>
-    <text class="mediation-vs-trial-t mediation-vs-trial-len" x="1500" y="314">18 months</text>
-  </g>
-
-  <!-- answer: where mediation stopped, carried down to the trial bar; bracket 3 -> 18 months -->
-  <g class="mediation-vs-trial-guide-g">
-    <path class="mediation-vs-trial-guide" d="M430 212 V256"/>
-  </g>
-  <path class="mediation-vs-trial-brk" pathLength="100" d="M430 256 V244 H1480 V256"/>
-  <g class="mediation-vs-trial-ans-g">
-    <text class="mediation-vs-trial-t mediation-vs-trial-ans" x="955" y="232" text-anchor="middle">15 months longer</text>
-  </g>
-
-  <!-- captions -->
-  <text class="mediation-vs-trial-t mediation-vs-trial-note mediation-vs-trial-n0" x="840" y="560" text-anchor="middle">The same dispute, two routes, on the same clock</text>
-  <text class="mediation-vs-trial-t mediation-vs-trial-note mediation-vs-trial-n1" x="840" y="560" text-anchor="middle">Mediation: prepare, sessions, agreement, one month each</text>
-  <text class="mediation-vs-trial-t mediation-vs-trial-note mediation-vs-trial-n2" x="840" y="560" text-anchor="middle">Mediation ends after about 3 months, the trial after about 18</text>
+  <text class="mediation-vs-trial-t mediation-vs-trial-row" x="196" y="179" text-anchor="end">mediation</text>
+  <text class="mediation-vs-trial-t mediation-vs-trial-row" x="196" y="301" text-anchor="end">court trial</text>
 </g>
+<!-- the axis line and the dispute line draw on -->
+<path class="mediation-vs-trial-axis mediation-vs-trial-drawon" pathLength="100" d="M220 440 H1480"/>
+<path class="mediation-vs-trial-start mediation-vs-trial-drawon" pathLength="100" d="M220 440 V124"/>
+
+<!-- mediation bar: 0-3 months, y 140-196 -->
+<g class="mediation-vs-trial-bar mediation-vs-trial-med">
+  <rect class="mediation-vs-trial-band" x="220" y="140" width="210" height="56"/>
+  <path class="mediation-vs-trial-edge" d="M220 140 H430 M220 196 H430"/>
+</g>
+<path class="mediation-vs-trial-div mediation-vs-trial-d1" d="M290 142 V194"/>
+<path class="mediation-vs-trial-div mediation-vs-trial-d2" d="M360 142 V194"/>
+<g class="mediation-vs-trial-lm">
+  <path class="mediation-vs-trial-end" d="M430 130 V206"/>
+  <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="450" y="166">agreement</text>
+  <text class="mediation-vs-trial-num" x="450" y="192">3 months</text>
+</g>
+
+<!-- trial bar: 0-18 months, y 262-318 -->
+<g class="mediation-vs-trial-bar mediation-vs-trial-tri">
+  <rect class="mediation-vs-trial-band" x="220" y="262" width="1260" height="56"/>
+  <path class="mediation-vs-trial-edge" d="M220 262 H1480 M220 318 H1480"/>
+</g>
+<path class="mediation-vs-trial-div mediation-vs-trial-d4" d="M500 264 V344"/>
+<path class="mediation-vs-trial-div mediation-vs-trial-d10" d="M920 264 V344"/>
+<path class="mediation-vs-trial-div mediation-vs-trial-d15" d="M1270 264 V344"/>
+<!-- stage labels; the long third name wraps onto two lines so it keeps clear of the fourth on wide fonts -->
+<g class="mediation-vs-trial-l4">
+  <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="232" y="368">pleadings</text>
+  <text class="mediation-vs-trial-num" x="232" y="394">4 months</text>
+</g>
+<g class="mediation-vs-trial-l10">
+  <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="512" y="368">evidence</text>
+  <text class="mediation-vs-trial-num" x="512" y="394">6 months</text>
+</g>
+<g class="mediation-vs-trial-l15">
+  <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="932" y="368">waiting for<tspan x="932" dy="28">a hearing date</tspan></text>
+  <text class="mediation-vs-trial-num" x="932" y="422">5 months</text>
+</g>
+<g class="mediation-vs-trial-lt">
+  <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="1282" y="368">hearing and judgment</text>
+  <text class="mediation-vs-trial-num" x="1282" y="394">3 months</text>
+  <path class="mediation-vs-trial-end" d="M1480 252 V328"/>
+  <text class="mediation-vs-trial-t mediation-vs-trial-lbl" x="1500" y="288">judgment</text>
+  <text class="mediation-vs-trial-num" x="1500" y="314">18 months</text>
+</g>
+
+<!-- answer (focal): where mediation stopped, carried down to the trial bar; bracket 3 -> 18 months; hero 15 -->
+<g class="mediation-vs-trial-guide-g">
+  <path class="mediation-vs-trial-guide" d="M430 212 V256"/>
+</g>
+<g data-anim-focal>
+  <path class="mediation-vs-trial-brk" pathLength="100" d="M430 256 V244 H1480 V256"/>
+  <g class="mediation-vs-trial-hg"><text class="mediation-vs-trial-hero mediation-vs-trial-glow" x="876" y="226" text-anchor="end">15</text></g>
+  <g class="mediation-vs-trial-ans-g">
+    <text class="mediation-vs-trial-hero" x="876" y="226" text-anchor="end">15</text>
+    <text class="mediation-vs-trial-t mediation-vs-trial-herolbl" x="890" y="226">months longer</text>
+  </g>
+</g>
+
+<!-- captions -->
+<text class="mediation-vs-trial-t mediation-vs-trial-note mediation-vs-trial-n0" x="840" y="560" text-anchor="middle">The same dispute, two routes, on the same clock</text>
+<text class="mediation-vs-trial-t mediation-vs-trial-note mediation-vs-trial-n1" x="840" y="560" text-anchor="middle">Mediation: prepare, sessions, agreement, one month each</text>
+<text class="mediation-vs-trial-t mediation-vs-trial-note mediation-vs-trial-n2" x="840" y="560" text-anchor="middle">Mediation ends after about 3 months, the trial after about 18</text>
 </svg>
 </div>

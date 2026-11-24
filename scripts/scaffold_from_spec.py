@@ -45,7 +45,7 @@ NODE_KINDS = ('process', 'data', 'actor', 'decision', 'external', 'store', 'mile
 EDGE_KINDS = ('flow', 'depends', 'data', 'event')
 KEYS = {
     'top': {'name', 'archetype', 'title', 'size', 'control', 'cycle', 'nodes', 'edges', 'groups', 'lanes',
-            'domain', 'illustrative', 'verb', 'traveller',
+            'domain', 'illustrative', 'verb', 'traveller', 'focal',
             'phases', 'series', 'events'},
     'node': {'id', 'label', 'sub', 'kind', 'group', 'at', 'side', 'layer'},
     'edge': {'from', 'to', 'label', 'kind'},
@@ -90,10 +90,21 @@ MECHANISM = {
     'cycle': 'Draw-on of a closed path',
     'travel': 'offset-path along a drawn route',
 }
-# name: CSS timing function
-EASE = {'enter': 'cubic-bezier(0.16,1,0.3,1)', 'exit': 'cubic-bezier(0.3,0,1,1)',
-        'move': 'cubic-bezier(0.45,0,0.55,1)', 'linear': 'linear'}
-RESET = 0.4    # loop mode: the last seconds of the cycle fade back to the empty state
+# name: CSS timing function. The one easing set (references/motion-rules.md); no other curve is written.
+EASE = {'enter': 'cubic-bezier(0.16,1,0.3,1)', 'move': 'cubic-bezier(0.2,0,0,1)',
+        'exit': 'cubic-bezier(0.3,0,1,1)', 'land': 'cubic-bezier(0.3,1.3,0.5,1)', 'linear': 'linear'}
+LAND_MAX = 48       # px: a mark up to this size on its longer side lands with the land curve
+FOCAL_RING = 50 / 34    # the focal node's ring radius over a peer's (r 50 against r 34 at the stage)
+FOCAL_PITCH = 1.3   # pipeline: the focal step's share of the row against a peer's
+DATA_RE = re.compile(r'[0-9%$\u20ac\u00a3\u00a5\u00b0\u00b1=<>#_]')
+
+
+def is_data(text):
+    """Mono is for data: a value, unit, code or identifier (a digit or a code-like symbol)."""
+    return bool(text) and bool(DATA_RE.search(str(text)))
+RESET = 0.4    # loop mode: the last seconds of the cycle, where the whole figure fades out as one move
+FIG_OUT = 0.3  # s: loop reset, the figure group fades out (exit, about 65 % of FIG_IN) ...
+FIG_IN = 0.45  # s: ... every track jumps back to its start while it is invisible, and it fades in again
 CYCLE = {'once': (4, 10, 8), 'loop': (8, 15, 12)}   # timing mode: (min s, max s, default s); step uses once
 HOLD = {'once': 1.2, 'loop': 2.0}                   # seconds the final state is held before the end
 
@@ -556,7 +567,31 @@ def validate(sp, args):
     S.phases = check_phases(S, phases, err)
     if err:
         die('\n  '.join(['invalid phases:'] + err))
+    S.focal = pick_focal(S, sp.get('focal'))
+    if S.focal in S.node:
+        S.node[S.focal]['_focal'] = True
+    S.hero = True               # the focal node's value at hero size, when it fits (fit_layout)
     return S
+
+
+def pick_focal(S, f):
+    """The one focal element (data-anim-focal): the spec's focal id, else the node the last phase
+    highlights, else the outcome (the last node with no outgoing edge), else the last node; a chart
+    falls back to its first series."""
+    ids = [n['id'] for n in S.nodes] + [s['id'] for s in S.series]
+    if f is not None:
+        if f not in ids:
+            die(f'focal {f!r} is not a node id' + (' or series id' if S.series else '')
+                + f'; use one of {", ".join(ids)}')
+        return f
+    for x in S.phases[-1]['active']:
+        if x in ids:
+            return x
+    if S.series:
+        return S.series[0]['id']
+    order = topo_order(S) if S.arch in ('graph', 'states') else [n['id'] for n in S.nodes]
+    sinks = [x for x in order if not any(e['from'] == x for e in S.edges)]
+    return (sinks or order)[-1]
 
 
 def retime_phases(S, phases):
@@ -924,16 +959,26 @@ def frame(S, F):
     return top, bottom, strip, has_note
 
 
+def sub_role(t):
+    """A sub-label line is set in --anim-font ('sub') unless it is a value ('val': mono, tabular)."""
+    return 'val' if is_data(t) else 'sub'
+
+
 def label_lines(n, F, maxw, maxl=2):
-    """A node's text as (text, role) lines: the label wrapped to maxl lines, the sub (mono) to 2."""
+    """A node's text as (text, role) lines: the label wrapped to maxl lines, the sub to 2. The
+    focal node's sub, when it is a value that fits on one line at hero size, is set as the hero."""
     out = [(t, 'lbl') for t in wrap(n['label'], F['lbl'], maxw, maxl)]
     if n['sub']:
-        out += [(t, 'sub') for t in wrap(n['sub'], F['sub'], maxw, 2, True)]
+        if (n.get('_focal') and F.get('hero_on') and is_data(n['sub'])
+                and text_w(n['sub'], F['hero']) * 1.04 <= maxw):
+            out.append((n['sub'], 'hero'))
+        else:
+            out += [(t, sub_role(t)) for t in wrap(n['sub'], F['sub'], maxw, 2, True)]
     return out
 
 
 def line_w(t, role, F):
-    return text_w(t, F[role], role in ('sub', 'mono', 'edge'))
+    return text_w(t, F[role], role in ('sub', 'val', 'mono', 'edge')) * (1.04 if role == 'hero' else 1)
 
 
 def block_w(lines, F):
@@ -956,6 +1001,8 @@ def mark(F, n, cx, cy, shape=None):
     """The drawn shape of a node: a ring (r 32-44 at a 1920 stage), a thin diamond for decisions."""
     shape = shape or ('diamond' if n['kind'] == 'decision' else 'ring')
     r = F['ring'] * (1.3 if shape == 'diamond' else 1) if shape != 'dot' else F['dot']
+    if n.get('_focal'):
+        r = round(r * FOCAL_RING, 1)        # the focal node: a larger mark than its peers
     return dict(x=cx - r, y=cy - r, w=2 * r, h=2 * r, cx=cx, cy=cy, r=r, shape=shape)
 
 
@@ -1045,14 +1092,22 @@ def layout_pipeline(S, F, top, bottom):
              f'(about {math.ceil(n * (need + 28) + 80)} wide) or shorten labels')
     idx = {nd['id']: i for i, nd in enumerate(S.nodes)}
     arcs = [e for e in S.edges if idx[e['to']] != idx[e['from']] + 1]
-    labs = {nd['id']: label_lines(nd, F, pitch - 28) for nd in S.nodes}
+    # the focal step gets more room: FOCAL_PITCH times a peer's share of the row
+    wt = [FOCAL_PITCH if nd.get('_focal') else 1.0 for nd in S.nodes]
+    unit = min(380, (W - 80) / sum(wt))
+    if unit * min(wt) - 28 < need:
+        wt, unit = [1.0] * n, pitch
+    labs = {nd['id']: label_lines(nd, F, unit * wt[i] - 28) for i, nd in enumerate(S.nodes)}
     th = max(text_h(v, F) for v in labs.values())
     hr = max(mark(F, nd, 0, 0)['r'] for nd in S.nodes)
     up = (max(56, 40 + 16 * (len(arcs) - 1)) + (F['edge'] + 8 if any(e['label'] for e in arcs) else 0)) if arcs else 0
     fig = up + 2 * hr + LABEL_GAP + th
     cy = top + max(0, (bottom - top - fig) / 2) + up + hr
-    x0 = W / 2 - (n - 1) * pitch / 2
-    nodes = {nd['id']: put_label(mark(F, nd, x0 + i * pitch, cy), labs[nd['id']], 'below', F)
+    xs, x = [], W / 2 - unit * sum(wt) / 2
+    for w_ in wt:
+        xs.append(x + unit * w_ / 2)
+        x += unit * w_
+    nodes = {nd['id']: put_label(mark(F, nd, xs[i], cy), labs[nd['id']], 'below', F)
              for i, nd in enumerate(S.nodes)}
     edges = {}
     depth = 40
@@ -1871,12 +1926,13 @@ def row_text(n, F, w, stack=False):
     """Text of a compare row: None = label left and sub (mono) right on one line; otherwise a list
     of (text, role) lines, the label wrapped and the sub on its own line below. stack=True (some
     row of the slide needs two lines) stacks every row that has a sub, so the rows match."""
-    one = text_w(n['label'], F['lbl']) + (text_w(n['sub'], F['sub'], True) + 32 if n['sub'] else 0) + 8 <= w
+    role = 'foc' if n.get('_focal') else 'lbl'      # the focal row's label one step up the ladder
+    one = text_w(n['label'], F[role]) + (text_w(n['sub'], F['sub'], True) + 32 if n['sub'] else 0) + 8 <= w
     if one and not (stack and n['sub']):
         return None
-    out = [(t, 'lbl') for t in wrap(n['label'], F['lbl'], w - 8, 3)]
+    out = [(t, role) for t in wrap(n['label'], F[role], w - 8, 3)]
     if n['sub']:
-        out += [(t, 'sub') for t in wrap(n['sub'], F['sub'], w - 8, 2, True)]
+        out += [(t, sub_role(t)) for t in wrap(n['sub'], F['sub'], w - 8, 2, True)]
     return out
 
 
@@ -2029,7 +2085,8 @@ LAYOUTS = {'pipeline': layout_pipeline, 'graph': layout_graph, 'timeline': layou
 # ============================================================================ timing
 class Timing:
     """Phase times in seconds from the spec, for every control (step uses the once pass). once and
-    step end on the final state (no reset); loop fades back to empty in the last RESET s."""
+    step end on the final state (no reset); loop holds the final state too, and in the last RESET s
+    the whole figure (one <g>) fades out, so the jump back to the start happens unseen."""
 
     def __init__(self, S):
         self.once = S.mode == 'once'
@@ -2040,6 +2097,8 @@ class Timing:
         self.act = list(self.t)
         self.win = [(self.t[i + 1] if i + 1 < n else self.rst) - self.t[i] for i in range(n)]
         self.draw_end = self.t[-1] if n > 1 else self.rst
+        if n > 1 and S.phases[-1]['label'] == 'hold':      # a series ends settled before the hold mark
+            self.draw_end = max(self.t[-2], self.t[-1] - SETTLE)
         self.n = n
 
     def marks(self, S):
@@ -2083,20 +2142,74 @@ class Anim:
         return f' style="{s}"' if s else ''
 
 
+LAND = 0.3          # s: a node lands (scale 0.92 to 1 plus fade)
+DRAW = 0.45         # s: a wire draws on
+LABEL = 0.35        # s: a label fades in with a 10 px rise
+LABEL_AFTER = 0.09  # s: a label settles this long after the thing it names
+RISE = 10           # px
+WIPE_FROM = 'inset(-24px 100% -24px -24px)'     # a clip reveal from the left (rows of text)
+WIPE_TO = 'inset(-24px -24px -24px -24px)'
+CLIP_OPEN = WIPE_TO
+HAIR = 0.6          # s: a hairline rule or bracket draws on
+STILL = 0.45        # s of stillness before the answer step, when the timing leaves room
+SETTLE = 0.15       # s: every move ends this long before the last mark (the hold start), captions included
+REACH = ('pipeline', 'timeline', 'graph', 'layers')   # reached steps stay in the accent
+
+
+def offsets(m):
+    """Start offsets of a staggered group: gaps from 120 ms down to 40 ms (later items closer
+    together), the whole group within 600 ms."""
+    if m < 2:
+        return [0.0] * m
+    gaps = [max(0.04, 0.12 * 0.8 ** j) for j in range(m - 1)]
+    if sum(gaps) > 0.6:
+        k = 0.6 / sum(gaps)
+        gaps = [g * k for g in gaps]
+    out = [0.0]
+    for g in gaps:
+        out.append(out[-1] + g)
+    return out
+
+
+def clip_from(c):
+    """Fully clipped start of a clip reveal that opens along a wire, from its start to its end."""
+    (x0, y0), (x1, y1) = segs(c)[0][0], segs(c)[-1][3]
+    if abs(x1 - x0) >= abs(y1 - y0):
+        return 'inset(-24px 100% -24px -24px)' if x1 >= x0 else 'inset(-24px -24px -24px 100%)'
+    return 'inset(-24px -24px 100% -24px)' if y1 >= y0 else 'inset(100% -24px -24px -24px)'
+
+
+def hairlines(S, scene):
+    """Containers and groups drawn as a hairline (rule or bracket) plus a name: key -> True when a
+    line is drawn (it draws on, the name settles after it), False for a name alone."""
+    out = {}
+    for c in scene.get('containers', []):
+        out[c['key']] = c['style'] == 'panel' or bool(c.get('order'))
+    for g, *_ in scene.get('brackets', []) if S.arch == 'timeline' else []:
+        out[g['id']] = True
+    for g in drawn_groups(S, scene):
+        if any(n.get('group') == g['id'] for n in S.nodes):
+            out[g['id']] = True
+    return out
+
+
+def land_ease(b):
+    return 'land' if b and max(b.get('w', 99), b.get('h', 99)) <= LAND_MAX else 'enter'
+
+
 def build_anims(S, T, scene, anim):
     N = S.name
     rid = rendered_ids(S, scene)
     entry = {}
 
-    def stagger(k, m):
-        return 0 if m < 2 else k * min(0.08, 0.45 / (m - 1))
-
     for i, p in enumerate(S.phases):
+        off = offsets(len(p['show']))
         for k, x in enumerate(p['show']):
-            entry[x] = (T.act[i] + stagger(k, len(p['show'])), i)
+            entry[x] = (T.act[i] + off[k], i)
     implicit = [n['id'] for n in S.nodes if n['id'] not in entry]
+    off = offsets(len(implicit))
     for k, x in enumerate(implicit):
-        entry[x] = (stagger(k, len(implicit)), 0)
+        entry[x] = (off[k], 0)
     for c in scene.get('containers', []):
         if c['group'] is None or c['key'] not in entry:
             ms = [entry[m] for m in c['members']] or [(0, 0)]
@@ -2104,8 +2217,22 @@ def build_anims(S, T, scene, anim):
     for g in S.groups:
         if g['id'] not in entry:
             entry[g['id']] = min(entry[n['id']] for n in S.nodes if n.get('group') == g['id'])
+    # line first, then the node lands where it arrives: a drawn wire into a node that enters later
+    # than the wire's start node begins when that node's step begins, and the node lands as it arrives
+    land = {}
+    lit_at = {}                                   # edge -> first phase it is lit (no traveller)
+    for i, p in enumerate(S.phases):
+        for x in p['flow']:
+            lit_at.setdefault(x, i)
     for e in S.edges:
-        if e['id'] not in entry:
+        if e['id'] in entry:
+            continue
+        (ta, ia), (tb, ib) = entry[e['from']], entry[e['to']]
+        drawn = e['kind'] in ('flow', 'data')
+        if drawn and tb >= ta + 0.3:
+            entry[e['id']] = (tb, ib)
+            land[e['to']] = max(land.get(e['to'], tb), tb + LAND)
+        else:
             a, b = max(entry[e['from']], entry[e['to']])
             entry[e['id']] = (a + 0.3, b)
     ch = scene.get('chart')
@@ -2119,18 +2246,58 @@ def build_anims(S, T, scene, anim):
                 entry[ev['e']['id']] = (t, T.phase_at(t))
 
     named = {x for p in S.phases for x in p['show']}
+    hair = hairlines(S, scene)
+    shown_at = {}                                 # node -> second its mark is fully there
     for key, (t, i) in entry.items():
         if key not in rid:
             continue
         if T.once and i == 0 and key not in named and t < 0.8:
             continue    # once: the static frame is simply there; only the story enters (concurrency)
-        anim.add(rid[key], 'opacity', t, 0.4, 0, 1)
-        if key in S.edge and S.edge[key]['kind'] in ('flow', 'data'):
-            # dash 100 + gap 120 at offset 101: no zero-length dash, so round caps paint no dot
-            anim.add(rid[key] + '-w', 'stroke-dashoffset', t, 0.6, 101, 0, 'move')
+        el = rid[key]
+        if key in S.node:
+            b = scene['nodes'].get(key)
+            t = land.get(key, t)
+            shown_at[key] = t
+            if b and b.get('shape') == 'row':     # a row of text: wiped in from the left, reading order
+                anim.add(el, 'opacity', t, 0.15, 0, 1)
+                anim.add(el, 'clip-path', t, 0.4, WIPE_FROM, WIPE_TO)
+                continue
+            ease = land_ease(b)                   # the mark lands; its text settles after it
+            anim.add(el + '-m', 'opacity', t, LAND, 0, 1, ease)
+            anim.add(el + '-m', 'transform', t, LAND, 'scale(0.92)', 'scale(1)', ease)
+            anim.add(el + '-lb', 'opacity', t + LABEL_AFTER, LABEL, 0, 1)
+            anim.add(el + '-lb', 'transform', t + LABEL_AFTER, LABEL, f'translate(0px,{RISE}px)',
+                     'translate(0px,0px)')
+        elif key in S.edge:
+            e = S.edge[key]
+            if e['kind'] in ('flow', 'data'):
+                # dash 100 + gap 120 at offset 101: no zero-length dash, so round caps paint no dot
+                anim.add(el, 'opacity', t, 0.05, 0, 1)
+                anim.add(el + '-w', 'stroke-dashoffset', t, DRAW, 101, 0)
+                anim.add(el + '-a', 'opacity', t + DRAW - 0.15, 0.15, 0, 1)
+                if e['label']:
+                    anim.add(el + '-l', 'opacity', t + DRAW - 0.05, LABEL, 0, 1)
+                    anim.add(el + '-l', 'transform', t + DRAW - 0.05, LABEL, f'translate(0px,{RISE}px)',
+                             'translate(0px,0px)')
+            else:     # a dashed wire keeps its dash pattern: a clip opens along its direction
+                anim.add(el, 'opacity', t, 0.05, 0, 1)
+                anim.add(el + '-w', 'clip-path', t, DRAW, clip_from(scene['edges'][key]), CLIP_OPEN)
+                anim.add(el + '-a', 'opacity', t + DRAW - 0.15, 0.15, 0, 1)
+                if e['label']:
+                    anim.add(el + '-l', 'opacity', t + DRAW - 0.05, LABEL, 0, 1)
+                    anim.add(el + '-l', 'transform', t + DRAW - 0.05, LABEL, f'translate(0px,{RISE}px)',
+                             'translate(0px,0px)')
+        elif key in hair:     # a band, lane, column or group: its hairline draws on, its name settles after
+            if hair[key]:
+                anim.add(el + '-r', 'stroke-dashoffset', t, HAIR, 101, 0)
+            anim.add(el + '-t', 'opacity', t + (LABEL_AFTER if hair[key] else 0), LABEL, 0, 1)
+            anim.add(el + '-t', 'transform', t + (LABEL_AFTER if hair[key] else 0), LABEL,
+                     f'translate(0px,{RISE}px)', 'translate(0px,0px)')
+        else:
+            anim.add(el, 'opacity', t, 0.4, 0, 1)
 
     # highlights and notes: runs of consecutive phases
-    def runs(on, el):
+    def runs(on, el, first=None):
         i = 0
         while i < T.n:
             if not on[i]:
@@ -2139,17 +2306,20 @@ def build_anims(S, T, scene, anim):
             j = i
             while j + 1 < T.n and on[j + 1]:
                 j += 1
-            anim.add(el, 'opacity', T.act[i], 0.25, 0, 1)
+            t0 = T.act[i]
+            if first is not None and t0 <= first < (T.act[i + 1] if i + 1 < T.n else T.end):
+                t0 = first                        # not before the thing it lights has landed
+            anim.add(el, 'opacity', t0, 0.25, 0, 1)
             if j + 1 < T.n:
-                anim.add(el, 'opacity', T.act[j + 1], 0.2, 1, 0, 'exit')
+                anim.add(el, 'opacity', T.act[j + 1], 0.16, 1, 0, 'exit')
             i = j + 1
         anim.rest_over[el] = {'opacity': 1 if on[-1] else 0}
     for key in sorted({x for p in S.phases for x in p['active']}):
         if key in rid and key not in {s['id'] for s in S.series + S.events}:
-            runs([key in p['active'] for p in S.phases], rid[key] + '-hl')
+            runs([key in p['active'] for p in S.phases], rid[key] + '-hl', shown_at.get(key))
     switched = {x for p in S.phases for x in p['switch']}
-    if S.arch in ('pipeline', 'timeline'):        # a step that was lit and moved on settles in --anim-ok
-        scene['ok'] = set()
+    scene['reached'] = set()
+    if S.arch in REACH:                           # a step that was lit and moved on stays in the accent
         for n in S.nodes:
             if n['id'] in switched:               # an explicit switch: decides the node's state itself
                 continue
@@ -2160,15 +2330,17 @@ def build_anims(S, T, scene, anim):
             while j + 1 < T.n and on[j + 1]:
                 j += 1
             if j + 1 < T.n:
-                anim.add(rid[n['id']] + '-ok', 'opacity', T.act[j + 1], 0.3, 0, 1)
-                scene['ok'].add(n['id'])
+                anim.add(rid[n['id']] + '-rc', 'opacity', T.act[j + 1], 0.25, 0, 1)
+                scene['reached'].add(n['id'])
     notes = [i for i, p in enumerate(S.phases) if p['note']]
     if notes and not S.phases[-1]['note']:
         warn(f'the last phase ({S.phases[-1]["label"]}) has no note, so the resting frame (PDF export) '
              f'keeps {S.phases[notes[-1]]["note"][:40]!r}; give it a note that summarises the story')
     for k, i in enumerate(notes):
         nxt = notes[k + 1] if k + 1 < len(notes) else T.n
-        runs([i <= j < nxt for j in range(T.n)], f'{N}-note{k}')
+        # cross-fade: the new caption starts as the old one is nearly gone, so they never stack
+        # (on the hold phase settle_last pulls the whole swap ahead of the mark)
+        runs([i <= j < nxt for j in range(T.n)], f'{N}-note{k}', T.act[i] + 0.12 if k else None)
 
     # switch: a status copy of the node per state, stacked in the state layer, cross-faded in place
     sw = {}
@@ -2183,15 +2355,16 @@ def build_anims(S, T, scene, anim):
                 cur = [s for j, s in seq if j <= i]
                 on.append(bool(cur) and cur[-1] == st)
             el = f'{rid[x]}-sw-{st}'
-            runs(on, el)
+            runs(on, el, shown_at.get(x))
             scene['switch'].append((x, st, el))
+    scene['switch_ids'] = set(sw)
 
     # mark: a ring (or an underline on a row) drawn on around the node; it stays to the end
     scene['marks'] = []
     for i, p in enumerate(S.phases):
         for x in p['mark']:
             el = f'{rid[x]}-mk'
-            anim.add(el, 'stroke-dashoffset', T.act[i] + 0.1, 0.6, 101, 0, 'move')
+            anim.add(el, 'stroke-dashoffset', max(T.act[i] + 0.1, shown_at.get(x, 0) + 0.1), 0.5, 101, 0)
             scene['marks'].append((x, el))
 
     # dim: a veil in the ground colour over the dimmed elements, one group per run of phases with
@@ -2227,7 +2400,7 @@ def build_anims(S, T, scene, anim):
                 if on[k] and (k == 0 or not on[k - 1]):
                     if k:
                         anim.add(el, 'stroke-dashoffset', T.act[k] - 0.08, 0.05, 0, 101, 'linear')
-                    anim.add(el, 'stroke-dashoffset', T.act[k] + 0.05, 0.6, 101, 0, 'move')
+                    anim.add(el, 'stroke-dashoffset', T.act[k] + 0.05, DRAW, 101, 0)
                 k += 1
             anim.rest_over[el]['stroke-dashoffset'] = 0
             scene['flowlit'].append((eid, el))
@@ -2245,24 +2418,32 @@ def build_anims(S, T, scene, anim):
         hop = max(lo, min(hi, T.win[i] / depth - 0.3))
         for eid in p['flow']:
             el, t0 = f'{N}-p{pk}', T.act[i] + 0.05 + pos[eid] * (hop + 0.3)
-            anim.add(el, 'opacity', t0, 0.1, 0, 1, 'linear')
+            anim.add(el, 'opacity', t0, 0.1, 0, 1)
             anim.add(el, 'offset-distance', t0 + 0.1, hop, '0%', '100%', 'move')
             anim.add(el, 'opacity', t0 + 0.1 + hop, 0.15, 1, 0, 'exit')
             scene.setdefault('packets', []).append((el, eid))
             pk += 1
 
     if S.arch == 'timeline':                      # progress line reaches each milestone as it enters
+        # A milestone that is only shown (planned, never active) is not reached: when the story
+        # lights milestones, the line stops at the furthest one it lit ("now"), not at the last shown.
         n, cur, last = len(S.nodes), 101.0, 0.0     # 101: fully hidden, no round-cap dot
-        for i, nd in sorted(enumerate(S.nodes), key=lambda x: entry[x[1]['id']][0]):
+        lit = {}
+        for i, p in enumerate(S.phases):
+            for x in p['active']:
+                lit.setdefault(x, T.act[i])
+        for i, nd in sorted(enumerate(S.nodes), key=lambda x: max(entry[x[1]['id']][0], lit.get(x[1]['id'], 0))):
+            if lit and nd['id'] not in lit:
+                continue
             v = 100 - 100 * i / max(1, n - 1)
-            t = entry[nd['id']][0]
+            t = max(entry[nd['id']][0], lit.get(nd['id'], 0))
             if v < cur:
                 t0 = max(last, t - 0.6)
-                anim.add(f'{N}-progress', 'stroke-dashoffset', t0, max(0.2, t - t0), cur, v, 'move')
+                anim.add(f'{N}-progress', 'stroke-dashoffset', t0, max(0.2, t - t0), f1(cur), f1(v))
                 last = t
             if v < cur:
                 cur = v
-        anim.rest_over[f'{N}-progress'] = {'stroke-dashoffset': 0}
+        anim.rest_over[f'{N}-progress'] = {'stroke-dashoffset': 0 if cur <= 0 else f1(cur)}
     if ch:
         pw = ch['R'] - ch['L']
         anim.add(f'{N}-clip-r', 'width', 0, T.draw_end, '0px', f'{f1(pw)}px', 'linear')
@@ -2272,7 +2453,7 @@ def build_anims(S, T, scene, anim):
                 continue
             anim.add(sid + '-end', 'opacity', T.xtime(1) - 0.3, 0.3, 0, 1)
             if T.once:     # once: the head dot appears at the end instead of riding
-                anim.add(sid + '-dot', 'opacity', T.xtime(1) - 0.3, 0.2, 0, 1)
+                anim.add(sid + '-dot', 'opacity', T.xtime(1) - 0.3, 0.2, 0, 1, 'land')
                 continue
             step = max(1, math.ceil(len(s['pts']) / 30))
             idx = list(range(0, len(s['pts']), step))
@@ -2283,7 +2464,198 @@ def build_anims(S, T, scene, anim):
                 pa, pb = s['pts'][a], s['pts'][b]
                 anim.add(sid + '-dot', 'transform', ta, tb - ta, f'translate({f1(pa[0])}px,{f1(pa[1])}px)',
                          f'translate({f1(pb[0])}px,{f1(pb[1])}px)', 'linear')
+    if not ch:
+        make_still(S, T, anim)
+        settle_reached(S, T, scene, anim, rid)
+    settle_last(S, T, anim)
     return rid
+
+
+SETTLE_DUR = 0.45   # s: the reached parts settle from the accent to --anim-fg / --anim-line
+
+
+def settle_reached(S, T, scene, anim, rid):
+    """style.md principle 3: when the story ends with every node reached, the accent no longer marks
+    anything, so in the last phase the reached rings and the lit path settle to --anim-fg (rings)
+    and --anim-line (wires: the accent copy fades off the line wire under it); the focal element
+    alone keeps the accent and the glow. One grouped move: the accent copies fade out in the state
+    layer (one group) while one settled copy of all the rings appears (a reveal), so the check
+    counts it as one or two moves. It ends before the last mark and starts after the answer step
+    has landed, so the stillness before that step stays. A partial ending (a route among
+    alternatives, a progress still under way) keeps its reached parts in the accent."""
+    scene['settled'] = []
+    if T.n < 2 or not S.nodes:
+        return
+    ever = {x for p in S.phases for x in p['active']} | {x for p in S.phases for x in p['switch']} \
+        | {x for p in S.phases for x in p['mark']}
+    if any(n['id'] not in ever for n in S.nodes):
+        return                                    # partial: the reached parts still mark progress
+    last = S.phases[-1]
+    hold = last['label'] == 'hold'
+    goal = (T.act[-1] if hold else T.rst) - SETTLE
+    body = [i for i in range(T.n) if S.phases[i]['label'] not in ('hold', 'hold-end')]
+    t_ans = T.act[body[-1]] if body else T.act[-1]
+    # what still shows the accent at rest besides the focal element
+    rings = [x for x in scene.get('reached', ()) if x != S.focal and scene['nodes'][x].get('shape') != 'row']
+    lit_now = [x for x in last['active'] if x in S.node and x != S.focal and x not in scene.get('switch_ids', ())
+               and scene['nodes'][x].get('shape') != 'row']
+    fade = [rid[x] + '-rc' for x in rings]
+    fade += [rid[x] + '-hl' for x in lit_now]
+    fade += [el for eid, el in scene.get('flowlit', []) if anim.rest(el).get('opacity') == 1]
+    fade += [rid[x] + '-hl' for x in last['active'] if x in S.edge and anim.rest(rid[x] + '-hl').get('opacity') == 1]
+    prog = S.arch == 'timeline' and f'{S.name}-progress' in anim.segs
+    if not fade and not prog:
+        return
+    # start as the answer step's moves end, overlapping them by a hair: no gap, so the settle is
+    # part of the final step's burst (the stillness before that step stays where it was); end before
+    # the last mark
+    end_ans = max([t0 + dur for ss in anim.segs.values() for _, t0, dur, _, _, ease in ss
+                   if ease != 'linear' and t_ans - 1e-6 <= t0 < goal - 1e-6] or [t_ans])
+    t0 = end_ans - 0.05
+    if t0 + SETTLE_DUR > goal:
+        t0 = max(t_ans + 0.1, goal - SETTLE_DUR)
+    dur = round(goal - t0, 2) if t0 + SETTLE_DUR > goal else SETTLE_DUR
+    if dur < 0.2:
+        warn('every step is reached at the end, but the last phase leaves no room to settle the reached '
+             'parts from the accent to --anim-fg; lengthen the last phase')
+        return
+    for el in fade:
+        anim.add(el, 'opacity', t0, dur, 1, 0, 'exit')
+        if el in anim.rest_over:
+            anim.rest_over[el]['opacity'] = 0
+    if prog:
+        anim.add(f'{S.name}-progress', 'opacity', t0, dur, 1, 0, 'exit')
+        anim.rest_over[f'{S.name}-progress']['opacity'] = 0
+    scene['settled'] = rings + lit_now
+    if scene['settled']:
+        anim.add(f'{S.name}-done', 'opacity', t0, dur, 0, 1, 'enter')
+
+
+def settle_last(S, T, anim):
+    """The last mark is the hold start: step mode stops there, so every move (a caption swap, a
+    highlight moving on) is over SETTLE s before it. The changes that start at that mark move ahead
+    together (a cross-fade keeps its order); a move that starts earlier and runs into it ends sooner."""
+    if T.n < 2 or S.phases[-1]['label'] != 'hold':
+        return
+    m, lo = T.act[-1], T.act[-2]
+    goal = m - SETTLE
+    at_mark = lambda t0: t0 >= m - 1e-6              # noqa: E731
+    shift = max([t0 + dur - goal for ss in anim.segs.values() for _, t0, dur, *_ in ss if at_mark(t0)] or [0])
+    for el, ss in anim.segs.items():
+        for k, (prop, t0, dur, v0, v1, ease) in enumerate(ss):
+            if t0 + dur <= goal + 1e-6:
+                continue
+            if at_mark(t0):
+                nt0 = max(lo + 0.05, t0 - shift)
+            elif ease == 'linear':
+                continue                              # continuous motion (a riding dot) keeps its pace
+            else:
+                nt0 = t0 if goal - t0 >= 0.15 else max(lo, goal - min(dur, 0.15))
+            ss[k] = (prop, round(nt0, 2), round(max(0.05, min(dur, goal - nt0)), 2), v0, v1, ease)
+
+
+def make_still(S, T, anim):
+    """A deliberate stillness: when the timing leaves room, nothing moves for STILL s before the
+    answer step (the last phase before the hold). Moves that would run into that window are
+    shortened; phase marks never move."""
+    body = [i for i in range(T.n) if S.phases[i]['label'] not in ('hold', 'hold-end')]
+    if len(body) < 2:
+        return
+    L = body[-1]
+    t_ans = T.act[L]
+    t_prev = T.act[L - 1]
+    if t_ans - t_prev < 1.0:                      # a short step before the answer
+        make_still_short(S, T, anim, L)
+        return
+    cut = t_ans - STILL
+    for el, ss in anim.segs.items():
+        for k, (prop, t0, dur, v0, v1, ease) in enumerate(ss):
+            if ease == 'linear' or t0 >= t_ans or t0 < t_prev or t0 + dur <= cut + 1e-6:
+                continue
+            nd = round(cut - t0, 2)
+            if nd >= 0.15:
+                ss[k] = (prop, t0, nd, v0, v1, ease)
+            else:                                 # starts too late: a short move that ends at the cut
+                d = min(dur, 0.15)
+                ss[k] = (prop, round(max(t_prev, cut - d), 2), d, v0, v1, ease)
+
+
+MIN_HOP = 0.6       # s: the shortest hop (motion-rules.md duration classes)
+STILL_MIN = 0.4     # s: the shortest stillness the rule allows
+ANS_DELAY = 0.3     # s: how far the answer step's moves may start after its own mark
+
+
+def make_still_short(S, T, anim, L):
+    """The step before the answer is shorter than 1 s, so the stillness cannot come from cutting
+    its motion alone. Phase marks still never move; instead (a) the earlier step's moves are packed
+    tight from its mark (no lead, fades at most 0.1 s, a hop no shorter than MIN_HOP) and (b) the
+    answer step's moves start up to ANS_DELAY s after their mark, a hop in it shortened by as much,
+    so the answer step still ends where it ended. When even that leaves less than STILL_MIN s,
+    nothing changes (the checker then reports the arithmetic)."""
+    t_prev, t_ans = T.act[L - 1], T.act[L]
+    t_next = T.act[L + 1] if L + 1 < T.n else T.rst
+    gap = t_ans - t_prev
+    prev_el, ans_el = {}, {}
+    for el, ss in anim.segs.items():
+        for k, s in enumerate(ss):
+            if s[5] == 'linear':
+                continue
+            if t_prev - 1e-6 <= s[1] < t_ans - 1e-6:
+                prev_el.setdefault(el, []).append(k)
+            elif t_ans - 1e-6 <= s[1] < t_next - 1e-6:
+                ans_el.setdefault(el, []).append(k)
+
+    def packed(el, ks):                           # shortest span of an element's moves in the earlier step
+        ss = anim.segs[el]
+        if any(ss[k][5] == 'move' for k in ks):
+            return sum(min(ss[k][2], 0.1) for k in ks if ss[k][5] != 'move') + MIN_HOP
+        return min(max(ss[k][1] + ss[k][2] for k in ks) - t_prev, 0.15)
+    need = max([packed(el, ks) for el, ks in prev_el.items()] or [0])
+    still = STILL if need + STILL - gap <= ANS_DELAY else STILL_MIN
+    d = max(0.0, round(need + still - gap, 2))
+    if d > ANS_DELAY + 1e-6:
+        return
+    # the answer step absorbs the delay in its hops; everything else in it shifts by d
+    new_ans = {}
+    for el, ks in ans_el.items():
+        ss, lag, out = anim.segs[el], d, {}
+        for k in sorted(ks, key=lambda k: anim.segs[el][k][1]):
+            prop, t0, dur, v0, v1, ease = ss[k]
+            nt0 = t0 + lag
+            if ease == 'move':
+                cut_ = min(lag, max(0.0, dur - MIN_HOP))
+                dur, lag = dur - cut_, lag - cut_
+            if nt0 + dur > t_next - SETTLE + 1e-6 and t0 + ss[k][2] <= t_next - SETTLE + 1e-6:
+                return                                # the shifted step would run into the next mark
+            out[k] = (prop, round(nt0, 2), round(dur, 2), v0, v1, ease)
+        new_ans[el] = out
+    cut = t_ans + d - still
+    new_prev = {}
+    for el, ks in prev_el.items():
+        ss, out = anim.segs[el], {}
+        ks = sorted(ks, key=lambda k: ss[k][1])
+        if any(ss[k][5] == 'move' for k in ks):       # a hop: packed from the mark, the hop gets the rest
+            fades = sum(min(ss[k][2], 0.1) for k in ks if ss[k][5] != 'move')
+            nmov = sum(1 for k in ks if ss[k][5] == 'move')
+            t = t_prev
+            for k in ks:
+                prop, t0, dur, v0, v1, ease = ss[k]
+                nd = min(dur, (cut - t_prev - fades) / nmov if ease == 'move' else 0.1)
+                out[k] = (prop, round(t, 2), round(nd, 2), v0, v1, ease)
+                t += nd
+        else:
+            for k in ks:
+                prop, t0, dur, v0, v1, ease = ss[k]
+                if t0 + dur <= cut + 1e-6:
+                    continue
+                nd = round(cut - t0, 2)
+                out[k] = ((prop, t0, nd, v0, v1, ease) if nd >= 0.15 else
+                          (prop, round(max(t_prev, cut - min(dur, 0.15)), 2), min(dur, 0.15), v0, v1, ease))
+        new_prev[el] = out
+    for upd in (new_prev, new_ans):
+        for el, out in upd.items():
+            for k, s in out.items():
+                anim.segs[el][k] = s
 
 
 def rendered_ids(S, scene):
@@ -2300,8 +2672,9 @@ def rendered_ids(S, scene):
 
 # ============================================================================ emit
 def css_keyframes(el, segs, T, marks, final=None):
-    """loop: back to the initial value at 100 % (reset); once: the 100 % stop is the resting
-    frame (final), so the pass ends exactly on the ungated still and fill-mode holds it."""
+    """once: the 100 % stop is the resting frame (final), so the pass ends exactly on the ungated
+    still and fill-mode holds it. loop: the track holds its last value to 100 % and jumps back to
+    its 0 % value at the wrap, while the figure group (fig_keyframes) is invisible."""
     stops = {}
 
     def put(t, prop, v, ease=None):
@@ -2326,11 +2699,7 @@ def css_keyframes(el, segs, T, marks, final=None):
             put(t0, prop, cur, ease)
             put(t1, prop, v1)
             last, cur = t1, v1
-        if T.once:
-            put(T.end, prop, (final or {}).get(prop, cur))
-        else:
-            put(T.rst, prop, cur, 'exit')
-            put(T.end, prop, init)
+        put(T.end, prop, (final or {}).get(prop, cur) if T.once else cur)
     out = [f'@keyframes {el} {{']
     for t in sorted(stops):
         props, ease = stops[t]
@@ -2339,6 +2708,21 @@ def css_keyframes(el, segs, T, marks, final=None):
             body += f' animation-timing-function: {EASE[ease]};'
         pct = f'{t / T.end * 100:.2f}'.rstrip('0').rstrip('.')
         out.append(f'  {pct}% {{ {body} }}  /* {f1(t)}s{" " + marks[t] if t in marks else ""} */')
+    return '\n'.join(out + ['}'])
+
+
+def fig_keyframes(N, T):
+    """loop: the whole figure fades in at the start of each cycle and out in the reset window, as one
+    move on one <g>; the per-element tracks jump back to their start while it is invisible."""
+    out_at = T.rst
+    stops = [(0, 'opacity: 0;', 'enter'), (FIG_IN, 'opacity: 1;', None), (out_at, 'opacity: 1;', 'exit'),
+             (out_at + FIG_OUT, 'opacity: 0;', None), (T.end, 'opacity: 0;', None)]
+    out = [f'@keyframes {N}-fig {{']
+    for t, body, ease in stops:
+        pct = f'{t / T.end * 100:.2f}'.rstrip('0').rstrip('.')
+        tf = f' animation-timing-function: {EASE[ease]};' if ease else ''
+        what = {0: 'cycle start', FIG_IN: 'figure in', out_at: 'reset: figure out', T.end: 'wrap'}.get(t, '')
+        out.append(f'  {pct}% {{ {body}{tf} }}  /* {f1(t)}s{" " + what if what else ""} */')
     return '\n'.join(out + ['}'])
 
 
@@ -2353,16 +2737,24 @@ def text_lines(x, y, h, lines, anchor='middle'):
     return ''.join(out), total
 
 
-def text_block(N, lab, F, only=None, extra=''):
-    """A node's text lines at the place put_label chose: label in --anim-font, sub in mono muted."""
+def text_block(N, lab, F, only=None, extra='', focal=False):
+    """A node's text lines at the place put_label chose: label in --anim-font, sub in --anim-font
+    muted (mono only when it is a value), the focal value at hero size."""
     out, yt = [], lab['y']
     for t, r in lab['lines']:
         if only is None or r == only:
-            cls = f'{N}-t {N}-lbl' if r == 'lbl' else f'{N}-t {N}-sub'
-            out.append(f'<text class="{cls}{extra}" x="{f1(lab["x"])}" y="{f1(yt + F[r] * 0.8)}" '
+            cls = f'{N}-t ' + {'lbl': f'{N}-lbl', 'sub': f'{N}-sub', 'val': f'{N}-sub {N}-val',
+                               'hero': f'{N}-hero'}[r]
+            fa = ' data-anim-focal=""' if r == 'hero' and focal else ''    # the hero is the focal element
+            out.append(f'<text class="{cls}{extra}"{fa} x="{f1(lab["x"])}" y="{f1(yt + F[r] * 0.8)}" '
                        f'text-anchor="{lab["anchor"]}">{escape(t)}</text>')
         yt += F[r] * 1.25
     return ''.join(out)
+
+
+def small_cls(N, text):
+    """Class of a small text: mono only for data (a value, unit, code), else --anim-font muted."""
+    return f'{N}-mono' if is_data(text) else f'{N}-sm'
 
 
 def mark_svg(b, cls, el_id=''):
@@ -2433,6 +2825,17 @@ def outside(S, F, scene, frame_info):
     """Everything drawn that leaves the viewBox (or runs into the caption row): [(what, x0, y0, x1, y1)]."""
     top, bottom, strip, has_note = frame_info
     ylim = S.H - strip - 8 if has_note else S.H
+    out = [(f'{c} overlap (no room between rows)', 0, 0, 0, S.H * 2) for c in scene.get('conflicts', [])]
+    for what, b in scene_items(S, F, scene):
+        x0, y0, x1, y1 = b['x'], b['y'], b['x'] + b['w'], b['y'] + b['h']
+        if x0 < -0.5 or y0 < -0.5 or x1 > S.W + 0.5 or y1 > ylim + 0.5:
+            out.append((what, x0, y0, x1, y1))
+    return out
+
+
+def scene_items(S, F, scene):
+    """Every drawn part of the figure as (what, box): node marks with their text, containers,
+    group and era brackets, edge labels and wires (title and caption not included)."""
     items = [(f'node {i}', foot(b)) for i, b in scene['nodes'].items()]
     items += [(f'{c["style"]} {c["key"]}', c) for c in scene.get('containers', [])]
     items += [(f'group {g["id"]}', scene_group_box(S, F, scene, g['id'])) for g in drawn_groups(S, scene)
@@ -2444,12 +2847,7 @@ def outside(S, F, scene, frame_info):
         pts = sample(scene['edges'][e['id']], 12)
         xs, ys = [p[0] for p in pts], [p[1] for p in pts]
         items.append((f'edge {e["id"]}', dict(x=min(xs) - 2, y=min(ys) - 2, w=max(xs) - min(xs) + 4, h=max(ys) - min(ys) + 4)))
-    out = [(f'{c} overlap (no room between rows)', 0, 0, 0, S.H * 2) for c in scene.get('conflicts', [])]
-    for what, b in items:
-        x0, y0, x1, y1 = b['x'], b['y'], b['x'] + b['w'], b['y'] + b['h']
-        if x0 < -0.5 or y0 < -0.5 or x1 > S.W + 0.5 or y1 > ylim + 0.5:
-            out.append((what, x0, y0, x1, y1))
-    return out
+    return items
 
 
 def bracket_d(x0, x1, y, gap0, gap1, tick):
@@ -2465,6 +2863,9 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
     N = S.name
     top, bottom, strip, has_note = frame_info
     active_ids = {x for p in S.phases for x in p['active']}
+
+    def focal_attr(x):
+        return ' data-anim-focal=""' if x == S.focal else ''
     over = []                                       # overflow warnings
     svg = []
     if S.title:
@@ -2472,15 +2873,29 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
     if S.illustrative:
         b = illus_box(S, F, top)
         svg.append(f'<g class="{N}-illus"><rect class="{N}-tag" x="{f1(b["x"])}" y="{f1(b["y"])}" '
-                   f'width="{f1(b["w"])}" height="{f1(b["h"])}" rx="4"/><text class="{N}-t {N}-mono" '
+                   f'width="{f1(b["w"])}" height="{f1(b["h"])}" rx="4"/><text class="{N}-t {N}-sm" '
                    f'x="{f1(b["x"] + b["w"] / 2)}" y="{f1(b["y"] + b["h"] / 2 + F["mono"] * 0.35)}" '
                    f'text-anchor="middle">illustrative</text></g>')
-    svg += scene.get('back', [])
+    fig_at = len(svg)                               # loop: everything below sits in one fading <g>
+    prog = f'id="{N}-progress"'                       # the timeline progress line, settled at rest
+    pr = anim.rest(N + '-progress')                   # settled, or stopped short at "now" (a partial ending)
+    svg += [x.replace(prog, prog + anim.style(N + '-progress'), 1)
+            if 'opacity' in pr or pr.get('stroke-dashoffset', 0) not in (0, '0') else x for x in scene.get('back', [])]
 
     # State layer: every highlight copy, every settled (ok) copy and the captions live in ONE <g>
     # drawn after the figure, so a phase change (old highlight out, new in, status settles,
     # caption swaps) is one opacity swap in one group, not five separate moves (concurrency).
     state = []
+
+    def drawn(el, path):
+        """A hairline that draws on (pathLength 100, dash 100 + gap 120, as the wires)."""
+        if not path:
+            return ''
+        return path.replace('<path class="', f'<path id="{el}-r" pathLength="100" class="{N}-draw ', 1) \
+                   .replace('/>', f'{anim.style(el + "-r")}/>', 1)
+
+    def named(el, body):
+        return f'<g id="{el}-t"{anim.style(el + "-t")}>{body}</g>' if body else ''
 
     def hl_group(el, body):
         state.append(f'<g id="{el}-hl" class="{N}-hlg"{anim.style(el + "-hl")}>{body}</g>')
@@ -2503,7 +2918,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
                                     f'y="{f1(c["y"] + 8 + F["mono"])}">{escape(lines[0])}</text>')
             if any(text_w(t, F['mono'], True) > (c['name_w'] - 24 if c['side'] else c['w'] - 32) for t in lines):
                 warn(f'lane label {c["label"][:30]!r} is wider than its lane header; shorten it')
-            body = rule + (mk('') if c['label'] else '')
+            body = drawn(el, rule) + named(el, mk('') if c['label'] else '')
             hl = hl_group(el, mk(f' {N}-acc')) if on and c['label'] else ''
         elif c['style'] == 'panel':
             hy = c['y'] + F['head'] * 0.85
@@ -2512,7 +2927,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
             rule = f'M {f1(c["x"])},{f1(ry)} H {f1(c["x"] + c["w"])}'
             if text_w(c['label'], F['head']) > c['w']:
                 warn(f'column header {c["label"][:30]!r} is wider than its column; shorten it')
-            body = head + f'<path class="{N}-rule {N}-rule-head" d="{rule}"/>'
+            body = drawn(el, f'<path class="{N}-rule {N}-rule-head" d="{rule}"/>') + named(el, head)
             hl = hl_group(el, f'<path class="{N}-wire-hl" d="{rule}"/>'
                           + head.replace(f'{N}-head"', f'{N}-head {N}-acc"')) if on else ''
         else:
@@ -2520,7 +2935,7 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
             name = (f'<text class="{N}-t {N}-band" x="48" y="{f1(ty)}">{escape(c["label"])}</text>')
             rule = (f'<path class="{N}-rule" d="M {f1(c["x"])},{f1(c["y"] + c["h"])} H {f1(c["x"] + c["w"])}"/>'
                     if c['order'] else '')
-            body = rule + name
+            body = drawn(el, rule) + named(el, name)
             hl = hl_group(el, name.replace(f'{N}-band"', f'{N}-band {N}-acc"')) if on else ''
         svg.append(f'<g id="{el}" class="{N}-cont"{anim.style(el)}>{body}{hl}</g>')
 
@@ -2536,9 +2951,9 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
                 warn(f'era {g["id"]}: bracket label is wider than its span; shorten it')
             hl = hl_group(el, f'<path class="{N}-wire-hl" d="{d}"/>') \
                 if g['id'] in active_ids else ''
-            svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}><path class="{N}-bracket" d="{d}"/>{hl}'
-                       f'<text class="{N}-t {N}-glbl" x="{f1(mid)}" y="{f1(ty)}" text-anchor="middle">'
-                       f'{escape(g["label"])}</text></g>')
+            svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}>{drawn(el, f"""<path class="{N}-bracket" d="{d}"/>""")}{hl}'
+                       + named(el, f'<text class="{N}-t {N}-glbl" x="{f1(mid)}" y="{f1(ty)}" text-anchor="middle">'
+                               f'{escape(g["label"])}</text>') + '</g>')
     for g in drawn_groups(S, scene):
         box = scene_group_box(S, F, scene, g['id'])
         x0, x1, y = box['x'], box['x'] + box['w'], box['y'] + F['sub'] * 0.5
@@ -2553,9 +2968,9 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         d = bracket_d(x0, x1, y, x0 + 8, x0 + 20 + tw + 10, 16)
         hl = hl_group(el, f'<path class="{N}-wire-hl" d="{d}"/>') \
             if g['id'] in active_ids else ''
-        svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}><path class="{N}-bracket" d="{d}"/>{hl}'
-                   + ''.join(f'<text class="{N}-t {N}-glbl" x="{f1(x0 + 20)}" y="{f1(y + F["sub"] * (0.35 + 1.25 * k))}">'
-                             f'{escape(t)}</text>' for k, t in enumerate(glines)) + '</g>')
+        svg.append(f'<g id="{el}" class="{N}-group"{anim.style(el)}>{drawn(el, f"""<path class="{N}-bracket" d="{d}"/>""")}{hl}'
+                   + named(el, ''.join(f'<text class="{N}-t {N}-glbl" x="{f1(x0 + 20)}" y="{f1(y + F["sub"] * (0.35 + 1.25 * k))}">'
+                                       f'{escape(t)}</text>' for k, t in enumerate(glines))) + '</g>')
 
     # ---- wires
     plain = S.arch == 'pipeline'                    # a chain needs no arrowheads between neighbours
@@ -2567,64 +2982,88 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         hl = hl_group(el, f'<path class="{N}-wire-hl" d="{path_d(c)}"/>') \
             if e['id'] in active_ids else ''
         chain = plain and len(segs(c)) == 1 and abs(c[0][1] - c[3][1]) < 1 and abs(c[1][1] - c[0][1]) < 1
-        arrow = '' if chain else f'<path class="{N}-arrow" d="{arrow_d(c)}"/>'
+        arrow = '' if chain else f'<path id="{el}-a" class="{N}-arrow" d="{arrow_d(c)}"{anim.style(el + "-a")}/>'
         lab = ''
         if e['label']:
             lb = label_box(S, F, scene, e)
-            lab = (f'<text class="{N}-t {N}-mono {N}-elbl" x="{f1(lb["x"] + lb["w"] / 2)}" '
-                   f'y="{f1(lb["y"] + F["edge"] * 0.9)}" text-anchor="middle">{escape(e["label"])}</text>')
+            lab = (f'<text id="{el}-l" class="{N}-t {small_cls(N, e["label"])} {N}-elbl" x="{f1(lb["x"] + lb["w"] / 2)}" '
+                   f'y="{f1(lb["y"] + F["edge"] * 0.9)}" text-anchor="middle"{anim.style(el + "-l")}>'
+                   f'{escape(e["label"])}</text>')
         svg.append(f'<g id="{el}" class="{N}-edge {N}-ek-{e["kind"]}"{anim.style(el)}>{wire}{hl}{arrow}{lab}</g>')
 
     # ---- nodes
-    # glow budget: only one ring glows, the story's outcome (first node active in the last phase,
-    # else the last node highlighted at all); every other highlight is a plain accent copy
-    lit = [x for p in S.phases for x in p['active'] if x in S.node]
-    glow_id = next((x for x in S.phases[-1]['active'] if x in S.node), lit[-1] if lit else None)
+    # glow budget: only the focal element glows, and only while it is lit; every other highlight
+    # is a plain accent copy, and a step the story has passed stays in the accent without glow
+    glow_id = S.focal if S.focal in S.node and S.focal in active_ids else None
+    done = []                                       # settled rings: one group, one reveal
     for k, n in enumerate(S.nodes):
         b, el, kind = scene['nodes'][n['id']], rid[n['id']], n['kind']
         on = n['id'] in active_ids
         parts = []
+        row_hero = False
         if b['shape'] == 'row':
             x = b['x'] + 16
             rt = row_text(n, F, b['w'] - 16, b.get('stack'))
             if rt:
-                cls = {'lbl': f'{N}-t {N}-lbl', 'sub': f'{N}-t {N}-sub'}
+                cls = {'lbl': f'{N}-t {N}-lbl', 'foc': f'{N}-t {N}-lbl {N}-fw', 'sub': f'{N}-t {N}-sub',
+                       'val': f'{N}-t {N}-sub {N}-val'}
                 txt, total = text_lines(x, b['y'], b['h'], [(t, cls[r], F[r]) for t, r in rt], 'start')
-                acc = text_lines(x, b['y'], b['h'], [(t, cls[r] + (f' {N}-acc' if r == 'lbl' else ' ' + N + '-ghost'), F[r])
+                acc = text_lines(x, b['y'], b['h'], [(t, cls[r] + (f' {N}-acc' if r in ('lbl', 'foc') else ' ' + N + '-ghost'), F[r])
                                                      for t, r in rt], 'start')[0]
                 if total > b['h'] - 6 or any(line_w(t, r, F) > b['w'] - 24 for t, r in rt):
                     over.append(n['id'])
             else:
-                ty = b['y'] + b['h'] / 2 + F['lbl'] * 0.35
-                txt = f'<text class="{N}-t {N}-lbl" x="{f1(x)}" y="{f1(ty)}">{escape(n["label"])}</text>'
-                acc = txt.replace(f'{N}-lbl"', f'{N}-lbl {N}-acc"')
-                if n['sub']:
-                    txt += (f'<text class="{N}-t {N}-sub" x="{f1(b["x"] + b["w"])}" y="{f1(ty)}" '
+                row_hero = bool(n['id'] == S.focal and n['sub'] and is_data(n['sub']) and F.get('hero_on')
+                                and F['hero'] * 0.75 <= b['h'] - 8 and text_w(n['label'], F['lbl'])
+                                + text_w(n['sub'], F['hero']) * 1.04 + 48 <= b['w'] - 16)
+                # the focal row: its value at hero size when it fits, else its label one step up (foc)
+                big = n['id'] == S.focal and not row_hero
+                fw = f' {N}-fw' if big else ''
+                ty = b['y'] + b['h'] / 2 + F['foc' if big else 'lbl'] * 0.35
+                txt = f'<text class="{N}-t {N}-lbl{fw}" x="{f1(x)}" y="{f1(ty)}">{escape(n["label"])}</text>'
+                acc = txt.replace(f'{N}-lbl{fw}"', f'{N}-lbl{fw} {N}-acc"')
+                if row_hero:    # the focal row's value is the claim: hero size, the focal element
+                    txt += (f'<text class="{N}-t {N}-hero" data-anim-focal="" x="{f1(b["x"] + b["w"])}" '
+                            f'y="{f1(b["y"] + b["h"] / 2 + F["hero"] * 0.35)}" text-anchor="end">'
+                            f'{escape(n["sub"])}</text>')
+                elif n['sub']:
+                    vc = f' {N}-val' if is_data(n['sub']) else ''
+                    txt += (f'<text class="{N}-t {N}-sub{vc}" x="{f1(b["x"] + b["w"])}" y="{f1(ty)}" '
                             f'text-anchor="end">{escape(n["sub"])}</text>')
             parts.append(txt)
             for x, st, sel in scene.get('switch', []):
                 if x == n['id']:      # a row switches by its label colour
-                    stxt = txt.replace(f'{N}-lbl"', f'{N}-lbl {N}-st-{st}"').replace(f'{N}-sub"', f'{N}-sub {N}-ghost"')
+                    stxt = re.sub(f'{N}-lbl( {N}-fw)?"', lambda m: m.group(0)[:-1] + f' {N}-st-{st}"', txt)
+                    stxt = re.sub(f'{N}-(sub( {N}-val)?|hero)"', lambda m: m.group(0)[:-1] + f' {N}-ghost"', stxt)
+                    stxt = stxt.replace(' data-anim-focal=""', '')
                     state.append(f'<g id="{sel}" class="{N}-swg"{anim.style(sel)}>{stxt}</g>')
             if not b.get('last'):
                 parts.append(f'<path class="{N}-rule" d="M {f1(b["x"])},{f1(b["y"] + b["h"])} H {f1(b["x"] + b["w"])}"/>')
             if on:
                 tick = f'M {f1(b["x"] + 2)},{f1(b["y"] + 12)} V {f1(b["y"] + b["h"] - 12)}'
                 parts.append(hl_group(el, f'<path class="{N}-wire-hl" d="{tick}"/>{acc}'))
-            svg.append(f'<g id="{el}" class="{N}-node {N}-k-{kind}"{anim.style(el)}>{"".join(parts)}</g>')
+            svg.append(f'<g id="{el}" class="{N}-node {N}-k-{kind}"{"" if row_hero else focal_attr(n["id"])}'
+                       f'{anim.style(el)}>{"".join(parts)}</g>')
             continue
         dot = b['shape'] == 'dot'
+        lparts = []                                 # the text: settles after the mark has landed
         if 'leader' in b:
             lx, l0, l1 = b['leader']
-            parts.append(f'<path class="{N}-leader" d="M {f1(lx)},{f1(l0)} V {f1(l1)}"/>')
-            parts.append(f'<text class="{N}-t {N}-at" x="{f1(b["at"][0])}" y="{f1(b["at"][1])}" '
-                         f'text-anchor="middle">{escape(str(n["at"]))}</text>')
+            lparts.append(f'<path class="{N}-leader" d="M {f1(lx)},{f1(l0)} V {f1(l1)}"/>')
+            lparts.append(f'<text class="{N}-t {N}-at {small_cls(N, str(n["at"]))}" x="{f1(b["at"][0])}" '
+                          f'y="{f1(b["at"][1])}" text-anchor="middle">{escape(str(n["at"]))}</text>')
         base = f'{N}-dot' if dot else f'{N}-ring' + (f' {N}-ext' if kind == 'external' else '')
-        parts.append(mark_svg(b, base))
-        parts.append(inner(S, F, n, b, k))
-        if n['id'] in scene.get('ok', ()):
-            state.append(f'<g id="{el}-ok" class="{N}-okg"{anim.style(el + "-ok")}>'
-                         + mark_svg(b, f'{base} {N}-is-ok') + inner(S, F, n, b, k, 'ok') + '</g>')
+        hero = any(r == 'hero' for _, r in b['lab']['lines'])
+        ring = mark_svg(b, base)
+        if n['id'] == S.focal and not hero:          # no hero: the larger mark is the focal element
+            ring = ring.replace(f'class="{base}"', f'class="{base}" data-anim-focal=""', 1)
+        parts.append(f'<g id="{el}-m" class="{N}-land"{anim.style(el + "-m")}>'
+                     + ring + inner(S, F, n, b, k) + '</g>')
+        if n['id'] in scene.get('settled', ()):     # the settled copy: --anim-fg, no accent
+            done.append(mark_svg(b, f'{base} {N}-is-dn'))
+        if n['id'] in scene.get('reached', ()):
+            state.append(f'<g id="{el}-rc" class="{N}-rcg"{anim.style(el + "-rc")}>'
+                         + mark_svg(b, f'{base} {N}-is-rc') + inner(S, F, n, b, k, 'rc') + '</g>')
         for x, st, sel in scene.get('switch', []):
             if x == n['id']:
                 state.append(f'<g id="{sel}" class="{N}-swg"{anim.style(sel)}>'
@@ -2633,8 +3072,10 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
             parts.append(hl_group(el, (mark_svg(b, f'{N}-glow') if n['id'] == glow_id else '')
                                   + mark_svg(b, f'{base} {N}-is-hl')
                                   + inner(S, F, n, b, k, 'hl')))
-        parts.append(text_block(N, b['lab'], F))
-        svg.append(f'<g id="{el}" class="{N}-node {N}-k-{kind}"{anim.style(el)}>{"".join(parts)}</g>')
+        lparts.append(text_block(N, b['lab'], F, focal=n['id'] == S.focal))
+        parts.append(f'<g id="{el}-lb"{anim.style(el + "-lb")}>{"".join(lparts)}</g>')
+        svg.append(f'<g id="{el}" class="{N}-node {N}-k-{kind}"{anim.style(el)}>'
+                   f'{"".join(parts)}</g>')
     if over:
         warn(f'text may overflow its row in node(s) {", ".join(over)}: shorten the label, '
              'use sub, or pick a larger --viewbox / --rendered-width')
@@ -2648,25 +3089,32 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         for ev in ch['events']:
             el, x = rid[ev['e']['id']], ev['x']
             tw = text_w(ev['e']['label'], F['mono'], True) + 20
+            ec = small_cls(N, ev['e']['label'])
             tx = min(max(x, L + tw / 2), R - tw / 2)
             svg.append(f'<g id="{el}" class="{N}-event"{anim.style(el)}><path class="{N}-evl" '
                        f'd="M {f1(x)},{f1(Tp)} V {f1(B)}"/><rect class="{N}-tag" x="{f1(tx - tw / 2)}" '
                        f'y="{f1(Tp - F["mono"] - 26)}" width="{f1(tw)}" height="{f1(F["mono"] + 16)}" rx="4"/>'
-                       f'<text class="{N}-t {N}-mono" x="{f1(tx)}" y="{f1(Tp - 18 - F["mono"] * 0.15)}" '
+                       f'<text class="{N}-t {ec}" x="{f1(tx)}" y="{f1(Tp - 18 - F["mono"] * 0.15)}" '
                        f'text-anchor="middle">{escape(ev["e"]["label"])}</text></g>')
         for s in ch['series']:
             el, k = rid[s['s']['id']], s['k']
             clip = f' clip-path="url(#{N}-clip)"' if s['drawn'] else ''
             ex, ey = s['pts'][-1]
-            dot = (f'<circle id="{el}-dot" class="{N}-tip {N}-f{k}" cx="0" cy="0" r="7"'
+            fr_ = 10.5 if s['s']['id'] == S.focal else 7         # the focal series ends on a larger dot
+            dot = (f'<circle id="{el}-dot" class="{N}-tip {N}-f{k}" cx="0" cy="0" r="{f1(fr_)}"'
                    f'{anim.style(el + "-dot") or " style=" + chr(34) + f"transform:translate({f1(ex)}px,{f1(ey)}px)" + chr(34)}/>'
                    if s['drawn'] else '')
             if dot and 'transform' not in anim.rest(el + '-dot'):
                 dot = dot.replace('cx="0" cy="0"', f'cx="{f1(ex)}" cy="{f1(ey)}"')
             glow = ''    # lines never glow (glow budget: one glowing element, a node ring)
-            svg.append(f'<g id="{el}" class="{N}-series"{anim.style(el)}>{glow}<path class="{N}-ser {N}-c{k}" '
-                       f'd="{s["d"]}"{clip}/>{dot}<text id="{el}-end" class="{N}-t {N}-lbl {N}-f{k}" '
-                       f'x="{f1(ex + 14)}" y="{f1(s["ly"])}"{anim.style(el + "-end")}>{escape(s["s"]["label"])}</text></g>')
+            fc = f' {N}-ser-focal' if s['s']['id'] == S.focal else ''
+            # the accent series' end label is text in --anim-fg: the line itself carries the accent
+            # (style.md principle 3: the accent stays on the claim, not on its name)
+            lc = f' {N}-f{k}' if k else ''
+            svg.append(f'<g id="{el}" class="{N}-series"{anim.style(el)}>{glow}'
+                       f'<path class="{N}-ser {N}-c{k}{fc}"{focal_attr(s["s"]["id"])} '
+                       f'd="{s["d"]}"{clip}/>{dot}<text id="{el}-end" class="{N}-t {N}-lbl{lc}" '
+                       f'x="{f1(ex + fr_ + 9)}" y="{f1(s["ly"])}"{anim.style(el + "-end")}>{escape(s["s"]["label"])}</text></g>')
 
     # ---- dim: veils in the ground colour over the dimmed elements, under the state layer
     for el, ids in scene.get('dims', []):
@@ -2705,7 +3153,8 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         b = scene['nodes'][x]
         if b['shape'] == 'row':
             rt = row_text(S.node[x], F, b['w'] - 16, b.get('stack'))
-            w = max([line_w(t, r, F) for t, r in rt if r == 'lbl'] or [text_w(S.node[x]['label'], F['lbl'])])
+            w = max([line_w(t, r, F) for t, r in rt or [] if r in ('lbl', 'foc')]
+                    or [text_w(S.node[x]['label'], F['foc' if x == S.focal else 'lbl'])])
             y = b['y'] + b['h'] - 6
             d = f'M {f1(b["x"] + 16)},{f1(y)} H {f1(b["x"] + 16 + min(w, b["w"] - 24))}'
             state.append(f'<path id="{el}" class="{N}-mark" d="{d}" pathLength="100"{anim.style(el)}/>')
@@ -2723,6 +3172,8 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
             state.append(f'<text id="{N}-note{k}" class="{N}-t {N}-note" x="{f1(S.W / 2)}" '
                          f'y="{f1(S.H - 8 - strip / 2 + F["note"] * 0.35)}" text-anchor="middle"'
                          f'{anim.style(f"{N}-note{k}")}>{escape(t)}</text>')
+    if done:     # under the accent copies, so the focal highlight stays on top
+        state.insert(0, f'<g id="{N}-done" class="{N}-dng"{anim.style(N + "-done")}>{"".join(done)}</g>')
     if state:
         svg.append(f'<g id="{N}-state" class="{N}-state">')
         svg += ['  ' + x for x in state]
@@ -2736,21 +3187,22 @@ def emit(S, args, F, scene, T, anim, rid, frame_info):
         lab = (S.traveller or {}).get('label')
         if lab:     # the traveller's short label rides with the marker, upright (offset-rotate: 0deg)
             svg.append(f'<g id="{el}" class="{N}-trav"{anim.style(el, f"offset-path:var(--{rid[eid]});offset-rotate:0deg")}>'
-                       f'<circle class="{cls}" r="{r}"/><text class="{N}-t {N}-mono {N}-tlbl" x="{r + 8}" '
+                       f'<circle class="{cls}" r="{r}"/><text class="{N}-t {small_cls(N, lab)} {N}-tlbl" x="{r + 8}" '
                        f'y="{f1(-r - 6)}">{escape(lab)}</text></g>')
         else:
             svg.append(f'<circle id="{el}" class="{cls}" '
                        f'r="{r}"{anim.style(el, f"offset-path:var(--{rid[eid]})")}/>')
+    if not T.once:
+        svg = svg[:fig_at] + [f'<g id="{N}-fig">'] + ['  ' + x for x in svg[fig_at:]] + ['</g>']
     return svg
 
 
 def css(S, F, T, anim, scene, rid):
     N, A = S.name, f'.anim-{S.name}'
-    ink = 'color-mix(in srgb, var(--anim-muted) 55%, var(--anim-bg))'      # rings and wires at rest
     rules = f"""{A} {{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -2758,48 +3210,51 @@ def css(S, F, T, anim, scene, rid):
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display: block; width: 100%; height: 100%;
 }}
 {A} svg {{ display: block; width: 100%; height: 100%; max-width: none; overflow: visible; }}
-/* type: labels in --anim-font 600, everything secondary in mono muted */
-{A} .{N}-t {{ font-family: var(--anim-font); fill: var(--anim-fg); }}
-{A} .{N}-title {{ font-size: {F['title']}px; font-weight: 700; }}
+/* type ladder: sub-label {f1(F['sub'])}, label {f1(F['lbl'])}, title {f1(F['title'])}, hero {f1(F['hero'])}; names in --anim-font, mono only for data */
+{A} .{N}-t {{ font-family: var(--anim-font); fill: var(--anim-fg); font-variant-numeric: tabular-nums; }}
+{A} .{N}-title {{ font-size: {F['title']}px; font-weight: 600; }}
 {A} .{N}-head {{ font-size: {F['head']}px; font-weight: 600; }}
 {A} .{N}-lbl {{ font-size: {F['lbl']}px; font-weight: 600; }}
-{A} .{N}-sub, {A} .{N}-mono, {A} .{N}-at, {A} .{N}-glbl, {A} .{N}-lane, {A} .{N}-band {{ font-family: var(--anim-mono); font-weight: 400; fill: var(--anim-muted); }}
-{A} .{N}-sub {{ font-size: {F['sub']}px; }}
-{A} .{N}-mono, {A} .{N}-at, {A} .{N}-lane {{ font-size: {F['mono']}px; }}
-{A} .{N}-glbl {{ font-size: {F['sub']}px; letter-spacing: .04em; }}
-{A} .{N}-band {{ font-size: {F['mono']}px; letter-spacing: .1em; text-transform: uppercase; }}
-{A} .{N}-num {{ font-family: var(--anim-mono); font-size: {F['num']}px; fill: var(--anim-muted); }}
+{A} .{N}-fw {{ font-size: {F['foc']}px; }}
+{A} .{N}-hero {{ font-size: {F['hero']}px; font-weight: 500; letter-spacing: -0.02em; }}
+{A} .{N}-sub, {A} .{N}-sm, {A} .{N}-glbl, {A} .{N}-lane, {A} .{N}-band {{ font-size: {F['sub']}px; font-weight: 400; fill: var(--anim-muted); }}
+{A} .{N}-mono {{ font-size: {F['sub']}px; font-weight: 400; fill: var(--anim-muted); }}
+{A} .{N}-mono, {A} .{N}-val, {A} .{N}-num {{ font-family: var(--anim-mono); }}
+{A} .{N}-num {{ font-size: {F['num']}px; font-weight: 400; fill: var(--anim-muted); }}
 {A} .{N}-elbl {{ paint-order: stroke; stroke: var(--anim-bg); stroke-width: 6px; stroke-linejoin: round; }}
 {A} .{N}-note {{ font-size: {F['note']}px; font-weight: 400; }}
 {A} .{N}-acc {{ fill: var(--anim-accent); }}
 {A} .{N}-ghost {{ fill: none; }}
-/* marks: rings, thin diamonds, dots; no filled boxes */
-{A} .{N}-ring {{ fill: var(--anim-bg); stroke: {ink}; stroke-width: 2.5; }}
+/* entrance: a mark lands (scale about its own centre), its text settles after it */
+{A} .{N}-land {{ transform-box: fill-box; transform-origin: center; }}
+/* marks: rings, thin diamonds, dots in --anim-line at 2 px; no filled boxes */
+{A} .{N}-ring {{ fill: var(--anim-bg); stroke: var(--anim-line); stroke-width: 2; }}
 {A} .{N}-ext {{ stroke-dasharray: 6 6; }}
-{A} .{N}-dot {{ fill: var(--anim-bg); stroke: {ink}; stroke-width: 2.5; }}
-{A} .{N}-glyph {{ fill: none; stroke: var(--anim-muted); stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }}
+{A} .{N}-dot {{ fill: var(--anim-bg); stroke: var(--anim-line); stroke-width: 2; }}
+{A} .{N}-glyph {{ fill: none; stroke: var(--anim-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
 {A} .{N}-is-ok {{ fill: none; stroke: var(--anim-ok); }}
 {A} .{N}-dot.{N}-is-ok {{ fill: var(--anim-ok); }}
 {A} .{N}-is-hl {{ fill: none; stroke: var(--anim-accent); stroke-width: 4; }}
-{A} .{N}-dot.{N}-is-hl {{ fill: var(--anim-accent); stroke-width: 2.5; }}
+{A} .{N}-dot.{N}-is-hl {{ fill: var(--anim-accent); stroke-width: 2; }}
+{A} .{N}-is-rc {{ fill: none; stroke: var(--anim-accent); stroke-width: 2; }}
+{A} .{N}-is-dn {{ fill: none; stroke: var(--anim-fg); stroke-width: 2; }}
 {A} .{N}-in-ok {{ fill: var(--anim-ok); }}
 {A} .{N}-in-hl {{ fill: var(--anim-accent); }}
 {A} path.{N}-in-ok {{ fill: none; stroke: var(--anim-ok); }}
 {A} path.{N}-in-hl {{ fill: none; stroke: var(--anim-accent); }}
 {A} .{N}-glow {{ fill: none; stroke: var(--anim-accent); stroke-width: 10; stroke-linecap: round; opacity: 0.3; filter: blur(6px); }}
-/* wires: 2.5 px at rest, the active path 4 px accent (lines never glow) */
-{A} .{N}-wire {{ fill: none; stroke: {ink}; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
+/* wires: structure 2 px in --anim-line, the active path 4 px accent (lines never glow) */
+{A} .{N}-wire {{ fill: none; stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
 {A} .{N}-draw {{ stroke-dasharray: 100 120; stroke-dashoffset: 0; }}
 {A} .{N}-ek-depends .{N}-wire {{ stroke-dasharray: 10 8; }}
 {A} .{N}-ek-event .{N}-wire {{ stroke-dasharray: 3 9; }}
-{A} .{N}-ek-data .{N}-wire {{ stroke-width: 2; }}
 {A} .{N}-wire-hl {{ fill: none; stroke: var(--anim-accent); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }}
-{A} .{N}-arrow {{ fill: none; stroke: {ink}; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
+{A} .{N}-arrow {{ fill: none; stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
 {A} .{N}-pkt {{ fill: var(--anim-accent); stroke: var(--anim-accent); stroke-width: 12; stroke-opacity: 0.3; }}
 {A} .{N}-pkt-event {{ fill: var(--anim-warn); stroke: var(--anim-warn); }}
 {A} .{N}-tlbl {{ fill: var(--anim-fg); paint-order: stroke; stroke: var(--anim-bg); stroke-width: 6px; stroke-linejoin: round; }}
@@ -2817,22 +3272,23 @@ def css(S, F, T, anim, scene, rid):
 {A} .{N}-veil {{ opacity: 0.65; }}
 {A} .{N}-veil rect, {A} .{N}-veil circle {{ fill: var(--anim-bg); stroke: none; }}
 {A} .{N}-veil-w {{ fill: none; stroke: var(--anim-bg); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }}
-/* structure: hairlines, brackets, axes */
-{A} .{N}-rule {{ fill: none; stroke: var(--anim-line); stroke-width: 2; }}
-{A} .{N}-bracket {{ fill: none; stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
-{A} .{N}-leader {{ fill: none; stroke: var(--anim-line); stroke-width: 2; }}
-{A} .{N}-tag {{ fill: none; stroke: var(--anim-line); stroke-width: 2; }}
-{A} .{N}-axis {{ fill: none; stroke: var(--anim-line); stroke-width: {3 if S.arch == 'timeline' else 2}; stroke-linecap: round; }}
-{A} .{N}-prog {{ fill: none; stroke: var(--anim-accent); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100 120; stroke-dashoffset: 0; }}
-{A} .{N}-grid {{ fill: none; stroke: var(--anim-muted); stroke-width: 1.5; stroke-dasharray: 2 7; stroke-linecap: round; opacity: 0.4; }}
-{A} .{N}-ser {{ fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }}
+/* structure 2 px (axes); decorative 1.5 px (hairline rules, brackets, leaders, tags, grid) */
+{A} .{N}-rule {{ fill: none; stroke: var(--anim-line); stroke-width: 1.5; }}
+{A} .{N}-bracket {{ fill: none; stroke: var(--anim-line); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }}
+{A} .{N}-leader {{ fill: none; stroke: var(--anim-line); stroke-width: 1.5; }}
+{A} .{N}-tag {{ fill: none; stroke: var(--anim-line); stroke-width: 1.5; }}
+{A} .{N}-axis {{ fill: none; stroke: var(--anim-line); stroke-width: 2; stroke-linecap: round; }}
+{A} .{N}-prog {{ fill: none; stroke: var(--anim-accent); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 100 120; stroke-dashoffset: 0; }}
+{A} .{N}-grid {{ fill: none; stroke: var(--anim-line); stroke-width: 1.5; stroke-dasharray: 2 7; stroke-linecap: round; opacity: 0.6; }}
+{A} .{N}-ser {{ fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }}
+{A} .{N}-ser-focal {{ stroke-width: 4; }}
 {A} .{N}-c0 {{ stroke: var(--anim-accent); }}
-{A} .{N}-c1 {{ stroke: var(--anim-muted); stroke-width: 2.5; stroke-dasharray: 10 8; }}
+{A} .{N}-c1 {{ stroke: var(--anim-muted); stroke-dasharray: 10 8; }}
 {A} .{N}-c2 {{ stroke: var(--anim-muted); stroke-dasharray: 8 7; }}
 {A} .{N}-f0 {{ fill: var(--anim-accent); }}
 {A} .{N}-f1, {A} .{N}-f2 {{ fill: var(--anim-muted); }}
 {A} .{N}-tip.{N}-f0 {{ stroke: var(--anim-accent); stroke-width: 12; stroke-opacity: 0.3; }}
-{A} .{N}-evl {{ fill: none; stroke: var(--anim-muted); stroke-width: 2; stroke-dasharray: 6 7; }}
+{A} .{N}-evl {{ fill: none; stroke: var(--anim-muted); stroke-width: 1.5; stroke-dasharray: 6 7; }}
 """
     out = [rules]
     if S.edges and scene.get('packets'):
@@ -2851,8 +3307,10 @@ def css(S, F, T, anim, scene, rid):
         for el in anim.segs:
             out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear 1 both; }}')
     else:
-        marks[round(T.rst, 2)] = 'reset'
-        out.append(f'/* ---- motion: one full-cycle track per element, gated on .visible (cycle {f1(T.end)} s) ---- */')
+        out.append(f'/* ---- motion: one full-cycle track per element, gated on .visible (cycle {f1(T.end)} s); '
+                   'each holds its last value, and the reset is one fade of the whole figure ---- */')
+        out.append(f'.visible {A} #{N}-fig {{ animation: {N}-fig {f1(T.end)}s linear infinite; }}')
+        out.append(fig_keyframes(N, T))
         for el in anim.segs:
             out.append(f'.visible {A} #{el} {{ animation: {el} {f1(T.end)}s linear infinite; }}')
     for el, segs in anim.segs.items():
@@ -2862,9 +3320,9 @@ def css(S, F, T, anim, scene, rid):
 
 
 REFINE = {
-    'pipeline': 'step numbers sit in the rings; a feedback arc in --anim-danger or --anim-warn only if the slide says why',
+    'pipeline': 'step numbers sit in the rings; passed steps stay accent at 2 px; a feedback arc in --anim-danger or --anim-warn only if the slide says why',
     'graph': 'dim non-active nodes to 60 %; check the crossing report and edge-label spots; glyphs per kind',
-    'timeline': 'past milestones settle to --anim-ok, only "now" stays accent; check leaders and era brackets',
+    'timeline': 'past milestones stay accent at 2 px without glow, only "now" is lit at 4 px; check leaders and era brackets',
     'states': 'single current-state token; error transitions in --anim-danger; label offsets',
     'compare': 'column headers (taken from a one-side group, else Before/After); left dims as right appears',
     'layers': 'layer names (from a one-layer group, else "Layer N"); bands rise 12 px bottom-up; response packet in --anim-ok',
@@ -2875,8 +3333,19 @@ REFINE = {
 def fonts(S, args):
     rw = args.rendered_width or S.W
     k = max(1.0, args.min_text * S.W / (18 * rw))
-    F = {key: math.ceil(v * k * 2) / 2 for key, v in
-         dict(title=26, head=24, lbl=24, note=26, sub=18, mono=18, edge=18, num=20).items()}
+    # type ladder: at most four sizes, each at least 1.25x the next one down:
+    # sub-label 18 (sub, values, edge labels), label 24 (labels, heads, captions, step numbers),
+    # title 30, hero 56 (the focal value, only when it fits); a focal compare row's label: see foc
+    up = lambda v: math.ceil(v * 2 - 1e-9) / 2         # noqa: E731  round up to 0.5 px
+    sub = up(18 * k)
+    lbl = up(max(24 * k, sub * 1.25))
+    title = up(max(30 * k, lbl * 1.25))
+    hero = up(max(56 * k, title * 1.25))
+    F = dict(title=title, head=lbl, lbl=lbl, note=lbl, num=lbl, sub=sub, val=sub, mono=sub, edge=sub,
+             hero=hero, hero_on=getattr(S, 'hero', True))
+    # foc: a focal compare row's label, 1.5x a peer label so it reads first (squint test); with a
+    # title on the slide that size would sit 1.2x from the title, so it takes the title size instead
+    F['foc'] = title if getattr(S, 'title', None) else up(lbl * 1.5)
     F['ring'], F['dot'] = round(34 * k), round(10 * k)      # ring r 34 and timeline dot r 10 at the stage
     return F, k
 
@@ -2898,12 +3367,57 @@ def try_layout(S, F):
     return fr, scene, out
 
 
+STRIP_FILL = 0.40   # a one-row strip that fills less of the viewBox than this gets a shorter viewBox
+STRIP_PAD = 32      # px kept above and below the strip when the viewBox is cropped to it
+
+
+def fit_strip(S, F, fr, scene):
+    """layouts.md, Fill the slot: a pipeline in one row is a thin strip. When the strip (with the
+    title and caption rows) spans less than STRIP_FILL of the viewBox, the empty bands above and
+    below it go: the viewBox height is cropped to the strip plus STRIP_PAD, the width (and with it
+    the type scale) stays, and the slot shrinks with the figure. A two-row (snake) layout keeps the
+    spec's size."""
+    if S.arch != 'pipeline' or any('lane' in b for b in scene['nodes'].values()):
+        return fr, scene
+    bs = [b for _, b in scene_items(S, F, scene)]
+    if not bs:
+        return fr, scene
+    x0, x1 = min(b['x'] for b in bs), max(b['x'] + b['w'] for b in bs)
+    y0, y1 = min(b['y'] for b in bs), max(b['y'] + b['h'] for b in bs)
+    top, bottom, strip, has_note = fr
+    span = (S.H - 8 if has_note else y1) - (24 if S.title else y0)
+    if (x1 - x0) / S.W * span / S.H >= STRIP_FILL:
+        return fr, scene
+    H = int(math.ceil((S.H - ((bottom - top) - (y1 - y0) - 2 * STRIP_PAD)) / 10) * 10)
+    if H >= S.H:
+        return fr, scene
+    T = Spec()
+    T.__dict__.update(S.__dict__)
+    T.H = H
+    quiet = globals()['warn']
+    globals()['warn'] = lambda msg: None
+    try:
+        frt, scenet, out = try_layout(T, F)
+    finally:
+        globals()['warn'] = quiet
+    if out:
+        return fr, scene
+    note(f'pipeline: one row fills only {100 * (x1 - x0) / S.W * span / S.H:.0f} % of {S.W}x{S.H}; viewBox '
+         f'cropped to {S.W}x{H} (layouts.md, Fill the slot): the slot shrinks with it, or use the free '
+         f'height for a drawn scene by hand')
+    S.H = H
+    return try_layout(S, F)[:2]
+
+
 def fit_layout(S, F, args):
     """Lay out; if something still leaves the viewBox at the tightest spacing, find the smallest
     viewBox (20 px steps) that fits and stop with that size instead of writing a broken file."""
     fr, scene, out = try_layout(S, F)
+    if out and F.get('hero_on'):                      # the hero value does not fit: a plain sub-label
+        F['hero_on'] = S.hero = False
+        fr, scene, out = try_layout(S, F)
     if not out:
-        return fr, scene
+        return fit_strip(S, F, fr, scene)
     quiet = globals()['warn']
     globals()['warn'] = lambda msg: None              # trial layouts: no repeated warnings
     try:

@@ -3,7 +3,8 @@
 #  1. check_fragment.py on every pool fragment at its viewBox width
 #  2. scaffold_from_spec.py on every pool/*/spec.yaml, into a temp folder
 #  3. build_gallery.py into a temp folder
-#  4. check_look.py on every pool fragment (rendered in headless Chrome, dark theme);
+#  4. check_look.py --at-marks --at-pauses on every pool fragment (rendered in headless Chrome,
+#     dark theme: the resting frame, every phase mark and three paused frames);
 #     skipped with a notice when no Chrome/Chromium is found (set CHROME=/path to force one)
 #  5. check_verbs.py --pool: every entry names a verb, at most a third use a travelling marker
 #  6. python3 -m py_compile scripts/*.py
@@ -56,7 +57,7 @@ for dir in "$pool"/*/; do
   [ -f "$frag" ] || continue
   width="$(sed -n 's/.*<svg[^>]*viewBox="[-0-9. ]*[ ,][-0-9.]*[ ,]\([0-9.]*\)[ ,].*/\1/p' "$frag" | head -1)"
   [ -n "$width" ] || continue  # reported by the check_fragment.py step
-  rc=0; out="$("$py" "$root/scripts/check_look.py" "$frag" --rendered-width "${width%.*}" 2>&1)" || rc=$?
+  rc=0; out="$("$py" "$root/scripts/check_look.py" "$frag" --rendered-width "${width%.*}" --at-marks --at-pauses 2>&1)" || rc=$?
   if [ "$rc" = 3 ]; then
     echo "notice: no Chrome/Chromium found, check_look.py skipped (set CHROME=/path/to/chrome)"; break
   elif [ "$rc" = 0 ]; then

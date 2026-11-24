@@ -30,9 +30,9 @@ is found, from the built-in base, `base/deck.html`. The finished deck on the bui
 | # | Slide (deck skill or base) | anim-slides adds | Rule it shows |
 |---|---|---|---|
 | 1 | Cover: project name, one-line promise, a picture slot | A still crop of `pool/canal-lock`: its resting frame, viewBox cropped to the chamber and the boat, no keyframes. The motion is saved for slide 2. | Stay in the layout: the crop fits the cover's picture slot at its measured size; title and promise stay the deck skill's. |
-| 2 | What it does: one sentence above a wide slot | `pool/canal-lock` adapted to the slot (viewBox, timing, labels in the deck's font): boat in, gates close, water rises, boat out. The full pass plays once. | Pool first: a fitting entry is adapted, not rebuilt. Match the deck: palette and font from `host_theme.py`, label sizes from the slide's body size. |
+| 2 | What it does: one sentence above a wide slot | `pool/canal-lock` adapted to the slot (viewBox, timing, labels in the deck's font): boat in, gates close, water rises, boat out. The full pass plays once. | Pool first: a fitting entry is adapted, not rebuilt. Match the deck: palette and font from `host_theme.py`, label sizes on the type ladder (`style.md` 5). |
 | 3 | Benefits: three short points | Nothing. A list of benefits states no process, so it stays text; it also keeps two animated slides apart. | Figures replace text only where the slide carries a process, structure or data; the budget. |
-| 4 | Workflow: deck in, figures out | A `reveal` row of the steps the slide names (deck skill builds, slots measured, figures built, checked, delivered), one step lit at a time, in the slot below the headline. | One verb from the claim: order only, so a row and `reveal`, no travelling dot. |
+| 4 | Workflow: deck in, figures out | A `reveal` row of the steps the slide names (deck skill builds, slots measured, figures built, checked, delivered), each step lit as it is reached and staying lit, in the slot below the headline. | One verb from the claim: order only, so a row and `reveal`, no travelling dot. |
 | 5 | Call to action: install command and a sample prompt | Nothing. The deck skill sets `npx skills add KehanLiu/anim-slides` and a sample prompt ("Make five slides introducing this project") in its own type. | Deck first: the deck's own design carries the text slides. |
 
 In `base/example.html` slide 4 keeps the base's own ring row in its slot (a fragment may
@@ -58,6 +58,6 @@ shows ("animate slide 4 of deck.pptx").
 - anim-slides drawing the deck on its own lean dark ground and reskinning it afterwards with
   the deck skill's look (a real run did this when the deck skill was not registered in the
   harness; `lessons.md`).
-- A figure that moves the headline, resizes the slot or sets its own font sizes far from the
-  deck's body text.
+- A figure that moves the headline, resizes the slot, or sets its own font instead of the
+  deck's or sizes off the type ladder.
 - A clean rest frame with a caption that is unreadable at its phase mark.

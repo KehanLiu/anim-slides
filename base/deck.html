@@ -15,12 +15,13 @@
 /* base:tokens:start ==========================================
    COLOUR AND TYPE TOKENS. All colours and fonts live here; the rest of the CSS reads them.
    Dark ground: screens in dim rooms. Light ground: bright rooms, projectors with washed-out
-   blacks, print. Text >= 4.5:1 and accent >= 4.5:1 on both grounds.
+   blacks, print. Text and accent >= 4.5:1 on both grounds (accent 8.9:1 dark,
+   5.0:1 light); structure lines (--line) >= 3:1.
    ============================================================ */
 :root {
     --bg:       #0F1E27;   /* slide ground */
     --panel:    #0D1820;   /* rare container fill (figures only) */
-    --line:     #2A3D49;   /* hairlines, rules, idle strokes */
+    --line:     #56707F;   /* structure lines, rules, idle strokes, 3.3:1 */
     --fg:       #E6EDF0;   /* text, 14.4:1 on bg */
     --muted:    #93A7B2;   /* secondary text, 6.8:1 */
     --accent:   #34D1BF;   /* the one accent, 8.9:1 */
@@ -33,12 +34,12 @@
     --glow-ring: rgba(52, 209, 191, 0.55);  /* the one glowing element */
     --font-display: "Avenir Next", "Avenir", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", sans-serif;
     --font-body:    "Avenir Next", "Avenir", "Segoe UI", "Helvetica Neue", sans-serif;
-    --font-mono:    Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;   /* data only: numbers, codes, file names */
 }
 :root[data-ground="light"] {
     --bg:       #F2F5F5;
     --panel:    #E3E9EA;
-    --line:     #B4C2C8;   /* 1.7:1, a visible hairline on paper */
+    --line:     #768A95;   /* 3.3:1, structure lines on paper */
     --fg:       #11222B;   /* 14.9:1 */
     --muted:    #475B66;   /* 6.5:1 */
     --accent:   #00776B;   /* 5.0:1, the same teal, deepened */
@@ -72,7 +73,8 @@
     --sub-size: 26px;
     --pad-x: 120px;
     --pad-top: 96px;
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);   /* enter */
+    --ease-move: cubic-bezier(0.2, 0, 0, 1);    /* move */
 }
 /* base:tokens:end */
 
@@ -181,7 +183,7 @@ svg { max-width: 100%; max-height: 100%; }
 .wf-num { font-family: var(--font-display); font-size: 76px; font-weight: 600; fill: var(--fg); }
 .wf-num.on { fill: var(--accent); }
 .wf-name { font-family: var(--font-display); font-size: 36px; font-weight: 600; fill: var(--fg); }
-.wf-sub { font-family: var(--font-mono); font-size: 24px; fill: var(--muted); }
+.wf-sub { font-family: var(--font-body); font-size: 24px; fill: var(--muted); }
 .wf-end { font-family: var(--font-mono); font-size: 30px; fill: var(--fg); }
 .wf-head { font-family: var(--font-display); font-size: 32px; font-weight: 600; fill: var(--fg); }
 .wf-arrow { fill: none; stroke: var(--muted); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
@@ -216,7 +218,7 @@ svg { max-width: 100%; max-height: 100%; }
    =========================================== */
 .progress {
     position: fixed; left: 0; bottom: 0; height: 3px; width: 0;
-    background: var(--accent); z-index: 1000; transition: width 0.3s ease;
+    background: var(--accent); z-index: 1000; transition: width 0.3s var(--ease-move);
 }
 
 /* ===========================================
@@ -318,7 +320,7 @@ svg { max-width: 100%; max-height: 100%; }
      Job: how a user gets from input to result. A figure, not bullets.
      3-5 steps as rings (r ~ 100) on one thin line, centres >= 400 px apart; input left
      (file names in mono), result right after an arrow. Under each ring: name 32-36 px
-     (<= 4 words), at most two mono lines at 24 px (<= 24 characters each). The step the
+     (<= 4 words), at most two muted sub-label lines at 24 px (<= 24 characters each). The step the
      headline is about gets the accent and the only glow. Slot s4 (1760 x 640): this ring
      row is the deck's own drawing; an anim-slides fragment may replace it. -->
 <section class="slide workflow" aria-label="Workflow">
@@ -336,19 +338,19 @@ svg { max-width: 100%; max-height: 100%; }
                 <circle class="wf-ring on" cx="470" cy="272" r="104"/>
                 <text class="wf-num on" x="470" y="299" text-anchor="middle">1</text>
                 <text class="wf-name" x="470" y="450" text-anchor="middle">Step one</text>
-                <text class="wf-sub" x="470" y="500" text-anchor="middle">mono sub-label</text>
+                <text class="wf-sub" x="470" y="500" text-anchor="middle">muted sub-label</text>
             </g>
             <g class="wf-step k3">
                 <circle class="wf-ring" cx="870" cy="272" r="104"/>
                 <text class="wf-num" x="870" y="299" text-anchor="middle">2</text>
                 <text class="wf-name" x="870" y="450" text-anchor="middle">Step two</text>
-                <text class="wf-sub" x="870" y="500" text-anchor="middle">mono sub-label</text>
+                <text class="wf-sub" x="870" y="500" text-anchor="middle">muted sub-label</text>
             </g>
             <g class="wf-step k4">
                 <circle class="wf-ring" cx="1270" cy="272" r="104"/>
                 <text class="wf-num" x="1270" y="299" text-anchor="middle">3</text>
                 <text class="wf-name" x="1270" y="450" text-anchor="middle">Step three</text>
-                <text class="wf-sub" x="1270" y="500" text-anchor="middle">mono sub-label</text>
+                <text class="wf-sub" x="1270" y="500" text-anchor="middle">muted sub-label</text>
             </g>
             <g class="wf-step k5">
                 <text class="wf-head" x="1504" y="196">Result</text>

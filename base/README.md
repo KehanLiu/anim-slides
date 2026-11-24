@@ -23,8 +23,8 @@ Set `data-ground` on `<html>`; nothing else changes.
 
 | Ground | Use it when | Palette (text contrast on ground) |
 |---|---|---|
-| `dark` (default) | Screens and LED walls in a dimmed room; developer or technical audiences; a talk | ground `#0F1E27`, text `#E6EDF0` 14.4:1, muted `#93A7B2` 6.8:1, accent `#34D1BF` 8.9:1 |
-| `light` | A lit room or daylight, a projector that greys out blacks, a deck that will be printed or read as a PDF, a business or classroom audience | ground `#F2F5F5`, text `#11222B` 14.9:1, muted `#475B66` 6.5:1, accent `#00776B` 5.0:1 |
+| `dark` (default) | Screens and LED walls in a dimmed room; developer or technical audiences; a talk | ground `#0F1E27`, text `#E6EDF0` 14.4:1, muted `#93A7B2` 6.8:1, accent `#34D1BF` 8.9:1, line `#56707F` 3.3:1 |
+| `light` | A lit room or daylight, a projector that greys out blacks, a deck that will be printed or read as a PDF, a business or classroom audience | ground `#F2F5F5`, text `#11222B` 14.9:1, muted `#475B66` 6.5:1, accent `#00776B` 5.0:1, line `#768A95` 3.3:1 |
 
 Rule: light when the deck will be printed or read on paper or PDF, or presented with the room
 lights on; dark otherwise. When unsure, light for a meeting room, dark for a stage. Record the
@@ -54,7 +54,7 @@ Figures follow the ground through the `--anim-theme-*` variables, including `ok`
    supporting line at 32 px (16 words, 3 rendered lines at most).
 4. **Workflow.** 3 to 5 rings (r about 100), centres at least 400 px apart, on one thin line;
    input left in mono, result right after an arrow. Under each ring the name at 32 to 36 px
-   (4 words at most) and up to two mono lines at 24 px (24 characters each). The step the
+   (4 words at most) and up to two muted sub-label lines at 24 px (24 characters each). The step the
    headline is about gets the accent and the only glow.
 5. **Call to action.** Two steps: a 28 px mono label over a 68 px mono line (40 characters at
    most) with a 4 px accent rule. The command is copied verbatim from the project's README; the
@@ -65,9 +65,13 @@ and 32 characters at most, one line at 96 px. Read only the headlines in order: 
 tell the story.
 
 **Sizes:** cover title 140 to 170 px; headline 96 px; claim or step name 32 to 54 px; body and
-caption 28 to 34 px; mono sub-label and folio 22 to 28 px (24 px minimum for anything the
-audience must read); side padding 120 px, top padding 96 px. Text at least 4.5:1 on the
-ground on both grounds, accent at least 3:1 (the palette gives 5:1 or more).
+caption 28 to 34 px; sub-label and folio 22 to 28 px (24 px minimum for anything the
+audience must read); side padding 120 px, top padding 96 px. Text and accent at least 4.5:1 on
+both grounds (accent 8.9:1 dark, 5.0:1 light); structure lines (`--line`) at least 3:1.
+
+**Fonts:** one body stack and one mono stack (`ui-monospace, "SF Mono", Menlo, Consolas,
+monospace`), no web fonts. Figures take the body stack through `--anim-theme-font`; mono is for
+data only (numbers, units, codes, file names), never for names or labels.
 
 **Slots:** height = width x (figure viewBox height / width); at least 1600 px wide on a demo
 slide; nothing else within 24 px; markers inside the slot (`<!-- sN-body -->` ...

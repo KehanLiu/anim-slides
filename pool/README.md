@@ -107,7 +107,7 @@ Set the `--anim-theme-*` variables once on `:root` (or on a slide) in the host p
 :root {                          /* example: a light theme */
   --anim-theme-bg: #ffffff;       /* must match the slide background: label plates use it */
   --anim-theme-panel: #f2f4f8;
-  --anim-theme-line: #c5ccd8;
+  --anim-theme-line: #768A95;     /* reaches 3:1 on white */
   --anim-theme-fg: #14181f;
   --anim-theme-muted: #5b6474;
   --anim-theme-accent: #0a6cff;

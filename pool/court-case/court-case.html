@@ -2,13 +2,16 @@
   Story: a generic criminal case moves from investigation and charge through arraignment, discovery,
   trial and verdict to sentencing. The progress line changes colour where responsibility passes
   (police and prosecution -> court -> jury -> court); brackets under the axis mark each owner and
-  each hand-off. Labels alternate above and below the axis. Once-play pass 10 s, ends on the resting frame; hold 8.96-10 s.
+  each hand-off. Labels alternate above and below the axis. Once-play pass 10 s, ends on the resting frame; hold 9.2-10 s.
+  Entrance by kind: the axis draws on and the stage marks land as it passes; at each stage the progress line
+  arrives, the mark lands, its leader draws out, then label and sub-label settle; hand-off chevrons draw on.
+  Focal: the sentencing mark (larger ring, the one glow at rest), where the last owner closes the case.
   Generic and simplified: assumes a not-guilty plea and a jury trial; many cases end in a guilty plea or a bench trial, and stage names and order vary by jurisdiction. -->
 <style>
 .anim-court-case{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
   --anim-panel:    var(--anim-theme-panel,    #0D1820);
-  --anim-line:     var(--anim-theme-line,     #2A3D49);
+  --anim-line:     var(--anim-theme-line,     #56707F);
   --anim-fg:       var(--anim-theme-fg,       #E6EDF0);
   --anim-muted:    var(--anim-theme-muted,    #93A7B2);
   --anim-accent:   var(--anim-theme-accent,   #34D1BF);
@@ -16,20 +19,21 @@
   --anim-ok:       var(--anim-theme-ok,       #8ED7AD);
   --anim-warn:     var(--anim-theme-warn,     #FFD15C);
   --anim-danger:   var(--anim-theme-danger,   #FF6B6B);
-  --anim-font:     var(--anim-theme-font,     system-ui, sans-serif);
-  --anim-mono:     var(--anim-theme-mono,     ui-monospace, monospace);
+  --anim-font:     var(--anim-theme-font,     "Avenir Next", "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", system-ui, sans-serif);
+  --anim-mono:     var(--anim-theme-mono,     ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   display:block;width:100%;height:100%
 }
 .anim-court-case svg{display:block;width:100%;height:100%}
 /* lean style (references/style.md): one axis, dots, labels alternate above and below on thin leaders,
-   no cards; the progress line changes colour where ownership passes; owners are hairline brackets
-   with mono labels; the current stage is a ring; one glow copy follows it, and only sentencing keeps it at rest */
+   no cards; the progress line (4 px) changes colour where ownership passes; owners are hairline brackets
+   with labels in the text font; the current stage is a ring; one glow copy follows it, and only
+   sentencing (the focal mark, drawn larger) keeps it at rest */
 .anim-court-case .court-case-lbl{font-family:var(--anim-font);font-size:26px;font-weight:600;fill:var(--anim-fg)}
-.anim-court-case .court-case-sub{font-family:var(--anim-mono);font-size:19px;fill:var(--anim-muted)}
+.anim-court-case .court-case-sub{font-family:var(--anim-font);font-size:19px;fill:var(--anim-muted)}
 .anim-court-case .court-case-note{font-family:var(--anim-font);font-size:26px;fill:var(--anim-fg)}
-.anim-court-case .court-case-own{font-family:var(--anim-mono);font-size:19px;letter-spacing:.04em}
-.anim-court-case .court-case-axis{fill:none;stroke:var(--anim-line);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-court-case .court-case-prog{fill:none;stroke-width:3;stroke-linecap:butt;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-court-case .court-case-own{font-family:var(--anim-font);font-size:19px;font-weight:500}
+.anim-court-case .court-case-axis{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
+.anim-court-case .court-case-prog{fill:none;stroke-width:4;stroke-linecap:butt;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-court-case .court-case-st-a2{stroke:var(--anim-accent-2)}
 .anim-court-case .court-case-st-ac{stroke:var(--anim-accent)}
 .anim-court-case .court-case-st-ok{stroke:var(--anim-ok)}
@@ -39,162 +43,200 @@
 .anim-court-case .court-case-k-a2{--court-case-k:var(--anim-accent-2)}
 .anim-court-case .court-case-k-ac{--court-case-k:var(--anim-accent)}
 .anim-court-case .court-case-k-ok{--court-case-k:var(--anim-ok)}
-.anim-court-case .court-case-mk{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2.5}
+.anim-court-case .court-case-mk{fill:var(--anim-bg);stroke:var(--anim-line);stroke-width:2;transform-box:fill-box;transform-origin:center}
 .anim-court-case .court-case-fl-a2{fill:var(--anim-accent-2);stroke:var(--anim-accent-2)}
 .anim-court-case .court-case-fl-ac{fill:var(--anim-accent);stroke:var(--anim-accent)}
 .anim-court-case .court-case-fl-ok{fill:var(--anim-ok);stroke:var(--anim-ok)}
-.anim-court-case .court-case-ring{fill:none;stroke:var(--court-case-k);stroke-width:3}
+.anim-court-case .court-case-ring{fill:none;stroke:var(--court-case-k);stroke-width:3;transform-box:fill-box;transform-origin:center}
 .anim-court-case .court-case-glow{fill:none;stroke:var(--court-case-k);stroke-width:10;stroke-opacity:.35;filter:blur(7px)}
-.anim-court-case .court-case-tick{fill:none;stroke:var(--anim-line);stroke-width:2;stroke-linecap:round}
-.anim-court-case .court-case-card{transform-box:fill-box}
+.anim-court-case .court-case-tick{fill:none;stroke:var(--anim-line);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 .anim-court-case .court-case-br{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
-.anim-court-case .court-case-ho{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anim-court-case .court-case-ho{fill:none;stroke:var(--anim-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100 120;stroke-dashoffset:0}
 /* resting frame = sentencing done: every stage shown, owners bracketed, only the last stage current */
 .anim-court-case .court-case-inv-now,.anim-court-case .court-case-chg-now,.anim-court-case .court-case-arr-now,.anim-court-case .court-case-dis-now,.anim-court-case .court-case-tri-now,.anim-court-case .court-case-ver-now,.anim-court-case .court-case-n0,.anim-court-case .court-case-n1,.anim-court-case .court-case-n2,.anim-court-case .court-case-n3,.anim-court-case .court-case-gl{opacity:0}
 
 /* ---- motion (one 10 s pass, played once), only when the slide is visible ---- */
-/* fade in 0-0.24 s, then stay */
-@keyframes court-case-scene{0%{opacity:0}2.4%,100%{opacity:1}}
-/* draws on 0.08-0.72 s */
-@keyframes court-case-axis{0%,0.8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}7.2%,100%{stroke-dashoffset:0}}
+/* axis draws on 0.08-0.72 s at an even speed, so each stage mark lands as the line reaches it */
+@keyframes court-case-axis{0%,0.8%{stroke-dashoffset:101;animation-timing-function:linear}7.2%,100%{stroke-dashoffset:0}}
+/* stage mark 1 lands at 0.08 s */
+@keyframes court-case-b0{0%,0.8%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}3.8%,100%{opacity:1;transform:scale(1)}}
+/* stage mark 2 lands at 0.19 s */
+@keyframes court-case-b1{0%,1.87%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}4.87%,100%{opacity:1;transform:scale(1)}}
+/* stage mark 3 lands at 0.29 s */
+@keyframes court-case-b2{0%,2.93%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}5.93%,100%{opacity:1;transform:scale(1)}}
+/* stage mark 4 lands at 0.4 s */
+@keyframes court-case-b3{0%,4%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}7%,100%{opacity:1;transform:scale(1)}}
+/* stage mark 5 lands at 0.51 s */
+@keyframes court-case-b4{0%,5.07%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}8.07%,100%{opacity:1;transform:scale(1)}}
+/* stage mark 6 lands at 0.61 s */
+@keyframes court-case-b5{0%,6.13%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}9.13%,100%{opacity:1;transform:scale(1)}}
+/* stage mark 7 lands at 0.72 s */
+@keyframes court-case-b6{0%,7.2%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}10.2%,100%{opacity:1;transform:scale(1)}}
 /* owner s1: line moves 1.28-2 s, 2.48-3.2 s, one segment per milestone */
 @keyframes court-case-prog-s1{0%,12.8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}20%,24.8%{stroke-dashoffset:50.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}32%,100%{stroke-dashoffset:0.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}}
 /* owner s2: line moves 3.68-4.4 s, 4.88-5.6 s, one segment per milestone */
 @keyframes court-case-prog-s2{0%,36.8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}44%,48.8%{stroke-dashoffset:50.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}56%,100%{stroke-dashoffset:0.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}}
 /* owner s3: line moves 6.08-6.8 s, one segment per milestone */
 @keyframes court-case-prog-s3{0%,60.8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}68%,100%{stroke-dashoffset:0.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}}
-/* owner s4: line moves 7.28-8 s, one segment per milestone */
-@keyframes court-case-prog-s4{0%,72.8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}80%,100%{stroke-dashoffset:0.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}}
-/* marker fills on arrival at 0.8 s */
-@keyframes court-case-inv-mk{0%,8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10%,100%{opacity:1}}
-/* card pops at 0.8 s */
-@keyframes court-case-inv-card{0%,8%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.6%,100%{opacity:1;transform:translateY(0)}}
-/* sub follows the card at 0.88 s */
-@keyframes court-case-inv-sub{0%,8.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}11.6%,100%{opacity:1}}
-/* current stage 0.8-2 s */
-@keyframes court-case-inv-now{0%,8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.4%{opacity:1}20%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.56%,100%{opacity:0}}
-/* marker fills on arrival at 2 s */
-@keyframes court-case-chg-mk{0%,20%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22%,100%{opacity:1}}
-/* card pops at 2 s */
-@keyframes court-case-chg-card{0%,20%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.6%,100%{opacity:1;transform:translateY(0)}}
-/* sub follows the card at 2.08 s */
-@keyframes court-case-chg-sub{0%,20.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}23.6%,100%{opacity:1}}
-/* current stage 2-3.2 s */
-@keyframes court-case-chg-now{0%,20%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.4%{opacity:1}32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.56%,100%{opacity:0}}
-/* marker fills on arrival at 3.2 s */
-@keyframes court-case-arr-mk{0%,32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34%,100%{opacity:1}}
-/* card pops at 3.2 s */
-@keyframes court-case-arr-card{0%,32%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35.6%,100%{opacity:1;transform:translateY(0)}}
-/* sub follows the card at 3.28 s */
-@keyframes court-case-arr-sub{0%,32.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}35.6%,100%{opacity:1}}
-/* current stage 3.2-4.4 s */
-@keyframes court-case-arr-now{0%,32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.4%{opacity:1}44%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}45.56%,100%{opacity:0}}
-/* marker fills on arrival at 4.4 s */
-@keyframes court-case-dis-mk{0%,44%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46%,100%{opacity:1}}
-/* card pops at 4.4 s */
-@keyframes court-case-dis-card{0%,44%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.6%,100%{opacity:1;transform:translateY(0)}}
-/* sub follows the card at 4.48 s */
-@keyframes court-case-dis-sub{0%,44.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}47.6%,100%{opacity:1}}
-/* current stage 4.4-5.6 s */
-@keyframes court-case-dis-now{0%,44%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.4%{opacity:1}56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}57.56%,100%{opacity:0}}
-/* marker fills on arrival at 5.6 s */
-@keyframes court-case-tri-mk{0%,56%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58%,100%{opacity:1}}
-/* card pops at 5.6 s */
-@keyframes court-case-tri-card{0%,56%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.6%,100%{opacity:1;transform:translateY(0)}}
-/* sub follows the card at 5.68 s */
-@keyframes court-case-tri-sub{0%,56.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}59.6%,100%{opacity:1}}
-/* current stage 5.6-6.8 s */
-@keyframes court-case-tri-now{0%,56%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.4%{opacity:1}68%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}69.56%,100%{opacity:0}}
-/* marker fills on arrival at 6.8 s */
-@keyframes court-case-ver-mk{0%,68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70%,100%{opacity:1}}
-/* card pops at 6.8 s */
-@keyframes court-case-ver-card{0%,68%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.6%,100%{opacity:1;transform:translateY(0)}}
-/* sub follows the card at 6.88 s */
-@keyframes court-case-ver-sub{0%,68.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.6%,100%{opacity:1}}
-/* current stage 6.8-8 s */
-@keyframes court-case-ver-now{0%,68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.4%{opacity:1}80%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}81.56%,100%{opacity:0}}
-/* marker fills on arrival at 8 s */
-@keyframes court-case-sen-mk{0%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82%,100%{opacity:1}}
-/* card pops at 8 s */
-@keyframes court-case-sen-card{0%,80%{opacity:0;transform:translateY(16px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.6%,100%{opacity:1;transform:translateY(0)}}
-/* sub follows the card at 8.08 s */
-@keyframes court-case-sen-sub{0%,80.8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}83.6%,100%{opacity:1}}
-/* current stage from 8 s, stays (resting frame) */
-@keyframes court-case-sen-now{0%,80%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}82.4%,100%{opacity:1}}
+/* owner s4: line moves 7.56-8.28 s (after a 0.42 s stillness), one segment per milestone */
+@keyframes court-case-prog-s4{0%,75.6%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.2,0,0,1)}82.8%,100%{stroke-dashoffset:0.00;animation-timing-function:cubic-bezier(0.2,0,0,1)}}
+/* inv: mark fills and lands as the line arrives, 0.8 s */
+@keyframes court-case-inv-mk{0%,8%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}11%,100%{opacity:1;transform:scale(1)}}
+/* inv: current-stage ring lands 0.8 s, leaves 2 s */
+@keyframes court-case-inv-now{0%,8%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}11%{opacity:1;transform:scale(1)}20%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}21.56%,100%{opacity:0;transform:scale(1)}}
+/* inv: leader draws out from the axis 0.8-1.2 s */
+@keyframes court-case-inv-tk{0%,8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12%,100%{stroke-dashoffset:0}}
+/* inv: label settles after its leader, 0.88 s */
+@keyframes court-case-inv-lb{0%,8.8%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.4%,100%{opacity:1;transform:translateY(0)}}
+/* inv: sub-label last, 0.94 s */
+@keyframes court-case-inv-sub{0%,9.4%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.8%,100%{opacity:1;transform:translateY(0)}}
+/* chg: mark fills and lands as the line arrives, 2 s */
+@keyframes court-case-chg-mk{0%,20%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}23%,100%{opacity:1;transform:scale(1)}}
+/* chg: current-stage ring lands 2 s, leaves 3.2 s */
+@keyframes court-case-chg-now{0%,20%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}23%{opacity:1;transform:scale(1)}32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.56%,100%{opacity:0;transform:scale(1)}}
+/* chg: leader draws out from the axis 2-2.4 s */
+@keyframes court-case-chg-tk{0%,20%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}24%,100%{stroke-dashoffset:0}}
+/* chg: label settles after its leader, 2.08 s */
+@keyframes court-case-chg-lb{0%,20.8%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}24.4%,100%{opacity:1;transform:translateY(0)}}
+/* chg: sub-label last, 2.14 s */
+@keyframes court-case-chg-sub{0%,21.4%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}24.8%,100%{opacity:1;transform:translateY(0)}}
+/* arr: mark fills and lands as the line arrives, 3.2 s */
+@keyframes court-case-arr-mk{0%,32%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}35%,100%{opacity:1;transform:scale(1)}}
+/* arr: current-stage ring lands 3.2 s, leaves 4.4 s */
+@keyframes court-case-arr-now{0%,32%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}35%{opacity:1;transform:scale(1)}44%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}45.56%,100%{opacity:0;transform:scale(1)}}
+/* arr: leader draws out from the axis 3.2-3.6 s */
+@keyframes court-case-arr-tk{0%,32%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36%,100%{stroke-dashoffset:0}}
+/* arr: label settles after its leader, 3.28 s */
+@keyframes court-case-arr-lb{0%,32.8%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.4%,100%{opacity:1;transform:translateY(0)}}
+/* arr: sub-label last, 3.34 s */
+@keyframes court-case-arr-sub{0%,33.4%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.8%,100%{opacity:1;transform:translateY(0)}}
+/* dis: mark fills and lands as the line arrives, 4.4 s */
+@keyframes court-case-dis-mk{0%,44%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}47%,100%{opacity:1;transform:scale(1)}}
+/* dis: current-stage ring lands 4.4 s, leaves 5.6 s */
+@keyframes court-case-dis-now{0%,44%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}47%{opacity:1;transform:scale(1)}56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}57.56%,100%{opacity:0;transform:scale(1)}}
+/* dis: leader draws out from the axis 4.4-4.8 s */
+@keyframes court-case-dis-tk{0%,44%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48%,100%{stroke-dashoffset:0}}
+/* dis: label settles after its leader, 4.48 s */
+@keyframes court-case-dis-lb{0%,44.8%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.4%,100%{opacity:1;transform:translateY(0)}}
+/* dis: sub-label last, 4.54 s */
+@keyframes court-case-dis-sub{0%,45.4%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}48.8%,100%{opacity:1;transform:translateY(0)}}
+/* tri: mark fills and lands as the line arrives, 5.6 s */
+@keyframes court-case-tri-mk{0%,56%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}59%,100%{opacity:1;transform:scale(1)}}
+/* tri: current-stage ring lands 5.6 s, leaves 6.8 s */
+@keyframes court-case-tri-now{0%,56%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}59%{opacity:1;transform:scale(1)}68%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}69.56%,100%{opacity:0;transform:scale(1)}}
+/* tri: leader draws out from the axis 5.6-6 s */
+@keyframes court-case-tri-tk{0%,56%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60%,100%{stroke-dashoffset:0}}
+/* tri: label settles after its leader, 5.68 s */
+@keyframes court-case-tri-lb{0%,56.8%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.4%,100%{opacity:1;transform:translateY(0)}}
+/* tri: sub-label last, 5.74 s */
+@keyframes court-case-tri-sub{0%,57.4%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.8%,100%{opacity:1;transform:translateY(0)}}
+/* ver: mark fills and lands as the line arrives, 6.8 s */
+@keyframes court-case-ver-mk{0%,68%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}71%,100%{opacity:1;transform:scale(1)}}
+/* ver: current-stage ring lands 6.8 s, leaves 8.28 s */
+@keyframes court-case-ver-now{0%,68%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}71%{opacity:1;transform:scale(1)}82.8%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}84.36%,100%{opacity:0;transform:scale(1)}}
+/* ver: leader draws out from the axis 6.8-7.1 s */
+@keyframes court-case-ver-tk{0%,68%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71%,100%{stroke-dashoffset:0}}
+/* ver: label settles after its leader, 6.86 s */
+@keyframes court-case-ver-lb{0%,68.6%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.2%,100%{opacity:1;transform:translateY(0)}}
+/* ver: sub-label last, 6.9-7.14 s */
+@keyframes court-case-ver-sub{0%,69%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.4%,100%{opacity:1;transform:translateY(0)}}
+/* sen: mark fills and lands as the line arrives, 8.28 s */
+@keyframes court-case-sen-mk{0%,82.8%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.3,1.3,0.5,1)}85.8%,100%{opacity:1;transform:scale(1)}}
+/* current stage from 8.28 s, stays (resting frame); larger ring, so the enter curve */
+@keyframes court-case-sen-now{0%,82.8%{opacity:0;transform:scale(.92);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.4%,100%{opacity:1;transform:scale(1)}}
+/* sen: leader draws out from the axis 8.28-8.68 s */
+@keyframes court-case-sen-tk{0%,82.8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}86.8%,100%{stroke-dashoffset:0}}
+/* sen: label settles after its leader, 8.36 s */
+@keyframes court-case-sen-lb{0%,83.6%{opacity:0;transform:translateY(10px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.2%,100%{opacity:1;transform:translateY(0)}}
+/* sen: sub-label last, 8.42 s */
+@keyframes court-case-sen-sub{0%,84.2%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}87.6%,100%{opacity:1;transform:translateY(0)}}
 /* one glow follows the current stage: each copy fades in on arrival and is gone when the next stage arrives 1.2 s later */
 @keyframes court-case-inv-gl{0%,8%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}10.4%{opacity:1}18.56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}20%,100%{opacity:0}}
 @keyframes court-case-chg-gl{0%,20%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}22.4%{opacity:1}30.56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}32%,100%{opacity:0}}
 @keyframes court-case-arr-gl{0%,32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.4%{opacity:1}42.56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}44%,100%{opacity:0}}
 @keyframes court-case-dis-gl{0%,44%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}46.4%{opacity:1}54.56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}56%,100%{opacity:0}}
 @keyframes court-case-tri-gl{0%,56%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.4%{opacity:1}66.56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}68%,100%{opacity:0}}
-@keyframes court-case-ver-gl{0%,68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.4%{opacity:1}78.56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}80%,100%{opacity:0}}
+@keyframes court-case-ver-gl{0%,68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.4%{opacity:1}81.36%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}82.8%,100%{opacity:0}}
 /* draws on 0.8-1.28 s */
 @keyframes court-case-br-s1{0%,8%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.8%,100%{stroke-dashoffset:0}}
 /* owner label after its bracket, 0.92 s */
-@keyframes court-case-bl-s1{0%,9.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.4%,100%{opacity:1}}
+@keyframes court-case-bl-s1{0%,9.2%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}12.4%,100%{opacity:1;transform:translateY(0)}}
 /* draws on 3.2-3.68 s */
 @keyframes court-case-br-s2{0%,32%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.8%,100%{stroke-dashoffset:0}}
 /* owner label after its bracket, 3.32 s */
-@keyframes court-case-bl-s2{0%,33.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.4%,100%{opacity:1}}
-/* hand-off 1 marked at 3.2 s */
-@keyframes court-case-ho-s2{0%,32%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.4%,100%{opacity:1}}
+@keyframes court-case-bl-s2{0%,33.2%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.4%,100%{opacity:1;transform:translateY(0)}}
+/* hand-off 1 chevron draws on at 3.2 s */
+@keyframes court-case-ho-s2{0%,32%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}34.4%,100%{stroke-dashoffset:0}}
 /* draws on 5.6-6.08 s */
 @keyframes court-case-br-s3{0%,56%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.8%,100%{stroke-dashoffset:0}}
 /* owner label after its bracket, 5.72 s */
-@keyframes court-case-bl-s3{0%,57.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.4%,100%{opacity:1}}
-/* hand-off 2 marked at 5.6 s */
-@keyframes court-case-ho-s3{0%,56%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.4%,100%{opacity:1}}
-/* draws on 6.8-7.28 s */
-@keyframes court-case-br-s4{0%,68%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.8%,100%{stroke-dashoffset:0}}
-/* owner label after its bracket, 6.92 s */
-@keyframes court-case-bl-s4{0%,69.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.4%,100%{opacity:1}}
-/* hand-off 3 marked at 6.8 s */
-@keyframes court-case-ho-s4{0%,68%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.4%,100%{opacity:1}}
-/* 0 s - 3.2 s */
-@keyframes court-case-n0{0%{opacity:1}32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.82%,100%{opacity:0}}
+@keyframes court-case-bl-s3{0%,57.2%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.4%,100%{opacity:1;transform:translateY(0)}}
+/* hand-off 2 chevron draws on at 5.6 s */
+@keyframes court-case-ho-s3{0%,56%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}58.4%,100%{stroke-dashoffset:0}}
+/* draws on 6.8-7.12 s */
+@keyframes court-case-br-s4{0%,68%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.2%,100%{stroke-dashoffset:0}}
+/* owner label after its bracket, 6.88 s */
+@keyframes court-case-bl-s4{0%,68.8%{opacity:0;transform:translateY(8px);animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.2%,100%{opacity:1;transform:translateY(0)}}
+/* hand-off 3 chevron draws on at 6.8 s */
+@keyframes court-case-ho-s4{0%,68%{stroke-dashoffset:101;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}70.4%,100%{stroke-dashoffset:0}}
+/* 0.1 s - 3.2 s */
+@keyframes court-case-n0{0%,1%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}4%{opacity:1}32%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}33.82%,100%{opacity:0}}
 /* 3.36 s - 5.6 s */
 @keyframes court-case-n1{0%,33.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}36.4%{opacity:1}56%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}57.82%,100%{opacity:0}}
 /* 5.76 s - 6.8 s */
 @keyframes court-case-n2{0%,57.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}60.4%{opacity:1}68%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}69.82%,100%{opacity:0}}
-/* 6.96 s - 8.48 s */
-@keyframes court-case-n3{0%,69.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}72.4%{opacity:1}84.8%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}86.62%,100%{opacity:0}}
-/* final caption from 8.64 s */
-@keyframes court-case-n4{0%,86.4%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}89.6%,100%{opacity:1}}
+/* 6.96 s - 8.76 s */
+@keyframes court-case-n3{0%,69.6%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}71.4%{opacity:1}87.6%{opacity:1;animation-timing-function:cubic-bezier(0.3,0,1,1)}89.42%,100%{opacity:0}}
+/* final caption 8.92-9.2 s */
+@keyframes court-case-n4{0%,89.2%{opacity:0;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}92%,100%{opacity:1}}
 
-.visible .anim-court-case .court-case-scene{animation:court-case-scene 10s linear 1 forwards}
 .visible .anim-court-case .court-case-axis{animation:court-case-axis 10s linear 1 forwards}
+.visible .anim-court-case .court-case-b0{animation:court-case-b0 10s linear 1 forwards}
+.visible .anim-court-case .court-case-b1{animation:court-case-b1 10s linear 1 forwards}
+.visible .anim-court-case .court-case-b2{animation:court-case-b2 10s linear 1 forwards}
+.visible .anim-court-case .court-case-b3{animation:court-case-b3 10s linear 1 forwards}
+.visible .anim-court-case .court-case-b4{animation:court-case-b4 10s linear 1 forwards}
+.visible .anim-court-case .court-case-b5{animation:court-case-b5 10s linear 1 forwards}
+.visible .anim-court-case .court-case-b6{animation:court-case-b6 10s linear 1 forwards}
 .visible .anim-court-case .court-case-prog-s1{animation:court-case-prog-s1 10s linear 1 forwards}
 .visible .anim-court-case .court-case-prog-s2{animation:court-case-prog-s2 10s linear 1 forwards}
 .visible .anim-court-case .court-case-prog-s3{animation:court-case-prog-s3 10s linear 1 forwards}
 .visible .anim-court-case .court-case-prog-s4{animation:court-case-prog-s4 10s linear 1 forwards}
 .visible .anim-court-case .court-case-inv-mk{animation:court-case-inv-mk 10s linear 1 forwards}
-.visible .anim-court-case .court-case-inv-card{animation:court-case-inv-card 10s linear 1 forwards}
-.visible .anim-court-case .court-case-inv-sub{animation:court-case-inv-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-inv-now{animation:court-case-inv-now 10s linear 1 forwards}
+.visible .anim-court-case .court-case-inv-tk{animation:court-case-inv-tk 10s linear 1 forwards}
+.visible .anim-court-case .court-case-inv-lb{animation:court-case-inv-lb 10s linear 1 forwards}
+.visible .anim-court-case .court-case-inv-sub{animation:court-case-inv-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-chg-mk{animation:court-case-chg-mk 10s linear 1 forwards}
-.visible .anim-court-case .court-case-chg-card{animation:court-case-chg-card 10s linear 1 forwards}
-.visible .anim-court-case .court-case-chg-sub{animation:court-case-chg-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-chg-now{animation:court-case-chg-now 10s linear 1 forwards}
+.visible .anim-court-case .court-case-chg-tk{animation:court-case-chg-tk 10s linear 1 forwards}
+.visible .anim-court-case .court-case-chg-lb{animation:court-case-chg-lb 10s linear 1 forwards}
+.visible .anim-court-case .court-case-chg-sub{animation:court-case-chg-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-arr-mk{animation:court-case-arr-mk 10s linear 1 forwards}
-.visible .anim-court-case .court-case-arr-card{animation:court-case-arr-card 10s linear 1 forwards}
-.visible .anim-court-case .court-case-arr-sub{animation:court-case-arr-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-arr-now{animation:court-case-arr-now 10s linear 1 forwards}
+.visible .anim-court-case .court-case-arr-tk{animation:court-case-arr-tk 10s linear 1 forwards}
+.visible .anim-court-case .court-case-arr-lb{animation:court-case-arr-lb 10s linear 1 forwards}
+.visible .anim-court-case .court-case-arr-sub{animation:court-case-arr-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-dis-mk{animation:court-case-dis-mk 10s linear 1 forwards}
-.visible .anim-court-case .court-case-dis-card{animation:court-case-dis-card 10s linear 1 forwards}
-.visible .anim-court-case .court-case-dis-sub{animation:court-case-dis-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-dis-now{animation:court-case-dis-now 10s linear 1 forwards}
+.visible .anim-court-case .court-case-dis-tk{animation:court-case-dis-tk 10s linear 1 forwards}
+.visible .anim-court-case .court-case-dis-lb{animation:court-case-dis-lb 10s linear 1 forwards}
+.visible .anim-court-case .court-case-dis-sub{animation:court-case-dis-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-tri-mk{animation:court-case-tri-mk 10s linear 1 forwards}
-.visible .anim-court-case .court-case-tri-card{animation:court-case-tri-card 10s linear 1 forwards}
-.visible .anim-court-case .court-case-tri-sub{animation:court-case-tri-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-tri-now{animation:court-case-tri-now 10s linear 1 forwards}
+.visible .anim-court-case .court-case-tri-tk{animation:court-case-tri-tk 10s linear 1 forwards}
+.visible .anim-court-case .court-case-tri-lb{animation:court-case-tri-lb 10s linear 1 forwards}
+.visible .anim-court-case .court-case-tri-sub{animation:court-case-tri-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-ver-mk{animation:court-case-ver-mk 10s linear 1 forwards}
-.visible .anim-court-case .court-case-ver-card{animation:court-case-ver-card 10s linear 1 forwards}
-.visible .anim-court-case .court-case-ver-sub{animation:court-case-ver-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-ver-now{animation:court-case-ver-now 10s linear 1 forwards}
+.visible .anim-court-case .court-case-ver-tk{animation:court-case-ver-tk 10s linear 1 forwards}
+.visible .anim-court-case .court-case-ver-lb{animation:court-case-ver-lb 10s linear 1 forwards}
+.visible .anim-court-case .court-case-ver-sub{animation:court-case-ver-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-sen-mk{animation:court-case-sen-mk 10s linear 1 forwards}
-.visible .anim-court-case .court-case-sen-card{animation:court-case-sen-card 10s linear 1 forwards}
-.visible .anim-court-case .court-case-sen-sub{animation:court-case-sen-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-sen-now{animation:court-case-sen-now 10s linear 1 forwards}
+.visible .anim-court-case .court-case-sen-tk{animation:court-case-sen-tk 10s linear 1 forwards}
+.visible .anim-court-case .court-case-sen-lb{animation:court-case-sen-lb 10s linear 1 forwards}
+.visible .anim-court-case .court-case-sen-sub{animation:court-case-sen-sub 10s linear 1 forwards}
 .visible .anim-court-case .court-case-inv-gl{animation:court-case-inv-gl 10s linear 1 forwards}
 .visible .anim-court-case .court-case-chg-gl{animation:court-case-chg-gl 10s linear 1 forwards}
 .visible .anim-court-case .court-case-arr-gl{animation:court-case-arr-gl 10s linear 1 forwards}
@@ -220,92 +262,94 @@
 
 @media (prefers-reduced-motion: reduce) { .anim-court-case * { animation: none !important; } }
 </style>
-<div class="anim anim-court-case" data-anim="court-case" data-anim-cycle="10" data-anim-phases="0.8,1.28,2.4,3.68,4.8,6.08,7.28,9" data-anim-control="once" data-anim-verb="reveal">
+<div class="anim anim-court-case" data-anim="court-case" data-anim-cycle="10" data-anim-phases="0.8,1.28,2.4,3.68,4.8,6.08,7.28,9.2" data-anim-control="once" data-anim-verb="reveal">
 <svg viewBox="0 0 1680 600" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline of a criminal case: investigation and charge are owned by police and prosecution, the court takes over at arraignment through discovery and trial, the jury owns the verdict, and the judge returns for sentencing.">
-<g class="court-case-scene"><g transform="translate(0 -36)">
+<g transform="translate(0 -36)">
   <path class="court-case-axis" pathLength="100" d="M190 264 H1490"/>
   <path class="court-case-prog court-case-st-a2 court-case-prog-s1" pathLength="100" d="M190.0 264 H623.3"/>
   <path class="court-case-prog court-case-st-ac court-case-prog-s2" pathLength="100" d="M623.3 264 H1056.7"/>
   <path class="court-case-prog court-case-st-ok court-case-prog-s3" pathLength="100" d="M1056.7 264 H1273.3"/>
   <path class="court-case-prog court-case-st-ac court-case-prog-s4" pathLength="100" d="M1273.3 264 H1490.0"/>
-  <circle class="court-case-mk" cx="190.0" cy="264" r="9"/>
+  <circle class="court-case-mk court-case-b0" cx="190.0" cy="264" r="9"/>
   <circle class="court-case-glow court-case-k-a2 court-case-gl court-case-inv-gl" cx="190.0" cy="264" r="16"/>
   <g class="court-case-inv-now court-case-k-a2"><circle class="court-case-ring" cx="190.0" cy="264" r="16"/></g>
   <circle class="court-case-mk court-case-fl-a2 court-case-inv-mk" cx="190.0" cy="264" r="9"/>
-  <g class="court-case-card court-case-card-bottom court-case-inv-card">
-    <path class="court-case-tick" d="M190.0 214 V246"/>
-    <text class="court-case-lbl" x="190.0" y="168" text-anchor="middle">Investigation</text>
+  <g>
+    <path class="court-case-tick court-case-inv-tk" pathLength="100" d="M190.0 246 V214"/>
+    <text class="court-case-lbl court-case-inv-lb" x="190.0" y="168" text-anchor="middle">Investigation</text>
     <text class="court-case-sub court-case-inv-sub" x="190.0" y="198" text-anchor="middle">evidence and suspects</text>
   </g>
-  <circle class="court-case-mk" cx="406.7" cy="264" r="9"/>
+  <circle class="court-case-mk court-case-b1" cx="406.7" cy="264" r="9"/>
   <circle class="court-case-glow court-case-k-a2 court-case-gl court-case-chg-gl" cx="406.7" cy="264" r="16"/>
   <g class="court-case-chg-now court-case-k-a2"><circle class="court-case-ring" cx="406.7" cy="264" r="16"/></g>
   <circle class="court-case-mk court-case-fl-a2 court-case-chg-mk" cx="406.7" cy="264" r="9"/>
-  <g class="court-case-card court-case-card-top court-case-chg-card">
-    <path class="court-case-tick" d="M406.7 282 V314"/>
-    <text class="court-case-lbl" x="406.7" y="350" text-anchor="middle">Charge</text>
+  <g>
+    <path class="court-case-tick court-case-chg-tk" pathLength="100" d="M406.7 282 V314"/>
+    <text class="court-case-lbl court-case-chg-lb" x="406.7" y="350" text-anchor="middle">Charge</text>
     <text class="court-case-sub court-case-chg-sub" x="406.7" y="380" text-anchor="middle">prosecutor files charges</text>
   </g>
-  <circle class="court-case-mk" cx="623.3" cy="264" r="9"/>
+  <circle class="court-case-mk court-case-b2" cx="623.3" cy="264" r="9"/>
   <circle class="court-case-glow court-case-k-ac court-case-gl court-case-arr-gl" cx="623.3" cy="264" r="16"/>
   <g class="court-case-arr-now court-case-k-ac"><circle class="court-case-ring" cx="623.3" cy="264" r="16"/></g>
   <circle class="court-case-mk court-case-fl-ac court-case-arr-mk" cx="623.3" cy="264" r="9"/>
-  <g class="court-case-card court-case-card-bottom court-case-arr-card">
-    <path class="court-case-tick" d="M623.3 214 V246"/>
-    <text class="court-case-lbl" x="623.3" y="168" text-anchor="middle">Arraignment</text>
+  <g>
+    <path class="court-case-tick court-case-arr-tk" pathLength="100" d="M623.3 246 V214"/>
+    <text class="court-case-lbl court-case-arr-lb" x="623.3" y="168" text-anchor="middle">Arraignment</text>
     <text class="court-case-sub court-case-arr-sub" x="623.3" y="198" text-anchor="middle">charges read, plea entered</text>
   </g>
-  <circle class="court-case-mk" cx="840.0" cy="264" r="9"/>
+  <circle class="court-case-mk court-case-b3" cx="840.0" cy="264" r="9"/>
   <circle class="court-case-glow court-case-k-ac court-case-gl court-case-dis-gl" cx="840.0" cy="264" r="16"/>
   <g class="court-case-dis-now court-case-k-ac"><circle class="court-case-ring" cx="840.0" cy="264" r="16"/></g>
   <circle class="court-case-mk court-case-fl-ac court-case-dis-mk" cx="840.0" cy="264" r="9"/>
-  <g class="court-case-card court-case-card-top court-case-dis-card">
-    <path class="court-case-tick" d="M840.0 282 V314"/>
-    <text class="court-case-lbl" x="840.0" y="350" text-anchor="middle">Discovery</text>
+  <g>
+    <path class="court-case-tick court-case-dis-tk" pathLength="100" d="M840.0 282 V314"/>
+    <text class="court-case-lbl court-case-dis-lb" x="840.0" y="350" text-anchor="middle">Discovery</text>
     <text class="court-case-sub court-case-dis-sub" x="840.0" y="380" text-anchor="middle">both sides share evidence</text>
   </g>
-  <circle class="court-case-mk" cx="1056.7" cy="264" r="9"/>
+  <circle class="court-case-mk court-case-b4" cx="1056.7" cy="264" r="9"/>
   <circle class="court-case-glow court-case-k-ac court-case-gl court-case-tri-gl" cx="1056.7" cy="264" r="16"/>
   <g class="court-case-tri-now court-case-k-ac"><circle class="court-case-ring" cx="1056.7" cy="264" r="16"/></g>
   <circle class="court-case-mk court-case-fl-ac court-case-tri-mk" cx="1056.7" cy="264" r="9"/>
-  <g class="court-case-card court-case-card-bottom court-case-tri-card">
-    <path class="court-case-tick" d="M1056.7 214 V246"/>
-    <text class="court-case-lbl" x="1056.7" y="168" text-anchor="middle">Trial</text>
+  <g>
+    <path class="court-case-tick court-case-tri-tk" pathLength="100" d="M1056.7 246 V214"/>
+    <text class="court-case-lbl court-case-tri-lb" x="1056.7" y="168" text-anchor="middle">Trial</text>
     <text class="court-case-sub court-case-tri-sub" x="1056.7" y="198" text-anchor="middle">evidence and witnesses</text>
   </g>
-  <circle class="court-case-mk" cx="1273.3" cy="264" r="9"/>
+  <circle class="court-case-mk court-case-b5" cx="1273.3" cy="264" r="9"/>
   <circle class="court-case-glow court-case-k-ok court-case-gl court-case-ver-gl" cx="1273.3" cy="264" r="16"/>
   <g class="court-case-ver-now court-case-k-ok"><circle class="court-case-ring" cx="1273.3" cy="264" r="16"/></g>
   <circle class="court-case-mk court-case-fl-ok court-case-ver-mk" cx="1273.3" cy="264" r="9"/>
-  <g class="court-case-card court-case-card-top court-case-ver-card">
-    <path class="court-case-tick" d="M1273.3 282 V314"/>
-    <text class="court-case-lbl" x="1273.3" y="350" text-anchor="middle">Verdict</text>
+  <g>
+    <path class="court-case-tick court-case-ver-tk" pathLength="100" d="M1273.3 282 V314"/>
+    <text class="court-case-lbl court-case-ver-lb" x="1273.3" y="350" text-anchor="middle">Verdict</text>
     <text class="court-case-sub court-case-ver-sub" x="1273.3" y="380" text-anchor="middle">jury decides guilt</text>
   </g>
-  <circle class="court-case-mk" cx="1490.0" cy="264" r="9"/>
-  <g class="court-case-sen-now court-case-k-ac"><circle class="court-case-glow" cx="1490.0" cy="264" r="16"/><circle class="court-case-ring" cx="1490.0" cy="264" r="16"/></g>
-  <circle class="court-case-mk court-case-fl-ac court-case-sen-mk" cx="1490.0" cy="264" r="9"/>
-  <g class="court-case-card court-case-card-bottom court-case-sen-card">
-    <path class="court-case-tick" d="M1490.0 214 V246"/>
-    <text class="court-case-lbl" x="1490.0" y="168" text-anchor="middle">Sentencing</text>
+  <circle class="court-case-mk court-case-b6" cx="1490.0" cy="264" r="12"/>
+  <g data-anim-focal="">
+  <g class="court-case-sen-now court-case-k-ac"><circle class="court-case-glow" cx="1490.0" cy="264" r="22"/><circle class="court-case-ring" cx="1490.0" cy="264" r="22"/></g>
+  <circle class="court-case-mk court-case-fl-ac court-case-sen-mk" cx="1490.0" cy="264" r="12"/>
+  </g>
+  <g>
+    <path class="court-case-tick court-case-sen-tk" pathLength="100" d="M1490.0 238 V214"/>
+    <text class="court-case-lbl court-case-sen-lb" x="1490.0" y="168" text-anchor="middle">Sentencing</text>
     <text class="court-case-sub court-case-sen-sub" x="1490.0" y="198" text-anchor="middle">judge sets the penalty</text>
   </g>
   <path class="court-case-br court-case-st-a2 court-case-br-s1" pathLength="100" d="M180.0 450 V436 H615.3 V450"/>
   <text class="court-case-own court-case-fi-a2 court-case-bl-s1" x="397.7" y="472" text-anchor="middle">police and prosecution</text>
   <path class="court-case-br court-case-st-ac court-case-br-s2" pathLength="100" d="M631.3 450 V436 H1048.7 V450"/>
   <text class="court-case-own court-case-fi-ac court-case-bl-s2" x="840.0" y="472" text-anchor="middle">court</text>
-  <path class="court-case-ho court-case-ho-s2" d="M619.3 430 L627.3 436 L619.3 442"/>
+  <path class="court-case-ho court-case-ho-s2" pathLength="100" d="M619.3 430 L627.3 436 L619.3 442"/>
   <path class="court-case-br court-case-st-ok court-case-br-s3" pathLength="100" d="M1064.7 450 V436 H1265.3 V450"/>
   <text class="court-case-own court-case-fi-ok court-case-bl-s3" x="1165.0" y="472" text-anchor="middle">jury</text>
-  <path class="court-case-ho court-case-ho-s3" d="M1052.7 430 L1060.7 436 L1052.7 442"/>
+  <path class="court-case-ho court-case-ho-s3" pathLength="100" d="M1052.7 430 L1060.7 436 L1052.7 442"/>
   <path class="court-case-br court-case-st-ac court-case-br-s4" pathLength="100" d="M1281.3 450 V436 H1500.0 V450"/>
   <text class="court-case-own court-case-fi-ac court-case-bl-s4" x="1390.7" y="472" text-anchor="middle">court</text>
-  <path class="court-case-ho court-case-ho-s4" d="M1269.3 430 L1277.3 436 L1269.3 442"/>
+  <path class="court-case-ho court-case-ho-s4" pathLength="100" d="M1269.3 430 L1277.3 436 L1269.3 442"/>
   <text class="court-case-note court-case-n0" x="840" y="560" text-anchor="middle">Police investigate and the prosecution decides on charges</text>
   <text class="court-case-note court-case-n1" x="840" y="560" text-anchor="middle">Hand-off 1: at arraignment the court takes charge of the case</text>
   <text class="court-case-note court-case-n2" x="840" y="560" text-anchor="middle">Hand-off 2: once the evidence is heard, the jury deliberates</text>
   <text class="court-case-note court-case-n3" x="840" y="560" text-anchor="middle">Hand-off 3: the verdict returns the case to the judge</text>
   <text class="court-case-note court-case-n4" x="840" y="560" text-anchor="middle">In a jury trial, each stage has one owner: prosecution, court, jury, court</text>
-</g></g>
+</g>
 </svg>
 </div>

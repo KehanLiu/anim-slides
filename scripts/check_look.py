@@ -4,7 +4,7 @@
 Usage:
   check_look.py FRAGMENT.html --rendered-width PX [--stage-width PX] [--slot W H] [--theme FILE]
   check_look.py --page DECK.html --slide N [--stage-width PX] [--window W H] [--keep-script] [--min-gap PX]
-  common: [--at-marks] [--gate visible] [--bg COLOUR] [--json] [--chrome PATH] [--save-probe FILE]
+  common: [--at-marks] [--at-pauses [N]] [--gate visible] [--bg COLOUR] [--json] [--chrome PATH] [--save-probe FILE]
 
 check_fragment.py reads the source; this script measures the rendered result in headless Chrome
 (no extra packages): a probe page inlines the fragment (or the deck with its slide N brought into
@@ -19,7 +19,16 @@ through --dump-dom. Checks (references/style.md principles and "Checklist before
             a label on a filled shape that is not a ground-coloured plate        WARN
   contrast  text vs ground (WCAG): labels < 3.0, text under 20 px (1920 stage) < 4.5,
             muted or dimmed text < 2.5                                           FAIL
-            lines/strokes < 1.5                                                  WARN
+            faded or dashed lines/strokes < 1.5                                   WARN
+  line-contrast  a solid structure stroke (opacity > 0.5, not scene) < 3.0        WARN
+  accent-area    accent (and its glow) above 25 % of the ink at rest, measured from
+            the pixels of one screenshot of the resting frame (data-anim-scene ground
+            hidden; ground, accent by its blend weight from the ground, other ink);
+            without a screenshot estimated from element geometry, above 25 %     WARN
+  focal     data-anim-focal not visible at rest, focal text < 1.5x the median
+            text size, or a focal shape that is smaller than the median shape box
+            and has neither the heaviest (or 1.5x median) stroke, the only glow
+            nor hero text                                                         WARN
   boxes     filled boxes (> 2 % of the viewBox) holding text: 1-3 WARN, > 3 FAIL;
             opt out with <!-- anim-look: boxes-ok --> when the box is the meaning
   scene     shapes carrying data-anim-scene (or inside a <g data-anim-scene>) are scene
@@ -28,7 +37,8 @@ through --dump-dom. Checks (references/style.md principles and "Checklist before
             more than half the filled shapes marked scene in a figure with 3+
             labelled rings (a node diagram)                                     WARN
   colours   distinct hues (greys and the ground ignored): > 4 WARN, > 6 FAIL
-  density   bbox union < 35 % or > 90 % of the viewBox, > 40 text elements       WARN
+  density   bbox union < 35 % or > 90 % of the viewBox, > 40 text elements,
+            drawn extent < 60 % of the slot (or viewBox) both ways               WARN
   text-size smallest rendered text below the check_fragment.py floor             FAIL
   fonts     a requested font family that is not available (fallback used)       WARN
   rest      resting frame differs from the last mark (opacity or position)      WARN
@@ -38,13 +48,18 @@ Clip and overlap run on every frame. Contrast, text-size and gap run on the rest
 --at-marks runs them on every phase mark too (a label shown at a mark must be readable there,
 not only at rest) and prints one INFO line per mark:
   INFO marks: at 2s: clip 0, overlap 0, contrast 0, text-size 0, gap 31px
+--at-pauses [N] (default 3) freezes each fragment at N reproducible times strictly between 0.5 s and
+its last phase mark (seeded from its data-anim name; >= 0.4 s apart, >= 0.15 s from any mark) and runs
+clip, overlap and text-size there, tolerant of mid-motion: elements under opacity 0.15 are skipped and
+two labels only overlap when both are at 0.6 or more (a cross-fade). Findings are WARN "[pause] at Ns",
+never FAIL. Orphan labels (a label shown before its shape) are left to the reviewer's eye.
 The ground is --anim-bg as the fragment resolves it (or --anim-theme-bg from --theme, or the
 slide's own background in --page mode); --bg overrides it.
 --page mode strips the deck's scripts (--keep-script keeps them) and measures every
 .anim[data-anim] wrapper on slide N (Nth .slide, else Nth <section>); the stage width defaults
 to the slide's width. Exit: 0 pass, 1 any FAIL, 2 bad input, 3 no Chrome found (set CHROME).
 """
-import argparse, colorsys, json, math, os, re, shutil, subprocess, sys, tempfile
+import argparse, colorsys, json, math, os, re, shutil, struct, subprocess, sys, tempfile, zlib
 
 PROBE_JS = r"""
 (function(){var CFG=__CFG__,OUT={frames:[]},cv=document.createElement('canvas');cv.width=cv.height=1;
@@ -78,7 +93,7 @@ try{var root,gate=CFG.gate,pe=document.createElement('style');
    if(inF&&t!==null){a.pause();a.currentTime=t*1000;}else{try{a.finish();}catch(e){a.cancel();}}});}
  function measure(w){var svg=w.querySelector('svg'),S=svg.getScreenCTM(),inv=S.inverse(),ss=Math.sqrt(Math.abs(S.a*S.d-S.b*S.c));
   var vb=svg.viewBox.baseVal,sr=svg.getBoundingClientRect(),cs0=getComputedStyle(w),tok={};
-  ['bg','line','fg','muted','panel','font','mono'].forEach(function(k){tok[k]=cs0.getPropertyValue('--anim-'+k).trim();});
+  ['bg','line','fg','muted','panel','accent','accent-2','ok','warn','danger','font','mono'].forEach(function(k){tok[k]=cs0.getPropertyValue('--anim-'+k).trim();});
   function up(x,y){var p=new DOMPoint(x,y).matrixTransform(inv);return [p.x,p.y];}
   var a=up(sr.left,sr.top),b=up(sr.right,sr.bottom),els=[],nodes=[],texts=[],missing={};
   svg.querySelectorAll('text,rect,circle,ellipse,line,polyline,polygon,path,use').forEach(function(el){
@@ -88,7 +103,8 @@ try{var root,gate=CFG.gate,pe=document.createElement('style');
    var r=clipr(el,el.getBoundingClientRect(),svg),p=up(r.left,r.top),q=up(r.right,r.bottom),M=el.getScreenCTM(),es=M?Math.sqrt(Math.abs(M.a*M.d-M.b*M.c)):ss;
    var e={i:nodes.length,tag:el.tagName,cls:(el.getAttribute('class')||'').slice(0,60),x:Math.min(p[0],q[0]),y:Math.min(p[1],q[1]),
     w:Math.abs(q[0]-p[0]),h:Math.abs(q[1]-p[1]),op:disp&&cs.visibility!=='hidden'?+op.toFixed(3):0,fill:col(cs.fill),stroke:col(cs.stroke),
-    fo:+cs.fillOpacity,so:+cs.strokeOpacity,sw:(parseFloat(cs.strokeWidth)||0)*es/ss,glow:cs.filter!=='none',dash:cs.strokeDasharray!=='none',scene:!!el.closest('[data-anim-scene]')};
+    fo:+cs.fillOpacity,so:+cs.strokeOpacity,sw:(parseFloat(cs.strokeWidth)||0)*es/ss,glow:cs.filter!=='none',dash:cs.strokeDasharray!=='none',scene:!!el.closest('[data-anim-scene]'),focal:!!el.closest('[data-anim-focal]')};
+   if(el.getTotalLength&&e.tag!=='text'&&e.tag!=='use'){try{e.len=el.getTotalLength()*es/ss;}catch(x){}}
    if(r.out)e.op=0;
    if(e.tag==='text'){e.px=+(parseFloat(cs.fontSize)*es).toFixed(2);e.txt=el.textContent.trim().replace(/\s+/g,' ').slice(0,40);e.runs=[];
     Array.prototype.forEach.call(el.childNodes,function(n){var c=n.nodeType===3?cs:n.nodeType===1?getComputedStyle(n):null;
@@ -102,7 +118,8 @@ try{var root,gate=CFG.gate,pe=document.createElement('style');
     if(!pin(s.x+f[0]*s.w,s.y+f[1]*s.h))bl=false;});}if(bl)boxlike.push(si);
    texts.forEach(function(t){if(t.op>0.05&&pin(t.x+t.w/2,t.y+t.h/2))inside.push([t.i,si]);});});
   return {name:w.getAttribute('data-anim'),vb:[vb.x,vb.y,vb.width,vb.height],view:[a[0],a[1],b[0]-a[0],b[1]-a[1]],scale:ss,ctm:[S.a,S.b,S.c,S.d,S.e,S.f],
-   control:w.getAttribute('data-anim-control')||'once',tok:tok,tokc:{bg:col(tok.bg),line:col(tok.line),fg:col(tok.fg),muted:col(tok.muted),panel:col(tok.panel)},
+   control:w.getAttribute('data-anim-control')||'once',tok:tok,tokc:{bg:col(tok.bg),line:col(tok.line),fg:col(tok.fg),muted:col(tok.muted),panel:col(tok.panel),accent:col(tok.accent),
+    'accent-2':col(tok['accent-2']),ok:col(tok.ok),warn:col(tok.warn),danger:col(tok.danger)},
    els:els,inside:inside,boxlike:boxlike,missing:Object.keys(missing),boxesok:/anim-look:\s*boxes-ok/.test((w.parentNode||w).innerHTML)};}
  function neighbours(){var nb=[];if(!CFG.page)return nb;   // the slide's own text and pictures, in screen px
   function mine(e){return W.some(function(w){return w.contains(e);});}
@@ -146,7 +163,20 @@ try{var root,gate=CFG.gate,pe=document.createElement('style');
  function ground(w){var cs=[];for(var x=w;x&&x.nodeType===1;x=x.parentNode)cs.push(col(getComputedStyle(x).backgroundColor));
   var g=[255,255,255];for(var i=cs.length-1;i>=0;i--){var c=cs[i];if(c&&c[3]>0)g=[0,1,2].map(function(k){return c[k]*c[3]+g[k]*(1-c[3]);});}return g;}
  [null].concat(times).forEach(function(t){setFrame(t);OUT.frames.push({t:t===null?'rest':t,frags:W.map(measure),nb:neighbours()});});
+ if(CFG.pauses){OUT.pauses=[];OUT.ptimes=W.map(function(w){   // N reproducible in-between times per fragment, seeded from its name
+   var nm=w.getAttribute('data-anim')||'',h=2166136261;for(var i=0;i<nm.length;i++){h^=nm.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}
+   function rnd(){h=(h+0x6D2B79F5)>>>0;var z=h;z=Math.imul(z^z>>>15,z|1);z^=z+Math.imul(z^z>>>7,z|61);return((z^z>>>14)>>>0)/4294967296;}
+   var mk=[],c=parseFloat(w.getAttribute('data-anim-cycle'))||0;
+   (w.getAttribute('data-anim-phases')||'').split(',').forEach(function(p){p=parseFloat(p);if(p>0)mk.push(p);});
+   var last=mk.length?Math.max.apply(0,mk):c,out=[];if(c)mk.push(c);
+   for(var k=0;k<500&&out.length<CFG.pauses;k++){var t=+(0.5+rnd()*(last-0.5)).toFixed(2);
+    if(t<=0.5||t>=last||out.some(function(o){return Math.abs(o-t)<0.4;})||mk.some(function(m){return Math.abs(m-t)<0.15;}))continue;out.push(t);}
+   return out.sort(function(a,b){return a-b;});});
+  var all=[];OUT.ptimes.forEach(function(l){l.forEach(function(t){if(all.indexOf(t)<0)all.push(t);});});
+  all.sort(function(a,b){return a-b;}).forEach(function(t){setFrame(t);OUT.pauses.push({t:t,frags:W.map(measure)});});}
  setFrame(null);OUT.ground=W.map(function(w){return CFG.page?ground(w):col(getComputedStyle(w).getPropertyValue('--anim-bg').trim())||ground(w);});
+ var hs=document.createElement('style');   // the screenshot (accent share) sees the resting frame without scene ground
+ hs.textContent='[data-anim-scene],[data-anim-scene] *{visibility:hidden!important}';document.head.appendChild(hs);
 }catch(e){OUT.error=String(e&&e.stack||e);}
 document.getElementById('look').textContent=JSON.stringify(OUT).replace(/</g,'\\u003c');})();
 """
@@ -168,25 +198,169 @@ def find_chrome(explicit=None):
     return None
 
 
-def run_probe(chrome, html, base_dir, win):
-    fd, path = tempfile.mkstemp(suffix='.html', prefix='check-look-')  # <base href> resolves assets
+def chrome_cmd(chrome, win, *args):
+    cmd = [chrome, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--force-device-scale-factor=1',
+           '--window-size=%d,%d' % win] + list(args)
+    if os.environ.get('CI') or (hasattr(os, 'geteuid') and os.geteuid() == 0):
+        cmd.insert(1, '--no-sandbox')
+    return cmd
+
+
+def run_probe(chrome, html, base_dir, win, shot=True):
+    """Run the probe page; with shot, the same Chrome run also screenshots the page as the probe leaves it
+    (resting frame, scene ground hidden). Returns (data, image or None)."""
+    d = tempfile.mkdtemp(prefix='check-look-')  # <base href> in the page resolves assets
     try:
-        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+        path, png = os.path.join(d, 'probe.html'), os.path.join(d, 'shot.png')
+        with open(path, 'w', encoding='utf-8') as f:
             f.write(html)
-        cmd = [chrome, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--force-device-scale-factor=1',
-               '--window-size=%d,%d' % win, '--dump-dom', 'file://' + os.path.abspath(path)]
-        if os.environ.get('CI') or (hasattr(os, 'geteuid') and os.geteuid() == 0):
-            cmd.insert(1, '--no-sandbox')
-        dom = subprocess.run(cmd, capture_output=True, text=True, timeout=120).stdout
+        args = (['--screenshot=' + png] if shot else []) + ['--dump-dom', 'file://' + path]
+        dom = subprocess.run(chrome_cmd(chrome, win, *args), capture_output=True, text=True, timeout=120).stdout
+        m = re.search(r'<script type="application/json" id="look">(.*?)</script>', dom, re.S)
+        if shot and not (m and m.group(1).strip()):  # a Chrome that will not do both at once: probe alone
+            return run_probe(chrome, html, base_dir, win, shot=False)
+        img = None
+        if shot:
+            try:
+                img = png_rows(png)
+            except (OSError, ValueError, zlib.error, struct.error):
+                img = None
     finally:
-        os.unlink(path)
-    m = re.search(r'<script type="application/json" id="look">(.*?)</script>', dom, re.S)
+        shutil.rmtree(d, ignore_errors=True)
     if not m or not m.group(1).strip():
         raise RuntimeError('Chrome returned no measurement (probe did not run)')
     data = json.loads(m.group(1))
     if data.get('error'):
         raise RuntimeError('probe error: ' + data['error'].split('\n')[0])
-    return data
+    return data, img
+
+
+def png_rows(path):
+    """Decode an 8-bit RGB or RGBA, non-interlaced PNG (what Chrome writes) with zlib only: (w, h, bpp, rows).
+    Sub and Up rows are undone on whole rows at once (bytewise add without carry on big ints), Average and
+    Paeth byte by byte."""
+    with open(path, 'rb') as f:
+        d = f.read()
+    if d[:8] != b'\x89PNG\r\n\x1a\n':
+        raise ValueError('not a PNG')
+    pos, idat, hdr = 8, [], None
+    while pos + 8 <= len(d):
+        n, typ = struct.unpack('>I4s', d[pos:pos + 8])
+        body = d[pos + 8:pos + 8 + n]
+        pos += 12 + n
+        if typ == b'IHDR':
+            hdr = struct.unpack('>IIBBBBB', body)
+        elif typ == b'IDAT':
+            idat.append(body)
+        elif typ == b'IEND':
+            break
+    if not hdr:
+        raise ValueError('PNG without IHDR')
+    w, h, bd, ct, _, _, il = hdr
+    if bd != 8 or ct not in (2, 6) or il:
+        raise ValueError('unsupported PNG (bit depth %d, colour type %d, interlace %d)' % (bd, ct, il))
+    bpp = 4 if ct == 6 else 3
+    st = w * bpp
+    raw = zlib.decompress(b''.join(idat))
+    if len(raw) < h * (st + 1):
+        raise ValueError('truncated PNG data')
+    lo, hi = int.from_bytes(b'\x7f' * st, 'big'), int.from_bytes(b'\x80' * st, 'big')
+
+    def add(x, y):  # bytewise (x + y) mod 256 over the whole row
+        return ((x & lo) + (y & lo)) ^ ((x ^ y) & hi)
+    prev, rows = bytes(st), []
+    for y in range(h):
+        f, r = raw[y * (st + 1)], raw[y * (st + 1) + 1:(y + 1) * (st + 1)]
+        if f == 0:
+            cur = r
+        elif f == 1:  # Sub: running sum along the row, by doubling shifts
+            x, sh = int.from_bytes(r, 'big'), bpp
+            while sh < st:
+                x = add(x, x >> (8 * sh))
+                sh *= 2
+            cur = x.to_bytes(st, 'big')
+        elif f == 2:  # Up
+            cur = add(int.from_bytes(r, 'big'), int.from_bytes(prev, 'big')).to_bytes(st, 'big')
+        elif f == 3:  # Average
+            c = bytearray(r)
+            for i in range(st):
+                c[i] = (c[i] + ((c[i - bpp] if i >= bpp else 0) + prev[i]) // 2) & 255
+            cur = bytes(c)
+        elif f == 4:  # Paeth
+            c = bytearray(r)
+            for i in range(st):
+                pa_, pb_ = (c[i - bpp], prev[i - bpp]) if i >= bpp else (0, 0)
+                b_ = prev[i]
+                pp = pa_ + b_ - pb_
+                da, db, dc = abs(pp - pa_), abs(pp - b_), abs(pp - pb_)
+                c[i] = (c[i] + (pa_ if da <= db and da <= dc else b_ if db <= dc else pb_)) & 255
+            cur = bytes(c)
+        else:
+            raise ValueError('bad PNG row filter %d' % f)
+        rows.append(cur)
+        prev = cur
+    return w, h, bpp, rows
+
+
+def accent_share(img, box, g, tokc, step=2):
+    """Accent share of the ink in screen box (x0, y0, x1, y1) of a decoded screenshot, sampling every step-th
+    pixel both ways: (accent weight, ink weight). A pixel within 12 of the ground g is ground. A pixel on the
+    straight blend from the ground to a token colour (within 20) is that token at its blend weight t (which
+    covers antialiasing, faded copies and the glow); any other pixel is ink of weight 1, accent when the
+    accent is its nearest token colour and within 64 of it."""
+    acc = tokc.get('accent')
+    if not acc:
+        return None
+    w, h, bpp, rows = img
+    acc = tuple(acc[:3])
+    toks = [(acc, True)] + [(tuple(c[:3]), False) for n, c in sorted(tokc.items())
+                             if n not in ('accent', 'bg') and c and dist(c, g) >= 12 and dist(c, acc) >= 12]
+    lines = []
+    for c, isacc in toks:
+        v = [c[i] - g[i] for i in range(3)]
+        vv = sum(x * x for x in v)
+        if vv > 0:
+            lines.append((v, vv, c, isacc))
+    cache = {}
+
+    def classify(p):
+        if dist(p, g) <= 12:
+            return 0.0, 0.0
+        best = None
+        for v, vv, c, isacc in lines:
+            t = max(0.0, min(1.0, sum((p[i] - g[i]) * v[i] for i in range(3)) / vv))
+            res = dist(p, [g[i] + t * v[i] for i in range(3)])
+            if best is None or res < best[0]:
+                best = (res, t, isacc)
+        if best and best[0] <= 20:
+            return best[1], best[1] if best[2] else 0.0
+        near = min(toks, key=lambda x: dist(p, x[0]))
+        return 1.0, 1.0 if near[1] and dist(p, acc) <= 64 else 0.0
+    x0, y0 = max(0, int(box[0])), max(0, int(box[1]))
+    x1, y1 = min(w, int(math.ceil(box[2]))), min(h, int(math.ceil(box[3])))
+    seen = {}
+    for y in range(y0, y1, step * 4):  # the ground as painted: the most common colour, if it is common
+        row = rows[y]
+        for x in range(x0, x1, step * 4):
+            k = row[x * bpp:x * bpp + 3]
+            seen[k] = seen.get(k, 0) + 1
+    if seen:
+        k, n = max(seen.items(), key=lambda kv: kv[1])
+        if n >= 0.3 * sum(seen.values()) and dist(tuple(k), g) > 12:
+            g = tuple(k)
+            lines = [([c[i] - g[i] for i in range(3)], sum((c[i] - g[i]) ** 2 for i in range(3)), c, isacc)
+                     for c, isacc in toks if dist(c, g) >= 12]
+    tot = a_ = 0.0
+    for y in range(y0, y1, step):
+        row = rows[y]
+        for x in range(x0, x1, step):
+            k = row[x * bpp:x * bpp + 3]
+            r = cache.get(k)
+            if r is None:
+                r = cache[k] = classify(tuple(k))
+            tot += r[0]
+            a_ += r[1]
+    return a_, tot
 
 
 # ---------------------------------------------------------------------------- colour maths
@@ -299,7 +473,7 @@ def gap_check(t, frames, fr, k, g, a, R, pre, per):
         R.info(pre + 'gap', 'nearest slide content %.0fpx away at rest (floor %gpx)' % (best, floor))
 
 
-def analyse(frames, k, gcol, a, R, pre):
+def analyse(frames, k, gcol, a, R, pre, px=None, pauses=None, ptimes=None):
     rest = frames[0]['frags'][k]
     F = [(fr['t'], fr['frags'][k]) for fr in frames]
     vbx, vby, vbw, vbh = rest['vb']
@@ -386,18 +560,114 @@ def analyse(frames, k, gcol, a, R, pre):
         R.fail(pre + 'contrast', m + ' on ground %s: use --anim-fg/--anim-muted, raise the opacity' % hexc(g))
     if len(bad) > 6:
         R.fail(pre + 'contrast', '%d more labels below their contrast floor' % (len(bad) - 6))
-    faint = []
+    faint, weak = [], []
     for e in els:
         if vis(e) and e['tag'] != 'text' and not e['glow'] and e['stroke'] and e['sw'] > 0 and dist(e['stroke'], g) >= 6:
             al = e['stroke'][3] * e['so'] * e['op']
             if al > 0.02:
                 c = ratio(over(e['stroke'], al, g), g)
-                if c < 1.5 and not (e['dash'] and c >= 1.1):  # dotted gridlines may be fainter (style.md chart)
+                if al > 0.5 and not e['dash'] and not e.get('scene'):  # a solid line that carries structure
+                    if c < 3.0:
+                        weak.append((c, e))
+                elif c < 1.5 and not (e['dash'] and c >= 1.1):  # dotted gridlines may be fainter (style.md chart)
                     faint.append((c, e))
+    if weak:
+        weak.sort(key=lambda x: x[0])
+        R.warn(pre + 'line-contrast', '[line-contrast] %d structure stroke(s) below 3:1 on ground %s, worst: %s; draw '
+               'structure in --anim-line (3:1 on the ground), keep faint lines for dashed or faded decoration' % (
+                   len(weak), hexc(g), few(['%s %s %.2f:1' % (label(e), hexc(e['stroke']), c) for c, e in weak])))
     if faint:
         faint.sort(key=lambda x: x[0])
         R.warn(pre + 'contrast', 'faint lines on this ground: %d stroke(s) below 1.5:1, faintest %.2f:1 (%s %s); darken '
                '--anim-line for this ground or raise faded opacities' % (len(faint), faint[0][0], label(faint[0][1]), hexc(faint[0][1]['stroke'])))
+
+    # 3b accent area at rest, measured from the pixels of a screenshot of the resting frame (scene ground
+    # hidden; see accent_share); without a screenshot, estimated from element geometry: fills by box area
+    # (circles and ellipses x pi/4, paths x 0.5), strokes by length x width, text by 0.22 of its box (ink share of type)
+    def ink(e, part):
+        if part == 'fill':
+            k = 1.0 if e['tag'] == 'rect' else math.pi / 4 if e['tag'] in ('circle', 'ellipse') else 0.5
+            return e['w'] * e['h'] * k
+        if part == 'text':
+            return e['w'] * e['h'] * 0.22  # glyph ink of normal-weight type covers about a fifth to a quarter of its box
+        ln = e.get('len') or 2 * (e['w'] + e['h'])
+        return ln * max(e['sw'], 0.5)
+    acc = tok.get('accent')
+    tot = acc_ink = acc_out = 0.0  # acc_out: accent ink outside the focal element
+    for e in els:
+        if not vis(e) or (e['w'] <= 0 and e['h'] <= 0):
+            continue
+        parts = [('text', e['fill'], e['fo'])] if e['tag'] == 'text' else \
+            [('fill', e['fill'], e['fo']), ('stroke', e['stroke'], e['so'] if e['sw'] > 0 else 0)]
+        for part, c, o in parts:
+            if not c or c[3] * o * e['op'] <= 0.05 or dist(over(c, c[3] * o * e['op'], g), g) < 6:
+                continue
+            a_ = ink(e, part) * min(1.0, c[3] * o * e['op'])  # a glow copy counts at its own opacity
+            tot += a_
+            if acc and dist(c, acc) < 24 and (e['glow'] or dist(over(c, c[3] * o * e['op'], g), acc) < 48):
+                acc_ink += a_  # the accent as seen (a faint accent wash over the ground is not counted)
+                if not e.get('focal'):
+                    acc_out += a_
+    if px and px[1] > 0 and acc:
+        share = 100.0 * px[0] / px[1]
+        out = 100.0 * acc_out / tot if tot > 0 else 100.0  # geometry estimate of the accent outside the focal element
+        if share > 25 and out <= 8:
+            R.info(pre + 'accent-area', 'accent %.1f %% of the ink at rest (measured from pixels), nearly all of it the '
+                   'focal element itself (about %.0f %% elsewhere): the claim is the accent' % (share, out))
+        elif share > 25:
+            R.warn(pre + 'accent-area', '[accent-area] the accent covers %.1f %% of the ink at rest (rule: at most about a '
+                   'fifth, measured from pixels): keep the accent on the focal element and the active path; when the '
+                   'story has reached every part, let the reached parts settle to --anim-fg' % share)
+        else:
+            R.info(pre + 'accent-area', 'accent %.1f %% of the ink at rest (measured from pixels)' % share)
+    elif tot > 0 and acc:
+        share = 100.0 * acc_ink / tot
+        if share > 25:  # the rule is about 10 %; the geometry estimate runs high on hairline figures
+            R.warn(pre + 'accent-area', '[accent-area] the accent covers about %.0f %% of the drawn area at rest (rule about '
+                   '10 %%, estimated from element geometry, no screenshot): keep the accent on the active and reached parts, the rest in '
+                   '--anim-line and --anim-muted' % share)
+        else:
+            R.info(pre + 'accent-area', 'accent about %.0f %% of the drawn area at rest (estimated from element geometry, no screenshot)' % share)
+
+    # 3c focal element (data-anim-focal) at rest
+    foc = [e for e in els if e.get('focal')]
+    if foc:
+        fv = [e for e in foc if vis(e)]
+        if not fv:
+            R.warn(pre + 'focal', '[focal] the data-anim-focal element is not visible in the resting frame: the focal '
+                   'element is what the eye lands on at rest')
+        else:
+            ft = [e for e in fv if e['tag'] == 'text']
+            others_t = sorted(e['px'] for e in T if not e.get('focal'))
+            if ft and others_t:
+                med = others_t[len(others_t) // 2]
+                big = max(e['px'] for e in ft)
+                if big < 1.5 * med - 0.05:
+                    R.warn(pre + 'focal', '[focal] focal text %s renders at %.1fpx, under 1.5x the median text (%.1fpx): '
+                           'make it the hero size or move data-anim-focal' % (label(max(ft, key=lambda e: e['px'])), big, med))
+            elif not ft:
+                fs = [e for e in fv if e['w'] >= 2 and e['h'] >= 2]
+                peers = sorted(e['w'] * e['h'] for e in els if vis(e) and e['tag'] not in ('text', 'use') and not e.get('focal')
+                               and not e.get('scene') and not e['glow'] and e['w'] >= 2 and e['h'] >= 2 and painted(e, g))
+                if fs and peers:
+                    fx0, fy0 = min(e['x'] for e in fs), min(e['y'] for e in fs)
+                    fx1, fy1 = max(e['x'] + e['w'] for e in fs), max(e['y'] + e['h'] for e in fs)
+                    med = peers[len(peers) // 2]
+                    # the focal shape stands out when any one holds: its box is at least the median shape box; its
+                    # stroke is the heaviest (ties allowed) or at least 1.5x the median stroke; it carries the only
+                    # glow at rest; or it is a group holding hero-size text (1.5x the median text)
+                    def stroked(e):
+                        return e['tag'] not in ('text', 'use') and e['sw'] > 0 and e['stroke'] and e['so'] > 0
+                    fsw = max([e['sw'] for e in fv if stroked(e)] or [0])
+                    osw = sorted(e['sw'] for e in els if vis(e) and stroked(e) and not e.get('focal') and not e.get('scene'))
+                    heavy = fsw > 0 and (not osw or fsw >= osw[-1] - 0.01 or fsw >= 1.5 * osw[len(osw) // 2])
+                    glow = any(e['glow'] for e in fv) and not any(e['glow'] for e in els if vis(e) and not e.get('focal'))
+                    hero = bool(ft) and bool(others_t) and max(e['px'] for e in ft) >= 1.5 * others_t[len(others_t) // 2] - 0.05
+                    if (fx1 - fx0) * (fy1 - fy0) < med and not (heavy or glow or hero):
+                        R.warn(pre + 'focal', '[focal] the focal shape (%.0f x %.0f) is smaller than the median shape box '
+                               '(%.0f units^2), and neither its stroke (heaviest or 1.5x the median), the only glow nor '
+                               'hero text sets it apart: make it visibly larger or heavier than its peers' % (
+                                   fx1 - fx0, fy1 - fy0, med))
 
     # 4 boxes
     vba = vbw * vbh
@@ -461,6 +731,15 @@ def analyse(frames, k, gcol, a, R, pre):
         R.warn(pre + 'density', 'no breathing room: element boxes cover %.0f %% of the viewBox; remove elements or add margin' % cov)
     else:
         R.info(pre + 'density', 'figure spans %.0f %% of the viewBox, element boxes cover %.0f %%' % (ext, cov))
+    ink_els = [e for e in els if painted(e, g)]
+    if ink_els:
+        cx0, cy0, cw, ch = clip
+        fw = (min(cx0 + cw, max(e['x'] + e['w'] for e in ink_els)) - max(cx0, min(e['x'] for e in ink_els))) / cw
+        fh = (min(cy0 + ch, max(e['y'] + e['h'] for e in ink_els)) - max(cy0, min(e['y'] for e in ink_els))) / ch
+        if fw < 0.6 and fh < 0.6:
+            R.warn(pre + 'density', '[density] the drawn figure spans %.0f %% of the %s width and %.0f %% of its height '
+                   '(< 60 %% both ways): pick a viewBox that fits the picture (layouts.md) or draw it larger'
+                   % (100 * fw, 'slot' if a.slot or a.page else 'viewBox', 100 * fh))
     if len(T) > 40:
         R.warn(pre + 'density', '%d visible text elements at rest: drop labels before shrinking type' % len(T))
 
@@ -494,6 +773,10 @@ def analyse(frames, k, gcol, a, R, pre):
     for t, fr in F if a.at_marks else F[:1]:
         gap_check(t, frames, fr, k, g, a, R, pre, per)
 
+    # 12 --at-pauses: clip, overlap and text floor at N in-between times, tolerant of mid-motion states
+    if pauses is not None:
+        pause_check(pauses, ptimes or [], k, clip, floor, clipped, overl, a, R, pre)
+
     # 11 the same rendered checks at every phase mark (--at-marks), one summary line per mark
     if not a.at_marks:
         return
@@ -518,6 +801,64 @@ def analyse(frames, k, gcol, a, R, pre):
         R.info(pre + 'marks', 'at %gs: clip %d, overlap %d, contrast %d, text-size %d%s' % (
             t, pc.get('clip', 0), pc.get('overlap', 0), len(badm), len(smallm),
             '' if gp is None else ', gap %.0fpx' % gp))
+
+
+def pause_check(pauses, times, k, clip, floor, clipped, overl, a, R, pre):
+    """WARN-only checks at in-between times: ink outside the viewBox (or slot), two labels overlapping, text
+    under the floor. Elements under opacity 0.15 are skipped, and two labels overlap only when both are at
+    0.6 or more (a cross-fade is intended). Findings already reported at rest or a mark are not repeated."""
+    if not times:
+        R.info(pre + 'pause', '[pause] no in-between times: the last phase mark is too close to 0.5 s')
+        return
+    R.info(pre + 'pause', '[pause] checked at %s (seeded from the fragment name)' % ', '.join('%gs' % t for t in times))
+    by_t = dict((p['t'], p['frags'][k]) for p in pauses)
+    cx0, cy0, cw, ch = clip
+    said_c, said_o, said_s = set(clipped), set(overl), set()
+    for t in times:
+        fr = by_t.get(t)
+        if not fr:
+            continue
+        E = [e for e in fr['els'] if e['op'] >= 0.15 and (e['w'] > 0 or e['h'] > 0) and not e['glow']]
+        out = []
+        for e in E:
+            pad = e['sw'] / 2 if e['tag'] != 'text' and e['stroke'] and e['stroke'][3] > 0 else 0
+            ox = max(cx0 - (e['x'] - pad), (e['x'] + e['w'] + pad) - (cx0 + cw), 0)
+            oy = max(cy0 - (e['y'] - pad), (e['y'] + e['h'] + pad) - (cy0 + ch), 0)
+            if e['tag'] != 'text':
+                ox = 0 if e['h'] >= 0.25 * ch else ox
+                oy = 0 if e['w'] >= 0.25 * cw else oy
+            if max(ox, oy) > (1 if e['tag'] == 'text' else 2) and e['i'] not in said_c:
+                said_c.add(e['i'])
+                out.append('%s sticks out of the %s by %.0f units' % (label(e), 'slot' if a.slot or a.page else 'viewBox', max(ox, oy)))
+        T = [e for e in E if e['tag'] == 'text']
+        ovl = []
+        for i in range(len(T)):
+            for j in range(i + 1, len(T)):
+                p, q = T[i], T[j]
+                if p['op'] < 0.6 or q['op'] < 0.6 or (p['i'], q['i']) in said_o:
+                    continue  # a cross-fade: one label leaves while the other arrives
+                if p['txt'] == q['txt'] and max(abs(p['x'] - q['x']), abs(p['y'] - q['y']), abs(p['w'] - q['w'])) < 3:
+                    continue
+                ip, iq = 0.15 * p['h'], 0.15 * q['h']
+                ix = min(p['x'] + p['w'], q['x'] + q['w']) - max(p['x'], q['x'])
+                iy = min(p['y'] + p['h'] - ip, q['y'] + q['h'] - iq) - max(p['y'] + ip, q['y'] + iq)
+                if ix > 2 and iy > 2:
+                    said_o.add((p['i'], q['i']))
+                    ovl.append('%s and %s overlap by %.0fx%.0f' % (label(p), label(q), ix, iy))
+        small = []
+        for e in T:
+            if e['px'] < floor - 0.05 and e['i'] not in said_s:
+                said_s.add(e['i'])
+                small.append('%s renders at %.1fpx < floor %gpx' % (label(e), e['px'], floor))
+        for m in out[:4]:
+            R.warn(pre + 'pause', '[pause] at %gs: %s (clip): keep moving parts inside the viewBox' % (t, m))
+        for m in ovl[:4]:
+            R.warn(pre + 'pause', '[pause] at %gs: %s (overlap): stagger them or move one aside while both show' % (t, m))
+        for m in small[:4]:
+            R.warn(pre + 'pause', '[pause] at %gs: %s (text-size): a growing label must stay above the floor '
+                   'while it is readable' % (t, m))
+    R.info(pre + 'pause', '[pause] orphan labels (a label shown before or without its shape) are not checked: '
+           'look at the in-between frames')
 
 
 class Report:
@@ -553,6 +894,9 @@ def main():
     ap.add_argument('--chrome', help='Chrome binary (else $CHROME or auto-detected)')
     ap.add_argument('--at-marks', action='store_true',
                     help='also run contrast, text-size and gap at every phase mark; one summary line per mark')
+    ap.add_argument('--at-pauses', type=int, nargs='?', const=3, default=None, metavar='N',
+                    help='also check clip, overlap and text floor at N (default 3) reproducible in-between times '
+                    '(WARN only)')
     ap.add_argument('--min-gap', type=float, metavar='PX',
                     help='page mode: clearance to the slide\'s own content (default 24 px at a 1920 window)')
     ap.add_argument('--json', action='store_true')
@@ -569,7 +913,9 @@ def main():
     theme = ''
     if a.theme:
         theme = '<style>%s</style>' % open(a.theme, encoding='utf-8').read()
-    cfg = {'gate': a.gate, 'page': a.slide if a.page else 0}
+    if a.at_pauses is not None and a.at_pauses < 1:
+        ap.error('--at-pauses N needs N >= 1')
+    cfg = {'gate': a.gate, 'page': a.slide if a.page else 0, 'pauses': a.at_pauses or 0}
     js = '<script type="application/json" id="look"></script><script>%s</script>' % PROBE_JS.replace('__CFG__', json.dumps(cfg))
     notrans = '<style>*,*::before,*::after{transition:none!important}</style>'
     src_path = a.page or a.fragment
@@ -602,7 +948,7 @@ def main():
     if a.save_probe:
         open(a.save_probe, 'w', encoding='utf-8').write(html)
     try:
-        data = run_probe(chrome, html, base_dir, win)
+        data, img = run_probe(chrome, html, base_dir, win)
     except (RuntimeError, subprocess.TimeoutExpired, ValueError) as e:
         print('error: %s' % e, file=sys.stderr); sys.exit(2)
     if a.stage_width is None:
@@ -622,7 +968,17 @@ def main():
             gcol = [int(a.bg.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4)]
         if a.fragment and re.search(r'anim-look:\s*boxes-ok', src):
             frames[0]['frags'][k]['boxesok'] = True
-        analyse(frames, k, gcol, a, R, pre)
+        px = None
+        if img:
+            fr = frames[0]['frags'][k]
+            m, (vx, vy, vw, vh) = fr['ctm'], fr['vb']
+            P = [(m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]) for x, y in
+                 ((vx, vy), (vx + vw, vy), (vx, vy + vh), (vx + vw, vy + vh))]
+            box = (min(p[0] for p in P), min(p[1] for p in P), max(p[0] for p in P), max(p[1] for p in P))
+            if box[0] >= -1 and box[1] >= -1 and box[2] <= img[0] + 1 and box[3] <= img[1] + 1:  # on screen
+                px = accent_share(img, box, gcol[:3], fr['tokc'])
+        analyse(frames, k, gcol, a, R, pre, px=px, pauses=data.get('pauses') if a.at_pauses else None,
+                ptimes=(data.get('ptimes') or [[]] * nfr)[k] if a.at_pauses else None)
     nf, nw = R.count('FAIL'), R.count('WARN')
     if a.json:
         print(json.dumps({'source': src_path, 'slide': a.slide if a.page else None, 'fail': nf, 'warn': nw,

@@ -164,7 +164,7 @@
   domain: earth-science
   viewbox: [1680, 600]
   cycle: 10
-  phases: [2.24, 4.48, 5.36, 8.64, 9.3]
+  phases: [2.24, 4.48, 5.36, 8.2, 9.2]
   spec: true
   story: Over a sea-and-mountain landscape the sun evaporates water, wind carries the cloud inland, rain falls and a river returns it to the sea.
   tags: [water-cycle, closed-loop, earth-science, landscape, packet-transform, seamless]
@@ -178,7 +178,7 @@
   domain: finance
   viewbox: [1680, 600]
   cycle: 10
-  phases: [0.78, 1.84, 2.4, 5.6, 6.64, 7.2, 8.1, 9]
+  phases: [0.78, 1.84, 2.4, 5.6, 6.64, 7.2, 8.2, 9.2]
   spec: true
   story: Online OR branch applications meet a credit-check diamond; yes runs two checks in parallel to an offer, no ends in a decline with a reason letter.
   tags: [loan, credit-decision, decision-diamond, parallel-checks, alternative-inputs, banking]
@@ -205,7 +205,7 @@
   domain: law
   viewbox: [1680, 600]
   cycle: 10
-  phases: [0.8, 1.28, 2.4, 3.68, 4.8, 6.08, 7.28, 9]
+  phases: [0.8, 1.28, 2.4, 3.68, 4.8, 6.08, 7.28, 9.2]
   spec: true
   story: A generic criminal case from investigation to sentencing; the progress line changes colour at each hand-off between prosecution, court and jury.
   tags: [legal-process, criminal-justice, hand-off, responsibility, civics, alternating-labels]
@@ -428,7 +428,7 @@
   domain: health
   viewbox: [1680, 600]
   cycle: 9.5
-  phases: [1.22, 3.0, 4.92, 7.95, 8.5]
+  phases: [1.22, 3.0, 4.92, 7.95, 8.7]
   spec: false
   story: One crowd of 100 people, one ring each, sorts itself by ABO blood group into blocks in columns of five (about 44 O, 42 A, 10 B, 4 AB in the US); the counts land and the largest group takes the accent.
   tags: [blood-type, abo, population-share, unit-chart, of-every-100]

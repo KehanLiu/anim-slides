@@ -23,6 +23,7 @@ verb: travel                   # the main motion, references/motion-verbs.md (on
 traveller:                     # required with verb: travel
   name: the release commit     # what moves, in the source's words
   label: a1f9c3e               # optional, short mono text that rides with the marker
+focal: production              # optional, id of the one focal node or element (data-anim-focal)
 title: "Build to production"   # optional, drawn as a title row if present
 size: [1680, 440]              # viewBox W H; optional, archetype default if absent
 control: once                  # once (default) | step | loop
@@ -71,6 +72,7 @@ events:                        # chart archetype only
 | `archetype` | yes | - | One of the seven in [archetypes.md](archetypes.md). Picks layout and motion recipe. |
 | `verb` | no* | `reveal` | The main motion: one of the twenty verbs in [motion-verbs.md](motion-verbs.md) (`grow`, `count`, `accumulate`, `thin`, `race`, `split`, `merge`, `sort`, `stack`, `nest`, `transform`, `wipe`, `switch`, `balance`, `drive`, `zoom`, `open`, `travel`, `trace`, `cycle`) or `reveal`. *Missing is a warning and scaffolds as `reveal`; an unknown value is an error that lists the vocabulary. Written to the wrapper as `data-anim-verb`. See "Verbs in the scaffold". |
 | `traveller` | travel | none | `{name, label}`. Required with `verb: travel` (error without it); also read by `cycle`, ignored with a warning elsewhere. `name` is what moves in the source's words ("the patient", "one request"; "a dot" is refused). `label` (optional, ~16 chars) is drawn as small mono text riding upright with the marker. |
+| `focal` | no | none | Id of the one focal node or element: what the eye lands on in the resting frame (usually the outcome). Its rendered element carries `data-anim-focal`. One id only; an id that matches nothing is an error. Without the key the scaffolder takes the node the last phase lights, else the outcome node, else the first chart series. |
 | `title` | no | none | One line, max ~48 chars. Drawn as a title row at the top of the viewBox. Omit when the slide already has a title (usual case). |
 | `size` | no | per archetype (below) | `[W, H]`, positive integers, viewBox units. Match the slot's aspect ratio ([layouts.md](layouts.md)). |
 | `control` | no | `once` | `once` = CSS keyframes that play one pass when the slide becomes current and hold the finished state; `step` = the same file with `data-anim-control="step"`: the presenter drives it, the host script plays the pass segment by segment between the `data-anim-phases` marks (below), no script in the fragment; `loop` = the same keyframes repeated forever, only when the user asks for a continuous loop (kiosk, gallery, hero). |
@@ -176,7 +178,7 @@ Implicit entry (so specs stay short):
 Timing semantics:
 
 - `once`: phase *i* lasts from `t_i` to `t_{i+1}`; the last phase lasts until `cycle`, the end
-  of the pass. Entrances start at `t` with element duration (300-500 ms); a traveller takes one
+  of the pass. Entrances start at `t` with element duration (250-500 ms); a traveller takes one
   hop (0.6-1.0 s) and rides its path once; an active path draws on in 0.6 s. The last phase is the **hold**: by convention
   `label: hold`, no `show`, no `flow`, `t` between `cycle - 1.5` and `cycle - 0.8`. Nothing
   resets: the pass ends on the finished state and keeps it (fill-mode `forwards`/`both`). The
@@ -289,6 +291,11 @@ Where the schema leaves a drawing decision open, `scripts/scaffold_from_spec.py`
   `<g id="<name>-state">` after the figure, so a phase change is one opacity swap in one group
   (contract section 8, motion concurrency). Static frame elements (never named in `show`) do
   not fade in under `once`; a chart's head dot appears at the end instead of riding the line.
+- **easing**: only the five curves of [motion-rules.md](motion-rules.md) "Easing": `enter`
+  for entrances and draw-on, `move` for the traveller and every change of place or size,
+  `exit` for things leaving, `land` for small marks, `linear` for the full-pass tracks. The
+  spec has no easing key.
+- **focal**: the `focal` node's mark (or element) gets `data-anim-focal`.
 - **glow**: only one ring glows, the outcome (the first node active in the last phase, else the
   last highlighted node); wires, brackets, rules and chart series get a plain accent copy.
 - **verb**: the wrapper carries `data-anim-verb="<verb>"`; the edge-path variables and the

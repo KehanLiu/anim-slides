@@ -26,7 +26,9 @@ Controls (references/fragment-contract.md section 7):
         On a once or loop wrapper data-anim-phases is optional and validated when present.
 No control allows a <script> inside the fragment.
 All controls: motion concurrency (things moving at the same instant, a staggered reveal counts
-as one: WARN > 3, FAIL > 6) and
+as one: WARN > 3, FAIL > 6; an element counts as part of the reveal while it shows for the first
+time: opacity up from 0, a draw-on to stroke-dashoffset 0, a clip reveal from fully clipped, a
+scale from 0.9 or more settling with a fade-in) and
 glow concurrency (glow elements visible at the same instant: WARN > 1, FAIL > 2; a stroke-only
 glow warns: lines and arrows never glow).
 Staggered series: data-anim-series="<id>" on an element or on a parent <g> declares a series of
@@ -45,6 +47,28 @@ of a variant are prefixed with its condition. @media blocks are left out, as bef
 Verb: data-anim-verb on the wrapper names the main motion (references/motion-verbs.md): missing
 WARN, not one of the twenty verbs or reveal FAIL; WARN on offset-path motion under a verb other
 than travel or cycle, and on travel without any offset-path.
+Look (findings carry their id in brackets, references/motion-rules.md and style.md):
+  [easing-set]      WARN: a timing function outside the set enter cubic-bezier(0.16,1,0.3,1),
+                    move (0.2,0,0,1), exit (0.3,0,1,1), land (0.3,1.3,0.5,1), linear, steps(),
+                    step-start/end (compared to 0.005); once per value with a count and the nearest
+  [overshoot]       FAIL: a cubic-bezier with y1 or y2 outside 0 to 1 that is not land; an animation
+                    or keyframes name with bounce, elastic, wobble or jiggle
+  [fade-after-fade] WARN: at least 5 animated non-text elements and 80 % of them only fade
+                    (opacity, at most a 24 px translate)
+  [mono-costume]    WARN: var(--anim-mono) text with no digit, no code-like token, not a unit and not a math symbol
+  [type-ladder]     WARN: two text sizes less than 1.2x apart (sizes within 2 % are one), or more
+                    than four sizes
+  [focal]           WARN without data-anim-focal; FAIL when more than one element carries it
+  [node-count]      WARN over 12 nodes; nodes are known only by the scaffolder's class NAME-node
+  [stillness]       WARN unless 380 ms or more with nothing moving (fades and caption cross-fades
+                    count as motion; same per-element motion data as concurrency) precede the final
+                    burst before the last phase mark. The final burst: the last motion before the
+                    last mark plus the pieces before it that follow within 0.3 s of each other,
+                    never reaching back to a piece that starts more than 0.3 s before the
+                    second-last mark (the answer step is the last phase). INFO (exempt): control
+                    loop, fewer than two phase marks, or main verb trace with one linear move
+                    running more than half the pass. Easing tails count as motion: a draw-on whose
+                    last few percent are sub-pixel still blocks the window
 
 Every finding is printed as OK / WARN / FAIL (INFO for notes) with a line hint. Exit code 1 on any FAIL.
 Standard library only.
@@ -53,6 +77,7 @@ import argparse
 import math
 import re
 import sys
+import unicodedata
 from html.parser import HTMLParser
 
 # references/motion-verbs.md: twenty verbs plus reveal; keep in step with scaffold_from_spec.py VERBS
@@ -343,6 +368,92 @@ def path_key(v):
     for tok in re.findall(r'[A-Za-z]|[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?', v):
         out.append(tok if tok.isalpha() else round(float(tok), 2))
     return tuple(out)
+
+
+# ----------------------------------------------------------------------------- easing set
+# The only curves allowed (references/motion-rules.md, one easing set). land overshoots on purpose.
+EASINGS = {'enter': (0.16, 1.0, 0.3, 1.0), 'move': (0.2, 0.0, 0.0, 1.0),
+           'exit': (0.3, 0.0, 1.0, 1.0), 'land': (0.3, 1.3, 0.5, 1.0)}
+EASE_USE = {'enter': 'things arriving, draw-on, reveals', 'move': 'things on screen changing place or size',
+            'exit': 'things leaving', 'land': 'a small mark arriving'}
+EASE_KEYWORDS = {'ease': (0.25, 0.1, 0.25, 1.0), 'ease-in': (0.42, 0.0, 1.0, 1.0),
+                 'ease-out': (0.0, 0.0, 0.58, 1.0), 'ease-in-out': (0.42, 0.0, 0.58, 1.0)}
+EASE_TOL = 0.005
+TIMING_RE = re.compile(r'(?<![\w-])(cubic-bezier|steps|linear)\s*\(([^)]*)\)'
+                       r'|(?<![\w-])(ease-in-out|ease-in|ease-out|ease|linear|step-start|step-end)(?![\w-])', re.I)
+TIMING_PROPS = re.compile(r'(?<![\w-])(animation|animation-timing-function|transition|transition-timing-function)'
+                          r'\s*:\s*([^;{}]*)', re.I)
+BAD_NAME_RE = re.compile(r'bounce|elastic|wobble|jiggle', re.I)
+# a clip that hides everything: an inset of 100 % on a side, or a circle/ellipse of radius 0
+CLIPPED_RE = re.compile(r'inset\([^)]*\b(?:100(?:\.0+)?|99(?:\.\d+)?)%|(?:circle|ellipse)\(\s*0(?:px|%)?(?:\s|\)|,)', re.I)
+
+
+def bezier_y(p, x):
+    """y of the CSS cubic-bezier p = (x1, y1, x2, y2) at progress x (bisection on t)."""
+    x1, y1, x2, y2 = p
+
+    def b(t, a1, a2):
+        return 3 * (1 - t) ** 2 * t * a1 + 3 * (1 - t) * t * t * a2 + t ** 3
+    lo, hi = 0.0, 1.0
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        if b(mid, x1, x2) < x:
+            lo = mid
+        else:
+            hi = mid
+    return b((lo + hi) / 2, y1, y2)
+
+
+def nearest_easing(p, allow_land=False):
+    """Name of the curve of the set that is closest to p over the whole progress range. A curve
+    that slows down into its end (an ease-out or an ease-in-out) is never matched with exit,
+    which speeds up into its end; one that speeds up into its end always is."""
+    xs = [k / 20 for k in range(1, 20)]
+    ys = [bezier_y(p, x) for x in xs]
+    settles = p[3] >= 0.99 and p[2] <= 0.9
+    if not settles:
+        return 'exit'
+    best = None
+    for nm, q in EASINGS.items():
+        if (nm == 'land' and not allow_land) or nm == 'exit':
+            continue
+        d = sum(abs(y - bezier_y(q, x)) for x, y in zip(xs, ys))
+        if best is None or d < best[0]:
+            best = (d, nm)
+    return best[1]
+
+
+def ease_str(nm):
+    q = EASINGS[nm]
+    return f'{nm} cubic-bezier({", ".join(f"{v:g}" for v in q)})'
+
+
+def parse_timing(m):
+    """(key, label, bezier or None, kind) for one TIMING_RE match. kind: ok | bad | overshoot."""
+    fn, args, kw = m.group(1), m.group(2), m.group(3)
+    if fn:
+        fn = fn.lower()
+        if fn == 'steps':
+            return ('steps', 'steps()', None, 'ok')
+        if fn == 'linear':   # linear(<points>) can draw any curve, also a bounce
+            return ('linear()', f'linear({" ".join(args.split())})', None, 'bad')
+        try:
+            p = tuple(float(v) for v in args.replace(',', ' ').split())
+        except ValueError:
+            p = ()
+        if len(p) != 4:
+            return ('cb?' + args, f'cubic-bezier({args})', None, 'bad')
+        label = f'cubic-bezier({", ".join(f"{v:g}" for v in p)})'
+        for q in EASINGS.values():
+            if all(abs(a - b) <= EASE_TOL for a, b in zip(p, q)):
+                return (q, label, p, 'ok')
+        if not (0 <= p[1] <= 1 and 0 <= p[3] <= 1):
+            return (tuple(round(v, 3) for v in p), label, p, 'overshoot')
+        return (tuple(round(v, 3) for v in p), label, p, 'bad')
+    kw = kw.lower()
+    if kw in ('linear', 'step-start', 'step-end'):
+        return (kw, kw, None, 'ok')
+    return (kw, kw, EASE_KEYWORDS[kw], 'bad')
 
 
 class VariantReport:
@@ -753,6 +864,45 @@ def main():
     else:
         R.ok('gating', f'--gate none: {len(anim_rules)} animation rule(s) run always')
 
+    # ------------------------------------------------------------------ easing set and overshoot
+    # Every timing function (animation, transition, keyframe stops, inline styles) is one of the
+    # set: enter, move, exit, land, linear, steps(). Other curves warn; overshooting ones fail.
+    found = {}   # key -> [label, bezier, kind, count, first line]
+    srcs = [(css, style_pos)] + [(e['attrs']['style'], None, e['line']) for e in E if 'style' in e['attrs']]
+    for item in srcs:
+        text, base = item[0], item[1]
+        for dm in TIMING_PROPS.finditer(text):
+            for m in TIMING_RE.finditer(dm.group(2)):
+                key, label, p, kind = parse_timing(m)
+                ln = line_of(base + dm.start()) if base is not None else item[2]
+                f = found.setdefault(key, [label, p, kind, 0, ln])
+                f[3] += 1
+    n_ok = sum(f[3] for f in found.values() if f[2] == 'ok')
+    bad = [f for f in found.values() if f[2] == 'bad']
+    over = [f for f in found.values() if f[2] == 'overshoot']
+    for label, p, kind, n, ln in sorted(bad, key=lambda f: -f[3]):
+        alt = nearest_easing(p) if p else 'enter'
+        R.warn('[easing-set]', f'{label} used {n}x: not in the easing set; use {ease_str(alt)} '
+               f'({EASE_USE[alt]}), or another curve of the set: enter, move, exit, land (small marks '
+               'only), linear (continuous motion), steps() (digit strips)', ln)
+    for label, p, kind, n, ln in over:
+        R.fail('[overshoot]', f'{label} used {n}x overshoots (y1 or y2 outside 0 to 1) and is not the land '
+               f'curve: no bounce; use {ease_str(nearest_easing(p))}, or land cubic-bezier(0.3, 1.3, 0.5, 1) '
+               'for a small mark arriving (at most 48 px)', ln)
+    bad_names = set()
+    for nd_name, ln in [(nd[1], line_of(style_pos + nd[3])) for nd in tree if nd[0] == 'keyframes']:
+        if BAD_NAME_RE.search(nd_name):
+            bad_names.add((nd_name, ln))
+    for s, v, ln, g, ctx in anim_rules:
+        for w in re.findall(r'(?<![\w-])([A-Za-z_][\w-]*)', re.sub(r'\([^)]*\)', '', v)):
+            if BAD_NAME_RE.search(w):
+                bad_names.add((w, ln))
+    for nm, ln in sorted(bad_names)[:3]:
+        R.fail('[overshoot]', f'animation "{nm}" names a bounce, elastic, wobble or jiggle: motion settles once '
+               'without overshoot; use the enter or move curve (land only for a small mark)', ln)
+    if not bad and not over and not bad_names:
+        R.ok('[easing-set]', f'{n_ok} timing function(s), all from the easing set')
+
     # ------------------------------------------------------------------ reduced motion
     rm = [nd for nd in tree if nd[0] == 'at' and 'prefers-reduced-motion' in nd[1] and 'reduce' in nd[1]]
     if rm:
@@ -1151,7 +1301,10 @@ def main():
             fill = fm.group(1) if fm else (lg('animation-fill-mode') or 'none')
             if not dur or dur <= 0:
                 return None
-            return {'name': sorted(nm)[0], 'dur': dur, 'delay': max(0.0, delay or 0.0), 'iters': iters, 'fill': fill}
+            tf = lg('animation-timing-function')
+            linear = bool(re.search(r'(?<![\w-])linear(?![\w-])', bare)) or (tf or '').strip() == 'linear'
+            return {'name': sorted(nm)[0], 'dur': dur, 'delay': max(0.0, delay or 0.0), 'iters': iters, 'fill': fill,
+                    'linear': linear}
 
         tracks = {}      # element index -> [track]
         # the cascade decides which animation an element runs: the matching animation
@@ -1188,24 +1341,42 @@ def main():
             if trs and not any((resolved(j, 'display') or '').lower() == 'none' for j in [i] + list(E[i]['anc'])):
                 tracks[i] = list(trs)
 
+        def same_value(v):
+            """A keyframe value in one spelling: 0.96 and .96, 1 and 1.0, spacing, compare equal."""
+            return re.sub(r'(?<![\w#])(-?\d*\.?\d+)', lambda m: repr(float(m.group(1))), ' '.join(v.split()))
+
         def kf_moving(name):
             """[(p0, p1, kind)] in 0..1 where keyframes `name` change something. Each property is
             followed on its own (CSS interpolates a property between the stops that name it, so a
-            stop that omits it changes nothing). kind: 'appear' = opacity rises from 0, optionally
-            with a transform settling, and nothing else changes; 'fade' = another opacity-only
+            stop that omits it changes nothing). kind: 'appear' = the element shows for the first
+            time and nothing else changes: opacity rises from 0 (optionally with a transform or a
+            scale from 0.9 or more settling), a draw-on (stroke-dashoffset from its first value to
+            0), or a clip reveal (clip-path from fully clipped); 'fade' = another opacity-only
             change; 'action' = anything else."""
             per = {}
             for pct, d in keyframes.get(name, []):
                 for k, v in d.items():
                     if k != 'animation-timing-function':
                         per.setdefault(k, []).append((pct / 100, v))
-            segs_p = []    # (p0, p1, prop, rising_from_zero)
+            segs_p = []    # (p0, p1, prop, appearing: first shown or drawn by this segment)
             for k, pts in per.items():
+                first = True    # no earlier change of this property: the element was not shown yet
                 for (a, va), (b, vb) in zip(pts, pts[1:]):
-                    if b > a and va != vb:
+                    if b > a and same_value(va) != same_value(vb):
                         n0, n1 = css_number(va), css_number(vb)
-                        segs_p.append((a, b, k, k == 'opacity' and n0 is not None and n1 is not None
-                                       and n0 <= 0.01 and n1 > n0))
+                        if k == 'opacity':
+                            app = n0 is not None and n1 is not None and n0 <= 0.01 and n1 > n0
+                        elif k == 'stroke-dashoffset':    # draw-on: from undrawn to fully drawn
+                            app = first and n0 is not None and n1 is not None and abs(n1) < 0.01 < abs(n0)
+                        elif k in ('clip-path', '-webkit-clip-path'):    # clip reveal from fully clipped
+                            app = first and bool(CLIPPED_RE.search(va)) and not CLIPPED_RE.search(vb)
+                        elif k == 'scale':
+                            s0 = css_number(va.split()[0]) if va.split() else None
+                            app = s0 is not None and 0.9 <= s0 < 1 and css_number(vb.split()[0]) == 1
+                        else:
+                            app = False
+                        segs_p.append((a, b, k, app))
+                        first = False
             cuts = sorted({x for a, b, _, _ in segs_p for x in (a, b)})
             out = []
             for a, b in zip(cuts, cuts[1:]):
@@ -1213,8 +1384,13 @@ def main():
                 if not act:
                     continue
                 props = {sp[2] for sp in act}
-                if 'opacity' in props and props <= {'opacity', 'transform', 'translate'} \
-                        and all(sp[3] for sp in act if sp[2] == 'opacity'):
+                # appearing: every changing property shows the element for the first time (opacity
+                # up from 0, a draw-on, a clip reveal), and a transform settles only with a fade-in
+                reveal = [sp for sp in act if sp[2] not in ('transform', 'translate', 'scale')]
+                fade_in = any(sp[3] for sp in act if sp[2] == 'opacity')
+                if reveal and all(sp[3] for sp in reveal) \
+                        and (fade_in or props <= {'stroke-dashoffset', 'clip-path', '-webkit-clip-path'}) \
+                        and all(sp[3] for sp in act if sp[2] == 'scale'):
                     kind = 'appear'
                 elif props == {'opacity'}:
                     kind = 'fade'
@@ -1307,6 +1483,84 @@ def main():
         R.ok('concurrency', f'info: {len({tr["name"] for ts in tracks.values() for tr in ts})} distinct animation '
              f'name(s) on {len(tracks)} element(s)')
 
+        # ------------------------------------------------------------------ stillness before the answer
+        # motion-rules.md: one deliberate pause of 400 to 600 ms where nothing moves, just before the
+        # answer step (the last staged step). The same motion data as above: every track's changing
+        # keyframe segments (appearing, fades and caption cross-fades included) laid out in time.
+        if variant is None:
+            vb_ = (wrapper['attrs'].get('data-anim-verb') or '').split() if wrapper else []
+            mov_iv = []          # (start, end) in s while something moves
+            trace_run = 0.0      # longest continuous linear run of one track
+            for i, ts in tracks.items():
+                for tr in ts:
+                    segs_ = mov_cache.setdefault(tr['name'], kf_moving(tr['name']))
+                    if not segs_:
+                        continue
+                    n_it = int(math.ceil(horizon / tr['dur'])) + 1 if tr['iters'] == math.inf \
+                        else int(math.ceil(tr['iters']))
+                    for it in range(n_it):
+                        base_t = tr['delay'] + it * tr['dur']
+                        for a, b, _k in segs_:
+                            t0 = base_t + a * tr['dur']
+                            t1 = min(base_t + b * tr['dur'], tr['delay'] + tr['dur'] * tr['iters'])
+                            if t1 > t0:
+                                mov_iv.append((t0, t1))
+                    kf_tf = {d.get('animation-timing-function', '').strip() for _p, d in keyframes.get(tr['name'], [])
+                             if 'animation-timing-function' in d}
+                    if (tr['linear'] and kf_tf <= {'linear'}) or (kf_tf and kf_tf <= {'linear'}):
+                        run, r0, r1 = 0.0, None, None
+                        for a, b, _k in sorted(segs_):
+                            if r1 is not None and a <= r1 + 1e-6:
+                                r1 = max(r1, b)
+                            else:
+                                r0, r1 = a, b
+                            run = max(run, (r1 - r0) * tr['dur'] * min(tr['iters'], horizon / tr['dur'] + 1))
+                        trace_run = max(trace_run, run)
+            pass_len = cycle or horizon
+            if control == 'loop':
+                R.add('INFO', '[stillness]', 'exempt: control=loop has no answer step to pause before')
+            elif not phase_marks or len(phase_marks) < 2:
+                R.add('INFO', '[stillness]', 'exempt: fewer than two phase marks, no staged answer step to pause before')
+            elif vb_ and vb_[0] == 'trace' and trace_run > pass_len / 2:
+                R.add('INFO', '[stillness]', f'exempt: verb trace with a continuous linear move of {trace_run:.2f} s '
+                      f'(more than half the {pass_len:g} s pass): a strip chart that never stops')
+            else:
+                last_mark = phase_marks[-1]
+                merged = []
+                for t0, t1 in sorted(iv for iv in mov_iv if iv[0] < last_mark - 1e-6):
+                    if merged and t0 <= merged[-1][1] + 1e-6:
+                        merged[-1][1] = max(merged[-1][1], t1)
+                    else:
+                        merged.append([t0, t1])
+                # quiet windows inside the action part: after the first motion, followed by more motion
+                gaps = [(merged[k][1], merged[k + 1][0]) for k in range(len(merged) - 1)]
+                # the final burst: the last run of motion whose staggered parts follow within 0.3 s
+                fb = len(merged) - 1
+                # (never reaching back into an earlier phase: a piece that starts before the last phase's
+                # mark, less 0.3 s, belongs to the steps before the answer)
+                while fb > 0 and merged[fb][0] - merged[fb - 1][1] < 0.3 \
+                        and merged[fb - 1][0] >= phase_marks[-2] - 0.3:
+                    fb -= 1
+                final_t = merged[fb][0] if merged else None
+                still = gaps[fb - 1] if fb > 0 else None
+                longest = max(gaps, key=lambda g: g[1] - g[0]) if gaps else None
+                fix = ('end the earlier motion sooner, or move the phase mark, or lengthen the pass within 4 to 10 s '
+                       'so 400 to 600 ms of nothing moving precede the answer step (motion-rules.md, stillness)')
+                def win_(g):
+                    return f'{round((g[1] - g[0]) * 1000):.0f} ms ({round(g[0], 3):g} to {round(g[1], 3):g} s)'
+                if still and still[1] - still[0] >= 0.38:
+                    R.ok('[stillness]', f'{win_(still)} with nothing moving before the final step at '
+                         f'{round(final_t, 3):g} s')
+                else:
+                    lw = (f'the longest quiet window in the action part is {win_(longest)}' if longest
+                          else 'no quiet window in the action part')
+                    pre = (f'only {win_(still)} of stillness before the final step at {round(final_t, 3):g} s' if still
+                           else f'no stillness: motion runs without a 0.3 s break from {round(final_t, 3):g} s into '
+                                f'the last phase (mark {phase_marks[-2]:g} s)' if final_t is not None
+                           else 'no motion before the last mark')
+                    R.warn('[stillness]', f'{pre}; {lw}; {fix}',
+                           wrapper['line'] if wrapper else None)
+
         GLOW_RE = re.compile(r'\b(blur|drop-shadow)\(', re.I)
         glow_rules = []
         for sel, body, pos, ctx in walk_rules(tree):
@@ -1372,6 +1626,49 @@ def main():
             if e['tag'] in ('line', 'polyline') or (e['tag'] == 'path' and (resolved(i, 'fill') or '').lower() == 'none'):
                 R.warn('concurrency', f'{describe(e)} glows but is stroke-only: lines and arrows never glow', e['line'])
 
+        # ------------------------------------------------------------------ fade after fade (base only)
+        # Entrance by kind (motion-rules.md): lines draw on, nodes land, areas reveal with a clip.
+        # Among animated elements that are not text (nor groups holding only text), warn when at
+        # least 5 animate and 80 % of them only fade (opacity, maybe with a small translate).
+        if variant is None:
+            TEXT_TAGS = ('text', 'tspan', 'textpath')
+            SHAPE_TAGS = ('path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'use', 'image')
+
+            def text_only(i):
+                if E[i]['tag'] in TEXT_TAGS:
+                    return True
+                if E[i]['tag'] != 'g':
+                    return False
+                desc = [e for e in E if i in e['anc']]
+                return any(e['tag'] in TEXT_TAGS for e in desc) and not any(e['tag'] in SHAPE_TAGS for e in desc)
+
+            def fade_only(name):
+                props = moving_props(name)
+                if 'opacity' not in props or not props <= {'opacity', 'transform', 'translate'}:
+                    return False
+                for pct, d in keyframes.get(name, []):
+                    for k in ('transform', 'translate'):
+                        v = d.get(k)
+                        if v is None or k not in props:
+                            continue
+                        if k == 'transform' and re.sub(r'translate[XY]?\([^)]*\)', '', v).strip() not in ('', 'none'):
+                            return False
+                        if any(abs(float(n)) > 24 for n in re.findall(r'-?\d*\.?\d+', re.sub(r'[A-Za-z]+\(|\)', ' ', v)
+                                                                       .replace('px', ''))):
+                            return False
+                return True
+            shapes = [i for i, ts in tracks.items() if not text_only(i)
+                      and any(moving_props(tr['name']) for tr in ts)]
+            fades = [i for i in shapes if all(fade_only(tr['name']) or not moving_props(tr['name'])
+                                              for tr in tracks[i])]
+            if len(shapes) >= 5 and len(fades) >= 0.8 * len(shapes):
+                R.warn('[fade-after-fade]', f'{len(fades)} of {len(shapes)} animated shapes only fade in (opacity, at '
+                       'most a small rise): nearly every shape only fades. Draw lines on (stroke-dashoffset), let '
+                       'nodes land (scale 0.92 to 1 plus fade), reveal areas with a clip-path or mask in the '
+                       'direction of meaning (motion-rules.md, entrance by kind)', E[fades[0]]['line'])
+            elif shapes:
+                R.ok('[fade-after-fade]', f'{len(fades)} of {len(shapes)} animated shapes only fade')
+
     R = R_main
 
     # ------------------------------------------------------------------ index-class collisions
@@ -1412,6 +1709,148 @@ def main():
                        f'(e.g. {pref}{stem}-o)', odd[0]['line'])
     if len(R.items) == nf0:
         R.ok('index-collision', f'{len(series)} per-index class series, no collisions')
+
+    # ------------------------------------------------------------------ type: mono for data, type ladder
+    # font-family and font-size of each text element, by the cascade (base rules, outside @media
+    # and positive @supports) and inheritance; the font shorthand sets both.
+    font_rules, order = [], 0
+    for sel, body, pos, ctx in walk_rules(tree):
+        if not all(re.match(r'@supports\s+not\b', ' '.join(c.split()), re.I) for c in ctx):
+            continue
+        dd = {}
+        for p, v in decls(body):
+            imp = '!important' in v
+            v = v.replace('!important', '').strip()
+            if p in ('font-family', 'font-size'):
+                dd[p] = (v, imp)
+            elif p == 'font':
+                m = re.search(r'(?<![\w.-])(\d*\.?\d+(?:px|em|rem|%|pt)?)(?:\s*/\s*[\w.%]+)?\s+(.+)$', v)
+                if m:
+                    dd['font-size'], dd['font-family'] = (m.group(1), imp), (m.group(2).strip(), imp)
+        if not dd:
+            continue
+        for s in split_selectors(sel):
+            if gate_re and re.match(gate_re, s):
+                s = re.sub('^' + gate_re, '', s)
+            parsed, spec = parse_selector(s)
+            if parsed:
+                order += 1
+                font_rules.append((parsed, spec, order, dd))
+    fcache = {}
+
+    def own_font(i, prop):
+        if (i, prop) in fcache:
+            return fcache[(i, prop)]
+        el, best = E[i], None
+        if prop in el['attrs']:
+            best = ((0, 0, (-1, 0, 0), 0), el['attrs'][prop].strip())
+        for parsed, spec, o, dd in font_rules:
+            if prop in dd and selector_matches(parsed, i, E):
+                v, imp = dd[prop]
+                key = (int(imp), 1, spec, o)
+                if best is None or key > best[0]:
+                    best = (key, v)
+        for p, v in decls(el['attrs'].get('style', '')):
+            if p == prop:
+                key = (int('!important' in v), 2, (0, 0, 0), 0)
+                if best is None or key > best[0]:
+                    best = (key, v.replace('!important', '').strip())
+        fcache[(i, prop)] = best[1] if best else None
+        return fcache[(i, prop)]
+
+    def font_of(i, prop):
+        for j in [i] + list(reversed(E[i]['anc'])):
+            v = own_font(j, prop)
+            if v is not None and v.lower() != 'inherit':
+                return v, j
+        return None, None
+
+    def size_px(i):
+        """Font size of element i in viewBox px, or None when it cannot be told."""
+        v, j = font_of(i, 'font-size')
+        if v is None:
+            return None
+        m = re.fullmatch(r'(\d*\.?\d+)\s*(px)?', v)
+        if m:
+            return float(m.group(1))
+        m = re.fullmatch(r'(\d*\.?\d+)\s*(em|%)', v)
+        if m and E[j]['anc']:
+            parent = size_px(E[j]['anc'][-1])
+            if parent:
+                return parent * float(m.group(1)) / (100 if m.group(2) == '%' else 1)
+        return None
+
+    TEXT_TAGS = ('text', 'tspan', 'textpath')
+    texts = [i for i, e in enumerate(E) if e['tag'] in TEXT_TAGS and e['text'].strip()
+             and not any(E[x]['tag'] in NO_RENDER for x in e['anc'])]
+    # mono is for data: numbers, units, codes, timestamps, identifiers, formulas
+    CODE_RE = re.compile(r'[_/=(%°+<>#@$€£{}\[\]|&*~×÷−±≤≥→←√∑∆Δ≈]|\w\.\w|:\s*\d|\b[A-Z]{2,}\b')
+    UNITS = set('ms s min h d kg g mg µg km m cm mm µm nm kcal kj j kwh wh w kw mw hz khz mol l ml px pa kpa '
+                'bar mbar mmhg ppm ppb db'.split())   # a unit on its own is data
+    def math_symbol(t):
+        """A mathematical symbol or constant: single Greek letters (π, Δ, μ), the set letters N Z Q R C used
+        alone (also as ℕ ℤ ℚ ℝ ℂ), optionally joined by operators such as ⊂ ∈ ∪ ∩, or operators only."""
+        s = t.replace(' ', '')
+        if not s or re.search(r'[A-Za-z\u0370-\u03ff]{2}', s):
+            return False  # two letters in a row make a word, not a symbol
+        for ch in s:
+            if not (unicodedata.category(ch) == 'Sm' or '\u0391' <= ch <= '\u03c9' or ch in 'ϑϕϖϵℕℤℚℝℂ∅∞∂∇·'
+                    or ch in 'NZQRC'):
+                return False
+        return True
+    costume = []
+    for i in texts:
+        fam, _ = font_of(i, 'font-family')
+        if fam and '--anim-mono' in fam:
+            t = ' '.join(E[i]['text'].split())
+            if not any(ch.isdigit() for ch in t) and not CODE_RE.search(t) and t.lower() not in UNITS \
+                    and not math_symbol(t):
+                costume.append((i, t))
+    if costume:
+        shown = ', '.join(f'"{t[:30]}"' for _, t in costume[:3])
+        R.warn('[mono-costume]', f'{len(costume)} mono text(s) with no digit and no code: {shown}'
+               + (f' and {len(costume) - 3} more' if len(costume) > 3 else '') + '. Mono is for data (numbers, '
+               'units, codes, timestamps, identifiers, formulas); set names, terms and group labels in '
+               'var(--anim-font) at sub-label size in var(--anim-muted)', E[costume[0][0]]['line'])
+    else:
+        R.ok('[mono-costume]', 'mono text carries data only')
+    # type ladder: any two sizes at least 1.25x apart (1.2 accepted for rounding), at most four sizes
+    used = sorted({round(s, 2) for s in (size_px(i) for i in texts) if s})
+    ladder = []
+    for s in used:
+        if ladder and s <= ladder[-1] * 1.02:
+            continue
+        ladder.append(s)
+    close = [(a_, b_) for a_, b_ in zip(ladder, ladder[1:]) if b_ / a_ < 1.2]
+    names = ', '.join(f'{s:g}' for s in reversed(ladder))
+    if close or len(ladder) > 4:
+        why = []
+        if close:
+            why.append('; '.join(f'{b_:g} and {a_:g} px are only {b_ / a_:.2f}x apart' for a_, b_ in close))
+        if len(ladder) > 4:
+            why.append(f'{len(ladder)} sizes, at most four')
+        R.warn('[type-ladder]', f'text sizes {names} px: {"; ".join(why)}. Use the type ladder (at 1920: hero 56 '
+               'to 96, label 24 to 30, sub-label 18 to 20, caption 24 to 28), any two sizes at least 1.25x apart: '
+               'merge near sizes into one')
+    elif ladder:
+        R.ok('[type-ladder]', f'text sizes {names} px')
+
+    # ------------------------------------------------------------------ focal element and node count
+    focal = [e for e in E if 'data-anim-focal' in e['attrs']]
+    if not focal:
+        R.warn('[focal]', 'no data-anim-focal: mark the one element the eye lands on in the resting frame (the '
+               'hero number or word, or the shape that is the claim) with data-anim-focal, on it or its group; '
+               'make it about 1.5x a peer', wrapper['line'] if wrapper else None)
+    elif len(focal) > 1:
+        R.fail('[focal]', f'{len(focal)} elements carry data-anim-focal: exactly one focal element per fragment; '
+               'keep it on the claim and drop it from the others', focal[1]['line'])
+    else:
+        R.ok('[focal]', f'one focal element: {describe(focal[0])}')
+    # nodes are marked by the scaffolder's class <name>-node; hand-written fragments carry no marker
+    nodes = [e for e in E if f'{name}-node' in e['attrs'].get('class', '').split()]
+    if len(nodes) > 12:
+        R.warn('[node-count]', f'{len(nodes)} nodes (class {name}-node): at most 12 in one figure; split the '
+               'slide or keep a list', nodes[12]['line'])
 
     sys.exit(1 if R.print() else 0)
 
