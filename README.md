@@ -7,6 +7,8 @@
 
 **Turn boring bullet slides into animated diagrams, with the coding agent you already use.**
 
+> ⭐ **If this skill helps you, please [give it a star](https://github.com/KehanLiu/anim-slides).** It is how other speakers find it.
+
 ![Before: a bullet slide. After: the same content as an animated diagram, built by anim-slides](docs/media/hero.gif)
 
 ```bash
