@@ -2,7 +2,7 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
-## Unreleased
+## 0.13.0 - 2026-11-24
 
 Figures inside a deck skill's draft. Driver: the owner wants "Make five slides introducing
 this project" to work as a chain: the deck skill builds a finished draft with figure slots,
