@@ -1,0 +1,32 @@
+=== bare (worktree script)
+WARN numbers: spelled-out "Five" in 'Five stages: order placed, picked at the warehouse, sorted at the regi' (aria-label.diagram, line 104): not in the source; fine for a count of what the fragment shows, otherwise a FAIL
+OK   numbers: 4 numbers found on the slide
+WARN words: 'Animated diagram: how a package gets delivered' (aria-label.slide, line 91): no source match for Animated, diagram
+WARN words: 'Five stages: order placed, picked at the warehouse, sorted a...' (aria-label.diagram, line 104): no source match for stages
+FAIL words: 'Tracking # sent' (text, line 119): no source match for sent
+OK   words: 37 of 41 words match the primary source (90%)
+FAILED: 1 fail, 3 warn
+exit 1
+=== bare (HEAD script)
+WARN numbers: spelled-out "Five" in 'Five stages: order placed, picked at the warehouse, sorted at the regi' (aria-label.diagram, line 104): not in the source; fine for a count of what the fragment shows, otherwise a FAIL
+OK   numbers: 4 numbers found on the slide
+WARN words: 'Animated diagram: how a package gets delivered' (aria-label.slide, line 91): no source match for Animated, diagram
+WARN words: 'Five stages: order placed, picked at the warehouse, sorted a...' (aria-label.diagram, line 104): no source match for stages
+FAIL words: 'Tracking # sent' (text, line 119): no source match for sent
+OK   words: 37 of 41 words match the primary source (90%)
+FAILED: 1 fail, 3 warn
+exit 1
+=== skill (worktree script)
+WARN numbers: spelled-out "five" in 'A parcel travels five stages, order placed, picked at the warehouse, s' (aria-label, line 123): not in the source; fine for a count of what the fragment shows, otherwise a FAIL
+OK   numbers: 4 numbers found on the slide
+WARN words: 'A parcel travels five stages, order placed, picked at the wa...' (aria-label, line 123): no source match for travels, stages
+OK   words: 56 of 58 words match the primary source (96%)
+PASS: 0 fail, 2 warn
+exit 0
+=== skill (HEAD script)
+WARN numbers: spelled-out "five" in 'A parcel travels five stages, order placed, picked at the warehouse, s' (aria-label, line 123): not in the source; fine for a count of what the fragment shows, otherwise a FAIL
+OK   numbers: 4 numbers found on the slide
+WARN words: 'A parcel travels five stages, order placed, picked at the wa...' (aria-label, line 123): no source match for travels, stages
+OK   words: 56 of 58 words match the primary source (96%)
+PASS: 0 fail, 2 warn
+exit 0

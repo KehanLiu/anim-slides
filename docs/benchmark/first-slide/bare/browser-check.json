@@ -1,0 +1,71 @@
+{
+ "file": "/Users/USER/development/private/skills/anim-slides-launch/docs/benchmark/first-slide/bare/result.html",
+ "requests": [],
+ "errors": [],
+ "console": [],
+ "animations_count": 0,
+ "infinite_animations": [],
+ "last_finite_end_ms": 0,
+ "animations_sample": [],
+ "times": {
+  "t1s": 1.0,
+  "mid": 10.0,
+  "rest": 20.0
+ },
+ "desktop_rest_equals_rest_plus6s": false,
+ "desktop_scroll": {
+  "sw": 1440,
+  "sh": 900,
+  "iw": 1440,
+  "ih": 900
+ },
+ "visible_text": "How a package gets delivered\nTracking status\nOrder placed\n\u25c0\n\u275a\u275a\n\u25b6\n\u21ba\nTracking # sent\nAisle 14\npack \u00b7 label \u00b7 scan\nby postcode\n+ about 30 other stops\nsignature\n1\n2\n3\n4\n5\nOrder placed\nCustomer checks out online;\nconfirmation e-mail with\na tracking number\nPicked at the warehouse\nItem located (aisle 14),\npacked, labelled\nand scanned out\nSorted at regional hub\nParcels scanned and\nrouted onto trucks\nby postcode\nOut for delivery\nLoaded onto a local van\nwith about 30\nother stops\nDelivered\nHanded over, signature\ncollected, status\nchanges to \u201cDelivered\u201d\n\u2248 28 hours\ntypical lead time, from order to doorstep\nLogistics 101 \u00b7 Operations onboarding\n4",
+ "svg_text": [
+  "Tracking # sent",
+  "Aisle 14",
+  "pack \u00b7 label \u00b7 scan",
+  "by postcode",
+  "+ about 30 other stops",
+  "signature",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "Order placed",
+  "Customer checks out online;",
+  "confirmation e-mail with",
+  "a tracking number",
+  "Picked at the warehouse",
+  "Item located (aisle 14),",
+  "packed, labelled",
+  "and scanned out",
+  "Sorted at regional hub",
+  "Parcels scanned and",
+  "routed onto trucks",
+  "by postcode",
+  "Out for delivery",
+  "Loaded onto a local van",
+  "with about 30",
+  "other stops",
+  "Delivered",
+  "Handed over, signature",
+  "collected, status",
+  "changes to \u201cDelivered\u201d",
+  "\u2248 28 hours",
+  "typical lead time, from order to doorstep"
+ ],
+ "buttons": [
+  "\u25c0",
+  "\u275a\u275a",
+  "\u25b6",
+  "\u21ba"
+ ],
+ "mobile_rest_equals_rest_plus6s": false,
+ "mobile_scroll": {
+  "sw": 390,
+  "sh": 844,
+  "iw": 390,
+  "ih": 844
+ }
+}

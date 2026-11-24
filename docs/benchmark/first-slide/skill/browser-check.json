@@ -1,0 +1,295 @@
+{
+ "file": "/Users/USER/development/private/skills/anim-slides-launch/docs/benchmark/first-slide/skill/result.html",
+ "requests": [],
+ "errors": [],
+ "console": [],
+ "animations_count": 30,
+ "infinite_animations": [],
+ "last_finite_end_ms": 9000,
+ "animations_sample": [
+  {
+   "name": "parcel-route-road",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-road parcel-route-rail"
+  },
+  {
+   "name": "parcel-route-rd",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-rd parcel-route-rail-on"
+  },
+  {
+   "name": "parcel-route-in0",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-in0"
+  },
+  {
+   "name": "parcel-route-gl0",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-gl0 parcel-route-glow"
+  },
+  {
+   "name": "parcel-route-dn0",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-dn0 parcel-route-ring-on"
+  },
+  {
+   "name": "parcel-route-lb0",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-lb0"
+  },
+  {
+   "name": "parcel-route-sb0",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-sb0"
+  },
+  {
+   "name": "parcel-route-in1",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-in1"
+  },
+  {
+   "name": "parcel-route-gl1",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-gl1 parcel-route-glow"
+  },
+  {
+   "name": "parcel-route-dn1",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-dn1 parcel-route-ring-on"
+  },
+  {
+   "name": "parcel-route-lb1",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-lb1"
+  },
+  {
+   "name": "parcel-route-sb1",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-sb1"
+  },
+  {
+   "name": "parcel-route-in2",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-in2"
+  },
+  {
+   "name": "parcel-route-gl2",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-gl2 parcel-route-glow"
+  },
+  {
+   "name": "parcel-route-dn2",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-dn2 parcel-route-ring-on"
+  },
+  {
+   "name": "parcel-route-lb2",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-lb2"
+  },
+  {
+   "name": "parcel-route-sb2",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-sb2"
+  },
+  {
+   "name": "parcel-route-in3",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-in3"
+  },
+  {
+   "name": "parcel-route-gl3",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-gl3 parcel-route-glow"
+  },
+  {
+   "name": "parcel-route-dn3",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-dn3 parcel-route-ring-on"
+  },
+  {
+   "name": "parcel-route-lb3",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-lb3"
+  },
+  {
+   "name": "parcel-route-sb3",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-sb3"
+  },
+  {
+   "name": "parcel-route-in4",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-in4"
+  },
+  {
+   "name": "parcel-route-gl4",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-gl4 parcel-route-glow"
+  },
+  {
+   "name": "parcel-route-dn4",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-dn4 parcel-route-ring-on"
+  },
+  {
+   "name": "parcel-route-lb4",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-lb4"
+  },
+  {
+   "name": "parcel-route-sb4",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-sb4"
+  },
+  {
+   "name": "parcel-route-pk",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-pk parcel-route-parcel"
+  },
+  {
+   "name": "parcel-route-br",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-br parcel-route-bracket"
+  },
+  {
+   "name": "parcel-route-cap",
+   "delay": 0,
+   "duration": 9000,
+   "iterations": 1,
+   "endTime": 9000,
+   "target": "parcel-route-cap"
+  }
+ ],
+ "times": {
+  "t1s": 1.0,
+  "mid": 4.5,
+  "rest": 10.5
+ },
+ "desktop_rest_equals_rest_plus6s": true,
+ "desktop_scroll": {
+  "sw": 1440,
+  "sh": 900,
+  "iw": 1440,
+  "ih": 900
+ },
+ "visible_text": "How a package gets delivered\nOrder placed\ncheckout online,\ne-mail + tracking no.\nPicked at\nthe warehouse\naisle 14 \u00b7 pack,\nlabel, scan out\nSorted at the\nregional hub\nscanned, routed onto\ntrucks by postcode\nOut for\ndelivery\nlocal van with\nabout 30 other stops\nDelivered\nsignature collected,\nstatus: \u201cDelivered\u201d\nTypical lead time: about 28 hours from order to doorstep\nLogistics 101 \u00b7 Operations onboarding\n4",
+ "svg_text": [
+  "Order placed",
+  "checkout online,",
+  "e-mail + tracking no.",
+  "Picked at",
+  "the warehouse",
+  "aisle 14 \u00b7 pack,",
+  "label, scan out",
+  "Sorted at the",
+  "regional hub",
+  "scanned, routed onto",
+  "trucks by postcode",
+  "Out for",
+  "delivery",
+  "local van with",
+  "about 30 other stops",
+  "Delivered",
+  "signature collected,",
+  "status: \u201cDelivered\u201d",
+  "\u201cDelivered\u201d",
+  "Typical lead time: about 28 hours from order to doorstep",
+  "about 28 hours"
+ ],
+ "buttons": [],
+ "mobile_rest_equals_rest_plus6s": true,
+ "mobile_scroll": {
+  "sw": 390,
+  "sh": 844,
+  "iw": 390,
+  "ih": 844
+ }
+}

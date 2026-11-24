@@ -3,21 +3,34 @@
 
 usage:
   build_gallery.py -o DIR [--pool DIR] [--title TEXT] [--repo-url URL]
+  build_gallery.py --demo FRAGMENT.html -o OUT.html [--title TEXT] [--story TEXT] [--repo-url URL]
+                [--focus 0..1]
 
 Reads <pool>/index.yaml (a plain YAML list of entries; folders without a row are added with
 what can be read from the fragment) and writes:
 
-  DIR/index.html          every fragment live in a filterable grid, light/dark retheme toggle;
-                          a once fragment plays one pass when its card scrolls into view and then
-                          rests on its finished state; each card has a Replay button and, when
-                          the fragment carries data-anim-phases, a Step button that plays it
-                          mark by mark the way a step-mode host does
-  DIR/<name>/index.html   one page per fragment: large live view, copy button, spec.yaml
-  DIR/<name>/<name>.html  the fragment itself, plus thumb.png and spec.yaml when present
+  DIR/index.html          a featured demo first (#featured: one question, the figure playing once
+                          in view, a one-line answer, Replay, Copy prompt, Download playable demo,
+                          Copy embeddable HTML, Link), then every fragment live in a searchable,
+                          filterable grid with a light/dark retheme toggle; a once fragment plays
+                          one pass when its card scrolls into view and then rests on its finished
+                          state; each card has a Replay button and, when the fragment carries
+                          data-anim-phases, a Step button that plays it mark by mark
+  DIR/<name>/index.html   one page per fragment: large live view, Download playable demo,
+                          Copy embeddable HTML, spec.yaml
+  DIR/<name>/<name>.html  the fragment itself, byte-identical to the pool file, plus thumb.png and
+                          spec.yaml when present
+  DIR/<name>/<name>-demo.html
+                          a standalone playable page around the unchanged fragment (demo_page()):
+                          no network loads, plays once on open, Replay button, resting frame under
+                          prefers-reduced-motion and in print
+
+--demo wraps any fragment file the same way, outside the pool.
 
 All fragments share the index page, so the build checks that every class, id and keyframe is
 prefixed with the fragment name and that no two fragments collide; a collision is an error.
-Stdlib only, Python 3.9+. No external JS; fonts come from Google Fonts with local fallbacks.
+Stdlib only, Python 3.9+. No external JS; gallery fonts come from Google Fonts with local
+fallbacks (the demo pages use system fonts only).
 """
 import argparse
 import html
@@ -30,6 +43,28 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_POOL = os.path.join(os.path.dirname(HERE), 'pool')
 NAME_RE = re.compile(r'^[a-z][a-z0-9-]*$')
+DEFAULT_REPO = 'https://github.com/KehanLiu/anim-slides'
+
+# The featured demo at the top of the index. The answer states only what the fragment shows:
+# its last caption reads "Provider down: only Payments degrades, orders keep flowing", Payments
+# is marked DEGRADED inside the "blast radius" outline, and web app, gateway, Orders, Orders DB
+# and event bus are lit as healthy. The figure does not show whether those orders get paid.
+FEATURED = {
+    'name': 'service-deps',
+    # where a narrow screen's scroll frame opens (fraction of the figure width): the centre of the
+    # "blast radius" outline, viewBox x 696..1524 of 1680 (path x 720..1640 in the group scaled .9
+    # and moved 48); an index.yaml "focus" key for the entry wins over this value
+    'focus': 0.66,
+    'question': 'When the payment provider goes down, can orders still go through?',
+    'answer': ('Yes, in this system. The outage reaches only Payments, which degrades; the API gateway, '
+               'Orders, Orders DB and event bus stay healthy, so orders keep flowing.'),
+    'prompt': ('Use anim-slides to draw my services and their dependencies as one animated diagram for a '
+               'slide. Then show what an outage of <DEPENDENCY> reaches: which services fail or degrade, '
+               'and which keep working. Label only what is in my list.\n'
+               'My services and what each one calls:\n'
+               '<SERVICE LIST, e.g. web app -> API gateway; API gateway -> Orders, Payments; '
+               'Payments -> payment provider (third party)>'),
+}
 
 
 def die(msg):
@@ -147,6 +182,16 @@ def check_prefixes(name, src):
     return sorted(set(problems)), names - {('class', 'anim'), ('class', 'visible')}
 
 
+def focus_of(val, default=None, name=''):
+    """The scroll-frame focus: a number 0..1 (fraction of the figure width), else default/0.5."""
+    for v in (val, default):
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            if 0 <= v <= 1:
+                return float(v)
+            warn(f'{name}: focus {v!r} is outside 0..1; ignored')
+    return 0.5
+
+
 def load_pool(pool):
     if not os.path.isdir(pool):
         die(f'pool folder not found: {pool}')
@@ -185,6 +230,7 @@ def load_pool(pool):
         e['control'] = m.group(1) if m else 'once'
         m = re.search(r'data-anim-phases="([\d.,\s]+)"', src)
         e['phases'] = ','.join(x.strip() for x in m.group(1).split(',') if x.strip()) if m else ''
+        e['focus'] = focus_of(e.get('focus'), FEATURED.get('focus') if n == FEATURED['name'] else None, n)
         e['archetype'] = e.get('archetype') or 'other'
         e['tags'] = [str(t) for t in (e.get('tags') or [])]
         spec = os.path.join(pool, n, 'spec.yaml')
@@ -309,6 +355,39 @@ pre.src{background:var(--card);border:1px solid var(--border);border-radius:10px
   color:var(--chip-on-text);padding:8px 14px;border-radius:8px;font-size:14px;opacity:0;
   transition:opacity .2s;pointer-events:none}
 .toast.on{opacity:1}
+/* featured demo: the figure sits on the page ground (no box), one question, one answer */
+.feature{--anim-theme-bg:var(--page);padding:36px 0 32px;border-bottom:1px solid var(--border);scroll-margin-top:64px}
+.kicker{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.feature h1{font-size:clamp(26px,3.6vw,46px);line-height:1.12;letter-spacing:-.02em;margin:0 0 6px;max-width:21em;text-wrap:balance}
+.scroll{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.feature .fit{margin:0 auto}
+.swipe{display:none;font-size:13px;color:var(--muted);margin:4px 0 0}
+.answer{font-size:clamp(18px,1.7vw,22px);line-height:1.45;max-width:44em;margin:14px 0 20px;text-wrap:pretty}
+.answer b{color:var(--anim-theme-accent);font-weight:600}
+.feature .actions,.detail .actions{gap:10px}
+.feature .actions .btn,.detail .actions .btn{font-size:14px;padding:9px 15px;min-height:42px;display:inline-flex;align-items:center}
+.prompt{margin:4px 0 0;max-width:60em;color:var(--muted);font-size:14px}
+.prompt pre{white-space:pre-wrap;font-size:13px;line-height:1.55;color:var(--text);margin:6px 0 0;
+  padding:0 0 0 14px;border-left:2px solid var(--border)}
+.how{color:var(--muted);font-size:14px;max-width:60em;margin:18px 0 0}
+.hero h2{font-size:clamp(22px,2.6vw,30px);line-height:1.2;letter-spacing:-.01em;margin:0 0 10px}
+/* a figure wider than the screen scrolls inside a full-bleed frame; a soft fade on each clipped
+   edge (a mask, so it works on either ground) says "more this way" */
+.scroll{--fl:0px;--fr:0px;-webkit-mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent);
+  mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent)}
+.scroll.fl{--fl:16px}.scroll.fr{--fr:16px}
+@media (max-width:760px){
+  .scroll{margin:0 -16px}
+  .scroll>.fit{min-width:740px;max-width:none !important}
+  .bigstage{margin:12px -16px;padding:8px 0;border-radius:0;border-left:0;border-right:0}
+  .bigstage .scroll{margin:0}
+  .bigstage .swipe{padding:0 16px}
+  .swipe{display:block}
+  .feature .actions .btn,.detail .actions .btn{min-height:44px}
+  .search{width:100%}
+}
+@media print{.scroll{margin:0;overflow:visible;-webkit-mask-image:none;mask-image:none}
+  .scroll>.fit{min-width:0 !important}.swipe{display:none !important}}
 @media (max-width:640px){
   .hero{padding:24px 0 4px}
   .frow .lbl{width:100%}
@@ -316,7 +395,6 @@ pre.src{background:var(--card);border:1px solid var(--border);border-radius:10px
   header.top .btn{padding:6px 9px}
   .grid{gap:14px}
   .stage{padding:6px}
-  .bigstage{padding:8px}
 }
 """
 
@@ -336,18 +414,31 @@ JS = r"""
       root.classList.toggle('resting',on);t.textContent=on?'Play animations':'Show resting frames';
       document.querySelectorAll('.fit').forEach(function(f){unstep(f);gate(f,!on&&f._inview!==false)})}
     if(t.dataset.replay){var f=document.getElementById(t.dataset.replay);unstep(f);gate(f,false);
-      void f.offsetWidth;gate(f,!root.classList.contains('resting'))}
+      void f.offsetWidth;gate(f,!root.classList.contains('resting'));if(f)focus(f.parentNode)}
     if(t.dataset.step)step(document.getElementById(t.dataset.step),t);
-    if(t.dataset.copy){var src=document.getElementById(t.dataset.copy).value;
-      var done=function(){toast('Fragment HTML copied')};
-      if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(src).then(done,fallback)}else fallback();
-      function fallback(){var ta=document.createElement('textarea');ta.value=src;document.body.appendChild(ta);
-        ta.select();try{document.execCommand('copy');done()}catch(e){toast('Copy failed')}ta.remove()}}
+    if(t.dataset.copy)copy(document.getElementById(t.dataset.copy).value,t.dataset.msg||'Copied');
+    if(t.dataset.copylink)copy(location.href.split('#')[0]+'#'+t.dataset.copylink,'Link copied');
     if(t.classList.contains('chip')){var g=t.dataset.group;
       document.querySelectorAll('.chip[data-group="'+g+'"]').forEach(function(c){c.setAttribute('aria-pressed',c===t)});
       filter()}
   });
+  function copy(src,msg){var done=function(){toast(msg)};
+    if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(src).then(done,fallback)}else fallback();
+    function fallback(){var ta=document.createElement('textarea');ta.value=src;document.body.appendChild(ta);
+      ta.select();try{document.execCommand('copy');done()}catch(e){toast('Copy failed')}ta.remove()}}
   function gate(f,on){if(f)f.classList.toggle('visible',on)}
+  // a figure wider than a phone scrolls inside its frame: open it centred on the entry's focus
+  // (data-focus, a fraction of the figure width) and fade only the edges that are clipped
+  function fade(s){var m=s.scrollWidth-s.clientWidth;s.classList.toggle('fl',m>1&&s.scrollLeft>1);
+    s.classList.toggle('fr',m>1&&s.scrollLeft<m-1)}
+  function focus(s){if(!s||!s.classList||!s.classList.contains('scroll'))return;var m=s.scrollWidth-s.clientWidth;
+    if(m>1){var k=parseFloat(s.dataset.focus);if(!(k>=0&&k<=1))k=.5;
+      s.scrollLeft=Math.max(0,Math.min(m,k*s.scrollWidth-s.clientWidth/2))}fade(s)}
+  // a link to #featured scrolls to the featured block and plays its figure from the start
+  function featured(){if(location.hash!=='#featured')return;var s=document.getElementById('featured'),
+    f=document.getElementById('fit-featured');if(!s||!f)return;s.scrollIntoView({block:'start'});unstep(f);
+    gate(f,false);void f.offsetWidth;gate(f,!root.classList.contains('resting'));f._played=true;focus(f.parentNode)}
+  window.addEventListener('hashchange',featured);
   // Step: drive the card's CSS animations by its data-anim-phases marks, as a step-mode host does.
   // The first click pauses everything at 0; each click plays to the next mark and pauses there;
   // after the last mark the next click goes back to 0. Replay and the resting toggle leave step mode.
@@ -383,6 +474,9 @@ JS = r"""
       c.hidden=!ok;if(ok)n++});
     var k=document.getElementById('count');if(k)k.textContent=n+(n===1?' fragment':' fragments');
     var em=document.getElementById('empty');if(em)em.hidden=n>0}
+  document.querySelectorAll('.scroll').forEach(function(s){focus(s);s.addEventListener('scroll',function(){fade(s)},{passive:true})});
+  window.addEventListener('resize',function(){document.querySelectorAll('.scroll').forEach(focus)});
+  featured();
 })();
 """
 
@@ -450,6 +544,42 @@ def chips(group, label, values):
     return f'<div class="frow" role="group" aria-label="{label}"><span class="lbl">{label}</span>{"".join(b)}</div>'
 
 
+def featured_block(entries, repo_url, feat=FEATURED):
+    """The featured demo (#featured): question, the live figure, the answer in words, actions."""
+    e = next((x for x in entries if x['name'] == feat['name']), None)
+    if e is None:
+        warn(f"featured entry {feat['name']} is not in the pool; no featured block")
+        return ''
+    n = e['name']
+    if re.search(r'\bid="', e['src']):
+        warn(f'{n}: the featured fragment defines ids; they appear twice on the index page')
+    yes, _, rest = feat['answer'].partition(' ')
+    spec = (f' (<a href="{n}/spec.yaml">spec.yaml</a>)' if e['spec_text'] is not None else '')
+    return f"""<section class="feature" id="featured" aria-labelledby="featured-q">
+  <p class="kicker">anim-slides · animated diagrams for your slides, drawn by your coding agent</p>
+  <h1 id="featured-q">{esc(feat['question'])}</h1>
+  <div class="scroll" data-focus="{e['focus']:g}"><div class="fit visible" id="fit-featured" data-ctl="{esc(e['control'])}" data-phases="{esc(e['phases'])}" style="{fit_style(e, '52vh')}">
+{e['src']}
+  </div></div>
+  <p class="swipe">Swipe sideways to see the whole figure.</p>
+  <p class="answer"><b>{esc(yes)}</b> {esc(rest)}</p>
+  <div class="actions">
+    <button class="btn" type="button" data-replay="fit-featured">Replay</button>
+    <button class="btn primary" type="button" data-copy="prompt-featured" data-msg="Prompt copied">Copy prompt</button>
+    <a class="btn" href="{n}/{n}-demo.html" download>Download playable demo</a>
+    <button class="btn" type="button" data-copy="src-featured" data-msg="Embeddable HTML copied">Copy embeddable HTML</button>
+    <button class="btn" type="button" data-copylink="featured" aria-label="Copy a link to this demo">Link</button>
+  </div>
+  <textarea class="sr" id="prompt-featured" aria-hidden="true" tabindex="-1">{esc(feat['prompt'])}</textarea>
+  <textarea class="sr" id="src-featured" aria-hidden="true" tabindex="-1">{esc(e['src'])}</textarea>
+  <div class="prompt">Try it on your own architecture: paste this into your coding agent with the skill installed.
+    <pre>{esc(feat['prompt'])}</pre></div>
+  <p class="how">What the skill made: one inline <code>&lt;svg&gt;</code> with CSS keyframes and no script,
+  from a short spec of eight services and their calls{spec}. It plays once and rests on the finished
+  frame, so it also prints. <a href="{n}/index.html">Details</a></p>
+</section>"""
+
+
 def build_index(entries, title, repo_url):
     archetypes = sorted({e['archetype'] for e in entries})
     verbs = sorted({str(e['verb']) for e in entries if e.get('verb')})
@@ -485,8 +615,9 @@ def build_index(entries, title, repo_url):
                    f'<button class="btn" type="button" data-copy="inst-src">Copy</button></div>')
     src_link = f' <a href="{esc(repo_url)}">Source on GitHub</a>.' if repo_url else ''
     body = f"""<main class="wrap">
+{featured_block(entries, repo_url)}
 <section class="hero">
-  <h1>{esc(title)}</h1>
+  <h2>{esc(title)}</h2>
   <p>Every fragment below is live: one self-contained <code>&lt;style&gt;</code> plus one inline
   <code>&lt;svg&gt;</code>, CSS keyframes only, prefixed so they all share this page. The theme
   button rethemes all of them through <code>--anim-theme-*</code> variables.{src_link}</p>
@@ -496,7 +627,7 @@ def build_index(entries, title, repo_url):
   {chips('verb', 'Verb', verbs)}
   {chips('archetype', 'Archetype', archetypes)}
   {chips('domain', 'Domain', domains)}
-  <div class="frow"><span class="lbl">Search</span><input class="search" id="q" type="search" placeholder="name, story or tag" aria-label="Search fragments"></div>
+  <div class="frow"><span class="lbl">Search</span><input class="search" id="q" type="search" placeholder="name, story, tag, domain or verb" aria-label="Search fragments"></div>
   <p class="count" id="count">{len(entries)} fragments</p>
 </section>
 <section class="grid">
@@ -526,7 +657,8 @@ def build_detail(e, title, repo_url):
         facts.append(('Technique', esc(e['technique'])))
     if e['tags']:
         facts.append(('Tags', ', '.join(esc(t) for t in e['tags'])))
-    files = [f'<a href="{n}.html" download>{n}.html</a>']
+    files = [f'<a href="{n}.html" download>{n}.html</a> (fragment)',
+             f'<a href="{n}-demo.html" download>{n}-demo.html</a> (playable page)']
     if e['spec_text'] is not None:
         files.append(f'<a href="spec.yaml" download>spec.yaml</a>')
     if e['thumb']:
@@ -541,14 +673,14 @@ def build_detail(e, title, repo_url):
 <nav class="crumbs"><a href="../index.html">All fragments</a> / {esc(n)}</nav>
 <h1>{esc(n)}</h1>
 <p class="story">{esc(e.get('story') or '')}</p>
-<div class="bigstage"><div class="fit visible" id="live" data-ctl="{esc(e['control'])}" data-phases="{esc(e['phases'])}" style="{fit_style(e, '72vh')}">
+<div class="bigstage"><div class="scroll" data-focus="{e['focus']:g}"><div class="fit visible" id="live" data-ctl="{esc(e['control'])}" data-phases="{esc(e['phases'])}" style="{fit_style(e, '72vh')}">
 {e['src']}
-</div></div>
+</div></div><p class="swipe">Swipe sideways to see the whole figure.</p></div>
 <div class="actions">
-  <button class="btn primary" type="button" data-copy="frag-src">Copy fragment HTML</button>
   <button class="btn" type="button" data-replay="live">Replay</button>
   {'<button class="btn" type="button" data-step="live">Step</button>' if e['phases'] else ''}
-  <a class="btn" href="{n}.html" download>Download {esc(n)}.html</a>
+  <a class="btn primary" href="{n}-demo.html" download>Download playable demo</a>
+  <button class="btn" type="button" data-copy="frag-src" data-msg="Embeddable HTML copied">Copy embeddable HTML</button>
 </div>
 <textarea class="sr" id="frag-src" aria-hidden="true" tabindex="-1">{esc(e['src'])}</textarea>
 <dl class="facts">{dl}</dl>
@@ -561,8 +693,158 @@ otherwise shows its resting frame. Rename the prefix
     return page(f'{n} · {title}', body, str(e.get('story') or n), depth=1)
 
 
+# --------------------------------------------------------------------------- playable demo page
+# A standalone page around one unchanged fragment. No network loads (system fonts, inline CSS and
+# JS). The script adds the fragment's gate class (.visible) on open, so a once fragment plays one
+# pass and rests on its finished frame; Replay drops the gate, forces a reflow, sets it again and
+# rewinds the animations (the gallery's and review_page.py's technique). Without the gate the
+# fragment shows its resting frame (fragment contract, section 5): that is what reduced motion
+# (the gate is never set; animations off as a backstop) and print (gate dropped on beforeprint,
+# animations off, light colours on white paper) show.
+DEMO_CSS = r"""
+:root{
+  --anim-theme-bg:#0F1E27;--anim-theme-panel:#0D1820;--anim-theme-line:#2A3D49;
+  --anim-theme-fg:#E6EDF0;--anim-theme-muted:#93A7B2;--anim-theme-accent:#34D1BF;
+  --anim-theme-accent-2:#FF8A3D;--anim-theme-ok:#8ED7AD;--anim-theme-warn:#FFD15C;
+  --anim-theme-danger:#FF6B6B;color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root{
+  --anim-theme-bg:#ffffff;--anim-theme-panel:#f2f4f8;--anim-theme-line:#c5ccd8;
+  --anim-theme-fg:#14181f;--anim-theme-muted:#5b6474;--anim-theme-accent:#0a6cff;
+  --anim-theme-accent-2:#d9480f;--anim-theme-ok:#2b8a3e;--anim-theme-warn:#e67700;
+  --anim-theme-danger:#c92a2a;color-scheme:light}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--anim-theme-bg);color:var(--anim-theme-fg);
+  font:16px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+main,footer{max-width:1280px;margin:0 auto;padding:0 16px}
+main{padding-top:32px}
+.kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--anim-theme-muted);margin:0 0 6px}
+h1{font-size:clamp(22px,3vw,32px);line-height:1.2;letter-spacing:-.01em;margin:0 0 6px}
+.story{color:var(--anim-theme-muted);max-width:52em;margin:0 0 20px}
+.scroll{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;--fl:0px;--fr:0px;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent);
+  mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent)}
+.scroll.fl{--fl:16px}.scroll.fr{--fr:16px}
+.fit{width:100%;margin:0 auto}
+.swipe{display:none;font-size:13px;color:var(--anim-theme-muted);margin:4px 0 0}
+.bar{display:flex;align-items:center;gap:12px;margin:16px 0 24px}
+.bar button{font:inherit;font-size:15px;font-weight:600;color:var(--anim-theme-fg);background:transparent;
+  border:1px solid var(--anim-theme-line);border-radius:8px;padding:10px 20px;min-height:44px;cursor:pointer}
+.bar button:hover,.bar button:focus-visible{border-color:var(--anim-theme-accent)}
+footer{padding-top:14px;padding-bottom:32px;color:var(--anim-theme-muted);font-size:13px;
+  border-top:1px solid var(--anim-theme-line)}
+footer a{color:var(--anim-theme-accent)}
+@media (max-width:760px){.scroll{margin:0 -16px}.scroll>.fit{min-width:740px}.swipe{display:block}}
+@media (prefers-reduced-motion: reduce){.fit *{animation:none !important}.bar{display:none}}
+@page{size:landscape;margin:12mm}
+@media print{
+  :root{--anim-theme-bg:#ffffff;--anim-theme-panel:#f2f4f8;--anim-theme-line:#c5ccd8;
+    --anim-theme-fg:#14181f;--anim-theme-muted:#5b6474;--anim-theme-accent:#0a6cff;
+    --anim-theme-accent-2:#d9480f;--anim-theme-ok:#2b8a3e;--anim-theme-warn:#e67700;
+    --anim-theme-danger:#c92a2a;color-scheme:light}
+  body{background:#fff}
+  main,footer{max-width:none;padding-left:0;padding-right:0}
+  .fit *{animation:none !important}
+  .bar,.swipe{display:none !important}
+  .scroll{overflow:visible;margin:0;-webkit-mask-image:none;mask-image:none}
+  .scroll>.fit{min-width:0 !important}
+}
+"""
+
+DEMO_JS = r"""
+(function(){
+  var f=document.getElementById('fig'),b=document.getElementById('replay');
+  var rm=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function anims(){return f.getAnimations?f.getAnimations({subtree:true}):[]}
+  var s=f.parentNode;
+  // a figure wider than the screen scrolls in its frame: open it centred on data-focus (a fraction
+  // of the figure width) and fade only the clipped edges
+  function fade(){var m=s.scrollWidth-s.clientWidth;s.classList.toggle('fl',m>1&&s.scrollLeft>1);
+    s.classList.toggle('fr',m>1&&s.scrollLeft<m-1)}
+  function focus(){var m=s.scrollWidth-s.clientWidth;if(m>1){var k=parseFloat(s.getAttribute('data-focus'));
+    if(!(k>=0&&k<=1))k=.5;s.scrollLeft=Math.max(0,Math.min(m,k*s.scrollWidth-s.clientWidth/2))}fade()}
+  function play(){f.classList.remove('visible');void f.offsetWidth;f.classList.add('visible');
+    anims().forEach(function(a){try{a.currentTime=0;a.play()}catch(e){}});focus()}
+  if(b)b.addEventListener('click',play);
+  s.addEventListener('scroll',fade,{passive:true});window.addEventListener('resize',focus);focus();
+  window.addEventListener('beforeprint',function(){f.classList.remove('visible')});
+  window.addEventListener('afterprint',function(){if(rm)return;f.classList.add('visible');
+    anims().forEach(function(a){try{a.finish()}catch(e){}})});
+  if(!rm)play();
+})();
+"""
+
+
+def demo_page(name, fragment_src, title=None, story='', repo_url=DEFAULT_REPO, focus=0.5):
+    """A standalone, offline, playable HTML page around one fragment. The fragment source is
+    embedded unchanged. focus: where a narrow screen's scroll frame opens, as a fraction (0..1)
+    of the figure width. Returns the page as a string."""
+    w, h = viewbox_of(fragment_src)
+    focus = focus_of(focus, None, name)
+    title = title or name
+    repo = repo_url.rstrip('/') if repo_url else ''
+    shown = re.sub(r'^https?://', '', repo)
+    credit = (f'Made with anim-slides · <a href="{esc(repo)}">{esc(shown)}</a>' if repo
+              else 'Made with anim-slides')
+    story_p = f'<p class="story">{esc(story)}</p>' if story else ''
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>{esc(title)} · anim-slides</title>
+<style>{DEMO_CSS}</style>
+<noscript><style>.bar{{display:none}}</style></noscript>
+</head>
+<body>
+<main>
+<p class="kicker">anim-slides demo</p>
+<h1>{esc(title)}</h1>
+{story_p}
+<div class="scroll" data-focus="{focus:g}"><div class="fit" id="fig" style="aspect-ratio:{w:g}/{h:g}">
+{fragment_src}
+</div></div>
+<p class="swipe">Swipe sideways to see the whole figure.</p>
+<div class="bar"><button type="button" id="replay">Replay</button></div>
+</main>
+<footer>{credit}</footer>
+<script>{DEMO_JS}</script>
+</body>
+</html>
+"""
+
+
+def demo_main(argv):
+    ap = argparse.ArgumentParser(prog='build_gallery.py --demo',
+                                 description='Wrap one fragment in a standalone playable page.')
+    ap.add_argument('--demo', required=True, metavar='FRAGMENT.html', help='fragment file to wrap')
+    ap.add_argument('-o', '--out', required=True, metavar='OUT.html', help='page to write')
+    ap.add_argument('--title', default=None, help='page heading (default: the fragment name)')
+    ap.add_argument('--story', default='', help='one line under the heading')
+    ap.add_argument('--focus', type=float, default=0.5,
+                    help='where a narrow screen opens the figure, as a fraction 0..1 of its width (default 0.5)')
+    ap.add_argument('--repo-url', default=DEFAULT_REPO, help=f'repository named in the footer (default {DEFAULT_REPO})')
+    a = ap.parse_args(argv)
+    if not os.path.isfile(a.demo):
+        die(f'fragment not found: {a.demo}')
+    src = open(a.demo, encoding='utf-8', newline='').read()
+    m = re.search(r'\bdata-anim="([^"]+)"', src)
+    name = m.group(1) if m else os.path.splitext(os.path.basename(a.demo))[0]
+    out = os.path.abspath(a.out)
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    with open(out, 'w', encoding='utf-8', newline='') as f:
+        f.write(demo_page(name, src, a.title, a.story, a.repo_url, a.focus))
+    print(f'build_gallery: demo for {name} -> {out}')
+
+
 def main():
-    ap = argparse.ArgumentParser(description='Build a static gallery site from an anim-slides pool.')
+    if '--demo' in sys.argv[1:] or any(x.startswith('--demo=') for x in sys.argv[1:]):
+        return demo_main(sys.argv[1:])
+    ap = argparse.ArgumentParser(description='Build a static gallery site from an anim-slides pool.',
+                                 epilog='Wrap one fragment instead: build_gallery.py --demo FRAGMENT.html -o OUT.html '
+                                        '[--title TEXT] [--story TEXT] [--repo-url URL]')
     ap.add_argument('-o', '--out', required=True, help='output folder (created; existing files are replaced)')
     ap.add_argument('--pool', default=DEFAULT_POOL, help='pool folder with <name>/<name>.html and index.yaml '
                     '(default: the pool shipped with the skill)')
@@ -575,7 +857,7 @@ def main():
     pool = os.path.abspath(a.pool)
     shipped = os.path.samefile(pool, DEFAULT_POOL) if os.path.isdir(DEFAULT_POOL) and os.path.isdir(pool) else False
     title = a.title or ('anim-slides pool' if shipped else f'{os.path.basename(pool)} pool')
-    repo_url = a.repo_url if a.repo_url is not None else ('https://github.com/KehanLiu/anim-slides' if shipped else '')
+    repo_url = a.repo_url if a.repo_url is not None else (DEFAULT_REPO if shipped else '')
 
     entries = load_pool(pool)
     out = os.path.abspath(a.out)
@@ -594,6 +876,9 @@ def main():
             p = os.path.join(e['dir'], fn)
             if os.path.isfile(p):
                 shutil.copyfile(p, os.path.join(d, fn))
+        with open(os.path.join(d, f"{e['name']}-demo.html"), 'w', encoding='utf-8') as f:
+            f.write(demo_page(e['name'], e['src'], e['name'], str(e.get('story') or ''), repo_url or DEFAULT_REPO,
+                              e['focus']))
     open(os.path.join(out, '.nojekyll'), 'w').close()
     with open(os.path.join(out, 'pool.json'), 'w', encoding='utf-8') as f:
         json.dump([{k: e.get(k) for k in ('name', 'verb', 'archetype', 'domain', 'viewbox', 'control', 'cycle', 'story', 'tags')}

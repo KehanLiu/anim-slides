@@ -1,8 +1,8 @@
 <!-- parcel-route: hero demo fragment (archetype pipeline), lean style (references/style.md).
-  Story: a parcel hops ordered > picked > sorted > on the van > delivered; the active ring lights in the
-  accent (the only glow), each hand-off settles in ok, the route draws on as a plain line, the lead time lands.
-  Once-play pass 7.5 s (lead time lands at 6.5 s, then a 1 s hold); ends on the resting frame = delivered.
-  Names, numbers and times are illustrative examples. -->
+  Story: a parcel hops order placed > picked > sorted > out for delivery > delivered; the active ring lights in
+  the accent (the only glow), each passed station settles in ok, the route draws on as a plain line, the lead
+  time lands. Once-play pass 7.5 s (lead time lands at 6.5 s, then a 1 s hold); ends on the resting frame = delivered.
+  Every label is taken from the README demo slide, examples/first-slide/source.html (tests/test_readme_demo.py). -->
 <style>
 .anim-parcel-route{
   --anim-bg:       var(--anim-theme-bg,       #0F1E27);
@@ -93,7 +93,7 @@
 @media (prefers-reduced-motion: reduce){.anim-parcel-route *{animation:none !important}}
 </style>
 <div class="anim anim-parcel-route" data-anim="parcel-route" data-anim-cycle="7.5" data-anim-phases="1.2,2.4,3.6,4.8,6.5" data-anim-control="once" data-anim-verb="travel">
-<svg viewBox="0 0 1600 520" width="100%" height="100%" role="img" aria-label="A parcel moves through five delivery stages, from order to doorstep, each turning green as it is handed off.">
+<svg viewBox="0 0 1600 520" width="100%" height="100%" role="img" aria-label="From order to doorstep: order placed, picked at the warehouse, sorted at the regional hub, out for delivery, delivered. Typical lead time: about 28 hours.">
 <g class="parcel-route-scene">
 <path class="parcel-route-track" d="M160 190 H1440"/>
 <path class="parcel-route-prog" pathLength="100" d="M160 190 H1440"/>
@@ -103,8 +103,8 @@
 <circle class="parcel-route-okring parcel-route-done0" r="44"/>
 <g class="parcel-route-ok0"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-30 -22 H-20 L-12 12 H22 L30 -12 H-16"/><circle cx="-8" cy="24" r="4"/><circle cx="18" cy="24" r="4"/></g></g>
 <g class="parcel-route-ring parcel-route-ring0"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-30 -22 H-20 L-12 12 H22 L30 -12 H-16"/><circle cx="-8" cy="24" r="4"/><circle cx="18" cy="24" r="4"/></g></g>
-<text class="parcel-route-lbl" y="92" text-anchor="middle">Ordered</text>
-<text class="parcel-route-sub" y="126" text-anchor="middle">Mon 09:12 · online</text>
+<text class="parcel-route-lbl" y="92" text-anchor="middle">Order placed</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">confirmation e-mail</text>
 </g></g>
 <g transform="translate(480 190)"><g class="parcel-route-st1">
 <circle class="parcel-route-disc" r="44"/>
@@ -113,7 +113,7 @@
 <g class="parcel-route-ok1"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-32 28 V-8 L0 -28 L32 -8 V28 Z"/><path d="M-18 28 V4 H18 V28 M-18 16 H18"/></g></g>
 <g class="parcel-route-ring parcel-route-ring1"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-32 28 V-8 L0 -28 L32 -8 V28 Z"/><path d="M-18 28 V4 H18 V28 M-18 16 H18"/></g></g>
 <text class="parcel-route-lbl" y="92" text-anchor="middle">Picked</text>
-<text class="parcel-route-sub" y="126" text-anchor="middle">Warehouse, aisle 14</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">warehouse · aisle 14</text>
 </g></g>
 <g transform="translate(800 190)"><g class="parcel-route-st2">
 <circle class="parcel-route-disc" r="44"/>
@@ -122,7 +122,7 @@
 <g class="parcel-route-ok2"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-32 0 H-8 C6 0 6 -20 22 -20 M-8 0 H22 M-8 0 C6 0 6 20 22 20"/><circle cx="28" cy="-20" r="5"/><circle cx="28" cy="0" r="5"/><circle cx="28" cy="20" r="5"/></g></g>
 <g class="parcel-route-ring parcel-route-ring2"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-32 0 H-8 C6 0 6 -20 22 -20 M-8 0 H22 M-8 0 C6 0 6 20 22 20"/><circle cx="28" cy="-20" r="5"/><circle cx="28" cy="0" r="5"/><circle cx="28" cy="20" r="5"/></g></g>
 <text class="parcel-route-lbl" y="92" text-anchor="middle">Sorted</text>
-<text class="parcel-route-sub" y="126" text-anchor="middle">Regional hub</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">regional hub · by postcode</text>
 </g></g>
 <g transform="translate(1120 190)"><g class="parcel-route-st3">
 <circle class="parcel-route-disc" r="44"/>
@@ -130,8 +130,8 @@
 <circle class="parcel-route-okring parcel-route-done3" r="44"/>
 <g class="parcel-route-ok3"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-34 16 V-16 H10 V16 Z M10 -6 H24 L34 6 V16 H10"/><circle cx="-18" cy="20" r="6"/><circle cx="22" cy="20" r="6"/></g></g>
 <g class="parcel-route-ring parcel-route-ring3"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-34 16 V-16 H10 V16 Z M10 -6 H24 L34 6 V16 H10"/><circle cx="-18" cy="20" r="6"/><circle cx="22" cy="20" r="6"/></g></g>
-<text class="parcel-route-lbl" y="92" text-anchor="middle">On the van</text>
-<text class="parcel-route-sub" y="126" text-anchor="middle">Van 7 · 32 stops</text>
+<text class="parcel-route-lbl" y="92" text-anchor="middle">Out for delivery</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">about 30 other stops</text>
 </g></g>
 <g transform="translate(1440 190)"><g class="parcel-route-st4">
 <circle class="parcel-route-disc" r="44"/>
@@ -140,14 +140,14 @@
 <g class="parcel-route-ok4"><g class="parcel-route-ico parcel-route-ico-ok" transform="scale(.7)"><path d="M-30 -2 L0 -28 L30 -2 M-22 -8 V28 H22 V-8"/><path d="M-7 28 V10 H7 V28"/></g></g>
 <g class="parcel-route-ring parcel-route-ring4"><circle class="parcel-route-ring-glow" r="44"/><circle class="parcel-route-ring-run" r="44"/><g class="parcel-route-ico parcel-route-ico-run" transform="scale(.7)"><path d="M-30 -2 L0 -28 L30 -2 M-22 -8 V28 H22 V-8"/><path d="M-7 28 V10 H7 V28"/></g></g>
 <text class="parcel-route-lbl" y="92" text-anchor="middle">Delivered</text>
-<text class="parcel-route-sub" y="126" text-anchor="middle">Tue 13:40 · signed</text>
+<text class="parcel-route-sub" y="126" text-anchor="middle">collects a signature</text>
 </g></g>
 <g transform="translate(160 96)"><g class="parcel-route-mk"><g class="parcel-route-mk-in">
 <path class="parcel-route-pin" d="M0 26 V40"/>
 <rect class="parcel-route-box" x="-20" y="-18" width="40" height="36" rx="5"/>
 <path class="parcel-route-tape" d="M0 -18 V18 M-20 -5 H20"/>
 </g></g></g>
-<g class="parcel-route-note"><text class="parcel-route-big" x="800" y="440" text-anchor="middle">Order to doorstep in <tspan class="parcel-route-hl">28 hours</tspan> · 4 hand-offs, tracked live</text></g>
+<g class="parcel-route-note"><text class="parcel-route-big" x="800" y="440" text-anchor="middle">Typical lead time: <tspan class="parcel-route-hl">about 28 hours</tspan> from order to doorstep</text></g>
 </g>
 </svg>
 </div>

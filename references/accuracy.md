@@ -66,9 +66,17 @@ Reading the output (same style as `check_fragment.py`; exit 1 on any FAIL):
 | `WARN words` / `names` | label words or names absent from the source | reword to the slide's terms, or justify in the brief |
 | `WARN splice` | label joins words that never share a source bullet | check the combination is the slide's claim |
 | `WARN causal-slot` | text in a why/reason slot, source states no cause | move it out of the slot or reword |
+| `WARN`/`FAIL pairing` | a number sits beside a label the source gives a different value (a swap) | put each value back next to its own label |
+| `WARN pairing: review` | a label with several source values, or a number equally near two labels | check by eye; never a FAIL |
 | `OK axis` / `indices` | tick labels on a linear grid, 1..k step badges | none |
 
-Every WARN needs a decision. `--strict` turns the label-level WARNs into FAILs. Use it before a
+The pairing check reads label-value pairs from source lines, bullets and table rows ("Checkout
+latency: 200 ms"). It then checks that each number in the fragment sits next to the label the
+source gives it, whether in the same text, the same group, or the same row or column, so a fragment
+that shows real numbers under the wrong labels no longer passes. Prose sentences and labels it
+cannot place are left alone, so a clean pairing result does not prove every value is in the right place.
+
+Every WARN needs a decision. `--strict` turns the label-level WARNs and pairing swaps into FAILs. Use it before a
 final review, not as the build gate: true labels with paraphrased words will fail too.
 The gate cannot read pictures and does not check arrow directions or plotted positions: the
 rendered PNG next to the rendered source slide is still the final check.

@@ -1,0 +1,10 @@
+# inside the arm's project directory (bytes, path)
+15122 ./result.html
+1864 ./source.html
+# outside the project directory, written by the session's headless Chrome screenshots (timestamps 21:35:39 to 21:36:04, during the run)
+121610 /tmp/shot_mid.png
+115503 /tmp/shot_end.png
+109211 /tmp/s1.png
+122621 /tmp/s4.png
+110302 /tmp/s5.png
+112139 /tmp/s6.png
