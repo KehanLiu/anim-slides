@@ -2,29 +2,6 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
-## Unreleased
-
-Launch readiness: a demo a visitor can trust, replay and reproduce on one slide.
-
-- **README demo traced to its source:** the parcel figure no longer shows invented details
-  ("Van 7 · 32 stops", timestamps, "tracked live"); every label comes from
-  `examples/first-slide/source.html`, which is also the GIF's "before" frame.
-  `scripts/build_hero.py` rebuilds the GIF from a source slide and a fragment;
-  `tests/test_readme_demo.py` runs `verify_facts.py --strict` on the pair.
-- **Values stay with their labels:** `verify_facts.py` gains a `pairing` check. A value shown
-  next to the wrong label (Checkout 80 ms when the source says 200 ms) fails `--strict` and
-  warns otherwise; correct pairs pass in any row order; undecidable cases are a `review:`
-  warning in both modes.
-- **Gallery:** opens on the `service-deps` figure under one question, with Replay, a copyable
-  prompt and a direct link (`#featured`); the searchable gallery follows. Every entry has
-  "Download playable demo" (`<name>-demo.html`: opens from disk, no network loads, plays once,
-  Replay, finished figure in reduced motion and print) and "Copy embeddable HTML" (the
-  unchanged script-free fragment). `build_gallery.py --demo FRAGMENT -o OUT` wraps any fragment.
-- **First example:** `examples/first-slide/` (source slide, prompt, unedited result) near the
-  top of the README, with the output format and the PowerPoint rendering dependencies.
-  `docs/benchmark/first-slide/` records one run with and one without the skill.
-- **Tests:** `tests/` (stdlib `unittest`, 38 tests, rendered checks through headless Chrome),
-  run by `.github/scripts/check-pool.sh`.
 ## 0.14.0 - 2026-11-24
 
 Look v2. Driver: the owner still found the slides "too ugly" and had six outside sources read
@@ -111,6 +88,29 @@ sources name as the default AI-generated look. Rules were adopted, no code or as
   follows the rules.
 - **`references/archetypes.md`:** now describes what the scaffolder draws (rings, not rects
   and pills).
+
+**Launch readiness**, in the same release: a demo a visitor can trust, replay and reproduce on
+one slide.
+
+- **README demo traced to its source:** the parcel figure no longer shows invented details
+  ("Van 7 · 32 stops", timestamps, "tracked live"); every label comes from
+  `examples/first-slide/source.html`, which is also the GIF's "before" frame.
+  `scripts/build_hero.py` rebuilds the GIF from a source slide and a fragment;
+  `tests/test_readme_demo.py` runs `verify_facts.py --strict` on the pair.
+- **Values stay with their labels:** `verify_facts.py` gains a `pairing` check. A value shown
+  next to the wrong label (Checkout 80 ms when the source says 200 ms) fails `--strict` and
+  warns otherwise; correct pairs pass in any row order; undecidable cases are a `review:`
+  warning in both modes.
+- **Gallery:** opens on the `service-deps` figure under one question, with Replay, a copyable
+  prompt and a direct link (`#featured`); the searchable gallery follows. Every entry has
+  "Download playable demo" (`<name>-demo.html`: opens from disk, no network loads, plays once,
+  Replay, finished figure in reduced motion and print) and "Copy embeddable HTML" (the
+  unchanged script-free fragment). `build_gallery.py --demo FRAGMENT -o OUT` wraps any fragment.
+- **First example:** `examples/first-slide/` (source slide, prompt, unedited result) near the
+  top of the README, with the output format and the PowerPoint rendering dependencies.
+  `docs/benchmark/first-slide/` records one run with and one without the skill.
+- **Tests:** `tests/` (stdlib `unittest`, 38 tests, rendered checks through headless Chrome),
+  run by `.github/scripts/check-pool.sh`.
 
 ## 0.13.0 - 2026-11-24
 
