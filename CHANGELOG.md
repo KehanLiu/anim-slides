@@ -4,6 +4,25 @@ All notable changes to this project. Versions match `metadata.version` in `SKILL
 
 ## Unreleased
 
+- **A slide the user names always gets a figure.** In a blind comparison the skill answered
+  "animate slide 3" with a byte-identical deck: the slide was a table of four waiting times
+  with no takeaway sentence, so the triage called it a lookup. For a single named slide the
+  triage now only decides what to draw, from the slide's own labels and values; a doubt is
+  one line in the hand-over after the figure. Only a slide with nothing to draw (a title, a
+  quote, one picture) still ships unchanged. Deck-wide runs keep the old rule.
+
+- **Duration race, computed from the values** (`scripts/race_figure.py`, `archetype: durations`
+  in the spec). Until now `race` was hand-built: the scaffolder gave a row skeleton and the
+  builder drew bars, timing and the takeaway number by hand, so a corrected value meant
+  editing three places. The spec now holds each label, value and unit as the slide writes
+  them and `scaffold_from_spec.py` writes the finished figure: one scale, one speed (a bar's
+  run time is proportional to its value), the difference or ratio as the focal number.
+  Mixed units convert exactly (months or years against days need `calendar:`), an extreme
+  ratio stays to scale, and a `claim:` sentence whose numbers no longer follow from the
+  values stops the build and leaves the old fragment in place. `pool/mediation-vs-trial` is
+  now built from its `spec.yaml` (viewBox 1680x748, the answer below the bars).
+  `tests/test_race_figure.py` covers each case.
+
 Two gaps found on the project's own five-slide deck (a frontend-slides deck, before and after
 figures).
 
@@ -17,6 +36,18 @@ figures).
   does not show go into a strip under their slide, on the same page. With `--source` (the deck
   before figures) the static slide's own wording is checked too and printed in the strip where
   the figure shortened it. Tests in `tests/test_export_pdf.py`; CI installs poppler.
+  - `--install` writes the print rule into the deck, so the browser's own Print gives the
+    same pages. The rule names no paper: the zoom is computed in CSS from the page
+    (`tan(atan2(100vw, 1920px))`), so one rule fits Letter and A4.
+  - Presenter notes (`aside.notes`, `.notes`, `.speaker-notes`, `.presenter-notes`,
+    `.presenter-only`, `[data-presenter-only]`) are hidden in print and are not labels.
+    Before this, a hidden note counted as a label "seen only during the animation" and was
+    printed in the strip of the audience handout.
+  - Tables are verified cell by cell (rows top to bottom, columns left to right, each
+    drawn value used for one cell), and a label a slide carries several times must be drawn
+    that often. Before this, one visible "12" stood in for every other "12".
+  - An existing PDF is replaced only by an export that passed; a failing one is kept as
+    `NAME.rejected.pdf` and the old file stays.
 - **First read before the claim** (`references/look-rubric.md`). The blind reviewer used to get
   the stills and the claim in one call, and a reviewer told the claim confirms it. It now
   answers the slide's audience question from the final frame alone; the answer is recorded
@@ -57,6 +88,30 @@ rules found the causes: all text between 18 and 30 px with size contrast forbidd
 lines at 1.5:1, the same centred even row in most figures, fade after fade on one curve, four
 different easing values across the files, and a teal glow with mono labels, which two of the
 sources name as the default AI-generated look. Rules were adopted, no code or assets copied.
+
+- **Release review of the duration figure and PDF export (2026-11-25), four findings fixed:**
+  - *A corrected figure could keep a false caption.* `race_figure.py` accepted any number in the
+    claim that equalled some bar (15 and 14 minutes, "saves 14 minutes"). Each number is now
+    bound to what the sentence says: a multiple to a ratio, a percentage to a percentage, a
+    duration beside a comparing word to a difference in the sentence's unit, any other duration
+    to a bar's own length. What cannot be tied down prints a `REVIEW claim:` line.
+  - *Parsing and rounding could change the data.* `.5 s` was read as 5 s, `-3 min` as 3 min,
+    `1 min to 3 min` as 4 min. Values are read whole or refused; compound durations must fall
+    in one family; ranges, signs and leftovers are errors. Labels keep source precision (1.04 s
+    and 1.01 s no longer both print as "1 s").
+  - *The PDF exporter could approve a missing table cell.* Printed words are now assigned to
+    one table cell each across all tables of a slide, so a hidden "12" in a second table fails
+    and the label count drops. A hidden presenter note that repeats a visible label no longer
+    rejects the PDF.
+  - *A failing layout check replaced the last good figure.* The build is checked in a
+    temporary file and replaces the output only when it passes.
+- **Strict fact check knows the duration renderer's own labels.** On a fragment built by
+  `race_figure.py`, `verify_facts.py --strict` recognises the scale legend, the axis unit,
+  "<unit> longer" / "as long" and the aria-label sentences as closed templates and checks only
+  their unit; `min` and `minutes` count as one word; a ratio or difference across units (18 h
+  against 90 min = 12×) is a derivation. Bar labels, notes, the claim sentence and every
+  number are checked as before. Mode C: the "drop the figure" check no longer applies to a
+  slide the user named.
 
 - **Question first:** a paired review (plain agent, one sentence of guidance, full skill) showed
   the skill building a figure for every source it was handed, a lookup table included. Each

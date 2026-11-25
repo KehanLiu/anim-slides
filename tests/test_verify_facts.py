@@ -155,5 +155,68 @@ class PairingTest(unittest.TestCase):
         self.assertIn('self-test: all passed', r.stdout)
 
 
+
+class DurationFigure(unittest.TestCase):
+    """Fragments built by scripts/race_figure.py: its fixed labels pass, the user's words do not get a pass."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+
+    def check(self, spec, source):
+        import json
+        sp, frag = os.path.join(self.tmp.name, 'spec.json'), os.path.join(self.tmp.name, 'f.html')
+        with open(sp, 'w', encoding='utf-8') as fh:
+            json.dump(dict({'name': 'check-race', 'archetype': 'durations', 'status': 'real'}, **spec), fh)
+        b = subprocess.run([sys.executable, os.path.join(os.path.dirname(SCRIPT), 'race_figure.py'), sp, '-o', frag],
+                           capture_output=True, text=True)
+        self.assertEqual(b.returncode, 0, b.stdout + b.stderr)
+        r = subprocess.run([sys.executable, SCRIPT, frag, '--source-text', source, '--strict'], capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+    BARS = [{'label': 'Old check', 'value': 15}, {'label': 'New check', 'value': 1}]
+    SRC = 'Old check: 15 min. New check: 1 min.'
+
+    def test_renderer_labels_pass_strict(self):
+        code, out = self.check({'unit': 'min', 'takeaway': 'difference', 'bars': self.BARS}, self.SRC)
+        self.assertEqual(code, 0, out)
+        self.assertNotIn('FAIL', out)
+        self.assertNotIn('WARN words', out)
+
+    def test_user_claim_and_note_are_still_checked(self):
+        code, out = self.check({'unit': 'min', 'bars': self.BARS, 'note': 'measured on 40 laptops',
+                                'claim': 'The new check saves 14 minutes and delights auditors'},
+                               self.SRC + ' The new check saves 14 minutes.')
+        self.assertEqual(code, 1, out)
+        self.assertIn('FAIL numbers: 40', out)
+        self.assertIn('no source match for measured, laptops', out)
+        self.assertIn('no source match for delights, auditors', out)
+        self.assertNotIn('pairing', '\n'.join(ln for ln in out.splitlines() if ln.startswith('FAIL')))
+
+    def test_bar_label_not_in_the_source_fails(self):
+        bars = [{'label': 'Old check', 'value': 15}, {'label': 'Turbo check', 'value': 1}]
+        code, out = self.check({'unit': 'min', 'bars': bars}, self.SRC)
+        self.assertEqual(code, 1, out)
+        self.assertIn('Turbo', out)
+
+    def test_converted_units_are_derived_not_invented(self):
+        bars = [{'label': 'Warm rise', 'value': '90 min'}, {'label': 'Cold rise', 'value': '18 h'}]
+        code, out = self.check({'unit': 'h', 'bars': bars}, 'A warm rise takes 90 min. A cold rise takes 18 h.')
+        self.assertEqual(code, 0, out)
+        self.assertIn('WARN derived: 12× = 18 h / 90 min', out)
+        code, out = self.check({'unit': 'h', 'takeaway': 'difference', 'bars': bars},
+                               'A warm rise takes 90 min. A cold rise takes 18 h.')
+        self.assertEqual(code, 0, out)
+        self.assertIn('16.5 = 18 h - 90 min, in h', out)
+
+    def test_templates_do_not_cover_a_hand_written_fragment(self):
+        frag = os.path.join(self.tmp.name, 'plain.html')
+        with open(frag, 'w', encoding='utf-8') as fh:
+            fh.write('<svg viewBox="0 0 400 200"><text x="1" y="1">bar length shows minutes · one scale for every bar</text></svg>')
+        r = subprocess.run([sys.executable, SCRIPT, frag, '--source-text', self.SRC, '--strict'], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn('no source match for bar, length, shows, scale, every', r.stdout)
+
+
 if __name__ == '__main__':
     unittest.main()

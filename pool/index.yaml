@@ -412,13 +412,13 @@
   verb: race
   moves: [race-bars, draw-on]
   domain: law
-  viewbox: [1680, 600]
+  viewbox: [1680, 748]
   cycle: 7.9
   phases: [0.45, 5, 6.5]
-  spec: false
+  spec: true
   story: The same dispute on one month axis; mediation and trial bars grow together at the same rate, mediation stops at 3 months, the trial runs on alone through four stages to 18, and a bracket marks 15 months longer (illustrative durations).
   tags: [mediation, court, litigation, duration, comparison, gap, illustrative]
-  technique: two bar groups scaleX about the dispute line with the same start and linear timing, durations proportional to length; stage dividers tick in as the front passes
+  technique: generated from spec.yaml by race_figure.py (archetype durations); two bar groups scaleX about the dispute line with the same start and linear timing, durations proportional to length; stage dividers tick in as the front passes
 
 - name: blood-types
   archetype: compare

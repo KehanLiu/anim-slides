@@ -3440,7 +3440,18 @@ def main():
     if args.min_text is None:
         args.min_text = round(18 * args.stage_width / 1920, 2)
 
-    S = validate(load_spec(args.spec), args)
+    data = load_spec(args.spec)
+    if data.get('archetype') == 'durations':     # a finished figure, computed from the values
+        import race_figure
+        try:
+            code = race_figure.build(data, args.output, args.rendered_width, args.stage_width,
+                                     not args.no_check, os.path.basename(args.spec))
+        except race_figure.SpecError as err:
+            die(str(err))
+        if code:
+            sys.exit('scaffold_from_spec: the output fails check_fragment.py (see above)')
+        return
+    S = validate(data, args)
     rw = args.rendered_width or S.W
     F, k = fonts(S, args)
     if k > 1:

@@ -14,6 +14,68 @@ chart (`chart`). A form outside them (funnel, scene, fill level, pyramid, map...
 against [fragment-contract.md](fragment-contract.md), starting from the pool entry with that `form`
 in `pool/index.yaml`; that is a normal path, not an exception.
 
+## Durations
+
+A slide that compares how long things take is not laid out by hand. `archetype: durations` is a
+complete figure computed from the values (`scripts/race_figure.py`, called by
+`scaffold_from_spec.py`): every bar starts on one line and grows at one speed on one axis, each
+stops at its own length, and a bracket with the focal number marks the gap. Change one value
+and build again: bar lengths, axis, stop times and the takeaway number change together.
+
+```yaml
+name: bread-rise
+archetype: durations
+status: illustrative            # real | illustrative (the figure then carries the tag). Required
+unit: h                         # axis unit; default: the unit of the longest bar
+start: dough mixed              # optional, the shared starting moment, in the slide's words
+note: "example times"           # optional, the slide's own caveat
+opening: "One dough, three ways to let it rise"   # optional first caption, the slide's words
+claim: "The cold rise takes 12 times as long"     # optional, the slide's takeaway sentence
+takeaway: auto                  # auto | difference | ratio | none
+compare: [Overnight in the fridge, Warm rise]     # optional; default longest against shortest
+calendar: {month: 30}           # only when months or years meet days, weeks or clock units
+bars:                           # two to six, in the slide's order
+  - { label: Warm rise, value: "90 min" }          # the value as the slide writes it
+  - { label: Room temperature, value: 3, unit: h }
+  - label: Overnight in the fridge
+    end: ready to bake          # optional word at the bar's end
+    stages:                     # optional; they must add up to `value` (or leave `value` out)
+      - { label: chill, value: 16 }
+      - { label: warm up, value: 2 }
+```
+
+- **Values and units** are the slide's. Mixed units are converted exactly within ms, s, min, h,
+  days, weeks and within months, years; each bar keeps its label as written (`90 min` on an
+  hour axis). Months or years next to days or hours need `calendar:`, because their length in
+  days is a choice the slide has to make; the figure prints it.
+- **The takeaway number is computed.** `difference` gives "15 months longer", `ratio` gives
+  "12× as long"; `auto` takes the one the `claim:` states, else the ratio from 3× up and the
+  difference below. These words are the only ones the figure adds.
+- **`claim:` is checked, number by number, against what the sentence says about it.** A
+  multiple ("six times", "75×", twice) must be a ratio of two bars; a percentage a percentage
+  of two bars; a duration beside a comparing word (saves, longer, faster, sooner, less ...) the
+  difference of two bars in the unit the sentence uses (14 minutes = 840 seconds); any other
+  duration a bar's or a stage's own length. A number that merely equals some bar does not pass:
+  with 15 and 14 minutes, "saves 14 minutes" stops the build. After a changed value a stale
+  sentence stops the build with the numbers that now hold.
+- **`REVIEW claim:` lines.** What the build cannot tie down is printed, not guessed: a number
+  with no unit beside it, a duration that is the length of another bar than the one named in
+  its clause, a comparing word whose direction points at the wrong bar. The build still
+  succeeds; read the sentence against the figure, reword it when it is wrong, and name every
+  REVIEW line in the hand-over.
+- **A value is read whole or refused.** `45 min`, `.5 s`, `1,200 ms` and compound durations in
+  falling units of one family (`1 h 30 min`, `2 years and 3 months`) are read. A negative
+  value, a range (`1 min to 3 min`, `2-3 h`), a decimal comma (`1,5 s`) or anything left over
+  is an error: give the one duration the slide means. Labels keep the precision of the source
+  (1.04 s stays 1.04 s).
+- **A failing build changes nothing.** The fragment is checked in a temporary file and
+  replaces the output only when `check_fragment.py` passes; a spec error or a failing check
+  leaves the last good file (or none) and exits non-zero.
+- **To scale, always.** A 90:1 ratio gives one long bar and one of a few pixels. That is the
+  picture; there is no axis break and no minimum length.
+- The output is final: no hand refinement, so a rebuild loses nothing. It is not for quantities
+  that are not time (shares, counts, money).
+
 ## Full schema
 
 ```yaml

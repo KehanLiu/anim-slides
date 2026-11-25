@@ -1,0 +1,29 @@
+# The same dispute, two routes, on one month axis. Build with:
+#   python3 scripts/scaffold_from_spec.py pool/mediation-vs-trial/spec.yaml -o pool/mediation-vs-trial/mediation-vs-trial.html
+# Every length, time and the takeaway number are computed from the values below.
+# Source (the brief): mediation takes about 3 months (prepare 1, sessions 1, agreement 1), a court
+# trial about 18 months (pleadings 4, evidence 6, waiting for a hearing date 5, hearing and
+# judgment 3). Example durations; real ones vary widely by country and case. 18 - 3 = 15.
+name: mediation-vs-trial
+archetype: durations
+unit: months
+status: illustrative
+start: dispute
+note: "example durations · real ones vary widely by country and case"
+opening: "The same dispute, two routes, on the same clock"
+claim: "Mediation ends after about 3 months, the trial after about 18"
+takeaway: difference
+bars:
+  - label: mediation
+    end: agreement
+    stages:
+      - { label: prepare, value: 1 }
+      - { label: sessions, value: 1 }
+      - { label: agreement, value: 1 }
+  - label: court trial
+    end: judgment
+    stages:
+      - { label: pleadings, value: 4 }
+      - { label: evidence, value: 6 }
+      - { label: waiting for a hearing date, value: 5 }
+      - { label: hearing and judgment, value: 3 }

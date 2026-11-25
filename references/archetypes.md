@@ -35,6 +35,7 @@ this step does not apply to it.
 | it accumulates or matures: each level rests on the one below | stairs or a stack built bottom-up | `stack`, `accumulate` | `layers` | `bloom-taxonomy` (stack), `petition-threshold` (accumulate) |
 | a level or quantity changes | a fill level, a bar, a gauge | `grow`, `count` | `states` / `chart` | `canal-lock`, `compound-interest` |
 | two things pull against each other | two sides, a balance | `balance`, `race` | `compare` | `energy-balance` (balance), `mediation-vs-trial`, `cache-compare` (race) |
+| things take different lengths of time | bars from one start line on one time axis | `race` | `durations` (computed from the values, spec-format.md) | `mediation-vs-trial` |
 | one thing contains another | rings inside rings | `nest`, `zoom` | `layers` | `number-sets`, `service-deps` (nest), `leaf-stomata` (zoom) |
 | one splits into several, or several merge | fan-out, fan-in | `split`, `merge` | `graph` | `mitosis` (split), `coalition-majority` (merge), `loan-decision` (travel: one application through a branch) |
 | actors exchange something | lanes, one token handed between them | `travel` (the thing exchanged) | `graph` | `hiring-lanes` |

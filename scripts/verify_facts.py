@@ -60,6 +60,9 @@ from html.parser import HTMLParser
 
 
 # ----------------------------------------------------------------------------- reporting
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from race_figure import ALIASES as UNIT_ALIASES, CLOCK as UNIT_CLOCK, CALENDAR as UNIT_CALENDAR  # noqa: E402
+
 class Report:
     def __init__(self):
         self.items = []
@@ -885,6 +888,105 @@ def slot_kind(e):
             'notes': 'note'}.get(k, k)
 
 
+# ----------------------------------------------------------------------------- duration figures
+# scripts/race_figure.py writes a few labels of its own on every figure: the scale legend, the
+# axis unit, "<unit> longer" / "as long" beside the computed takeaway, and the aria-label
+# sentences. They are closed templates with one open slot, the unit, so they are recognised
+# exactly and only the unit is checked (it must be the source's unit or one it converts to).
+# Everything else on such a figure (bar and stage labels, the note, the opening and the claim
+# sentence, every number) is the user's and is checked like any other text.
+RACE_RE = re.compile(r'<div\b[^>]*\bdata-anim-verb="race"')
+TIME_UNIT = r'milliseconds?|seconds?|minutes?|hours?|days?|weeks?|months?|years?|ms|s|min|h'
+RACE_OWN = [
+    re.compile(r'^bar length shows (?P<unit>' + TIME_UNIT + r') · one scale for every bar'
+               r'(?: · (?P<keep>1 (?:month|year) = [\d.,]+ days))?$'),
+    re.compile(r'^(?P<unit>' + TIME_UNIT + r') longer$'),
+    re.compile(r'^(?P<unit>' + TIME_UNIT + r')$'),                 # the axis unit
+    re.compile(r'^as long(?:, rounded)?$'),
+    re.compile(r'^illustrative$'),
+]
+RACE_ARIA = re.compile(
+    r'^(?:Illustrative durations|Durations) on one (?P<unit>' + TIME_UNIT + r') axis: (?P<said>.*?)\. '
+    r'The bars start together and grow at the same rate; each stops at its own length\.'
+    r'(?: A bracket marks (?P<a>.+?) as (?P<hero>\S+) (?P<words>.+?) (?:than|as) (?P<b>[^.]+)\.)?(?P<claim> .*)?$', re.S)
+
+
+def race_own(text, aria=False):
+    """(rest, own): the part of a duration figure's text that is not the renderer's fixed
+    wording, which is checked against the source, and whether a template matched. Text that
+    is not one of the templates comes back whole, with own False."""
+    if aria:
+        m = RACE_ARIA.match(text)
+        if not m:
+            return text, False
+        words = m.group('words') or ''
+        if words:                                   # default takeaway words are a template too
+            words = next((w.groupdict().get('unit') or '' for w in (r.match(words) for r in RACE_OWN[1:4]) if w), words)
+        return ' '.join(x for x in (m.group('unit'), m.group('said'), m.group('a'), words, m.group('b'),
+                                    m.group('claim')) if x), True
+    for r in RACE_OWN:
+        m = r.match(text)
+        if m:
+            g = m.groupdict()
+            return ' '.join(x for x in (g.get('unit'), g.get('keep')) if x), True
+    return text, False
+
+
+def unit_of(word):
+    """Canonical time unit of a word ('min', 'minutes' -> 'min'), or None."""
+    return UNIT_ALIASES.get(word.lower().rstrip('.'))
+
+
+def units_stated(text):
+    """Time units a source states: a unit after a number ('15 min', '2-hour'), or spelled out."""
+    out = set()
+    for m in re.finditer(r'(?<![A-Za-z])(?:\d[\d.,]*|\b(?:an?|one|half|per|each|every|few|several)\b)[\s-]*([A-Za-z]+)\b', text):
+        u = unit_of(m.group(1))
+        if u:
+            out.add(u)
+    return out
+
+
+def durations_stated(text):
+    """[(seconds or months, family, as written)] for every duration a source states."""
+    out = []
+    for m in re.finditer(r'(?<![A-Za-z0-9.])(' + NUM + r')[\s-]*([A-Za-z]+)\b', text):
+        u = unit_of(m.group(2))
+        if u:
+            v = float(m.group(1).replace(',', ''))
+            out.append((v * (UNIT_CLOCK[u] if u in UNIT_CLOCK else UNIT_CALENDAR[u]), unit_family(u),
+                        f'{m.group(1)} {m.group(2)}'))
+    return out
+
+
+def derive_durations(n, durs):
+    """A ratio or a difference of two source durations written in different units of one
+    family (18 h against 90 min = 12x; 2 h - 45 min = 75 min = 1.25 h). The difference may be
+    shown in any unit of that family, since a number alone does not carry its unit."""
+    ratio = n.ratio or bool(re.search(r'times|fold', n.raw, re.I))
+    tol = 0.5 * 10 ** -n.decimals()
+    for i, (a, fa, ra) in enumerate(durs):
+        for b, fb, rb in durs[i + 1:]:
+            if fa != fb or a == b:
+                continue
+            (hi, rh), (lo, rl) = ((a, ra), (b, rb)) if a > b else ((b, rb), (a, ra))
+            if ratio:
+                cands = [(hi / lo, f'{rh} / {rl}')]
+            elif n.pct:
+                cands = [((hi - lo) / lo * 100, f'({rh} - {rl}) / {rl}'), ((hi - lo) / hi * 100, f'({rh} - {rl}) / {rh}')]
+            else:
+                table = UNIT_CLOCK if fa == 'clock' else UNIT_CALENDAR
+                cands = [((hi - lo) / k, f'{rh} - {rl}, in {u}') for u, k in table.items()]
+            for v, how in cands:
+                if abs(v - n.value) <= tol + 1e-9 and abs(v - n.value) <= 0.03 * abs(n.value):
+                    return f'{n.raw} = {how} = {fmt(round(v, n.decimals() + 2))}'
+    return None
+
+
+def unit_family(u):
+    return 'clock' if u in UNIT_CLOCK else 'calendar' if u in UNIT_CALENDAR else None
+
+
 # ----------------------------------------------------------------------------- main
 def build_parser():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
@@ -940,6 +1042,14 @@ def verify(args):
         if tier == 'primary':
             for unit, para in source_units(text):
                 units.append((lab, unit, set(content_stems(with_splits(unit))), para))
+
+    with open(args.fragment, encoding='utf-8') as fh:
+        race = bool(RACE_RE.search(fh.read()))      # built by race_figure.py: its fixed labels are known
+    src_units, src_durs = set(), []
+    for lab, tier, text in corpus:
+        if tier in ('primary', 'spec'):
+            src_units |= units_stated(text)
+            src_durs += durations_stated(text)
 
     illustrative = args.illustrative
     for e in elems:
@@ -999,7 +1109,7 @@ def verify(args):
             if st3 == 'rounded':
                 out.append(('WARN', 'numbers', f'{n.raw} {where}: rounded from {det3}'))
                 continue
-            how = derive(n, nums['primary'] + nums['spec'] + nums['allow'])
+            how = derive(n, nums['primary'] + nums['spec'] + nums['allow']) or derive_durations(n, src_durs)
             if how:
                 out.append(('WARN', 'derived', f'{how} {where}'))
                 continue
@@ -1051,7 +1161,8 @@ def verify(args):
         m = INDEX_RE.match(e.text.strip())
         return bool(m and int(m.group(1)) in idx_set)
 
-    fpairs, review = fragment_pairs(elems, P, skip) if P.idf else ([], [])
+    pair_elems = [e for e in elems if not (race and race_own(e.text, e.tag == 'aria-label')[1])]
+    fpairs, review = fragment_pairs(pair_elems, P, skip) if P.idf else ([], [])
     for msg in review:
         R.add('WARN', 'pairing', msg)
     swap_lvl = 'FAIL' if args.strict and not illustrative else 'WARN'
@@ -1086,6 +1197,9 @@ def verify(args):
         out, w_ok, w_total = [], 0, 0
         label = f"'{t[:60]}{'...' if len(t) > 60 else ''}' ({e.where()})"
         miss_w, miss_n, cross, spec_w = [], [], [], []
+        own = False                                 # one of the renderer's fixed labels
+        if race:
+            t, own = race_own(t, e.tag == 'aria-label')
         ft = fold(t)
         for m in IDENT_RE.finditer(ft):
             w_total += 1
@@ -1109,7 +1223,14 @@ def verify(args):
             w_total += 1
             st = stem(lw)
             ex = lw not in spaced
-            if vocab['primary'].has(st, ex):
+            u = unit_of(lw)
+            # a time unit is the same word however it is written (min, minutes). On a duration
+            # figure the renderer's own labels may also name the unit the source converts to
+            # (90 min drawn on an hours axis): same family, or the spec's stated calendar
+            if u and (u in src_units or (own and src_units and (
+                    unit_family(u) in {unit_family(x) for x in src_units} or vocab['spec'].has(st, False)))):
+                w_ok += 1
+            elif vocab['primary'].has(st, ex):
                 w_ok += 1
                 prim_stems.append(st)
             elif vocab['context'].has(st, ex):
