@@ -91,7 +91,7 @@ animated to reach a count.
 | "improve the slides", "make it less boring", "add (more) animations", "animate this deck" | `.pptx`, Markdown, remark, a document | **A: deck first, then animate** | A deck skill builds the HTML deck, complete; then the Phase 0 question, triage and figures for the slides that get an Insight line. |
 | "make N slides about X", "introduce this project" | a topic, repo or notes; no deck | **A: deck first, from a topic** | A deck skill builds the base deck with a slot on each figure slide; figures fill the slots. anim-slides never designs the deck's look. |
 | the same | an HTML deck (reveal.js, impress.js, frontend-slides, any `<section>`/`.slide` deck) | **B: animate in place** | Triage and figures on the existing deck. |
-| "animate slide N", "this diagram", "this chart" | any | **C: single slide** | No intake message. The slide's Question and Insight go into a one-row `anim/triage.md`; with an Insight it gets one figure (Mode C below), with none it ships unchanged and the hand-over says so in one line. |
+| "animate slide N", "this diagram", "this chart" | any | **C: single slide** | No intake message. The slide's Question and Insight go into a one-row `anim/triage.md`; The short path: `references/quick.md` replaces Phases 1 to 3. The named slide gets one figure; a doubt whether motion helps is one line in the hand-over, never an unchanged slide. |
 | a process, dependency, timeline or architecture in text, or a Mermaid block | docs, README, pasted text | **D: illustrate from docs** | Picture idea from each section's claim, then form and archetype (`references/archetypes.md`), spec, build; the host is the page or slot the user names. |
 | "make the figures play on click", "loop them", "switch to lean" | an already animated deck | **E: re-integrate** | No rebuild: `integrate_fragment.py --control step|once` per fragment, or `host_theme.py --mode lean|match --apply`. Fragments stay as they are. |
 
@@ -146,18 +146,16 @@ intake message: the defaults (the deck skill's recommended style, match, once, n
 are taken, recorded in Decisions and reported in the hand-over. With no deck skill found, the
 same chain runs on the built-in base. `references/reference-case.md` walks through such a deck.
 
-**Mode C, one slide.** No intake message: the defaults (match, once, not bundled) are taken.
-Write the slide's Phase 0 lines as a one-row `anim/triage.md` (the columns of Phase 1 step 2,
-plus Decisions with Look and Control), so the later steps have their input. With no Insight,
-the slide ships unchanged and the hand-over says so in one line. With one, run Phase 1 steps
-1 and 3 for that slide (`--pages N`), then Phase 2 and Phase 3 for its one figure. A `.pptx`
-source with no HTML deck gets the lighter path's standalone page for that slide. Read only
-what one figure needs: `references/fragment-contract.md`; in `references/spec-format.md`
-"Full schema", "Phases", "Phase marks" and "Verbs in the scaffold" ("Series and events" for
-a chart); in `references/archetypes.md` "Picture idea and form" and the chosen family's
-section; `references/motion-verbs.md` sections 1 and 5; `references/style.md`;
-`references/brief-template.md`; `references/accuracy.md`; for the review,
-`references/look-rubric.md` sections 1 to 3.
+**Mode C, one slide.** Follow `references/quick.md` and nothing else: it replaces Phases 1
+to 3 for that slide (no intake message, no brief, no previews, no review agents, no review
+page) and names the few commands to run. Read no other reference unless a checker points to
+a rule. **The named slide gets a figure:** the user chose this slide, so the triage decides
+only what to draw, from the slide's own labels and values; a doubt whether motion helps is
+one line in the hand-over after the figure. Only a slide with nothing to draw (a title, a
+quote, a single picture) ships unchanged, with the reason. **Every source label stays on the
+slide word for word** (`scripts/check_labels.py`); when a label is too long for the figure,
+the slide's own text stays beside it. A `.pptx` source with no HTML deck gets the lighter
+path's standalone page for that slide.
 
 ## Phase 1: Show first, ask once
 
@@ -229,6 +227,17 @@ spec and brief first (specs are cheap; write them all before building), then bui
    phases with second marks, cycle (4 to 10 s), control from intake, `verb:` from the triage
    row (`traveller:` with its `name` for `travel`). Reuse the source's words.
    Under about 12 nodes; split otherwise.
+   **Durations are computed, not drawn.** A slide whose point is how long two to six things
+   take (each a label with a duration and a unit, verb `race`) gets `archetype: durations`:
+   the spec holds each label, value and unit as the slide writes them, plus the slide's own
+   takeaway sentence as `claim:`, and step 4 builds the finished figure from it (bars on one
+   scale, one speed, the difference or ratio as the focal number). It needs no pool copy and
+   no hand-built motion. Shares, counts, prices and other quantities that are not time are
+   not durations: they keep their own form. **A corrected value is a spec edit:** change the
+   value in `spec.yaml` and run step 4 and the integration again, never edit the fragment. If
+   the build stops because the `claim:` sentence no longer follows from the values, reword
+   the sentence with the numbers the build prints, change the same sentence wherever the
+   slide still shows it, and tell the user which sentence changed.
 2. **Pool first, for craft.** Read `<skill-dir>/pool/index.yaml` (and `$ANIM_POOL/index.yaml`
    if set). The pool is the quality floor, not the menu of pictures: look an entry up by the
    triage row's verb first, then form and moves (`verb`, `form`, `moves` and `technique`
@@ -253,7 +262,8 @@ spec and brief first (specs are cheap; write them all before building), then bui
    Insight is cut too).
 4. **Build.** `python3 <skill-dir>/scripts/scaffold_from_spec.py anim/<name>/spec.yaml -o anim/<name>/<name>.html --rendered-width <px>`
    covers the plain forms of the seven archetypes: chains, two-row snakes, graphs with lanes,
-   line charts, column compares, layer stacks, dot timelines. Funnels, rings, scenes, triangles,
+   line charts, column compares, layer stacks, dot timelines. For `archetype: durations` the same
+   command writes the finished race figure (`scripts/race_figure.py`), which is not refined by hand. Funnels, rings, scenes, triangles,
    donuts, bars, timelines with event text and anything the spec cannot express are hand-built
    from the spec; do not force the scaffolder, use its output as the timing skeleton. **The motion
    is the verb's**: build it from its mechanism (`references/motion-verbs.md` section 5); the
@@ -304,8 +314,9 @@ spec and brief first (specs are cheap; write them all before building), then bui
    - The question: open only the `rest` PNG, as someone who missed the pass. It answers the
      brief's Question, and the Insight can be pointed at on it (the trace, the marked stretch,
      the before beside the after). If the answer or the reason is only in the motion, draw it
-     into the resting frame; if the slide's base answered the question as well, drop the
-     figure and ship the base.
+     into the resting frame. Only when the slides were chosen by the triage (Modes A and B):
+     if the slide's base answered the question as well, drop the figure and ship the base. A
+     slide the user named (Mode C) keeps its figure.
    Never trust `--virtual-time-budget`, and never trust reading the source instead of the PNG.
    Where the harness cannot show images, run the measuring checks and state in the hand-over
    that the frames were not viewed.
@@ -367,13 +378,16 @@ spec and brief first (specs are cheap; write them all before building), then bui
    and one `render-phases.sh --page deck.bundled.html --slide N ... rest`. Do not read the
    bundled file.
 2. When the deck will be printed or sent as a PDF:
-   `python3 <skill-dir>/scripts/export_pdf.py deck.html [--source static-deck.html] [--paper letter|a4|both]`.
-   It writes one landscape page per slide and reads the PDF back: every label of a slide must
-   be on its page, inside the page and drawn. Labels seen only during the pass (step captions,
-   a changing state label) are printed in a strip under their slide; with `--source` (the deck
-   before figures) so are the source words a figure shortened. A FAIL blocks the hand-over.
-   Do not export by hand from the deck's own print rule: a fixed 1920 px page loses the right
-   side of every slide on Letter and A4.
+   `python3 <skill-dir>/scripts/export_pdf.py deck.html --install [--source static-deck.html] [--paper letter|a4|both]`.
+   It writes one landscape page per slide and reads the PDF back: every label of a slide on
+   its page, inside the page and drawn; every table cell in its own cell, repeated values
+   counted; no presenter note (`aside.notes`, `.speaker-notes`, `[data-presenter-only]`) on
+   any page. Labels seen only during the pass (step captions, a changing state label) are
+   printed in a strip under their slide; with `--source` (the deck before figures) so are the
+   source words a figure shortened. `--install` writes the print rule into the deck once
+   every paper passed, so the browser's own Print fits Letter and A4 too. A FAIL blocks the
+   hand-over and leaves an earlier PDF in place. Without the rule a fixed 1920 px page loses
+   the right side of every slide.
 3. Render the resting frame of every animated slide of the integrated deck (in Mode A every
    slide: the whole deck is new, and the review page's Deck column is empty for the rest) into
    `anim/review/after/` (`render-phases.sh --page deck.html --slide N <W> <H> rest --out anim/review/after/sN`,
@@ -406,7 +420,7 @@ spec and brief first (specs are cheap; write them all before building), then bui
   deck's palette, font and type scale; slide layout, headlines and deck CSS do not change.
   Readability, contrast, clipping and gaps are checked at rest and at every phase mark.
 - **Keep the slide's visuals.** A slide whose own chart or figure already answers its Question
-  ships unchanged. Once a slide has an Insight line, a chart, graph, table, map, flowchart or
+  ships unchanged. (A slide the user named is drawn all the same, Mode C.) Once a slide has an Insight line, a chart, graph, table, map, flowchart or
   scientific figure on it is the core content: redraw it from its data and animate that, never
   drop it or replace it with a text summary. An icon or picture that labels a column, lane, category or actor is content
   too: embed it beside the fragment (licence permitting) or redraw it as a glyph. Only a
@@ -453,6 +467,7 @@ spec and brief first (specs are cheap; write them all before building), then bui
 References, each with when to read it:
 - `references/fragment-contract.md`: before building anything; shape, prefixes, tokens, gate, resting frame, controls.
 - `references/input-stage.md`: Modes A and B; deck first, outline JSON, triage, look and control, handoff to builders.
+- `references/quick.md`: the whole path for one named slide (Mode C).
 - `references/spec-format.md`: writing a spec (Phase 2 step 1); Mermaid mapping, worked examples.
 - `references/archetypes.md`: choosing the form ("Picture idea and form"), then the chosen family's section.
 - `references/brief-template.md`: per fragment, before any SVG is written.

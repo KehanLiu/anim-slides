@@ -4,6 +4,18 @@ All notable changes to this project. Versions match `metadata.version` in `SKILL
 
 ## Unreleased
 
+- **A short path for one named slide** (`references/quick.md`). "Animate slide N" no longer
+  runs Phases 1 to 3: no brief, no previews, no review agents, no review page. One page names
+  the commands, carries the fragment rules the checker enforces and a table of which drawing
+  fits which content (parts of one total get one cut bar, never a bar per row; no line runs
+  through text). On a held-out set of 8 slides against plain Claude Code with the same short
+  prompt (one run per slide, same-model reviewers), cost went from about 5 times plain to 1.7
+  times and time from 4.8 times to 1.4 times. This replaces the Mode C reading list described
+  under "Animate slide N spelled out" below. Deck-wide runs are unchanged.
+- **Every source label stays** (`scripts/check_labels.py BEFORE AFTER --slide N`). Fails when
+  a text run of the source slide is missing from the animated one. All four label defects of
+  the baseline run were shortened or dropped labels. No unit test yet.
+
 - **A slide the user names always gets a figure.** In a blind comparison the skill answered
   "animate slide 3" with a byte-identical deck: the slide was a table of four waiting times
   with no takeaway sentence, so the triage called it a lookup. For a single named slide the

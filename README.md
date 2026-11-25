@@ -185,6 +185,7 @@ PowerPoint needs different things for reading and for rendering:
 | Read a `.pptx` (text, bullets, notes, tables) | `extract_slides.py` | Python standard library only |
 | Render a `.pptx`, `.ppt` or `.odp` to page images the agent looks at | `render_deck.py` | LibreOffice (`soffice`), poppler (`pdftoppm`), Chrome or Chromium |
 | Render an HTML deck or a fragment | `render_deck.py`, `render-phases.sh` | Chrome or Chromium (`CHROME=/path` overrides detection); `render_deck.py` also needs `pdftoppm` |
+| Build a duration comparison (bars racing on one time axis) from labels, values and units | `race_figure.py` (via `scaffold_from_spec.py`, `archetype: durations`) | none |
 | Export a deck to PDF, one slide per Letter or A4 page, every label checked | `export_pdf.py` | Chrome or Chromium, poppler (`pdftotext`, `pdftoppm`) |
 | Read a legacy `.ppt` | `extract_slides.py` | one `soffice --headless --convert-to pptx deck.ppt` first |
 
@@ -227,8 +228,9 @@ For a whole deck, a run has three phases:
    two one-line switches for later (click-through, lean look).
 
 For "animate slide N" and for a short prompt such as "make five slides about X" it asks
-nothing and takes the defaults (your deck's own colours, play once, not bundled). If the one
-slide already answers its question, it ships unchanged and the skill says so in one line.
+nothing and takes the defaults (your deck's own colours, play once, not bundled). A slide you
+name always gets a figure; if the skill doubts that motion helps there, it says so in one line
+after delivering it.
 
 "Improve the slides" and "add more animations" mean the same to the skill: figures replace
 text blocks and screenshots; nothing else about the deck changes.
