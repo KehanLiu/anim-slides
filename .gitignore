@@ -15,3 +15,5 @@ evals/results/
 .loop/
 # local agent settings
 .claude/
+# local test output of the project deck
+project-slides/
