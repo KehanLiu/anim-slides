@@ -24,6 +24,30 @@ figures).
   14, First read, scores that answer against the claim. The audience question is a new field
   of the brief. Not yet calibrated.
 
+Pre-launch cleanup and consistency pass.
+
+- **One number per rule.** The references, `SKILL.md` and the checkers now agree: more than
+  three things moving warns and more than six fails; accent at rest at most about a fifth;
+  a label follows its part by 50 to 150 ms; a travelling marker for `travel` and the token
+  trip of a `cycle`; triage decisions are `illustrate` or `text`; match is the default look
+  for every deck and lean is the optional dark ground. Checker floors that the docs left
+  vague (text contrast, type ladder, stillness, hues, faint lines) are written down.
+- **"Animate slide N" spelled out.** Mode C writes a one-row triage, asks nothing, ships the
+  slide unchanged when it has no Insight, and names the reference sections one figure needs.
+  `SKILL.md` gains a short Terms section; `gate` now means only the CSS class.
+- **Fact check in the final review.** Step 8 reruns `verify_facts.py --strict`, so a value
+  beside the wrong label fails before hand-over.
+- **Valid frontmatter.** The `SKILL.md` description no longer breaks strict YAML parsers;
+  `tests/test_skill_frontmatter.py` guards it and the version strings.
+- **README restructured** for a first-time visitor (what it is, try it, gallery, install, use);
+  the script commands moved to `docs/scripts.md`. `CONTRIBUTING.md` and the issue and pull
+  request templates describe the checks and the pool-entry format as they are now.
+- **Removed:** `docs/intro-deck/` (a copy of `base/example.html`), `docs/motion-before-after/`
+  (stale), `docs/media/hero.png` and `social-preview.png`, duplicate benchmark screenshots,
+  dead code (`under_arc`, `over_arc`, `--no-pptx-lib`). Run logs and rubric calibration moved
+  from the references to `docs/maintainer-notes.md`. `build_hero.py` moved to
+  `.github/scripts/` (maintainer only).
+
 ## 0.14.0 - 2026-11-24
 
 Look v2. Driver: the owner still found the slides "too ugly" and had six outside sources read

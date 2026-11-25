@@ -1,7 +1,10 @@
 # Pool
 
-Finished fragments that satisfy `references/fragment-contract.md`: one for each motion verb
-(`references/motion-verbs.md`) and at least one per build family, across 17 fields
+Finished fragments that satisfy `references/fragment-contract.md`: at least one per build
+family, and one or more with each motion verb of `references/motion-verbs.md` as its main
+motion, except `count`. `count` is always a supporting verb, paired with another
+(`accumulate` in `petition-threshold`, `sort` in `blood-types`), so no entry has it as its
+main verb. The entries span 17 fields
 (health, finance, biology, law, civics, earth science, education, logistics, software and
 more). The agent checks here before building from scratch (SKILL.md, Phase 2, step 2 "Pool
 first, for craft"): a close match
@@ -12,7 +15,8 @@ verb, archetype, form, moves, size, cycle, story and tags:
 
 - `verb`: the entry's main motion, the one that is its claim: grow, accumulate, thin, race,
   split, merge, sort, stack, nest, transform, wipe, switch, balance, drive, zoom, open,
-  travel, trace, cycle, or reveal for an order-only row. Look up the verb the slide's claim
+  travel, trace, cycle, or reveal for an order-only row (`count` only as a supporting verb).
+  Look up the verb the slide's claim
   calls for first. At most a third of the pool uses a travelling marker (`travel`, and the
   one trip of a `cycle`); `scripts/check_verbs.py --pool pool/index.yaml` enforces it.
 - `form`: the shape of the picture, one word from row, snake, axis, graph, flowchart, lanes,
@@ -78,6 +82,10 @@ finished state of the story.
 Every entry also carries `data-anim-phases` (stop marks in seconds, listed as `phases` in
 `index.yaml`), so it can be integrated in step mode (`integrate_fragment.py --control step`)
 without changes: the host plays the same CSS pass segment by segment, one key press per mark.
+
+Inside the SVG, one element per entry carries `data-anim-focal`: the one thing the eye lands
+on in the resting frame. `check_fragment.py` warns when it is missing and fails on two;
+`check_look.py` warns when it is not visible at rest or does not stand out.
 
 ## Preview
 

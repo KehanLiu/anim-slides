@@ -1,8 +1,11 @@
 # Lessons
 
+Read when integrating into a deck built by a deck skill: "Integration" and "Host decks".
+Read when a check or render fails in a way the other references do not explain: "Headless verification", "SVG / CSS gotchas", "Chrome rendering", "Legibility" and "Motion and review".
+
 Gotchas found while building animated slide illustrations. Add to this file when a new one
 bites. Rules derived from these are in [fragment-contract.md](fragment-contract.md) and
-[motion-rules.md](motion-rules.md).
+[motion-rules.md](motion-rules.md). History and run logs: docs/maintainer-notes.md (maintainers only).
 
 ## SVG / CSS gotchas
 
@@ -98,167 +101,73 @@ bites. Rules derived from these are in [fragment-contract.md](fragment-contract.
 
 ## Host decks
 
-- 2026-11-18, Codex, "Make five slides introducing this project": frontend-slides was on disk
-  but not registered in Codex, so anim-slides built the whole deck on its own lean dark ground
-  and the frontend-slides look was applied afterwards as a reskin. A deck skill counts when its
-  SKILL.md is in any harness's skills folder; a topic with no deck goes to it first.
-- `host_theme.py` read `font: 400 39px/1.35 Nunito` as the family "39px/1.35 Nunito" (the
-  weight came before the size), so fragments fell back to the default font; fixed 2026-11-18.
-  Check the `font` row of its table against the deck once.
-- A branded deck full of rounded panels tempts the builder to redraw the panels in SVG and
-  animate the wires between them; the user then sees "almost no change". The host theme gives
-  colours and fonts only; the boxes become rings and labels on lines (style.md, "Under a host
-  theme"), and the brief names what the fragment replaces.
-- `render-phases.sh --page --no-script` shows blank frames on decks whose own script both adds
-  the gate class and shows the slide. In frontend-slides decks `.visible` is both the fragment
-  gate and the class that shows the slide; the `rest` render strips it, and the slide stays up
-  only because the deck's script also sets `.active`. Rule that held: `--no-script` for timed
-  mark or phase frames, never for `rest`. If a deck still renders blank, render from a scratch
-  copy that marks every slide current and disables animation (what print mode does), never
-  from an edited deck.
+- A deck skill counts when its SKILL.md is in any harness's skills folder. A topic with no deck
+  goes to it first; anim-slides never builds the deck on its own ground and reskins it later.
+- With a deck skill installed, a fallback deck already in the folder is never used or offered.
+- Deck first: a source that is not an HTML deck yet goes through a deck skill (the user's own,
+  else `frontend-slides`) before triage. `md_to_deck.py` is a last resort, named as a plain
+  host to the user, and the pptx stays the triage source.
+- To match the source, recolour the closest frontend-slides preset to the source's palette.
+- Check the `font` row of `host_theme.py`'s table against the deck once.
+- Compare `host_theme.py`'s derived block with the deck's variables once (it can map muted to
+  a computed mix instead of the deck's `--text-secondary`) and correct by hand.
+- On a single-accent deck map `--anim-theme-ok` to the line colour or the accent.
+- Do not redraw a branded deck's rounded panels in SVG. The host theme gives colours and fonts
+  only; the boxes become rings and labels on lines (style.md, "Under a host theme"), and the
+  brief names what the fragment replaces.
+- On a white match ground use a fade level of 0.6 in the light line colour; 0.35 vanishes
+  (style.md, "Under a host theme").
+- Use `render-phases.sh --page --no-script` for timed mark or phase frames, never for `rest`:
+  in frontend-slides decks `.visible` is both the fragment gate and the class that shows the
+  slide. If a deck still renders blank, render from a scratch copy that marks every slide
+  current and disables animation (what print mode does), never from an edited deck.
+- Key a deck's own entrance reveals (`.reveal` under `.slide.visible`) on `.slide.active` too
+  and add a print rule. Check headings and body text without the deck script and in print.
+- Ask the deck skill for a fixed-size `<div id="sN-slot">` with the `<!-- sN-body -->` markers
+  inside it. Pass W x H and position in its brief; use padding, not margin, inside the slot (a
+  child margin collapses through it and shifts `measure_slot.py`'s box). Without `--selector`,
+  `measure_slot.py` returns junk on absolutely positioned layouts.
+- Fold the deck skill's own questions (density, style previews) into the one intake message;
+  choose the closest preset and name it.
+- The deck skill's font link is one WARN in `check_page.py` on the working deck;
+  `bundle_deck.py --fetch` inlines the fonts at hand-over.
+- Fragment-mode `check_look` font WARNs are expected on a deck-skill deck; the `--page` run is
+  the font check.
 - `.step` divs inside a `.slide` are build steps (stairs, reveals), not slides;
   `extract_slides.py` treats `.step` as a slide only at impress.js top level and counts nested
   ones as `builds`.
-- Whether a click advances the figure is a presenter habit, not something the deck's content
-  reveals. The default is `once` for the whole deck; `step` only when the user asks (when the
-  source builds by click, `builds` in `outline.json`, mention in one line that step exists,
-  nothing more: the owner of this skill found an unasked step deck annoying). Keep it the same
-  on every slide so the presenter always knows what a click does. Step mode lives in the host snippet, so the
-  choice can change at integration without rebuilding fragments.
-- A rebuilt figure can be accurate and still wrong: a staircase re-plotted as a glowing line
-  chart with brackets and arrows was rejected as "too much". Keep the slide's figure form and
-  add one movement; the checker measures how many things move and glow at once and catches the rest.
-- A 4-slide pptx was extracted to Markdown, run through `md_to_deck.py`, and two slides were
-  animated. The user's verdict: "super ugly, only the charts on slide 4 are good". The
-  fragments were fine; the host was a Markdown dump (full-width title, a bullet list, a row of
-  raw image thumbnails), and the pptx's own designed layout was gone before anim-slides started.
-  Deck first: a source that is not an HTML deck yet goes through a deck skill (the user's own,
-  else `frontend-slides`) before triage; `md_to_deck.py` is a last resort, named as a plain host
-  to the user, and the pptx stays the triage source.
-- Deck first on a frontend-slides deck (the same 4 slides, pptx to frontend-slides to
-  anim-slides, match look, step control). It worked: the fragments dropped into a 1680x610 and
-  a 1680x700 slot without size changes, `verify_facts.py` passed, and the user, who had called
-  the `md_to_deck.py` attempt "super ugly", judged the fragments fine. What it took:
-  - `--no-script` for timed frames only, never for `rest` (see the blank-frames entry above).
-  - The deck's entrance animations show `.reveal` text only under `.slide.visible`, so rest
-    renders and print showed empty slides. Key the reveals also on `.slide.active` and add a
-    print rule; check headings and body text without the deck script and in print. The class
-    name `.reveal` also matches reveal.js detection in `host_theme.py`'s slide selectors
-    (harmless in this run).
-  - Without `--selector`, `measure_slot.py` returned junk on the absolutely positioned layout.
-    A fixed-size `<div id="sN-slot">` with the `<!-- sN-body -->` markers inside it made
-    measuring exact and `integrate_fragment.py --anchor`/`--replace-until` painless; ask the
-    deck skill for it. (Markers round the div, as first written, let `--replace-until` delete
-    the sized div; see the 2026-11-08 entry.)
-  - The deck's Google Fonts / Fontshare link is the deck's load. The lean working deck fails
-    `check_page.py`'s external check on it; `bundle_deck.py --fetch` inlined 9 fonts and the
-    bundled deck passed with 0 fail.
-  - Step listens to keys only; frontend-slides also navigates by wheel and swipe, so a scroll
-    skips phases. Tell the presenter to use the keyboard or a clicker.
-  - On the white match ground a fade level of 0.35 in the light line colour vanished; 0.6
-    read (style.md, "Under a host theme").
-  - `host_theme.py` mapped muted to a computed mix instead of the deck's `--text-secondary`;
-    compare the derived block with the deck's variables once and correct by hand.
-  - `extract_slides.py` missed a cover photo placed on slide layout 4 and reported a picture
-    that does not show on the rendered slide. A picture count that differs between
-    `outline.json` and the render means: look at the layout's pictures.
+- Control is `once` for the whole deck; `step` only when the user asks. When the source builds
+  by click (`builds` in `outline.json`), mention in one line that step exists, nothing more.
+  Keep it the same on every slide so the presenter always knows what a click does. Step mode
+  lives in the host snippet, so the choice can change at integration without rebuilding
+  fragments.
+- Step listens to keys only; frontend-slides also navigates by wheel and swipe, so a scroll
+  skips phases. Tell the presenter to use the keyboard or a clicker.
+- Keep the slide's figure form and add one movement. An accurate rebuild in another form (a
+  staircase as a line chart with brackets and arrows) is still "too much".
+- A picture count that differs between `outline.json` and the render means: look at the slide
+  layout's pictures (`extract_slides.py` can miss one placed on the layout, or report one that
+  does not show).
+- In Mode A render every slide into `anim/review/after/`, not only the animated ones.
 
-## Two bare-prompt runs (2026-11-08)
+## Motion and review
 
-Two fresh-user tests, the agent alone with SKILL.md 0.9.1 and a bare prompt: "improve the
-slides" on a 46-slide pptx and "add more animations to this deck" on a 43-slide pptx.
-
-What went right: showcase-quality fragments, seven slides each, every check green
-(`check_fragment.py`, `verify_facts.py`, `check_page.py`). Triage, contract and style rules held.
-
-What went wrong:
-- About 25 minutes and 1.1 M tokens per run; some 15 reference files read.
-- Twelve decisions taken silently per run. The skill had five separate "ask the user" points
-  (triage approval, look, control, ambiguity, hand-over) and no way to ask them at once, so an
-  agent that could not wait asked none; one run invented a `DECISIONS.md` to record them.
-- The deck rebuild by frontend-slides took most of the time, and the user was never told it
-  would happen or offered a lighter path.
-- The scaffolder's output was thrown away for most real shapes (triangle graph, 4+4 snake
-  U-turn, timeline with event text, bar chart, donut).
-- Small contradictions: the slot markers were written "round" the `#sN-slot` div, so
-  `--replace-until` deleted the sized div; SKILL.md's `verify_facts.py` line omitted `--spec`
-  that accuracy.md requires; `render_deck.py` skips hidden slides, so its numbering ran behind
-  `outline.json`; the rest render hid the deck's own staggered text; `host_theme.py` picked an
-  accent by usage count on a deck without variables; the checker's text floor assumed a 1920
-  stage when `--stage-width` was left out; the phase-mark wording ("start of every phase after
-  the first") did not fit hand-built fragments.
-
-Rules that followed (0.10.0, modelled on frontend-slides' "show, don't tell"):
-- Phase 0 reads the request into a mode (A deck first, B in place, C one slide, D from docs,
-  E re-integrate). "Improve" and "add more animations" mean the same: figures replace text
-  blocks and screenshots, nothing else changes; "more" is the upper end of the budget.
-- Show first, ask once: build and render the first fragment (match and lean stills, both
-  readings when there are two), then one intake message with proposal, stills, look, control,
-  deck-first cost and lighter path, hand-over. Nothing is asked after it; defaults go into a
-  Decisions section of `anim/triage.md`. An unreadable figure is traced and tagged, not asked.
-- Mode A announces the deck rebuild and its cost and offers standalone animated slide pages.
-- The scaffolder covers the plain archetype forms; other shapes are hand-built from the spec.
-- Markers go inside the slot div. One phase-mark definition everywhere (settled moments).
-- Delivery is a before/after review page (`review_page.py`) and a few lines.
-
-- **A fallback deck in the folder is not a decision.** A 12-slide corporate pptx run under
-  0.10.0 found a `deck.md` from an earlier try, built the host with `md_to_deck.py`, wrote
-  "user's earlier choice" into Decisions and asked at intake whether to "keep the md_to_deck
-  host". The three fragments were good; the nine text slides around them were a raw dump, and
-  the owner asked why frontend-slides was not the base. Rule since 0.11.0: with a deck skill
-  installed the fallback is never used or offered; the intake deck question is full deck or
-  lighter path only.
-
-## Deck-first run on a 12-slide corporate deck (2026-11-08)
-
-Under 0.11.0: frontend-slides built the deck from the pptx, three fragments, blind review "ship".
-- **Worked:** a frontend-slides preset recoloured to the source's palette gave a deck that read
-  as the source; the three fragments from the earlier run were reused unchanged; the blind
-  review's verdict was "ship".
-- **Gaps, fixed after the run:** `check_page.py` failed on the deck skill's own Google Fonts
-  link (now one WARN; any other external load still FAILs); `bundle_deck.py` left
-  `<link rel="preconnect">` to font hosts after inlining (now dropped when the host is gone);
-  frontend-slides' own density question and three style previews broke "ask once" (now folded
-  into the intake message, the closest preset chosen and named); the deck skill knew nothing
-  about slots (the main thread passes W x H and position in its brief; padding, not margin,
-  because a child margin collapses through the slot and shifts `measure_slot.py`'s box); the
-  review page's Deck column was empty for the nine un-animated slides (Mode A renders every
-  slide into `anim/review/after/`); the default mint `--anim-theme-ok` added a second hue on a
-  single-accent orange deck (map it to the line colour or accent); fragment-mode `check_look`
-  font WARNs are expected on a deck-skill deck (the `--page` run is the font check); the blind
-  review images had no named place (`anim/review/blind/`).
-
-## Motion vocabulary rebuild and two trap-deck runs (2026-11-16)
-
-- **What was wrong:** 17 of 22 pool entries, six of seven archetypes and the spec's only
-  motion word (`flow`) were a point advancing along a line, so every slide came out as a
-  process diagram with a moving dot. Naming the motion before the form fixed it: one verb per
-  fragment, chosen from the slide's claim ([motion-verbs.md](motion-verbs.md)).
-- **Two runs after the change:** `verbs-not-dots` (seven list slides) came out as accumulate,
-  balance, sort, transform, nest, travel (the blood sample) and reveal; `arrows-are-not-travel`
-  (cards joined by arrows) as grow, race, split, travel (the wallet) and reveal. One marker
-  per deck, on the slide where a named thing travels; `check_verbs.py` passed on both.
-- **Units need a declared series:** 20 to 100 units each on their own translate track count
-  one by one unless the group carries `data-anim-series`; without it builders move rigid
-  blocks, which reads as a reshape, not a sort.
-- **A morph is only checked since `@supports` is a variant:** a 100 % `d` that differs from
-  the resting `d` used to pass every check and show only in a render. Build the cross-fade
-  base first, then the `d` morph; render a copy with the `@supports` block removed.
-- **A counter must move with what it counts:** values that tick after the bar, the column or
-  the units have landed were the most repeated review defect. Step the number per row or per
-  landing, or show it once when the motion settles.
-- **The accent is for the outcome:** lighting each part in turn over a finished drawing reads
-  as a highlight stepping along, the dot's cousin. Let the part itself arrive, open or
-  change, and keep the accent for the answer.
-- **State changes need a shape, not only a colour and a word:** with labels covered a ticket
-  whose border changes colour shows nothing; a progress stroke that stops at a cross, a ring
-  that breaks, a wire that splits open do.
-- **A round trip rests on its start:** when the story returns to where it began, keep the
-  states it passed through on the rest frame (small fixed thumbnails), or the still says
-  nothing.
-- **Blind review on contact sheets:** tell the reviewer the real width of a frame; at a
-  480 px thumbnail every 20 px label looks too small and the finding drowns the real ones.
-- **Gaps seen in the runs, not yet fixed:** `check_look.py --page` scored slides that are
-  invisible at rest on a deck whose reveal is keyed on its own class (the runs re-ran it on a
-  copy, and one added the deck's `active` class to its CSS); `render_deck.py` output was
-  cropped on both decks.
+- One verb per fragment, chosen from the slide's claim ([motion-verbs.md](motion-verbs.md)).
+  A moving dot only on the slide where a named thing travels.
+- Units that move together as a series need `data-anim-series` on the group; otherwise 20 to
+  100 units count one by one, and rigid blocks read as a reshape, not a sort.
+- Build a morph's cross-fade base first, then the `d` morph; render a copy with the
+  `@supports` block removed.
+- A counter moves with what it counts: step the number per row or per landing, or show it once
+  when the motion settles.
+- Keep the accent for the outcome. Let each part arrive, open or change; do not light parts in
+  turn over a finished drawing.
+- Give a state change a shape, not only a colour and a word: a progress stroke that stops at a
+  cross, a ring that breaks, a wire that splits open.
+- A round trip rests on its start: keep the states it passed through on the resting frame
+  (small fixed thumbnails).
+- Blind review on contact sheets: tell the reviewer the real width of a frame. Put the images
+  in `anim/review/blind/`.
+- `check_look.py --page` scores slides that are invisible at rest on a deck whose reveal is
+  keyed on its own class: run it on a copy with the deck's `active` class added to its CSS.
+  `render_deck.py` output can be cropped; check its PNGs.

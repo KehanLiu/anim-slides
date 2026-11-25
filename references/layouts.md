@@ -77,7 +77,9 @@ title-less slide gains about 200 px of height.
 ## Rules of thumb
 
 - Keep the deck's own margins; a fragment never extends into the side margin or the title area.
-- Leave at least 30 px between the fragment's box and any footer, page number or source line.
+- Leave about 30 px between the fragment's box and any footer, page number or source line.
+  `check_look.py --page` warns below 24 px at a 1920 window (`--min-gap`); 30 px is the
+  recommendation above that floor.
 - In grid columns, centre the fragment vertically (`align-self: center` on its wrapper) so a short
   illustration does not stick to the column top.
 - Inside the viewBox, keep 16-24 px of padding so strokes and glows are not cut at the edge.

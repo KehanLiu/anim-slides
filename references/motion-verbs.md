@@ -7,7 +7,7 @@ something really travels.
 
 Limits for every verb ([motion-rules.md](motion-rules.md), [style.md](style.md)): one calm pass
 of 4 to 10 s that rests on the finished frame, nothing loops or repeats, at most three things
-move at once, no overshoot (except a small mark on the `land` curve), the lean look, and nothing drawn that the source does not state
+move at once, no overshoot (except a small mark on the `land` curve), the shape rules of style.md (match or lean), and nothing drawn that the source does not state
 ([accuracy.md](accuracy.md)). A slide that already has a figure keeps that figure's form; the
 verb then says how that figure moves, not what it turns into.
 
@@ -139,7 +139,7 @@ relationship (a share, a change over time, a composition, a scale, before and af
 
 - **`travel`** Says: a named thing goes from one named place to another. Fits: logistics, a
   patient pathway, a message between actors, migration. Screen: the traveller as a small
-  glyph or labelled chip that says what it is, moving once along the route; it changes on
+  glyph with a label beside it that says what it is, moving once along the route; it changes on
   arrival (colour, tick, new label) when the source says it does. Build: `offset-path`.
   Passes the travel test in section 1 or is not used.
 - **`trace`** Says: a route, a curve or a trajectory takes shape. Fits: a trend whose shape

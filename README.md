@@ -16,9 +16,28 @@ npx skills add KehanLiu/anim-slides     # then ask your agent: "animate slide 4 
 ```
 
 The GIF's "before" frame is [`examples/first-slide/source.html`](examples/first-slide/source.html)
-as a browser renders it. The "after" frame is the pool's [`parcel-route`](pool/parcel-route/)
-figure, finished by hand from that slide. Every label in it comes from the slide
-(`tests/test_readme_demo.py` fails the build otherwise).
+as a browser renders it. The "after" frame is the [`parcel-route`](pool/parcel-route/) figure
+from the skill's pool of examples, finished by hand from that slide. Every label in it comes
+from the slide (`tests/test_readme_demo.py` fails the build otherwise).
+
+## What it is
+
+anim-slides is an agent skill. It turns slides, and written processes and dependencies, into
+animated diagrams for HTML slide decks. It uses the open [Agent Skills](https://agentskills.io)
+format, so the same folder works in Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI,
+Antigravity, OpenCode, Amp, Cline, Roo Code, Kiro, Factory Droid, Zed, Goose and Devin Desktop.
+
+It animates figures; it does not design decks. A deck skill (a skill that designs slide
+decks: your own, or e.g. `frontend-slides`) builds the deck first, and anim-slides adds the figures. A small built-in
+base deck is the fallback when no deck skill is installed.
+
+Terms used on this page:
+
+- **Figure:** an animated SVG illustration that replaces a text block, chart or screenshot on a slide.
+- **Fragment:** the file a figure lives in: one HTML file with a `<style>` and one inline `<svg>`, which you paste into a slide.
+- **Pass:** one run of a figure's animation, played when its slide is shown.
+- **Resting frame:** the finished picture a pass ends on.
+- **Match** and **lean:** the two looks. Match takes your deck's colours and fonts; lean puts the figures on their own dark background.
 
 ## Try it on one slide
 
@@ -37,10 +56,8 @@ One source slide, one prompt, one result. All three are in [`examples/first-slid
    keeps the slide's own light colours, so it looks different from the GIF. Open it from disk:
    it plays one pass and rests on the finished figure; reload to replay.
 
-**Output format.** One HTML file with a `<style>` block and one inline `<svg>`, animated with
-CSS keyframes: no script, no framework, no network loads. It plays once when shown, and prints
-and honours reduced motion as the finished figure. Inside a deck the same figure is a
-*fragment* you paste into a slide (see [What you get](#what-you-get)).
+The result is one HTML file with a `<style>` block and one inline `<svg>`, animated with CSS
+keyframes: no script, no framework, no network loads (see [What you get](#what-you-get)).
 
 **With and without the skill.** The same prompt was run once without the skill (same model,
 tools and harness). Both runs drew a real diagram. Without the skill the figure loops about
@@ -54,42 +71,19 @@ screenshots and limits.
 Then try the slide you find hardest to explain: "animate slide 4 of `deck.html`", or paste a
 process and ask for a diagram.
 
-An agent skill that turns boring slides into animation-rich HTML, and turns written processes
-and dependencies into animated diagrams. It uses the open
-[Agent Skills](https://agentskills.io) format, so the same folder works in Claude Code, Codex,
-Cursor, GitHub Copilot, Gemini CLI and Antigravity, OpenCode, Amp, Cline, Roo Code, Kiro,
-Factory Droid, Zed, Goose and Devin Desktop.
-
-Give it a PowerPoint, an HTML deck, or a document that describes a pipeline, a dependency
-graph, a timeline, a state machine, a comparison or an architecture. It finds the slides worth
-illustrating, writes a spec and a brief for each, builds a self-contained animated SVG
-fragment, renders phase frames with headless Chrome and looks at them, and inlines the result
-into your deck.
-
-It animates figures; it does not design decks. **Deck first:** a PowerPoint or Markdown source
-is turned into a designed HTML deck by a deck skill (your own, or e.g. `frontend-slides`)
-before anim-slides adds the figures.
-
-**Built-in base.** When no deck skill is installed at all, a request like "Make five slides
-introducing this project" still gets a designed deck: anim-slides builds it from its own small
-base ([`base/`](base/README.md): five slide types, one look on a dark or a light ground), then
-adds the figures on top, and says so in one line. A deck skill such as frontend-slides offers
-more looks; nothing is installed for you. See the [example deck](base/example.html), built on
-the base. For a Markdown source, `scripts/md_to_deck.py --ground dark|light` makes a plain
-deck in the base's colours and fonts.
-
-## Pool
+## Gallery and pool
 
 The skill ships a pool of 37 finished, checked fragments across 17 fields. Each is built on
 the motion its point calls for: a jar that fills, a balance that tips, a crowd that sorts
 itself, a river bend that becomes a lake, a boundary that closes around an outage. A dot
 travelling along a line appears only where a named thing really travels. The agent picks the
 motion from the slide's claim ([`references/motion-verbs.md`](references/motion-verbs.md)) and
-starts from the closest entry before building from scratch. See them all
-animating in the **[live gallery](https://kehanliu.github.io/anim-slides/)**, which opens on
-one question ("When the payment provider goes down, can orders still go through?"), answers it
-with the `service-deps` figure, and lets you download any entry as a playable demo (one HTML
-file that opens from disk, with Replay) or copy it as embeddable HTML. Resting frames:
+starts from the closest entry before building from scratch.
+
+The **[live gallery](https://kehanliu.github.io/anim-slides/)** shows them all animating. It
+opens on one question ("When the payment provider goes down, can orders still go through?")
+and answers it with the `service-deps` figure. You can download any entry as a playable demo
+(one HTML file that opens from disk, with Replay) or copy it as embeddable HTML. Resting frames:
 
 <table>
 <tr>
@@ -110,37 +104,6 @@ file that opens from disk, with Replay) or copy it as embeddable HTML. Resting f
 </table>
 
 More in [`pool/README.md`](pool/README.md), including how to keep a private pool of your own.
-
-## What you get
-
-Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a single HTML file.
-
-- **Drop-in.** Works in reveal.js, impress.js, Slidev, frontend-slides decks, hand-written HTML
-  and plain scrolling pages. No framework, no build tool, no dependency.
-- **Lean shapes.** Rings and hairlines, no boxes, one focal element, accent only on what is
-  active or reached, mono only for numbers and codes. `references/style.md` has the rules and
-  the scaffolder's output follows them.
-- **Themed by variables.** Fragments read `--anim-theme-*` CSS variables and carry neutral
-  fallbacks, so one `:root` rule rethemes every illustration to your brand.
-- **Match or lean colours.** The skill settles one look per deck: *match* (the default for a
-  designed or branded deck) takes your deck's palette and fonts through
-  `scripts/host_theme.py`; *lean* puts the figures on their own dark ground. Shapes stay lean
-  either way: a branded deck gets rings and lines in its own blue, not its cards redrawn.
-- **Safe to paste.** Every class, id and keyframe is prefixed, so nothing collides with the deck's
-  own CSS.
-- **Plays once, when shown.** A fragment plays one calm pass (4 to 10 s) when its slide becomes
-  current and ends on the resting frame, which is the finished state; nothing loops or pulses
-  while you talk, and PDF export and reduced-motion users get a complete still.
-- **Three control modes, one CSS fragment.** `once` (default) plays the pass when the slide appears;
-  `step` plays the same fragment in phases, the entrance with the slide and each click landing
-  the next phase, through a small host script with no library; `loop` for kiosks. Ask for
-  step if you want to click through the phases.
-- **Less by rule.** The fragment is the slide's own figure in its own form plus one movement.
-  The checker measures how many things move and how many glow at the same instant, so "too much" fails before you see it.
-- **Shareable.** The skill adds no CDN or network loads, and `bundle_deck.py` turns the deck
-  into one self-contained HTML file for sharing, verified by `check_page.py`.
-- **Verified by looking.** The skill renders phases of the pass to PNG and inspects them before
-  it calls anything done.
 
 ## Install
 
@@ -175,19 +138,18 @@ everywhere except inside a Claude Code plugin.
 
 | Harness | Project | User |
 |---|---|---|
-| Codex, Cursor, Copilot, OpenCode, Amp, Roo Code, Droid, Zed, Goose, Devin Desktop, Antigravity (project) | `.agents/skills/` | `~/.agents/skills/` |
+| Codex, Cursor, Copilot, OpenCode, Amp, Roo Code, Droid, Zed, Goose, Devin Desktop | `.agents/skills/` | `~/.agents/skills/` |
 | Claude Code | `.claude/skills/` | `~/.claude/skills/` |
 | Cursor (own folder) | `.cursor/skills/` | `~/.cursor/skills/` |
 | GitHub Copilot (own folder) | `.github/skills/` | `~/.copilot/skills/` |
 | Gemini CLI | `.gemini/skills/` or `.agents/skills/` | `~/.gemini/skills/` |
-| Antigravity (user) | `.agents/skills/` | `~/.gemini/config/skills/` |
+| Antigravity | `.agents/skills/` | `~/.gemini/config/skills/` |
 | OpenCode (own folder) | `.opencode/skills/` | `~/.config/opencode/skills/` |
 | Cline | `.cline/skills/` | `~/.cline/skills/` |
 | Kiro | `.kiro/skills/` | `~/.kiro/skills/` |
 | Factory Droid (own folder) | `.factory/skills/` | `~/.factory/skills/` |
 | Devin Desktop (own folder) | `.devin/skills/` | `~/.config/devin/skills/` |
 
-Most of these also read `.claude/skills/`, so a single clone there often serves several tools.
 Install one way per machine: two copies with the same name shadow each other.
 
 ### Option C: Claude Code plugin (the repo is its own marketplace)
@@ -203,7 +165,14 @@ Update with `claude plugin marketplace update anim-slides-marketplace` and
 `claude plugin update anim-slides@anim-slides-marketplace` (auto-update is off for third-party
 marketplaces). For a one-off trial from a local clone: `claude --plugin-dir ./anim-slides`.
 
-### Requirements for the scripts
+### Calling it by name
+
+Harnesses pick the skill up automatically from its description. To call it by name, use
+`/anim-slides` (Claude Code, Cursor, Copilot, Kiro, Droid, Antigravity, Devin Desktop) or
+`$anim-slides` (Codex). In OpenCode, Zed, Goose, Gemini CLI and other harnesses, ask for it by
+name.
+
+### Requirements
 
 Python 3.9+ and a Chrome or Chromium binary, for rendering and for the rendered checks
 (`check_look.py`, `measure_slot.py`). Optional: `pyyaml` for full
@@ -214,7 +183,7 @@ PowerPoint needs different things for reading and for rendering:
 | Step | Script | Needs |
 |---|---|---|
 | Read a `.pptx` (text, bullets, notes, tables) | `extract_slides.py` | Python standard library only |
-| Render a `.pptx`, `.ppt` or `.odp` to page images for triage | `render_deck.py` | LibreOffice (`soffice`), poppler (`pdftoppm`), Chrome or Chromium |
+| Render a `.pptx`, `.ppt` or `.odp` to page images the agent looks at | `render_deck.py` | LibreOffice (`soffice`), poppler (`pdftoppm`), Chrome or Chromium |
 | Render an HTML deck or a fragment | `render_deck.py`, `render-phases.sh` | Chrome or Chromium (`CHROME=/path` overrides detection); `render_deck.py` also needs `pdftoppm` |
 | Export a deck to PDF, one slide per Letter or A4 page, every label checked | `export_pdf.py` | Chrome or Chromium, poppler (`pdftotext`, `pdftoppm`) |
 | Read a legacy `.ppt` | `extract_slides.py` | one `soffice --headless --convert-to pptx deck.ppt` first |
@@ -224,10 +193,9 @@ Debian or Ubuntu with `apt install libreoffice-impress poppler-utils`. Without L
 skill still reads a PowerPoint's text; it cannot look at the slides. An HTML slide, like the
 example above, needs only Python and Chrome.
 
-The harness must
-be able to run shell commands and view PNG files; the scripts are called by their path inside the
-skill folder, which Claude Code exposes as `$CLAUDE_SKILL_DIR` and other harnesses report when
-they load the skill.
+The harness must be able to run shell commands and view PNG files. The scripts are called by
+their path inside the skill folder, which Claude Code exposes as `$CLAUDE_SKILL_DIR` and other
+harnesses report when they load the skill.
 
 ## Use
 
@@ -238,66 +206,76 @@ With the skill installed, ask your agent in plain words:
 - "Here is our release procedure (paste). Turn it into an animated diagram for slide 7."
 - "Animate this Mermaid flowchart for a 1200x600 slot."
 
-The skill works in three phases, in the spirit of "show, don't tell":
+**Question first.** The skill starts each slide from the one question its audience should be
+able to answer. A slide that already answers it ships unchanged. A figure is added only where
+the skill can name what the audience understands better by seeing a change unfold, and the
+resting frame then shows that too. When no slide needs a figure, the deck is delivered as it
+is, with one line per slide saying why.
 
-1. **Show first, ask once.** It outlines and renders your deck, drafts a triage table (which
-   slides get a figure and why), builds and renders the first figure, and then asks one
-   question with everything in it: the proposal, stills of that figure in your deck's look and
-   in the lean dark look, play-once or click-through, and whether the file will be shared. For
-   a PowerPoint it also says that an HTML deck has to be built first, what that costs, and
-   offers standalone animated slide pages as a lighter path. No answer means sensible defaults,
-   written down in `anim/triage.md`.
-2. **Build silently.** The remaining figures, checked for contract, legibility and accuracy,
-   inlined into the deck.
+For a whole deck, a run has three phases:
+
+1. **Show first, ask once.** It outlines and renders your deck, drafts a triage table in
+   `anim/triage.md` (which slides get a figure and why), builds and renders the first figure,
+   and then asks one question with everything in it: the proposal, stills of that figure in
+   the match and the lean look, and whether the file will be shared. Click-through is offered
+   only when your deck already builds by click. For a PowerPoint it also says that an HTML deck
+   has to be built first, what that costs, and offers standalone animated slide pages as a
+   lighter path. No answer means the defaults, written down in `anim/triage.md`.
+2. **Build silently.** The remaining figures, checked against the fragment rules, for
+   legibility and for accuracy, then inlined into the deck.
 3. **Deliver by showing.** A before/after review page of every animated slide, the deck, and
    two one-line switches for later (click-through, lean look).
 
+For "animate slide N" and for a short prompt such as "make five slides about X" it asks
+nothing and takes the defaults (your deck's own colours, play once, not bundled). If the one
+slide already answers its question, it ships unchanged and the skill says so in one line.
+
 "Improve the slides" and "add more animations" mean the same to the skill: figures replace
 text blocks and screenshots; nothing else about the deck changes.
-Harnesses pick it up automatically from its description; to call it by name use `/anim-slides`
-(Claude Code, Cursor, Copilot, Kiro, Droid, Antigravity, Devin Desktop), `$anim-slides` (Codex),
-or ask for it by name where the agent loads skills through a tool (OpenCode, Zed, Goose, Gemini
-CLI).
 
-### Scripts you can also run yourself
+**Built-in base.** When no deck skill is installed at all, a request like "Make five slides
+introducing this project" still gets a designed deck: anim-slides builds it from its own small
+base ([`base/`](base/README.md): five slide types, one look on a dark or a light background), then
+adds the figures on top, and says so in one line. A deck skill such as frontend-slides offers
+more looks; nothing is installed for you. See the [example deck](base/example.html), built on
+the base. For a Markdown source, `scripts/md_to_deck.py --ground dark|light` makes a plain
+deck in the base's colours and fonts.
 
-```bash
-# outline a deck with archetype suggestions per slide
-python3 scripts/extract_slides.py deck.pptx -o anim/outline.json
+**PDF.** When the deck will be printed or sent as a PDF, `scripts/export_pdf.py` writes one
+Letter or A4 page per slide and checks that every label is on its page.
 
-# spec -> skeleton fragment
-python3 scripts/scaffold_from_spec.py anim/deploy/spec.yaml -o anim/deploy/deploy.html
+## What you get
 
-# contract checks (prefixes, tokens, gating, text size at rendered width)
-python3 scripts/check_fragment.py anim/deploy/deploy.html --name deploy --rendered-width 1200 --stage-width 1920
+Each figure is one fragment: a `<style>` plus one inline `<svg>` in a single HTML file,
+animated with CSS keyframes, with no script, no framework and no network loads.
 
-# phase frames at 1.5 s, 4 s, 7 s, 10 s plus the resting frame, and a contact sheet (temp dir)
-scripts/render-phases.sh anim/deploy 1200 600 1.5 4 7 10 rest
-
-# resting frame of the finished host page (what PDF export shows)
-scripts/render-phases.sh --page deck.html 1920 1080 rest
-
-# inline into a deck: markup goes between <!-- anim:NAME:start --> / <!-- anim:NAME:end -->,
-# style into the head between <!-- anim-style:NAME:start --> / <!-- anim-style:NAME:end -->;
-# re-runs replace both blocks, --dry-run prints a summary without writing
-python3 scripts/integrate_fragment.py deck.html anim/deploy/deploy.html --name deploy \
-  --anchor '<section id="release">' --gate section.present --backup
-```
-
-## How it works
-
-```
-deck.pptx / deck.html / docs.md / mermaid
-        │  extract_slides.py + triage         (references/input-stage.md)
-        ▼
-  spec.yaml   nodes, edges, groups, phases     (references/spec-format.md)
-        │  scaffold_from_spec.py + archetype recipe (references/archetypes.md)
-        ▼
-  <name>.html  one fragment, CSS keyframes    (references/fragment-contract.md)
-        │  check_fragment.py, render-phases.sh, look at the PNGs
-        ▼
-  deck.html    integrate_fragment.py, gate rewritten for the host
-```
+- **Drop-in.** Works in reveal.js, impress.js, Slidev, frontend-slides decks, hand-written HTML
+  and plain scrolling pages. No framework, no build tool, no dependency.
+- **Plays once, when shown.** A fragment plays one calm pass (4 to 10 s) when its slide becomes
+  current and ends on the resting frame; nothing loops or pulses while you talk. Print, PDF
+  export and reduced motion show the resting frame as a complete still.
+- **Lean shapes.** Rings and hairlines, no boxes, one focal element (the thing the eye lands
+  on), accent colour only on what is active or reached, monospace only for numbers and codes.
+  `references/style.md` has the rules, and the drafts of `scaffold_from_spec.py` follow them.
+- **Themed by variables.** Fragments read `--anim-theme-*` CSS variables and carry neutral
+  fallbacks, so one `:root` rule rethemes every illustration to your brand.
+- **Match or lean colours.** The skill settles one look per deck: *match* (the default for a
+  designed or branded deck) takes your deck's palette and fonts through
+  `scripts/host_theme.py`; *lean* puts the figures on their own dark background. Shapes stay lean
+  either way: a branded deck gets rings and lines in its own blue, not its cards redrawn.
+- **Safe to paste.** Every class, id and keyframe is prefixed, so nothing collides with the deck's
+  own CSS.
+- **Three control modes, one CSS fragment.** `once` (default) plays the pass when the slide appears;
+  `step` plays the same fragment in phases, the entrance with the slide and each click landing
+  the next phase, through a small host script with no library; `loop` for kiosks. Ask for
+  step if you want to click through the phases.
+- **Less by rule.** The fragment is the slide's own figure in its own form plus one movement.
+  `check_fragment.py` counts how many things move and how many glow at the same instant, so
+  "too much" fails before you see it.
+- **Shareable.** The skill adds no CDN or network loads, and `bundle_deck.py` turns the deck
+  into one self-contained HTML file for sharing, verified by `check_page.py`.
+- **Verified by looking.** The skill renders phases of the pass to PNG and inspects them before
+  it calls anything done ([Under the hood](#under-the-hood) lists the checks).
 
 ## Accuracy
 
@@ -319,9 +297,58 @@ A fragment adds motion, not facts. The skill is built to keep it that way:
 - **Checked on real decks.** The rules come from converting six openly licensed decks (among
   them CDC, NOAA, Lumen Learning, Sorbonne and SNAP) and auditing every rebuilt slide against its original.
 
-`references/accuracy.md` has the full rules and a checklist for briefs.
+`references/accuracy.md` has the full rules and a checklist for the brief each figure starts from.
 
-## Theming
+## Under the hood
+
+### How it works
+
+A *spec* lists a figure's nodes, links and timed phases; a *brief* states its question,
+insight and beats before anything is drawn. The *motion verb* is the one motion the slide's
+claim calls for (grow, split, balance, travel and so on); the *archetype* is the build family
+(pipeline, graph, timeline and so on). A *phase mark* is a settled moment of the pass between
+two narrated steps.
+
+```
+deck.pptx / deck.html / docs.md / mermaid
+        │  extract_slides.py, render_deck.py        (references/input-stage.md)
+        ▼
+  triage.md    per slide: question, does the slide already answer it?,
+        │      insight (what seeing the change unfold adds); then the
+        │      motion verb, then the archetype      (references/motion-verbs.md, archetypes.md)
+        ▼
+  spec.yaml + brief.md                              (references/spec-format.md, brief-template.md)
+        │  closest pool entry or scaffold_from_spec.py, then built by hand
+        ▼
+  <name>.html  one fragment, CSS keyframes          (references/fragment-contract.md)
+        │  check_fragment.py, check_look.py, verify_facts.py,
+        │  render-phases.sh and a look at the PNGs
+        ▼
+  deck.html    integrate_fragment.py, gate rewritten for the host
+        │  blind review of the stills: ship or fix  (references/look-rubric.md)
+        ▼
+  review page  review_page.py: before and after, side by side
+```
+
+The *gate* is the class that starts the animation when the slide is shown: `.visible` by
+default, `section.present` in reveal.js. Without it a fragment shows its resting frame.
+
+The checks:
+
+- `check_fragment.py` reads the fragment's code: prefixes, theme variables, gate, play-once
+  rules, text size at the rendered width, and how much moves at once.
+- `check_look.py` renders the figure in headless Chrome and measures it at rest and at every
+  phase mark: clipping, overlap, contrast, boxes, colours and density.
+- `verify_facts.py` traces every visible label and number to the source slide (see
+  [Accuracy](#accuracy)).
+- The blind review: a fresh reviewer that has not seen the build first answers each slide's
+  audience question from the resting slide alone. That answer is recorded before it sees the
+  other stills (first frame, phase marks, three paused frames) and the slide's claim; then it
+  answers `ship` or `fix` with `references/look-rubric.md` before "done".
+
+[`docs/scripts.md`](docs/scripts.md) shows how to run the main scripts yourself.
+
+### Theming
 
 ```css
 :root {
@@ -334,13 +361,20 @@ A fragment adds motion, not facts. The skill is built to keep it that way:
 }
 ```
 
-These values equal the built-in fallbacks, so a host only overrides what differs. A deck sets
-`--anim-theme-font` to its own font (or `inherit`); the line colour must reach 3:1 against
-the ground.
+These values equal the built-in fallbacks, so a host overrides only what differs; the line
+colour must reach 3:1 against the slide background.
 `python3 scripts/host_theme.py deck.html --mode match` reads a deck's CSS variables and most
 used colours and prints this block filled with the deck's own values (`--apply deck.html`
 inserts it between markers); `--mode lean` writes the lean palette scoped to a `.anim-lean`
 slide class for decks that should keep their own look everywhere else.
+
+### Self-test
+
+`evals/` holds 15 trap decks with graders, for example long German words, CJK labels, a faint
+light theme, a 4:3 stage, a 20-node graph and a chart that is only a picture. They are in the
+format `claude plugin eval` reads. Run
+`claude plugin eval . --allow-tools Write,Edit,Bash --scaffold` from the skill folder (billed;
+`--runs 1` for a quick pass), or run one case by hand as `evals/README.md` describes.
 
 ## Repository layout
 
@@ -351,15 +385,18 @@ agents/openai.yaml       optional Codex metadata; other harnesses ignore it
 references/              fragment contract, accuracy, spec format, archetypes, motion verbs, motion rules,
                          style, layouts, input stage, brief template, look rubric, reference case, lessons
 scripts/                 extract, render, measure slot, scaffold, check (fragment, look, page, verbs),
-                         verify facts, host theme, integrate, Markdown to deck, bundle, review page;
-                         host snippets. build_gallery.py is for CI and the gallery, not part of a skill run
+                         verify facts, host theme, integrate, Markdown to deck, bundle, PDF export,
+                         review page; host snippets. build_gallery.py is for CI and the gallery, not
+                         part of a skill run
 pool/                    finished fragments organised by motion verb (see pool/README.md), with
                          thumbnails, specs and index.yaml
 base/                    the small built-in base deck, used only when no deck skill is installed
-evals/                   trap decks with graders (see the Self-test section)
+evals/                   trap decks with graders (see Self-test)
 examples/first-slide/    one source slide, the prompt, and the result it produced
-tests/                   unit tests: fact pairing, the README demo, the built gallery and playable demo
-docs/                    design notes, README media, and the first-slide run with and without the skill
+tests/                   unit tests: fact pairing, PDF export, the README demo, the built gallery and
+                         playable demo
+docs/                    design notes, README media, the first-slide run with and without the skill,
+                         scripts.md (running the scripts by hand) and maintainer-notes.md (history)
 CHANGELOG.md             changes per release
 CONTRIBUTING.md          how to contribute
 ```
@@ -369,19 +406,6 @@ CONTRIBUTING.md          how to contribute
 This skill grew out of building about a dozen animated illustrations for a lecture deck, by
 hand, in autumn 2026. The repeated loop (brief, build, render phases, look, fix, integrate) and
 the gotchas it surfaced are written up in `docs/design-notes-2026-11-01.md`.
-
-## Self-test
-
-`evals/` holds trap decks (long German words, CJK labels, a faint light theme, a 4:3 stage, a
-15-event timeline, a 20-node graph, a chart that is only a picture, icon columns, an already
-animated deck) with graders, in the format `claude plugin eval` reads. Run
-`claude plugin eval . --allow-tools Write,Edit,Bash --scaffold` from the skill folder (billed;
-`--runs 1` for a quick pass), or run one case by hand as `evals/README.md` describes. Inside a
-run the skill checks itself twice: `scripts/check_look.py` measures the rendered figure
-(clipping, overlap, contrast, boxes, colours, density), and a fresh reviewer first answers
-each slide's audience question from the resting slide alone; that answer is recorded before
-it sees the other stills (first frame, phase marks, three paused frames) and the slide's
-claim, then it answers `ship` or `fix` with `references/look-rubric.md` before "done".
 
 ## Contributing
 

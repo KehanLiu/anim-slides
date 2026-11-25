@@ -2,7 +2,7 @@
 name: anim-slides
 description: Turn boring slides into animation-rich HTML, starting from the question each slide's audience must answer (a slide that already answers it ships unchanged; motion only where seeing a change unfold adds understanding). Builds self-contained animated SVG illustrations (CSS keyframes, optional click-driven step mode) that replace text blocks and screenshots in any HTML slide deck, and creates them directly from documentation of processes, dependencies, timelines or architectures. Use when the user wants to animate a PPT/PPTX or HTML deck, says "improve the slides", "add more animations", "make this deck less boring" or "animate slide 4", draw a process/pipeline/dependency graph/timeline/comparison as an animation, or turn a Mermaid diagram or a written procedure into an animated illustration. Not a deck designer; for a whole deck from scratch a deck skill builds the base first (a small built-in base deck is used only when none is installed); not for video.
 license: MIT
-compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
+compatibility: Python 3.9+ and Chrome or Chromium for the scripts; for PowerPoint sources LibreOffice (soffice) and poppler (pdftoppm), which PDF export also needs; a harness that can run shell commands.
 metadata:
   author: Kehan Liu
   version: "0.14.0"
@@ -11,10 +11,20 @@ metadata:
 
 # anim-slides
 
-Animated SVG illustrations for slide decks, from existing slides or from documentation.
+Animated SVG figures for slide decks, from existing slides or from documentation.
 Output is always a **fragment**: one HTML file with a `<style>` and one `<svg>`, no scripts,
 no external files, themed by CSS variables, that drops into any deck.
 `references/fragment-contract.md` is the contract. Read it before building anything.
+
+## Terms
+- **figure**: what the audience sees on the slide, the drawing and its motion.
+- **fragment**: the file that carries one figure, one `<style>` plus one inline `<svg>` (`anim/<name>/<name>.html`).
+- **slot**: the box on the slide where the figure sits, measured by `measure_slot.py`.
+- **pass**, **phase mark**: the figure's one run of motion (4 to 10 s); a phase mark is a settled moment in it between narrated steps (`data-anim-phases`).
+- **hold**, **resting frame**: the hold is the end of the pass where nothing moves; the resting frame is what it shows, the finished figure (the 100 % keyframe, all a PDF shows).
+- **gate**: the CSS class or selector that starts the pass when the slide is shown (`section.present`, `.visible`); ungated, a fragment shows its resting frame.
+- **match**, **lean**: the two looks. Match takes the deck's palette and fonts; lean keeps the skill's quiet palette on a dark ground.
+- **once**, **step**: the two controls. Once plays the pass when the slide appears; step advances it one phase per key press.
 
 ## Core principles
 1. **Question first.** Every slide starts from the one question its audience should be able to
@@ -27,7 +37,7 @@ no external files, themed by CSS variables, that drops into any deck.
 4. **Figures replace text, nothing else changes.** "Improve the slides", "make it less boring",
    "add (more) animations" and "animate this deck" mean the same thing to this skill: figures
    replace text blocks and screenshots on the slides that carry a process, structure, timeline,
-   comparison or data and that pass the question gate. The deck's design, wording and order stay.
+   comparison or data and that get an Insight line. The deck's design, wording and order stay.
 5. **Deliver by showing.** The hand-over is a before/after review page, not a report.
 
 `<skill-dir>` below is the folder that contains this SKILL.md (Claude Code exposes it as
@@ -43,10 +53,11 @@ Mode C and for a one-slide source: for that slide) three lines, in this order:
 
 1. **Question.** The one question the audience should be able to answer while the slide is up,
    as a sentence ending in a question mark, taken from the source and the occasion ("Which
-   room seats 14 and has a step-free entrance?", "Is the pump running after the fourth
-   reading?"). A slide with no such question is a statement: its question is "What is the one
-   thing to remember?". It is asked in the audience's words and never contains the answer or
-   the claim's key words or numbers: the blind review asks it of the resting slide.
+   room can our group use?", "What happens to the pump after the fourth reading?"). A slide
+   with no such question is a statement: its question is "What is the one thing to
+   remember?". It is asked in the audience's words and never contains the answer or the
+   claim's key words or numbers (the subject noun may appear; the claim's verb and its
+   numbers may not): the blind review asks it of the resting slide.
 2. **Does the base answer it?** The base is the slide as the deck skill builds it (Mode A) or
    as it stands in the HTML deck (Mode B), complete: every fact of the source, nothing left
    for a figure to add. When a person can answer the question from that still slide, the
@@ -77,10 +88,10 @@ animated to reach a count.
 
 | The user says | Source | Mode | What happens |
 |---|---|---|---|
-| "improve the slides", "make it less boring", "add (more) animations", "animate this deck" | `.pptx`, Markdown, remark, a document | **A: deck first, then animate** | A deck skill builds the HTML deck, complete; then the question gate, triage and figures for the slides that pass it. |
+| "improve the slides", "make it less boring", "add (more) animations", "animate this deck" | `.pptx`, Markdown, remark, a document | **A: deck first, then animate** | A deck skill builds the HTML deck, complete; then the Phase 0 question, triage and figures for the slides that get an Insight line. |
 | "make N slides about X", "introduce this project" | a topic, repo or notes; no deck | **A: deck first, from a topic** | A deck skill builds the base deck with a slot on each figure slide; figures fill the slots. anim-slides never designs the deck's look. |
 | the same | an HTML deck (reveal.js, impress.js, frontend-slides, any `<section>`/`.slide` deck) | **B: animate in place** | Triage and figures on the existing deck. |
-| "animate slide N", "this diagram", "this chart" | any | **C: single slide** | No triage. No intake message, except one look still when the deck has no theme yet. The user named the slide, so it gets its figure; the Question and Insight lines still choose what moves, and with no insight the figure is a `reveal` and the hand-over says so in one line. |
+| "animate slide N", "this diagram", "this chart" | any | **C: single slide** | No intake message. The slide's Question and Insight go into a one-row `anim/triage.md`; with an Insight it gets one figure (Mode C below), with none it ships unchanged and the hand-over says so in one line. |
 | a process, dependency, timeline or architecture in text, or a Mermaid block | docs, README, pasted text | **D: illustrate from docs** | Picture idea from each section's claim, then form and archetype (`references/archetypes.md`), spec, build; the host is the page or slot the user names. |
 | "make the figures play on click", "loop them", "switch to lean" | an already animated deck | **E: re-integrate** | No rebuild: `integrate_fragment.py --control step|once` per fragment, or `host_theme.py --mode lean|match --apply`. Fragments stay as they are. |
 
@@ -135,6 +146,19 @@ intake message: the defaults (the deck skill's recommended style, match, once, n
 are taken, recorded in Decisions and reported in the hand-over. With no deck skill found, the
 same chain runs on the built-in base. `references/reference-case.md` walks through such a deck.
 
+**Mode C, one slide.** No intake message: the defaults (match, once, not bundled) are taken.
+Write the slide's Phase 0 lines as a one-row `anim/triage.md` (the columns of Phase 1 step 2,
+plus Decisions with Look and Control), so the later steps have their input. With no Insight,
+the slide ships unchanged and the hand-over says so in one line. With one, run Phase 1 steps
+1 and 3 for that slide (`--pages N`), then Phase 2 and Phase 3 for its one figure. A `.pptx`
+source with no HTML deck gets the lighter path's standalone page for that slide. Read only
+what one figure needs: `references/fragment-contract.md`; in `references/spec-format.md`
+"Full schema", "Phases", "Phase marks" and "Verbs in the scaffold" ("Series and events" for
+a chart); in `references/archetypes.md` "Picture idea and form" and the chosen family's
+section; `references/motion-verbs.md` sections 1 and 5; `references/style.md`;
+`references/brief-template.md`; `references/accuracy.md`; for the review,
+`references/look-rubric.md` sections 1 to 3.
+
 ## Phase 1: Show first, ask once
 
 1. **Extract and render.** `python3 <skill-dir>/scripts/extract_slides.py deck.pptx|deck.html|doc.md -o anim/outline.json`
@@ -177,8 +201,8 @@ same chain runs on the built-in base. `references/reference-case.md` walks throu
    message with numbered choices. It carries:
    - the proposal: "N of M slides get a figure", and the triage table;
    - the stills (match and lean; both readings when there are two);
-   - **look**: match (default for branded or corporate decks and for any deck a deck skill
-     built) or lean (talks, pitches);
+   - **look**: match (the default, for every deck) or lean (offered for talks and pitches
+     with no brand rules);
    - **control**: once, stated in one line; add "your deck builds by click; the figures can do
      the same (step), say so if you want it" only when `outline.json` reports `builds` above 0;
    - Mode A only: the deck-first note and its cost, the lighter path, and the deck skill's
@@ -187,7 +211,7 @@ same chain runs on the built-in base. `references/reference-case.md` walks throu
      bundled to one offline file)?
 
    After this message **nothing else is asked**. If the user is absent or says "just do it",
-   take the defaults (full deck, match for branded decks else lean, once, not bundled) and
+   take the defaults (full deck, match, once, not bundled) and
    record every default taken in a **Decisions** section of `anim/triage.md`, with Look and
    Control in its header. A brief from a caller that already names slides and look counts as
    the answer.
@@ -198,8 +222,8 @@ same chain runs on the built-in base. `references/reference-case.md` walks throu
 
 ## Phase 2: Build silently
 
-For each remaining illustrate row, the main thread writes spec and brief first (specs are
-cheap; write them all before building), then builds.
+For each remaining illustrate row (Mode C: from the one-row triage), the main thread writes
+spec and brief first (specs are cheap; write them all before building), then builds.
 
 1. **Spec.** `anim/<name>/spec.yaml` per `references/spec-format.md`: nodes, edges, groups,
    phases with second marks, cycle (4 to 10 s), control from intake, `verb:` from the triage
@@ -234,7 +258,8 @@ cheap; write them all before building), then builds.
    from the spec; do not force the scaffolder, use its output as the timing skeleton. **The motion
    is the verb's**: build it from its mechanism (`references/motion-verbs.md` section 5); the
    scaffolder draws a moving traveller only for `travel` (a token trip for `cycle`) and leaves
-   other verbs to the builder. A travelling marker is used only for `travel`. Each kind enters
+   other verbs to the builder. A travelling marker is used only for `travel` (and the token
+   trip of a `cycle`). Each kind enters
    its own way (lines draw on, nodes land, numbers count, areas are revealed, labels follow),
    with the stagger and the one stillness before the answer step, using only the easing set
    (`references/motion-rules.md` "Easing", "Entrance by kind"). The focal element carries
@@ -282,6 +307,8 @@ cheap; write them all before building), then builds.
      into the resting frame; if the slide's base answered the question as well, drop the
      figure and ship the base.
    Never trust `--virtual-time-budget`, and never trust reading the source instead of the PNG.
+   Where the harness cannot show images, run the measuring checks and state in the hand-over
+   that the frames were not viewed.
 6. **Integrate**, in the main thread, one call per fragment:
    `python3 <skill-dir>/scripts/integrate_fragment.py deck.html anim/<name>/<name>.html --name <name> --anchor '<!-- sN-body -->' --replace-until '<!-- /sN-body -->' [--gate 'section.present'] --control once --backup`.
    It hoists the style into the head, inserts the markup between `anim:<name>` markers
@@ -289,8 +316,10 @@ cheap; write them all before building), then builds.
    pages and `md_to_deck.py` decks), adds the print guard and, under `--control step`, the step
    snippet. Plain pages get `scripts/snippets/observer.html`. Apply the theme once:
    `host_theme.py --apply deck.html --from anim/host-theme.css` (lean: the lean file, plus
-   `class="anim-lean"` on each animated slide). Keep the working deck lean: read slices round
-   the anchor (`grep -n`, `sed -n`), never the whole deck; no inlined fonts or images.
+   `class="anim-lean"` on each animated slide). Keep the working deck small: read slices round
+   the anchor (`grep -n`, `sed -n`), never the whole deck; no inlined fonts or images. Read
+   `references/lessons.md` when integrating into a deck a deck skill built, or when a check
+   fails in a way the other references do not explain.
 7. **Check the page.** `render-phases.sh --page deck.html --slide N <W> <H> rest` per animated
    slide (never `--no-script` for `rest`: in frontend-slides decks `.visible` both gates and
    shows the slide). The rest render hides a deck's own staggered text (reveal classes keyed
@@ -300,13 +329,14 @@ cheap; write them all before building), then builds.
    (paired markers, gated fragments, print guard): check_page warns on the deck's web-font
    link and fails on any other external load.
    `python3 <skill-dir>/scripts/check_verbs.py deck.html --triage anim/triage.md`: 0 FAIL (a
-   verb on every fragment, a reason on each repeat over a third, no marker outside `travel`).
+   verb on every fragment, a reason on each repeat over a third, no marker outside `travel`
+   and the token trip of a `cycle`).
    `python3 <skill-dir>/scripts/check_look.py --page deck.html --slide N --at-marks` per animated
    slide measures the fragment on the slide's own ground and stage width, at rest and every
    mark, and its gap to the slide's own text (FAIL on covering it); a contrast FAIL on a light
    ground means faded opacities or status colours must be raised (`references/style.md`,
    "Under a host theme").
-   Open the deck in a real browser once: headless frames never prove smoothness. Audit with
+   Open the deck in a real browser once (or ask the user to): headless frames never prove smoothness. Audit with
    the checklist at the end of `references/motion-rules.md`.
 8. **Review by a fresh pair of eyes** (part of done). Before the review, run step 5's
    `verify_facts.py` command again with `--strict`: fix every `pairing` FAIL (a value beside
@@ -315,7 +345,8 @@ cheap; write them all before building), then builds.
    `sN-before.png` (`anim/render/full/p-NN.png`), `sN-first.png` (first frame), the mark
    frames, the three `--at-pauses` frames and `sN-after.png` (rest), plus one un-animated slide as `context-after.png`, into
    `anim/review/blind/`. ONE fresh reviewer that has not seen the build (a subagent where the
-   harness has one, otherwise a fresh pass) works in two steps (`references/look-rubric.md`
+   harness has one, otherwise a new session with no access to this conversation; if neither
+   is possible, the hand-over says the review was not blind) works in two steps (`references/look-rubric.md`
    sections 1 and 3). **First read:** it gets only `sN-after.png` and the brief's Question per
    slide, and answers each in one sentence plus "could not tell". Write each answer verbatim
    as `sN-first-answer` under "First read" in Decisions before sending anything more; it is
@@ -365,26 +396,24 @@ cheap; write them all before building), then builds.
   answers it ships complete and at once, with no figure. A figure needs an Insight sentence
   naming what the audience understands better by seeing a change unfold, and its resting frame
   shows that insight and answers the Question without the motion. No figure is built to reach
-  a count, to fill a slot or because the skill was invoked.
+  a count, to fill a slot or because the skill was invoked (Mode C too: from the one-row triage).
 - **Ask once, show first.** One intake message carries the proposal and rendered stills of the
   first fragment; no later questions; defaults taken are recorded in `anim/triage.md`.
-- **Deck first.** anim-slides styles fragments, never the deck. A source that is not an HTML
-  deck goes through a deck skill (Mode A, announced with its cost and the lighter path);
-  `md_to_deck.py` is used only when no deck skill is found on disk, never offered otherwise, and
-  an existing fallback deck in the folder does not count as the user's choice. A topic with no
-  deck goes the same way: deck skill first, else the built-in base (`base/`), never an ad-hoc
-  deck on the lean ground. Nothing is ever installed automatically.
+- **Deck first.** anim-slides styles fragments, never the deck: a source or topic with no HTML
+  deck goes through a deck skill, else the built-in base; nothing is installed automatically
+  (Phase 0, "Mode A, deck first").
 - **Stay in the layout, match the deck.** A figure fills its slot at the measured size in the
   deck's palette, font and type scale; slide layout, headlines and deck CSS do not change.
   Readability, contrast, clipping and gaps are checked at rest and at every phase mark.
-- **Keep the slide's visuals.** A chart, graph, table, map, flowchart or scientific figure is
-  the slide's core content: redraw it from its data and animate that, never replace it with a
-  text summary. An icon or picture that labels a column, lane, category or actor is content
+- **Keep the slide's visuals.** A slide whose own chart or figure already answers its Question
+  ships unchanged. Once a slide has an Insight line, a chart, graph, table, map, flowchart or
+  scientific figure on it is the core content: redraw it from its data and animate that, never
+  drop it or replace it with a text summary. An icon or picture that labels a column, lane, category or actor is content
   too: embed it beside the fragment (licence permitting) or redraw it as a glyph. Only a
   background, a logo or an unrelated photo may go; when unsure, keep it and say so.
 - **Make a visible change.** A fragment replaces the slide's cards, pills, bullet column or HTML
-  diagram. Motion over the existing drawing with the boxes left in place is not an
-  illustration; if nothing else is possible, the brief says why.
+  diagram. Motion over the existing drawing with the boxes left in place is not a figure; if
+  nothing else is possible, the brief says why.
 - **Less.** A slide with a figure keeps the figure's own form (stairs stay stairs, bars stay
   bars) plus one movement. On a slide of prose, bullets, cards or a table the form follows the
   picture idea and may come only from structure the source states; the content never grows:
@@ -392,7 +421,7 @@ cheap; write them all before building), then builds.
   state, and a source that states only order gets a row and `reveal`. The look follows
   `references/style.md` under match and lean alike (a host theme changes colours and fonts
   only): no filled cards, chips or caption bars; rings and thin lines; one focal element; the
-  accent only on what is active or reached; at most two semantic colours; glow on one element
+  accent only on what is active or reached (at most about a fifth of the ink at rest); at most two semantic colours; glow on one element
   at a time, never on a line; mono only for data; the deck's font, never an embedded one.
 - **One verb per fragment.** The main motion is the verb of the slide's claim, written in the
   triage row and the brief and carried as `data-anim-verb` on the wrapper; no dot travels
@@ -407,55 +436,37 @@ cheap; write them all before building), then builds.
   22 px and up.
 - **Plays once.** One pass of 4 to 10 s when the slide becomes current, iteration count 1,
   fill forwards, 100 % keyframe = resting frame, nothing looping or pulsing while the slide is
-  up. At most three things moving at once, reduced-motion block present.
+  up. At most three things moving at once (more than three warns, more than six fails);
+  reduced-motion block present.
 - **One control per deck.** `once` unless the user asks for `step`; mention step only when the
   source builds by click. A slide that differs needs a reason in `anim/triage.md`. Step
   listens to keys only: present it with the keyboard or a clicker.
 - **No network loads.** None in fragments, no new ones in the deck; loads the deck already has
-  stay. Work on a lean deck; bundle only at hand-over when it will be shared.
+  stay. Work on the unbundled deck; bundle only at hand-over when it will be shared.
 - **Brief before drawing.** The brief names the focal element and carries the beat table
   before any SVG is written; motion uses only the easing set and enters by kind.
-- **Reviewed blind.** A fresh reviewer first answers each slide's Question from the resting
-  slide alone, and that answer is recorded verbatim before it sees the claim or the other
-  stills; then it scores with `references/look-rubric.md` and answers `ship` or `fix`. At most
-  two rounds, each with a new reviewer; findings left are named in the hand-over. Passing the
-  checkers is not looking right.
+- **Reviewed blind.** A reviewer that has not seen the build answers each Question from the
+  resting slide first, then scores (Phase 2 step 8); passing the checkers is not looking right.
 - **Deliver by showing.** The before/after review page (`review_page.py`) is part of done.
 
 ## Files
-- `references/fragment-contract.md` — the output contract (shape, prefixes, tokens, gate, resting frame, control variants)
-- `references/input-stage.md` — deck first, outline JSON, triage, look and control, slide to spec to brief, handoff
-- `references/spec-format.md` — the spec; Mermaid mapping; worked examples
-- `references/archetypes.md` — picture idea and form table; build families pipeline, graph, timeline, states, compare, layers, chart: composition and motion
-- `references/brief-template.md` — the brief every fragment starts from
-- `references/layouts.md` — measuring a slot; 16:9 layouts and viewBoxes
-- `references/motion-rules.md` — timing, easing, choreography, audit checklist
-- `references/motion-verbs.md` — the twenty motion verbs: from the slide's claim to a verb, what is on screen, the CSS/SVG mechanism
-- `references/style.md` — the visual style and its checklist
-- `references/accuracy.md` — accuracy rules and the `verify_facts.py` gate
-- `references/look-rubric.md` — the look rubric, reviewer protocol and prompts (first read, squint, labels covered, specificity); calibration
-- `references/lessons.md` — gotchas from real runs
-- `references/reference-case.md` — a five-slide intro deck from a short prompt: what each slide's figure shows and which rule it demonstrates
-- `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions and `builds`
-- `scripts/render_deck.py` — contact sheets plus full-size pages for candidates; hidden slides rendered and marked
-- `scripts/host_theme.py` — host glue: match (from the deck's CSS) or lean; `--apply` into the deck head
-- `base/deck.html`, `base/example.html`, `base/README.md` — built-in base deck (five slide types, dark or light ground) for when no deck skill is found; its composition rules
-- `scripts/md_to_deck.py` — Markdown to a plain deck in the base's colours and fonts (`--ground`), when no deck skill is installed
-- `scripts/scaffold_from_spec.py` — spec validation and skeleton fragment for the plain archetype forms
-- `scripts/check_fragment.py` — static contract checks
-- `scripts/check_look.py` — render-time look lint (headless Chrome): clipping, overlap, contrast, boxes, hues, density, text floor, fonts, rest vs last mark, gap to slide content; `--at-marks` per phase mark, `--at-pauses` three frames between them; fragment or `--page DECK --slide N`
-- `scripts/verify_facts.py` — provenance gate against the source slide (`--self-test`)
-- `scripts/render-phases.sh` — phase PNGs and contact sheet with headless Chrome; `--page` for a host page
-- `scripts/measure_slot.py` — free box of a slide with viewBox, checker flags and the slide's type sizes
-- `scripts/integrate_fragment.py` — idempotent inlining, gate rewrite, prefix safety net, `--control once|step`
-- `scripts/check_page.py` — page checks: external loads, markers, gating, print guard, step snippet
-- `scripts/check_verbs.py` — motion variety across the deck: a verb per fragment, repeats over a third need a reason in the triage, markers only under travel or cycle
-- `scripts/bundle_deck.py` — one self-contained file for hand-over (`--fetch` for remote assets)
-- `scripts/export_pdf.py` — PDF on Letter and A4, one slide per page; proves every label is on its page (needs poppler)
-- `scripts/review_page.py` — before/after review page for delivery
-- `scripts/snippets/observer.html`, `scripts/snippets/step-host.html` — host helpers (scroll gate; step mode)
-- `pool/` — finished, checked fragments with thumbnails and specs; `pool/index.yaml` lists them
-- `evals/` — self-test corpus: trap decks with graders (`claude plugin eval . --allow-tools Write,Edit,Bash --scaffold`); see `evals/README.md`
+References, each with when to read it:
+- `references/fragment-contract.md`: before building anything; shape, prefixes, tokens, gate, resting frame, controls.
+- `references/input-stage.md`: Modes A and B; deck first, outline JSON, triage, look and control, handoff to builders.
+- `references/spec-format.md`: writing a spec (Phase 2 step 1); Mermaid mapping, worked examples.
+- `references/archetypes.md`: choosing the form ("Picture idea and form"), then the chosen family's section.
+- `references/brief-template.md`: per fragment, before any SVG is written.
+- `references/layouts.md`: when `measure_slot.py` cannot measure the slot.
+- `references/motion-rules.md`: timing, easing, entrance by kind; its audit checklist after integration.
+- `references/motion-verbs.md`: picking the verb (section 1) and building its mechanism (section 5).
+- `references/style.md`: building and polishing every fragment; "Under a host theme" on a contrast FAIL.
+- `references/accuracy.md`: writing labels and numbers; deciding `verify_facts.py` findings.
+- `references/look-rubric.md`: the polish loop and the blind review.
+- `references/lessons.md`: integrating into a deck a deck skill built, or a check failing in a way the others do not explain.
+- `references/reference-case.md`: a short prompt ("make N slides about X"); a five-slide deck worked through.
+
+Every script takes `--help` for its flags. `scripts/snippets/step-host.html` is the step-mode
+host snippet that `--control step` inserts.
 
 ## Related skills (use them when your harness has them; none is required)
 - A deck skill (the user's own, frontend-slides, reveal.js, Slidev) builds the deck in Mode A.

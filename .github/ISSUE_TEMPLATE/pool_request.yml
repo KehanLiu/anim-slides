@@ -5,8 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        The pool holds domain-neutral examples, organised by motion verb: at least one per
-        verb, across many fields. Check the [gallery](https://kehanliu.github.io/anim-slides/)
+        The pool holds domain-neutral examples, organised by motion verb
+        and spread across many fields. Check the [gallery](https://kehanliu.github.io/anim-slides/)
         and [references/motion-verbs.md](https://github.com/KehanLiu/anim-slides/blob/main/references/motion-verbs.md) first.
   - type: textarea
     id: story
@@ -27,10 +27,11 @@ body:
   - type: dropdown
     id: archetype
     attributes:
-      label: Closest archetype
+      label: Closest archetype (optional)
+      description: The build family, if you know it. The pool is looked up by verb first.
       options: [pipeline, graph, timeline, states, compare, layers, chart, not sure / new]
     validations:
-      required: true
+      required: false
   - type: input
     id: domain
     attributes:

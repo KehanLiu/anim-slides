@@ -1,7 +1,9 @@
-# Style: lean and quiet
+# Style: quiet shapes
 
-The default look of every fragment. The slide is dark, almost empty, and one thing at a time is
-lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a dashboard.
+The shape rules of every fragment, under match and lean alike. A host theme (match) changes only
+colours and fonts; lean is the optional dark ground with the skill's own palette. Either way the
+figure is almost empty and one thing at a time is lit. Think of a lecture diagram drawn with a
+fine pen, not a dashboard.
 
 ## Principles
 
@@ -50,10 +52,13 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
    accent ink is the focal element itself: one chart series that is the claim may be the accent. Semantic
    colours (`--anim-ok`, `--anim-warn`, `--anim-danger`, `--anim-accent-2`) appear only where
    they carry a meaning stated on the slide (up/down, absorbed/released, good/bad), and at
-   most two of them in one fragment.
+   most two of them in one fragment. `check_look.py` counts distinct hues (greys and the
+   ground ignored): more than four warns, more than six fails.
 4. **Line weights.** At a 1920 stage: structure (wires, axes, rings, outlines) 2 px in
    `--anim-line`, which reaches 3:1 against the ground; secondary and decorative lines (grid,
    ghosts, brackets) 1.5 px, possibly at reduced opacity; the active path 4 px in the accent.
+   `check_look.py` warns on a solid stroke below 1.5:1 against the ground (a dashed or dotted
+   one may go down to 1.1:1).
    Dashed for weak or secondary links. Arrowheads small and open.
 5. **A type ladder carries the hierarchy.** Sizes at a 1920 stage:
 
@@ -62,14 +67,17 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
    | hero | 56 to 96 px | 400 to 500 | the one number or word that is the claim; letter-spacing -0.02em; at most one; only when the source states it |
    | label | 24 to 30 px | 500 to 600 | names of parts |
    | sub-label | 18 to 20 px | 400 | `--anim-muted` |
-   | caption | 24 to 28 px | 400 | plain text under the figure |
+   | caption | 24 to 28 px | 400 | SVG text under the figure |
 
-   Two different sizes in one fragment differ by at least 1.25x; at most four sizes. Every
+   Two different sizes in one fragment differ by at least 1.25x (`check_fragment.py` accepts
+   1.2x for rounding); at most four sizes. Every
    number uses `font-variant-numeric: tabular-nums`. Labels are sentence case: no tracked
    capitals, no small caps. Emphasis may come from size and weight as well as colour. Titles
    belong to the slide, not to the fragment; nothing gets a pill.
-6. **Captions are a sentence, not a bar.** The narration line sits as plain text under the
-   figure, centred, with no background rect. Phase changes cross-fade the text.
+6. **Captions are a sentence, not a bar.** The narration line is SVG `<text>` inside the
+   fragment's SVG, under the figure, centred, with no background rect. Phase changes
+   cross-fade the text. No HTML text outside the SVG; an HTML caption belongs to the slide
+   (contract section 1).
 7. **Mark what is illustrative.** Example values get a small outlined tag ("illustrative",
    1.5 px stroke in `--anim-line`, 18 px) in a corner of the figure, the same way every time.
 8. **Glow, not shadow, and only once.** The element active now, or the travelling head, may
@@ -83,8 +91,9 @@ lit. Think of a lecture diagram drawn with a fine pen on a blackboard, not a das
    line reaches it, a number counts or rides its bar, an area is revealed by a mask in the
    direction of meaning, a label settles last, a caption cross-fades. Not everything fades in.
    The pass plays once when the slide becomes current and ends on the resting frame.
-10. **Both themes.** The same rules hold on a light ground: lines get darker, the glow stays
-    coloured, panels stay absent. Always render both before calling a fragment done.
+10. **Both grounds.** The same rules hold on a light ground: lines get darker, the glow stays
+    coloured, panels stay absent. Both looks are rendered once, as the intake stills
+    (SKILL.md, Phase 1); after that, render the look the deck uses.
 11. **One focal element.** Every fragment has exactly one, marked `data-anim-focal` on the
     element or its group: the hero number or word, or the shape that is the claim (the full
     jar, the tipped beam, the last bar). It is visibly larger or heavier than its peers (about
@@ -134,7 +143,7 @@ about 0.35 to 0.55 to 0.65, and check the faintest element in a rest render.
 ## Anatomy by archetype
 
 A traveller appears only under the verb `travel` (or as the one trip of a `cycle`): a small
-glyph or a labelled chip that says what it is (a parcel, a ballot, a blood sample), in the
+glyph with a label beside it that says what it is (a parcel, a ballot, a blood sample), in the
 accent with the one glow. Under every other verb nothing rides the lines; the active element
 carries the accent.
 
@@ -152,7 +161,7 @@ carries the accent.
   labels in `--anim-muted` at the left; the verdict as a sentence below.
 - **layers**: bands separated by hairlines, names at the left in `--anim-font`, sentence case,
   muted; the active band carries the accent.
-- **chart**: axes 2 px in `--anim-line`, gridlines 1.5 px dotted at 40 % opacity, one series
+- **chart**: axes 2 px in `--anim-line`, gridlines 1.5 px dotted at 40 to 60 % opacity, one series
   in the accent, reference lines dashed, events as small outlined tags on the trace; the
   value readout is inline text (often the hero), not a card.
 
@@ -168,4 +177,4 @@ carries the accent.
 - [ ] Caption is plain text; illustrative tag present if any number is an example.
 - [ ] The verb is visible with the labels covered: something grows, splits, tips or changes
       between the phase frames, not a dot in different places.
-- [ ] Rendered in dark and light; the resting frame is calm and complete.
+- [ ] Rendered in the deck's look; the resting frame is calm and complete.

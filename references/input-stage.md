@@ -17,12 +17,12 @@ source (pptx / html / md / mermaid)
 
 | Input | How to read it |
 |---|---|
-| `.pptx` | `python3 scripts/extract_slides.py deck.pptx -o anim/outline.json`. Text, bullets, notes and image counts per slide, plus a suggested archetype. An image count that differs from the pictures in the render points at pictures on the slide layout (a cover photo on the layout). Slide images are not interpreted: run `scripts/render_deck.py deck.pptx -o anim/render`, read the `sheet-NN.png` contact sheets for triage, and open `full/p-NN.png` (`--pages`) only for the candidates. A chart, graph or diagram picture is the slide's core content and must be redrawn (from its data, with credit) in the fragment, not dropped; an illustration that labels a column, lane, category or actor is kept (embedded beside the fragment or redrawn as a glyph); if it cannot be read at full size, trace it from the source picture and tag it "traced from <source> figure" ([accuracy.md](accuracy.md)); do not stop to ask. The HTML deck to integrate into comes from a deck skill (see "Deck first" below); the pptx stays the triage source. |
+| `.pptx` | `python3 scripts/extract_slides.py deck.pptx -o anim/outline.json`. Text, bullets, notes and image counts per slide, plus a suggested archetype. An image count that differs from the pictures in the render points at pictures on the slide layout (a cover photo on the layout). Slide images are not interpreted: run `scripts/render_deck.py deck.pptx -o anim/render`, read the `sheet-NN.png` contact sheets for triage, and open `full/p-NN.png` (`--pages`) only for the candidates. A chart, graph or diagram picture is the slide's core content. When the slide has an Insight line (a figure is being built), it is redrawn (from its data, with credit) in the fragment, not dropped; without one the slide ships as it is (SKILL.md Phase 0). An illustration that labels a column, lane, category or actor is kept (embedded beside the fragment or redrawn as a glyph); if it cannot be read at full size, trace it from the source picture and tag it "traced from <source> figure" ([accuracy.md](accuracy.md)); do not stop to ask. The HTML deck to integrate into comes from a deck skill (see "Deck first" below); the pptx stays the triage source. |
 | HTML deck | `python3 scripts/extract_slides.py deck.html -o anim/outline.json`. Same JSON; slides are the deck's section elements. The stage is 1920x1080 unless you pass `--stage W H`. Measure slots in the real deck later ([layouts.md](layouts.md)). |
-| Markdown (`.md`, `.markdown`) | `python3 scripts/extract_slides.py doc.md -o anim/outline.json`. Same JSON; a slide is each `---`-separated part when the file uses rules, otherwise each `#`. remark decks: `???` becomes `notes`; `.class[...]`, `class:`/`layout:`/`background-*:` lines and `--` are stripped; `layout: true`/`exclude: true` slides are skipped; paragraphs and later headings become bullets. The HTML deck to integrate into comes from a deck skill first (see "Deck first" below); only when none is installed, run `scripts/md_to_deck.py deck.md -o deck.html` as a fallback host and tell the user it is not a designed deck. Each `#` / `##` section. HTML comments become `notes`; mermaid fences go to `mermaid`. Each section that describes a process, a set of dependencies, a sequence of dates or a before/after is a candidate. Numbered lists and tables are strong signals that a section is a candidate, not of its form: a document section is rarely only a procedure, so the picture idea is written from the section's claim, not its list formatting ([archetypes.md](archetypes.md) "Picture idea and form"). |
+| Markdown (`.md`, `.markdown`) | `python3 scripts/extract_slides.py doc.md -o anim/outline.json`. Same JSON; a slide is each `---`-separated part when the file uses rules, otherwise each `#`. remark decks: `???` becomes `notes`; `.class[...]`, `class:`/`layout:`/`background-*:` lines and `--` are stripped; `layout: true`/`exclude: true` slides are skipped; paragraphs and later headings become bullets. The HTML deck to integrate into comes from a deck skill first (see "Deck first" below); only when none is installed, run `scripts/md_to_deck.py deck.md -o deck.html` as a fallback host and tell the user it is not a designed deck. HTML comments become `notes`; mermaid fences go to `mermaid`. Each section that describes a process, a set of dependencies, a sequence of dates or a before/after is a candidate. Numbered lists and tables are strong signals that a section is a candidate, not of its form: a document section is rarely only a procedure, so the picture idea is written from the section's claim, not its list formatting ([archetypes.md](archetypes.md) "Picture idea and form"). |
 | Plain docs (other formats) | No extractor. Read the file and apply the same signals. |
 | Mermaid blocks | Map directly with the tables in [spec-format.md](spec-format.md) "Mermaid mapping". One block = one candidate. |
-| Pasted text / a single slide | Skip triage; go to section 4. |
+| Pasted text / a single slide | Write a one-row `anim/triage.md` (Question, then Insight or "text: the base answers it"). With no Insight the slide ships unchanged; with one, go to section 4. |
 
 A `.pptx` is not edited in place. The target is an HTML deck: convert it with a deck skill
 first (or in parallel), then integrate fragments into that HTML.
@@ -41,8 +41,7 @@ base's colours and fonts but keeps a document layout (full-width title, the body
 images as they come). Either way the hand-over says in one line that the built-in base was
 used and that a deck skill such as frontend-slides offers more looks. When a deck skill is installed the fallback is not an option at all: do not offer "keep the
 existing md_to_deck host" at intake, and do not read a `deck.md` or a fallback deck already in
-the folder as the user's decision (a 12-slide run did exactly that and delivered three good
-figures inside nine raw text slides). Converting a pptx to Markdown and then to `md_to_deck.py` throws away the pptx's own
+the folder as the user's decision (history: docs/maintainer-notes.md). Converting a pptx to Markdown and then to `md_to_deck.py` throws away the pptx's own
 layout; keep the pptx as the source for `extract_slides.py` and `render_deck.py` either way.
 For the fallback, fetch the images the Markdown references (relative paths) into the deck's
 folder first, or the deck shows placeholders.
@@ -142,10 +141,10 @@ The suggestions are evidence to weigh, not a decision. The model decides, using 
 
 ## 3. Triage
 
-Read every slide's `title`, `bullets` and `notes`. Mark each slide **illustrate**, **maybe** or
+Read every slide's `title`, `bullets` and `notes`. Mark each slide **illustrate** or
 **text**.
 
-**The question gate comes first** (SKILL.md Phase 0, "The question"). For every slide write
+**The question comes first** (SKILL.md Phase 0, "The question"). For every slide write
 the `Question` the audience should be able to answer, in the audience's words and without the
 answer or the claim's key words (it becomes the blind review's `sN-question`). When the slide's base (as the deck skill
 built it, or as it stands) answers it at rest, the row is **text**, Why "base answers it", and
@@ -183,17 +182,18 @@ Keep as text:
 - slides whose image is a photo or a product screenshot meant to be looked at
 
 Budget:
-- 3 to 8 illustrations per 30 slides is normal. One per section is a good rhythm.
+- At most 3 to 8 illustrations per 30 slides; fewer is fine. One per section is a good rhythm.
   "Add (more) animations" reads as the upper end of this budget, not beyond it.
 - The budget is a cap, never a floor. The count is the number of rows with an Insight; on a
   short deck that can be every such slide, and it can be none. A deck (or a one-slide source)
   with no Insight row ships as the complete base, with one line per slide saying which
   question the base answers. No figure is built to reach a count.
 - Animating every slide is a mistake: motion stops meaning "look here".
-- Never two animated slides in a row unless they are the same story split in two.
+- Never two animated slides in a row.
 - Prefer the slides the speaker spends longest on (long notes, many bullets, a diagram image).
 - Rank by: strength of signal x speaker time x how much a still fails to explain it. Take the
-  top of the list up to the budget; mark the rest **maybe** and show them to the user.
+  top of the list up to the budget; the rest stay **text** with the reason "over budget", and
+  the triage table shows them to the user.
 
 Write the triage to `anim/triage.md` before building, every slide on its own row, and keep it
 with the work folder. The header records the two per-deck choices (next sections); a
@@ -244,18 +244,18 @@ defaults in Decisions.
 
 Settle this once per deck, in the intake message:
 
-- **match** (default for branded, corporate and course decks): fragments take the host's
+- **match** (the default, for every deck): fragments take the host's
   palette and fonts. `python3 scripts/host_theme.py deck.html --mode match -o anim/host-theme.css`
   reads the deck's CSS variables and most used colours and writes the `--anim-theme-*` block;
   check its table against a slide and once against the deck's own variables (muted text,
   secondary background, accent glow): where the derivation picked a computed mix instead of
   the deck's variable, correct the block by hand. On a single-accent deck map
   `--anim-theme-ok` to the line colour or the accent unless a slide gives "ok" a meaning (the
-  default mint adds a second hue, and a blind reviewer flagged it on an orange deck); keep
+  default mint adds a second hue; history: docs/maintainer-notes.md); keep
   `--anim-theme-warn`/`--anim-theme-danger` only where the source uses them. Then `--apply`
   it to the deck head (markers, idempotent).
-- **lean** (talks, pitches, decks with no brand rules): fragments keep the lean palette and the
-  animated slides get a dark ground. `--mode lean` writes a `.anim-lean` block; add that class
+- **lean** (offered for talks and pitches with no brand rules): fragments keep the lean palette, and
+  under lean the animated slides get a dark ground. `--mode lean` writes a `.anim-lean` block; add that class
   to each slide that carries a fragment.
 
 Only colours and fonts differ between the two. The shape rules in [style.md](style.md) hold in
@@ -373,7 +373,7 @@ anim/
   hand-built from the spec, with the scaffold as timing skeleton at most). The scaffolder draws
   a moving traveller only for `travel` (a token trip for `cycle`); for any other verb it emits
   the static frame and timing skeleton, and the builder builds the verb's motion by hand from
-  its mechanism. A travelling marker is used only for `travel`. Then refine,
+  its mechanism. A travelling marker is used only for `travel` and for the token trip of a `cycle`. Then refine,
   run `check_fragment.py --stage-width <host stage>`, `render-phases.sh` and
   `verify_facts.py --spec`, look at every PNG, and report path, viewBox,
   cycle, phase seconds and anything unverified.

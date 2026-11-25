@@ -1,12 +1,6 @@
 # Look rubric: review by a fresh pair of eyes
 
-The checkers (`check_fragment.py`, `verify_facts.py`, `check_page.py`) prove the contract and
-the facts. They cannot see that a slide is ugly or "too much". This rubric is the judgement
-layer: a reviewer that knows nothing about the build first says what it reads from the
-resting slide alone, and only then sees the other stills and the slide's claim and scores
-them. A reviewer told the claim first confirms it. The skill runs it on its own work before
-saying "done", and the eval runner uses it to score a corpus. It enforces `style.md` and
-`accuracy.md` rule 0 by eye.
+A blind reviewer reads the resting slide first, then scores it against this rubric. Rationale: docs/maintainer-notes.md (maintainers only).
 
 ## 1. How to run a review
 
@@ -108,10 +102,10 @@ pause frames; First read from the recorded first answer against the claim.
 | 2 | **Restraint** | One movement, accent only in the light, at most one glow? Does every pause frame look intentional on its own? (first, mark and pause frames) | One thing moves per phase; the accent sits only on what is active or already reached, at most one glow per frame, none on a line; nothing repeats across marks; each pause frame reads as a still: nothing half-overlapping, no label without its thing, at most three things in motion | Two things compete in one frame, a second glow, the accent on parts not yet reached, a decorative extra (arrow, star, halo), or a pause frame with a half-overlap or an orphan label | Packets or pulses repeated across marks, several glows at once, everything lit, motion layered over a busy figure | style.md 0, 3, 8, 9 |
 | 3 | **Composition** | Is the space used on purpose? | Figure spans at least 60 % of the slot's width or height, no dead band above or below; text and shape edges share two or three anchor lines (or the headline's left edge); gaps inside a group at most half the gap between groups; the focal step gets more room | A centred, evenly spaced row by habit where the claim has a lead element, a large empty band, or a label near an edge | Crammed (labels touch, figure runs into the title or footer), or a thin strip in a mostly empty slot | style.md 1; layouts.md |
 | 4 | **Boxes** | Are there boxes where the meaning has none? | No filled panels, cards, chips, pills or caption bars; rings, dots, labels on lines, hairline brackets; rectangles only for real containers (table, chamber, database) | One or two framed or tinted elements that carry no meaning | The source's cards or pills redrawn (filled, coloured, rounded) or left in place with motion on top | style.md 2; SKILL.md "Make a visible change" |
-| 5 | **Colour** | Ground, ink, one accent, at most two meaning colours? | One accent on what is active and reached, about a tenth of the drawn area at rest; at most two semantic colours, each with a meaning the slide states; palette belongs to the deck | A third hue, a semantic colour with no stated meaning, or the accent spread over many elements | A rainbow: several accents, colour as decoration, palette clashing with the deck's own colours | style.md 3; "Under a host theme" |
+| 5 | **Colour** | Ground, ink, one accent, at most two meaning colours? | One accent on what is active and reached, at most about a fifth of the drawn area at rest; at most two semantic colours, each with a meaning the slide states; palette belongs to the deck | A third hue, a semantic colour with no stated meaning, or the accent spread over many elements | A rainbow: several accents, colour as decoration, palette clashing with the deck's own colours | style.md 3; "Under a host theme" |
 | 6 | **Type** | Readable at a glance, on a clear type ladder? | Every word readable; at most one hero size (the claim's number or word), labels, muted sub-labels, each size at least 1.25x the next; sentence case; mono only on numbers, units, codes; the deck's font | Two sizes too close to tell apart, a crowded label, tracked capitals, mono on a name or term | Text too small to read on a projector, clipped or overlapping words, labels on top of lines or each other | style.md 5, 6, 12; contract text floor |
 | 7 | **Lines** | Are strokes quiet and visible? | Even structure strokes visible on their ground, a heavier accent only on the active path, small open arrowheads | Strokes a little heavy or a little faint, arrowheads large | A glowing line, thick strokes everywhere, or lines so faint on a white ground they vanish | style.md 4, 8; "Under a host theme" fade levels |
-| 8 | **Rest frame** | Does the resting image tell the finished story on its own? | The complete figure: every step, value and label present, the end state visibly reached (final step marked, all data drawn), looks intended | Complete but flat: nothing shows where the story ended, or one element looks mid-fade | Empty or half drawn: blank slot, only the start of the story; would print as an unfinished figure. A row of identical neutral markers (empty rings, grey dots) where the source showed progress, order shading, values or a highlighted outcome scores 2 at best | contract resting frame; style.md 9 |
+| 8 | **Resting frame** | Does the resting image tell the finished story on its own? | The complete figure: every step, value and label present, the end state visibly reached (final step marked, all data drawn), looks intended | Complete but flat: nothing shows where the story ended, or one element looks mid-fade | Empty or half drawn: blank slot, only the start of the story; would print as an unfinished figure. A row of identical neutral markers (empty rings, grey dots) where the source showed progress, order shading, values or a highlighted outcome scores 2 at best | contract resting frame; style.md 9 |
 | 9 | **Fidelity** | Are labels, numbers and the figure the source's own? | Every label and number visible on the before slide (shortened, not paraphrased); illustrative or traced tag where values are examples; the source's meaning-carrying icons kept or redrawn | One reworded label, a missing tag, a dropped icon that labelled a column, a dropped callout or audience question the slide asks | Invented numbers, labels or categories; claims the source does not make; a meaningful figure or illustration dropped | accuracy.md 0 to 3, 7 |
 | 10 | **Host fit** | Does the whole slide look designed, with the figure in place of the old content? | Title, figure, margins and footer form one composition in the deck's look; the figure replaced the cards or text block; the context slide looks designed too | The figure fits but the slide around it is plain (oversized title, default font, lost brand elements) | A dumped host (full-width wrapping title, raw bullet list, row of thumbnails) or the old boxes still there under the figure: the slide looks no different from the source | SKILL.md "Deck first", "Make a visible change"; style.md "Under a host theme" |
 | 11 | **Idea** | Labels covered: with all text hidden, does the picture still show the claim? Specificity: could a deck on another subject use it unchanged? | With the text hidden the form carries the claim (counts shrink, the path closes, the beam tips); or the claim is order only and the picture is a clean row | A correct row or list where the claim also states a quantity, a return, a tension or a containment that the picture ignores | Generic nodes: a deck on another subject could use the figure unchanged | archetypes.md picture idea; accuracy.md 0 |
@@ -227,7 +221,7 @@ careful presenter would fix, 1 = a viewer would call the slide ugly, wrong or un
   1 = too small, clipped or overlapping.
 7 Lines: quiet strokes, visible on their ground, the active path heavier, no glowing lines.
   1 = glowing or heavy lines everywhere, or lines too faint to see on a light ground.
-8 Rest frame: the after image alone tells the finished story: all steps and values present
+8 Resting frame: the after image alone tells the finished story: all steps and values present
   and the end state visibly reached. 1 = blank or half drawn. If the source showed progress,
   order shading, values or a highlighted outcome and the after shows a row of identical
   neutral markers (empty rings, grey dots) instead, score 2 at most, even when one end marker
@@ -304,66 +298,4 @@ At most three, ranked, worst first.
 
 ## 4. Calibration
 
-Run on 2026-11-08 with fresh reviewers (Opus, general-purpose, the prompt plus labelled
-paths only; A and B with mark frames, C to E with the rest frame only, A and B with one
-un-animated context slide). Scores are in item order: Form, Restraint, Space, Boxes, Colour, Type, Lines,
-Rest frame, Fidelity, Host fit. Idea and the Forms list were added on 2026-11-13, after
-these runs; Idea's anchors come from the `prose-not-a-row` eval, not from a reviewer run.
-Focal, Entrance and payoff, the first and pause frames, the claim line, the `ship`/`fix` verdict and the
-Composition wording of item 3 (formerly Space: "centred, even margins") were added in look
-v2 and are not yet calibrated. Item 14 (First read), the audience question and the two-step
-order (first read recorded before the claim is shown, then scoring) were added on 2026-11-25
-and are not yet calibrated either; the runs below had no first read.
-The old `rebuild` verdict below is now a `fix` that rebuilds.
-
-| Baseline | What it is | Slide | Scores | Verdict |
-|---|---|---|---|---|
-| A | Markdown-dump host (`md_to_deck.py`), lean fragments | s3 | 5 4 3 5 4 3 4 5 3 **2** | fix |
-| | | s4 | 5 4 4 5 5 3 3 4 4 4 | fix |
-| | | context (un-animated s2: bullets + thumbnail row) | Host fit **1** | rebuild |
-| | | **deck** | | **rebuild** |
-| B | Same fragments in a designed deck (frontend-slides, match look, white ground) | s3 | 5 3 4 5 4 3 **2** 4 3 3 | fix |
-| | | s4 | 5 4 4 5 5 3 **2** 4 4 3 | fix |
-| | | **deck** | | **fix** |
-| C | Public TB deck, bare-prompt run | s14 (table) | 5 4 4 5 4 4 4 4 5 4 | ship |
-| | | s16 (iceberg) | 5 4 4 5 5 4 4 4 4 4 | ship |
-| | | s27 (test flow) | 4 5 4 5 4 4 4 5 5 3 | ship (reviewer said fix) |
-| D, round 1 | Public civics deck, rest frames of two process snakes | s23 | 5 4 4 5 4 4 4 4 **2** 4 | fix |
-| | | s27 | 4 4 3 5 3 4 3 4 **2** 3 | fix |
-| D, round 2 | Same images, revised wording | s23 | 5 4 4 5 4 4 5 **2** 4 4 | fix |
-| | | s27 | 4 4 3 5 4 4 3 **2** 4 3 | fix |
-| E | The "too much" case: stairs re-plotted as a line chart with an arrow and brackets, banner kept | s5 | **1** 4 3 **2** 4 3 3 **2** **2** **2** | rebuild |
-
-What a 5 and a 2 look like, from these runs:
-- **Form 5**: the TB comparison table kept as six rows in two columns; the iceberg kept as an
-  iceberg. **Form 1**: E's four-step staircase redrawn as a level-over-time line chart.
-- **Host fit 1**: A's un-animated slide, a raw two-level bullet list over a row of bright
-  page thumbnails. **Host fit 2**: A's s3, a 64 px title wrapping onto three lines over the
-  figure, with no footer. Same fragment in B: 3.
-- **Lines 2**: B's dimmed "FROM" path at rest, light grey on white (style.md "Under a host
-  theme" fade levels). The same fragment on A's dark ground scored 3.
-- **Rest frame 2**: D's snakes, rows of identical empty rings or grey dots with one lit end
-  node, where the source shaded the steps in order (round 2 only).
-- **Boxes 2**: E's filled banner kept from the source.
-
-What changed after round 1:
-- D's empty-ring resting frames scored 4 with the first wording (the reviewer saw the
-  identical rings and called it acceptable). Item 8 now caps that case at 2; round 2 flagged
-  both slides.
-- The C reviewer set "fix" with every item at 3 or above, following "when unsure, say fix".
-  The verdict is now computed from the scores only; doubt goes into a lower score.
-- The B reviewer folded the context slide into the animated slides' Host fit. The context
-  image is now its own section, Host fit only.
-- After round 2: D's dropped audience questions (yellow pills) scored Fidelity 2 in round 1
-  and 4 in round 2. Item 9 now says a dropped callout or question is 3 at most. This clause
-  is not yet calibrated.
-
-Separation: A (rebuild) vs B (fix), driven by Host fit on the un-animated slide and the
-title; E rebuild with Form 1; C ship on the scores. B's "fix" is a true finding (faint
-dimmed lines on white), not noise. Expect a spread of about one point per item between two
-reviewers on the same images (D, Fidelity 2 vs 4); the verdict is stable when a defect is
-named in the rubric's anchors, so name a recurring defect there rather than trusting the
-reviewer to weigh it.
-
-Baselines A and B are a confidential deck and E is confidential; images stay outside the repo
-and are referenced here by description only.
+Calibration runs and anchors: docs/maintainer-notes.md (maintainers only).

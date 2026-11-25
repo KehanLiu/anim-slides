@@ -37,6 +37,9 @@ the brief; only record the choices the contract leaves open.
 e.g. "ring `build` r 34 at (500, 180), label below at y 254; line build->test along y 180".>
 
 ## Beats
+
+Each beat ends at a phase mark (`data-anim-phases`), a settled moment where nothing moves.
+
 - **Setup and payoff:** <the gap or question the first frame leaves open, and the beat that closes it; e.g. "empty jar, total €0; closed at 5.0 s when the full jar's total lands">
 
 | Time (s) | On screen | What moves (one step of the verb) | End state | Why this beat exists |
@@ -73,13 +76,13 @@ marks, and anything not verified.
 
 ## Verify
 
-1. `python3 scripts/check_fragment.py <dir>/<name>.html --name <name> --rendered-width <w> --stage-width <stage>`
-2. `scripts/render-phases.sh <dir> <W> <H> <seconds from the plan> rest`
+1. `python3 <skill-dir>/scripts/check_fragment.py <dir>/<name>.html --name <name> --rendered-width <w> --stage-width <stage>`
+2. `<skill-dir>/scripts/render-phases.sh <dir> <W> <H> <seconds from the plan> rest`
 3. Open every PNG with your image viewing tool. Fix clipping, overlap, unreadable text, empty panels.
-4. `python3 scripts/verify_facts.py <dir>/<name>.html --source <outline.json> --slide <N> --spec <dir>/spec.yaml` passes; every WARN reviewed.
+4. `python3 <skill-dir>/scripts/verify_facts.py <dir>/<name>.html --source <outline.json> --slide <N> --spec <dir>/spec.yaml` passes; every WARN reviewed.
    Re-render. Iterate at least once.
 
-Contract section 8 is the definition of done.
+Done = SKILL.md Phase 2, steps 5 to 8.
 
 ## Example: savings jar (finance lesson)
 

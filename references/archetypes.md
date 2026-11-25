@@ -12,7 +12,7 @@ section 6. Each **Pass** is for the default `once`
 control: the motion story plays one time when the slide becomes current and its hold is the
 resting frame. Under `step` (a per-deck choice at intake) the same pass is played in click
 segments: put the `data-anim-phases` marks at the ends of the narrated phases each recipe lists,
-3 to 5 per slide, where nothing is mid-move. A requested `loop` (kiosk, gallery, hero) stretches
+3 to 5 per slide (six when the slide narrates six), where nothing is mid-move. A requested `loop` (kiosk, gallery, hero) stretches
 the same story to 8 to 15 s.
 
 ## Picture idea and form
@@ -36,14 +36,14 @@ this step does not apply to it.
 | a level or quantity changes | a fill level, a bar, a gauge | `grow`, `count` | `states` / `chart` | `canal-lock`, `compound-interest` |
 | two things pull against each other | two sides, a balance | `balance`, `race` | `compare` | `energy-balance` (balance), `mediation-vs-trial`, `cache-compare` (race) |
 | one thing contains another | rings inside rings | `nest`, `zoom` | `layers` | `number-sets`, `service-deps` (nest), `leaf-stomata` (zoom) |
-| one splits into several, or several merge | fan-out, fan-in | `split`, `merge` | `graph` | `mitosis` (split), `coalition-majority` (merge), `loan-decision` (a branch) |
+| one splits into several, or several merge | fan-out, fan-in | `split`, `merge` | `graph` | `mitosis` (split), `coalition-majority` (merge), `loan-decision` (travel: one application through a branch) |
 | actors exchange something | lanes, one token handed between them | `travel` (the thing exchanged) | `graph` | `hiring-lanes` |
 | a handover across a boundary | a drawn boundary line the token crosses | `travel` (the thing handed over) | `pipeline` / `timeline` / `graph` | `er-patient-flow` |
 | the same thing before and after | the thing in place, the old state as a ghost | `transform`, `wipe`, `switch` | `states` / `compare` | `oxbow-lake` (transform), `street-redesign` (wipe), `contract-formation`, `job-states`, `phase-changes` (switch) |
-| a physical mechanism the source describes | a scene: the thing itself, in cross-section | `drive`, `open` | `states` / `pipeline` | `breathing` (drive), `earth-layers` (open), `canal-lock` |
+| a physical mechanism the source describes | a scene: the thing itself, in cross-section | `drive`, `open` | `states` / `pipeline` | `breathing` (drive), `earth-layers` (open), `canal-lock` (grow: the water level) |
 | a place or a route | a map or a path with stations | `travel`, `trace` | `pipeline` | `parcel-route` (travel), `forgetting-curve` (trace) |
 | a hierarchy | a tree | `reveal` (root down), `nest` | `graph` | none; `service-deps` for rank spacing |
-| a spectrum or scale | points on one axis | `sort`, `trace` | `timeline` | `blood-types` (sort), `roadmap` |
+| a spectrum or scale | points on one axis | `sort`, `trace` | `timeline` | `blood-types` (sort), `roadmap` (reveal) |
 
 **Form from the data relationship.** When the slide's point is a number, the form follows
 what the number does, not how it was printed:
@@ -138,10 +138,10 @@ figure may start on the headline's left anchor instead of centring.
 
 **Motion story.**
 - Setup (0-1 s): the line draws on left to right; each ring lands as the line reaches it, its
-  label settles 60 to 120 ms later.
+  label settles 50 to 150 ms later.
 - Action: the highlight moves on ring to ring, about 0.8-1 s per step: the receiving ring
   turns active (`--anim-accent` with the glow), the previous one stays in the accent, solid,
-  without glow. Under `travel` only, the traveller the source names (a labelled chip or glyph,
+  without glow. Under `travel` only, the traveller the source names (a small glyph with a label beside it,
   not a bare dot) hops with it (`offset-path` on the line's `d`). Other verbs (`thin` on a
   funnel, `grow` in a ring) use their own mechanism on this timing.
 - Resolution: the last ring is the focal element; `--anim-ok` only when the slide states
@@ -340,7 +340,7 @@ slightly offset (+-12 x) so a down and an up edge do not overlap. The layer the 
 
 **Composition.** Plot area from x 120 (wider when the tick labels need it) to the right edge
 minus the series labels, top of the band to its bottom minus the x tick row. Y axis with 3-5
-gridlines (`--anim-line`, 1.5 px, 60 % opacity), tick labels 18 px mono right-aligned left of
+gridlines (`--anim-line`, 1.5 px dotted, 40 to 60 % opacity; style.md, chart), tick labels 18 px mono right-aligned left of
 the axis, tabular numbers. X axis at the plot bottom, 2 px. Series: the one the story is about
 4 px in `--anim-accent`, others 2 px in `--anim-accent-2` or `--anim-line`; label at the line
 end. Event: vertical dashed line `--anim-muted` from plot top to bottom at the event's x,

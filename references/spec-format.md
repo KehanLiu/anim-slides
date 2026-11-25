@@ -22,7 +22,7 @@ archetype: pipeline            # pipeline | graph | timeline | states | compare 
 verb: travel                   # the main motion, references/motion-verbs.md (one of 20, or reveal)
 traveller:                     # required with verb: travel
   name: the release commit     # what moves, in the source's words
-  label: a1f9c3e               # optional, short mono text that rides with the marker
+  label: a1f9c3e               # optional, short text that rides with the marker (a code: mono)
 focal: production              # optional, id of the one focal node or element (data-anim-focal)
 title: "Build to production"   # optional, drawn as a title row if present
 size: [1680, 440]              # viewBox W H; optional, archetype default if absent
@@ -71,7 +71,7 @@ events:                        # chart archetype only
 | `name` | yes | - | `^[a-z][a-z0-9-]{1,23}$`, no trailing or double `-`. Fragment name, class prefix, file name. Unique in the deck. |
 | `archetype` | yes | - | One of the seven in [archetypes.md](archetypes.md). Picks layout and motion recipe. |
 | `verb` | no* | `reveal` | The main motion: one of the twenty verbs in [motion-verbs.md](motion-verbs.md) (`grow`, `count`, `accumulate`, `thin`, `race`, `split`, `merge`, `sort`, `stack`, `nest`, `transform`, `wipe`, `switch`, `balance`, `drive`, `zoom`, `open`, `travel`, `trace`, `cycle`) or `reveal`. *Missing is a warning and scaffolds as `reveal`; an unknown value is an error that lists the vocabulary. Written to the wrapper as `data-anim-verb`. See "Verbs in the scaffold". |
-| `traveller` | travel | none | `{name, label}`. Required with `verb: travel` (error without it); also read by `cycle`, ignored with a warning elsewhere. `name` is what moves in the source's words ("the patient", "one request"; "a dot" is refused). `label` (optional, ~16 chars) is drawn as small mono text riding upright with the marker. |
+| `traveller` | travel | none | `{name, label}`. Required with `verb: travel` (error without it); also read by `cycle`, ignored with a warning elsewhere. `name` is what moves in the source's words ("the patient", "one request"; "a dot" is refused). `label` (optional, ~16 chars) is drawn as small text riding upright with the marker (mono only when it is a value or code). |
 | `focal` | no | none | Id of the one focal node or element: what the eye lands on in the resting frame (usually the outcome). Its rendered element carries `data-anim-focal`. One id only; an id that matches nothing is an error. Without the key the scaffolder takes the node the last phase lights, else the outcome node, else the first chart series. |
 | `title` | no | none | One line, max ~48 chars. Drawn as a title row at the top of the viewBox. Omit when the slide already has a title (usual case). |
 | `size` | no | per archetype (below) | `[W, H]`, positive integers, viewBox units. Match the slot's aspect ratio ([layouts.md](layouts.md)). |
@@ -134,7 +134,7 @@ no fill) over the mark, and turns a timeline dot accent-filled, whatever the kin
 |---|---|---|---|
 | `from`, `to` | yes | - | Node ids. `from != to`. The pair is the edge id, written `from>to`; at most one edge per ordered pair. Rendered id `<name>-e-<from>-<to>`. |
 | `label` | no | none | Short text at the wire's midpoint, max ~16 chars. |
-| `kind` | no | `flow` | `flow` = solid wire, the traveller may ride it. `depends` = dashed wire with arrow pointing at the dependency (`from` needs `to`). `data` = solid, thinner, `--anim-mono` label. `event` = dotted, used for async messages, feedback and rollback. |
+| `kind` | no | `flow` | `flow` = solid wire, the traveller may ride it. `depends` = dashed wire with arrow pointing at the dependency (`from` needs `to`). `data` = solid, thinner; its label is mono only when it is a value or code, like every small label. `event` = dotted, used for async messages, feedback and rollback. |
 
 A reverse edge (`b>a` next to `a>b`) is allowed and drawn as a separate curved wire.
 In `pipeline` with no `edges` at all, the scaffold chains the nodes in list order with `flow`
@@ -160,7 +160,7 @@ Phases are the story. Each phase is a moment at which things enter, light up or 
 | `t` | yes | - | Seconds. `once`, `step`: `0 <= t <= cycle - 0.8`; `loop`: `0 <= t <= cycle - 1`. All: strictly increasing, first phase `t: 0`, gaps >= 0.8 s (`once`, `step`: >= 0.5 s, warning under 1 s). `--control step` on a once spec (or `once` on a step spec) changes only the wrapper attribute; `--control loop` on a once or step spec, or `once`/`step` on a loop spec, re-times the phases into the new pass, keeping their proportions. |
 | `label` | yes | - | Kebab-case, unique among phases. Becomes a comment next to the keyframe stop. |
 | `show` | no | `[]` | Ids (node, group, edge as `from>to`, series, event) that enter at `t`. Each id enters at most once across all phases. |
-| `active` | no | `[]` | Ids highlighted from this phase until the next phase. Must be visible at this phase. Keep to 1-3 (contract: about a third of elements active at most). |
+| `active` | no | `[]` | Ids highlighted from this phase until the next phase. Must be visible at this phase. Keep to 1-3 (contract: about a third of elements active mid-pass; not the accent share at rest). |
 | `flow` | no | `[]` | Edge ids `from>to` that are the path of this phase. Under `verb: travel` (or `cycle` with a `traveller`) the traveller rides each one from `t`; under any other verb the edge is drawn on in accent as the active path and stays lit through its phase (and a final hold that adds no flow), with no packet. Edge must exist and both endpoints be visible. Max 3 per phase (contract: three things moving at once). |
 | `dim` | no | `[]` (hold: the previous phase's) | Node ids and edges `from>to` faded to 0.35 for this phase (a veil in `--anim-bg` over them, one group per run of phases with the same set, so it is one change). Must be visible, and not `active` or `mark`ed in the same phase. |
 | `mark` | no | `[]` | Node ids that get an annotation drawn on at `t`: an accent ring round the mark, an underline under a `compare` row. A mark stays to the end; each id once; more than three marks in a spec warns ([motion-verbs.md](motion-verbs.md) section 4). |
@@ -179,7 +179,7 @@ Timing semantics:
 
 - `once`: phase *i* lasts from `t_i` to `t_{i+1}`; the last phase lasts until `cycle`, the end
   of the pass. Entrances start at `t` with element duration (250-500 ms); a traveller takes one
-  hop (0.6-1.0 s) and rides its path once; an active path draws on in 0.6 s. The last phase is the **hold**: by convention
+  hop (0.6-1.2 s, motion-rules.md; the scaffold uses 0.6-1.0 s) and rides its path once; an active path draws on in 0.6 s. The last phase is the **hold**: by convention
   `label: hold`, no `show`, no `flow`, `t` between `cycle - 1.5` and `cycle - 0.8`. Nothing
   resets: the pass ends on the finished state and keeps it (fill-mode `forwards`/`both`). The
   caption strip cross-fades per phase during the pass and the last caption stays.
@@ -201,7 +201,8 @@ last mark (keep specs to three to five narrated phases plus the hold so the mark
 many; a hand-built fragment sets its marks by looking at the frames). Without a hold phase the end of the motion (the pass length; `loop`: the
 start of the reset) closes the list, and a single phase gives just that end. Marks are strictly
 ascending, each > 0 and <= `cycle`. Segment *k* runs from mark *k-1* (0 for the first) to mark
-*k*, and is one phase. Under `once` and `loop` the attribute is ignored, so any fragment that
+*k*, and is one phase. Under `once` and `loop` the attribute does not change playback (the checker still validates
+it), so any fragment that
 carries it can be switched to `step` at integration time (`integrate_fragment.py --control step`)
 without touching the file. After refining keyframes by hand, move a mark that no longer sits
 between two phases' motion (nothing may be mid-motion at a mark; render each mark with

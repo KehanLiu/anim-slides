@@ -23,9 +23,9 @@ the rendered slide check the rest.
    A derived number (22x from 180 ms / 8 ms) is allowed only when the derivation is trivial and
    the slide's own numbers produce it.
 2. **Labels use the source's words.** Shorten by dropping words, never by paraphrasing into
-   what the slide "means": the slide says "President approves", so the chip says "approved",
+   what the slide "means": the slide says "President approves", so the label says "approved",
    not "signed into law"; "arrives in the warehouse" does not become "shipped to the customer".
-3. **Slots must not invent a claim.** A why / reason / cause chip, a legend or a category label
+3. **Slots must not invent a claim.** A why / reason / cause label, a legend or a category label
    asserts a relation. Put text there only when the source states that relation ("because",
    "due to", "so"). A state that follows an action is not its reason.
 4. **One slide unless stated.** Facts from neighbouring slides or earlier builds of the same
@@ -41,11 +41,11 @@ the rendered slide check the rest.
 7. **Unreadable figure: trace and tag, don't guess.** If a value, label or arrow on a picture
    cannot be read at the rendered resolution, redraw the figure's form from the picture, keep
    only the values that are printed on it, and tag the fragment "traced from <source> figure"
-   (a mono sub-label, like the illustrative tag). Never fill a gap with a plausible number, and
+   (a muted sub-label in `--anim-font`, like the illustrative tag). Never fill a gap with a plausible number, and
    do not stop to ask: the intake message is the one question (SKILL.md, Phase 1); record the
    trace in the Decisions section of `anim/triage.md`.
 
-## Running the gate
+## Running the fact check
 ```
 python3 <skill-dir>/scripts/verify_facts.py anim/<name>/<name>.html \
     --source anim/outline.json --slide 23 [--slides 22-24 | --deck-wide] \
@@ -77,9 +77,9 @@ that shows real numbers under the wrong labels no longer passes. Prose sentences
 cannot place are left alone, so a clean pairing result does not prove every value is in the right place.
 
 Every WARN needs a decision. `--strict` turns the label-level WARNs and pairing swaps into FAILs. Use it before the
-final review (SKILL.md Phase 2, step 8), not as the build gate: true labels with paraphrased words
+final review (SKILL.md Phase 2, step 8), not as the build check: true labels with paraphrased words
 will fail too, so record each with its reason in the brief. A figure marked illustrative keeps swaps at WARN.
-The gate cannot read pictures and does not check arrow directions or plotted positions: the
+The fact check cannot read pictures and does not check arrow directions or plotted positions: the
 rendered PNG next to the rendered source slide is still the final check.
 
 ## Checklist for a brief

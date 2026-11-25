@@ -45,7 +45,8 @@ One file `<name>.html` containing exactly two top-level things, in this order:
 - `data-anim-focal` marks the one focal element (on the element or its group): what the eye
   lands on in the resting frame ([style.md](style.md) principle 11). Exactly one per fragment;
   none warns, more than one fails.
-- Exactly one `<svg>`. HTML text outside the SVG is not allowed; captions belong to the slide.
+- Exactly one `<svg>`. HTML text outside the SVG is not allowed: a caption line inside the
+  fragment is SVG `<text>` ([style.md](style.md) principle 6), and an HTML caption belongs to the slide.
 - Nothing else: no `<script>` (under any control), no `<link>`, no `<image>`,
   no `<img>`, `<iframe>`, `<object>`, `<embed>` or `<foreignObject>`, no `href`/`xlink:href`/`src`
   that points outside the fragment (only `#id` references), no `url(...)` to external files,
@@ -86,6 +87,9 @@ when the host defines the same variables on `:root` or on the slide.
 - Inside the SVG use only `var(--anim-*)` for `fill`, `stroke`, `color`, `font-family`.
 - `--anim-line` reaches 3:1 against `--anim-bg` (the light-ground value is about `#768A95`);
   a host theme darkens or lightens it until it does.
+- Text contrast floors (`check_look.py`, on the real ground): 3.0:1 for labels at 20 px or
+  more at a 1920 stage, 4.5:1 for text under 20 px, 2.5:1 for muted text (`--anim-muted`, or
+  opacity under 0.6).
 - A fragment takes the deck's font in both looks: the host sets `--anim-theme-font` to the
   deck's font (or `inherit`). `--anim-mono` is for data only (numbers, units, codes,
   timestamps, identifiers, formulas; [style.md](style.md) principle 12). The stacks above are
@@ -152,7 +156,8 @@ still, the PDF page and the last frame of the pass are one and the same picture.
   `data-anim-cycle` lies in the range of the control (once and step 4 to 10 s, loop 8 to 15 s).
 - Strokes at rendered size on a 1920 stage: structure 2 px, secondary lines 1.5 px, the
   active path 4 px; round caps and joins, corner radius 4 to 8.
-- At most three things moving at once; roughly one third of the elements active at a time.
+- At most three things moving at once. Separately, mid-pass, roughly one third of the elements
+  are active (highlighted) at a time; this is not the accent share at rest (style.md principle 3).
 - **One pass (`once`, the default):** 4 to 10 s shaped as a single staggered reveal, the action,
   then a hold of 0.8 to 1.5 s on the finished state, which stays. No element moves twice unless
   the story needs it: a packet that travels its path once is fine, a pulse that repeats is not.
@@ -171,7 +176,7 @@ still, the PDF page and the last frame of the pass are one and the same picture.
   move, exit, land, linear); exits take about 65 % of the entrance time. `linear` only for
   continuous motion.
 - Stagger 40 to 120 ms between items, not all equal, at most 600 ms for a group; a label
-  settles 60 to 120 ms after the thing it names.
+  settles 50 to 150 ms after the thing it names.
 - Respect `prefers-reduced-motion`: the fragment ends with
   `@media (prefers-reduced-motion: reduce) { .anim-<name> * { animation: none !important; } }`
   which shows the resting frame. A fragment without this block fails the check.
@@ -228,7 +233,7 @@ hand reroute changes `d`, its `-hl` highlight copy and that one variable.
 
 ## 8. Verification
 
-A fragment is done when all four hold:
+A fragment is done when all five hold:
 
 1. `scripts/check_fragment.py <name>.html --name <name> --rendered-width <px> --stage-width <W>` passes.
    Besides sections 1 to 6 it checks the control (`--control once|loop|step` overrides the
@@ -263,7 +268,9 @@ A fragment is done when all four hold:
    **looked at** (image viewing tool), not inferred from the source. Fix clipping, overlap, unreadable
    text, empty panels. Iterate at least once.
 3. The resting frame PNG reads as a complete still.
-4. `scripts/verify_facts.py <name>.html --source <outline.json> --slide <N>` passes and every WARN
-   was reviewed ([accuracy.md](accuracy.md)).
+4. `scripts/check_look.py <name>.html --rendered-width <px> --at-marks` passes (rendered look:
+   clipping, overlap, contrast, boxes, hues, text floor), and every WARN is fixed or explained.
+5. `scripts/verify_facts.py <name>.html --source <outline.json> --slide <N> --spec <spec.yaml>`
+   passes and every WARN was reviewed ([accuracy.md](accuracy.md)).
 
 Headless screenshots never prove smoothness; check once in a real browser before shipping a deck.

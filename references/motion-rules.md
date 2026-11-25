@@ -20,7 +20,7 @@ A continuous `loop` is only for a kiosk, a gallery or a hero when the user asks 
 |---|---|---|
 | micro | 150-250 ms | colour change, highlight on/off, a tick landing |
 | element | 250-500 ms | a node landing (250-400 ms), a label entering, a short move, a cross-fade |
-| scene | 600-900 ms | a group rearranging, a long move across the slot, a large draw-on |
+| scene | 600-900 ms | a group rearranging, a long move across the slot, a large draw-on (Techniques, Draw-on) |
 | change | 0.9-1.8 s | the verb's own move: a level rising, units regrouping, a morph, a wipe, a zoom, a beam tilting |
 | hop | 600-1200 ms | one traveller along one leg of its route (`travel` only) |
 | hold | 0.8-1.5 s | end of the pass; the held state is the resting frame and stays (loop: 1-2 s before the reset) |
@@ -76,8 +76,8 @@ to pick one from the claim, what each puts on screen and how it is built are in
 `step` uses the `once` pass unchanged; the host stops it at the `data-anim-phases` marks
 (contract section 7), so the fragment needs nothing extra. What makes segments work:
 
-- **A phase is a narrated step:** one mark per thing the presenter says next, 3 to 5 per slide,
-  the same phases as the brief and the spec. Do not add marks for motion that is not narrated.
+- **A phase is a narrated step:** one mark per thing the presenter says next, 3 to 5 per slide
+  (six when the slide narrates six steps), the same phases as the brief and the spec. Do not add marks for motion that is not narrated.
 - **Marks sit at settled moments:** at a mark nothing is mid-move, mid-fade or mid-hop, so the
   frame the presenter stops on reads as a still. End each phase's motion 0.1 to 0.2 s before
   the next mark.
@@ -119,7 +119,7 @@ How a thing enters depends on what it is. A fade is not the default.
 | node, marker, dot on a line | lands at the moment its line reaches it: scale 0.92 to 1 plus fade, 250 to 400 ms; land curve when small, enter curve otherwise |
 | number | rolls or counts to its value (digit strip), or its bar or level grows and the number lands with it |
 | area, band, fill, illustration, drawn object | mask or clip-path reveal in the direction of meaning (a level from below, a timeline from the left) |
-| label | fade with an 8 to 12 px rise, 60 to 120 ms after the thing it names |
+| label | fade with an 8 to 12 px rise, 50 to 150 ms after the thing it names |
 | caption | cross-fade |
 
 Order inside a group: line first, the node lands, the label settles last, each smaller in
@@ -132,7 +132,8 @@ amplitude than the one before. A fragment where nearly every shape only fades in
   the led element first and what it pulls after. A group's total stagger is at most 600 ms.
   With more than six items, stagger rows, not items.
 - **Stillness before the answer:** one deliberate pause of 400 to 600 ms where nothing moves,
-  just before the answer step (the verb's last staged step), so the answer is seen to arrive.
+  just before the answer step (the verb's last staged step), so the answer is seen to arrive
+  (`check_fragment.py` accepts 380 ms or more).
   The end hold stays as well. Make room for it by ending the earlier motion sooner inside its
   phase, or by moving a phase mark or lengthening the pass (still 4 to 10 s). A figure whose
   verb is a continuous trace (a strip chart that never stops) is exempt. `check_fragment.py`
@@ -170,7 +171,8 @@ amplitude than the one before. A fragment where nearly every shape only fades in
   keep the second shape hidden (Safari does not animate `d` and shows the cross-fade). The
   resting rule sets the final `d`, so the still matches the last frame.
 - **Draw-on:** give the path `pathLength="100"`, set `stroke-dasharray: 100 120`, animate
-  `stroke-dashoffset` from 101 to 0 over 500-800 ms with the enter curve. (A plain `100` dash at offset 100 still
+  `stroke-dashoffset` from 101 to 0 with the enter curve: 500-800 ms per path, up to 900 ms
+  for a large path across the slot (scene class). (A plain `100` dash at offset 100 still
   paints a dot at the start with `stroke-linecap: round`.) Same maths for every path regardless of
   length. Resting frame: `stroke-dashoffset: 0`.
 - **Changing text:** stack one `<text>` per state at the same position and cross-fade their
@@ -228,7 +230,6 @@ every 20 ms:
   the deck.
 - `loop` longer than 5 s: the host deck should offer a pause key; if it cannot, use `once`
   (contract section 7).
-- Ambient motion (glows, slow drifts) stays under 20 % of the visual energy of the primary story.
 
 ## Audit checklist
 
@@ -238,7 +239,8 @@ Run before shipping each fragment. Every "no" is a fix.
    with setup, action, resolution and a 0.8-1.5 s hold, and end exactly on the resting frame
    (render a time past the pass and `rest`: identical)? Are there no repeated pulses, marching
    dashes or second runs of the same move? (`loop` only when asked: 8-15 s, 1-2 s hold.)
-2. Are at most three things moving at any second, and about a third of the elements active?
+2. Are at most three things moving at any second, and, mid-pass, about a third of the elements
+   active (highlighted; not the accent share at rest)?
 3. Is every curve one of the five literal values (enter, move, exit, land, linear, plus
    `steps()` for digit strips), with entrances on enter, exits on exit at ~65 % of the
    entrance time, on-screen moves and the verb's move on move, and `land` only on marks of at
@@ -257,7 +259,7 @@ Run before shipping each fragment. Every "no" is a fix.
 9. Does the wrapper name its verb (`data-anim-verb`), does that move take 40 to 60 % of the
    pass, and is there a traveller only under `travel` or `cycle`, named, on `offset-path`
    at 0.6-1.2 s per hop?
-10. Do draw-on paths use `pathLength`, the enter curve and 0.5-0.8 s per path?
+10. Do draw-on paths use `pathLength`, the enter curve and the draw-on duration (Techniques)?
 11. Is changing text done by cross-fading stacked `<text>` elements?
 12. Does nothing overshoot except a small mark on `land`, and does no emphasis pulse or pop
     exceed +-5 % (size that is the content excepted)?
@@ -266,9 +268,9 @@ Run before shipping each fragment. Every "no" is a fix.
 14. Is the resting frame the final state and readable as a still (also under reduced motion)?
 15. Is all text at or above the contract minimum at rendered size, with no overlap at any
     rendered phase?
-16. Concurrency: at most three things (or one staggered series) moving at any instant, never
-    more than 8? At most one glow visible at a time, and no glowing arrow, wire, line or series?
+16. Concurrency: at most three things (or one staggered series) moving at any instant (the
+    checker warns above 3 and fails above 6)? At most one glow visible at a time, and no glowing arrow, wire, line or series?
 17. `step` only: does the wrapper carry `data-anim-phases` with one mark per narrated phase
-    (3 to 5), each at a settled moment, the last at the hold start, and is the step-host
+    (3 to 5, six when the slide narrates six), each at a settled moment, the last at the hold start, and is the step-host
     snippet in the deck head? `loop` only: if longer than 5 s, does the host offer a pause key
     (or is `once` used)?

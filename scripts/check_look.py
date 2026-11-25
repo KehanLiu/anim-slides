@@ -625,9 +625,9 @@ def analyse(frames, k, gcol, a, R, pre, px=None, pauses=None, ptimes=None):
             R.info(pre + 'accent-area', 'accent %.1f %% of the ink at rest (measured from pixels)' % share)
     elif tot > 0 and acc:
         share = 100.0 * acc_ink / tot
-        if share > 25:  # the rule is about 10 %; the geometry estimate runs high on hairline figures
-            R.warn(pre + 'accent-area', '[accent-area] the accent covers about %.0f %% of the drawn area at rest (rule about '
-                   '10 %%, estimated from element geometry, no screenshot): keep the accent on the active and reached parts, the rest in '
+        if share > 25:  # the rule is at most about a fifth; warns above 25 %, as for the pixel measure
+            R.warn(pre + 'accent-area', '[accent-area] the accent covers about %.0f %% of the drawn area at rest (rule: at most '
+                   'about a fifth, warns above 25 %%; estimated from element geometry, no screenshot): keep the accent on the active and reached parts, the rest in '
                    '--anim-line and --anim-muted' % share)
         else:
             R.info(pre + 'accent-area', 'accent about %.0f %% of the drawn area at rest (estimated from element geometry, no screenshot)' % share)
