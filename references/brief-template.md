@@ -16,7 +16,7 @@ the brief; only record the choices the contract leaves open.
 
 - **Name:** <kebab-case, 2-24 chars, unique in the deck>
 - **Subject:** <one sentence: what the viewer should understand when the pass ends>
-- **Question:** <the one question the audience should be able to answer from this slide, ending in "?">
+- **Question:** <the audience question: what a person in the audience would ask that this slide answers, in their words, ending in "?"; taken from the triage row's Question (SKILL.md Phase 0), written before drawing, next to the claim in Verb; no answer, no key word or number of the claim in it ("What happens to the boat in the lock?", not "Does the boat leave one level higher?"); the blind review asks it of the resting slide as `sN-question` ([look-rubric.md](look-rubric.md) section 1)>
 - **Insight:** <"By seeing <what changes> unfold, the audience understands <what> better than from the still."; no such sentence, no fragment: the slide's base ships (SKILL.md Phase 0)>
 - **Insight on the slide:** <what in the resting frame shows the insight to someone who missed the pass: the trace, the marked stretch, the before beside the after, in the source's words>
 - **Audience / tone:** <who watches, how technical, calm or lively>
@@ -92,7 +92,7 @@ number below is the slide's, except €300, derived as 6 x €50 (accuracy.md ru
 
 - **Name:** savings-jar
 - **Subject:** Twelve monthly deposits of €50 fill the jar to €600 in a year.
-- **Question:** How much is in the jar after a year of €50 a month?
+- **Question:** How does a jar of savings get full?
 - **Insight:** By seeing the jar fill coin by coin, the class understands that the €600 is
   nothing but the twelve small deposits.
 - **Insight on the slide:** the full jar keeps its twelve separate coins beside "€600", with

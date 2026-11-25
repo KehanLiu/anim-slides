@@ -146,7 +146,8 @@ Read every slide's `title`, `bullets` and `notes`. Mark each slide **illustrate*
 **text**.
 
 **The question gate comes first** (SKILL.md Phase 0, "The question"). For every slide write
-the `Question` the audience should be able to answer. When the slide's base (as the deck skill
+the `Question` the audience should be able to answer, in the audience's words and without the
+answer or the claim's key words (it becomes the blind review's `sN-question`). When the slide's base (as the deck skill
 built it, or as it stands) answers it at rest, the row is **text**, Why "base answers it", and
 the slide ships as it is: a lookup table, a list, a statement and a figure that already reads
 are all answered by the base. A row is **illustrate** only with an `Insight` sentence: "By
@@ -210,8 +211,8 @@ Control: once (source builds by click: outline.json builds = 14; step mentioned,
 
 | Slide | Title | Question | Decision | Insight | Idea | Form | Verb | Archetype | Replaces | Why |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 3 | Release process | Which step can stop a release? | illustrate | by seeing the release wait at the QA gate until it opens, while the earlier steps stay done, the audience understands that QA is the only stop | the gate holds the row | row with a gate | open | pipeline | the four step cards | 4 ordered steps, speaker stresses QA gate |
-| 5 | From bill to law | Where does a bill go when it is amended? | illustrate | by seeing the bill cross to the second chamber and come back, the audience understands that an amendment sends it back | the bill crosses from one chamber to the other and back | boundary line crossed | travel: the bill | timeline | the bullet column | the slide names both chambers and the return for amendment |
+| 3 | Release process | Where can a release get stuck? | illustrate | by seeing the release wait at the QA gate until it opens, while the earlier steps stay done, the audience understands that QA is the only stop | the gate holds the row | row with a gate | open | pipeline | the four step cards | 4 ordered steps, speaker stresses QA gate |
+| 5 | From bill to law | What path does a bill take to become law? | illustrate | by seeing the bill cross to the second chamber and come back, the audience understands that an amendment sends it back | the bill crosses from one chamber to the other and back | boundary line crossed | travel: the bill | timeline | the bullet column | the slide names both chambers and the return for amendment |
 | 6 | Committee rooms | Which room does my committee meet in? | text | - | - | - | - | - | - | base answers it: a lookup table |
 | 7 | Our values | What is the one thing to remember? | text | - | - | - | - | - | - | single statement |
 

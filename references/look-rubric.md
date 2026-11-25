@@ -2,9 +2,11 @@
 
 The checkers (`check_fragment.py`, `verify_facts.py`, `check_page.py`) prove the contract and
 the facts. They cannot see that a slide is ugly or "too much". This rubric is the judgement
-layer: a reviewer that knows nothing about the build looks only at rendered stills and the
-slide's claim, and scores them. The skill runs it on its own work before saying "done", and the eval runner uses it to
-score a corpus. It enforces `style.md` and `accuracy.md` rule 0 by eye.
+layer: a reviewer that knows nothing about the build first says what it reads from the
+resting slide alone, and only then sees the other stills and the slide's claim and scores
+them. A reviewer told the claim first confirms it. The skill runs it on its own work before
+saying "done", and the eval runner uses it to score a corpus. It enforces `style.md` and
+`accuracy.md` rule 0 by eye.
 
 ## 1. How to run a review
 
@@ -21,14 +23,23 @@ score a corpus. It enforces `style.md` and `accuracy.md` rule 0 by eye.
   animated (a text slide next to an animated one). A host that is a Markdown dump shows there
   first.
 
-**Text, per animated slide**: `sN-claim`, the slide's claim in one sentence (the triage row's
-Idea, or the headline when the slide states only order). Nothing else: no brief, spec, beat
-table, verb name or note on what changed.
+**Text, per animated slide**:
+- `sN-question`: the audience question, the brief's Question (see below).
+- `sN-claim`: the slide's claim in one sentence (the triage row's Idea, or the headline when
+  the slide states only order).
+
+Nothing else: no brief, spec, beat table, verb name or note on what changed.
+
+**The audience question.** One per animated slide: what a person in the audience would ask
+that this slide answers, in the audience's words. It is the brief's Question, written before
+drawing, next to the claim (`brief-template.md`). It must not contain the answer or the
+claim's key words or numbers: "What happens to the boat in the lock?" is right; "Does the
+boat leave one level higher?" leaks the claim.
 
 **Who runs it.**
 - The main thread, in Phase 2 step 8 of SKILL.md, after `check_page.py`: one reviewer for all
-  animated slides of the deck, batched in one call.
-- The eval runner, once per case, with the same prompt.
+  animated slides of the deck, batched, in two steps (first read, then scoring).
+- The eval runner, once per case, with the same two prompts.
 
 **Polish loop, before the review.** After the first render the builder looks at the stills
 and writes down the three worst problems, ranked, and no more. It fixes only those and
@@ -37,24 +48,49 @@ and removes it when the answer is not "nothing". One round is required; a second
 first changed the composition. The fresh review comes after.
 
 **The protocol.**
-1. Start a fresh reviewer that has not seen the build conversation: a subagent with no prior
-   context where the harness has one (Claude Code: the Agent tool, general-purpose); otherwise
-   a fresh pass that reads only the prompt in section 3, the stills and the claims. Give it
-   **only** those, with their labels. No hint at what was changed or what you worry about: a
-   reviewer told the hypothesis confirms it.
-2. It returns scores per slide, a verdict `ship` or `fix`, and each finding with the frame it
-   is on (`s4-mark-3.2`, `s4-pause-2.7`, `s4-after`). A `fix` names at most three problems,
-   ranked, worst first.
-3. A `fix` blocks "done". When Form, Restraint, Fidelity or Host fit is 1, or three or more
+1. **First read.** Start a fresh reviewer that has not seen the build conversation: a
+   subagent with no prior context where the harness has one (Claude Code: the Agent tool,
+   general-purpose); otherwise a fresh pass. Give it the first-read prompt (section 3) and,
+   per animated slide, **only** `sN-after.png` and `sN-question`, with their labels: no claim,
+   no before image, no first, mark or pause frames, no brief. It answers each question in one
+   sentence from the image alone and adds one line "could not tell: ..." (or "nothing"). It
+   does not guess what was intended.
+2. **Record before reveal.** Before sending anything more, the builder writes each answer
+   verbatim into the Decisions section of `anim/triage.md`, under a small "First read" list,
+   one line per slide labelled `sN-first-answer` (with the round, see step 6). A recorded
+   answer is never edited, shortened or asked again. The hand-over message quotes it verbatim.
+3. **Scored review.** Only then continue the same reviewer (Claude Code: SendMessage to the
+   same agent; elsewhere: the next turn of the same fresh pass) with the scoring prompt
+   (section 3), the before, first, mark and pause frames, `context-after.png` and the
+   `sN-claim` lines. No hint at what was changed or what you worry about: a reviewer told the
+   hypothesis confirms it. Where the harness cannot continue a reviewer, a second fresh
+   reviewer scores; it also gets the `sN-after` images and the recorded first answers,
+   verbatim.
+4. It returns scores per slide (item 14 quotes its first answer next to the claim), a verdict
+   `ship` or `fix`, and each finding with the frame it is on (`s4-mark-3.2`, `s4-pause-2.7`,
+   `s4-after`). A `fix` names at most three problems, ranked, worst first.
+5. A `fix` blocks "done". When Form, Restraint, Fidelity or Host fit is 1, or three or more
    items are below 3, the figure (or the deck around it) is rebuilt from the spec, not
-   patched. Otherwise the builder fixes the named findings. Then re-render and run a **new**
-   fresh reviewer (not the same one: it has seen the old images).
-4. At most two rounds. Findings left after round two are listed in the hand-over message and
-   in the Decisions section of `anim/triage.md`, one line each, with slide and frame. A figure
-   still being rebuilt after the second round has the wrong picture idea: go back to the
-   brief (picture idea, form, setup and payoff) instead of polishing further.
-5. A finding is not softened, argued down or dropped because the build took effort. The
+   patched. Otherwise the builder fixes the named findings. A First read fix goes to the
+   picture (form, focal element, resting frame), never to the wording of the question.
+6. Re-render and run a **new** fresh reviewer (not the same one: it has seen the old images),
+   starting again at step 1. Every round's first answer is kept (`sN-first-answer, round 1`,
+   `round 2`). At most two rounds. Findings left after round two are listed in the hand-over
+   message and in the Decisions section of `anim/triage.md`, one line each, with slide and
+   frame. A figure still being rebuilt after the second round has the wrong picture idea: go
+   back to the brief (picture idea, form, setup and payoff) instead of polishing further.
+7. A finding is not softened, argued down or dropped because the build took effort. The
    builder either fixes it or, for a fact the reviewer cannot see, answers it in the triage.
+
+In `anim/triage.md`:
+
+```markdown
+## Decisions
+- ...
+- First read:
+  - s3-first-answer, round 1: "The boat is lifted to the upper canal once the lock fills." Could not tell: nothing.
+  - s5-first-answer, round 1: "A bill passes both chambers." Could not tell: what happens after an amendment.
+```
 
 A reviewer can be wrong about facts it cannot see (it has the source slide, not the notes).
 A Fidelity complaint about a label that the notes or a figure transcription support is
@@ -62,8 +98,9 @@ answered in the triage, not "fixed".
 
 ## 2. The rubric
 
-Score each item 1 to 5 per slide; 4 and 2 sit between the anchors. Judge the **after** image
-against the **before** image; Restraint and Entrance from the first, mark and pause frames.
+Fourteen items. Score each 1 to 5 per slide; 4 and 2 sit between the anchors. Judge the
+**after** image against the **before** image; Restraint and Entrance from the first, mark and
+pause frames; First read from the recorded first answer against the claim.
 
 | # | Item | Question | 5 | 3 | 1 | Enforces |
 |---|---|---|---|---|---|---|
@@ -80,6 +117,7 @@ against the **before** image; Restraint and Entrance from the first, mark and pa
 | 11 | **Idea** | Labels covered: with all text hidden, does the picture still show the claim? Specificity: could a deck on another subject use it unchanged? | With the text hidden the form carries the claim (counts shrink, the path closes, the beam tips); or the claim is order only and the picture is a clean row | A correct row or list where the claim also states a quantity, a return, a tension or a containment that the picture ignores | Generic nodes: a deck on another subject could use the figure unchanged | archetypes.md picture idea; accuracy.md 0 |
 | 12 | **Focal** | Squint: with the frame blurred, is one element seen first, then the groups in order? | One focal element, about 1.5x its peers or the only hero text, is the first thing seen; the eye then moves through the groups in the claim's order | Two elements of equal weight compete, or the focal element is right but the rest has no order | No focal element: every part the same weight, or the eye lands on decoration | style.md 11 |
 | 13 | **Entrance and payoff** | Do the frames differ by more than opacity? Comparing the first frame with the resting frame, what was paid off? | The first frame leaves a gap (an empty jar, a level short of its line, groups apart) and the resting frame closes it; each kind enters its own way: lines drawn on, nodes landing where their line arrives, numbers counting or bars growing, areas revealed in the direction of meaning, labels after the thing they name | Most parts only fade in, with one real entrance; or the payoff is there but small, beside a first frame that already shows most of the answer | A moving poster: everything stands in its final place from the first frame and only fades in, so nothing is paid off | motion-rules.md "A once pass", "Entrance by kind" |
+| 14 | **First read** | Does the recorded first answer, given from the after image and the audience question alone, state the claim? | The answer states the claim in its own words: same subject, same direction, quantity or outcome | Right subject, but it misses the quantity, direction, return or outcome the claim states, or it needed the "could not tell" line for it | A different claim, or "cannot tell" | SKILL.md "Question first"; contract resting frame |
 
 Idea is judged against the claim and the before slide's words, not against variety. A row is
 a 5 when order is all the source states; decoration does not raise the score, and a form the
@@ -90,10 +128,17 @@ drawn as marks that shrink with the counts, a 5; a petition's four steps as a cl
 A before slide of text or step cards has no figure of its own: a row of cards is layout, so
 Form there asks only that the drawn form follows the words.
 
+First read is scored in the second step: the reviewer quotes its recorded first answer next to
+the claim and compares them. Example, for the claim "Lower glucose slows the insulin release
+that lowered it": "When blood sugar falls, the pancreas sends less insulin" is a 5; "Insulin
+brings blood sugar down" is a 3 (right subject, no return); "Sugar and insulin both rise after
+a meal" is a 1. A low score is fixed in the picture (form, focal element, resting frame),
+never by rewording the question.
+
 **Verdict** (per slide and for the deck; the deck takes the worst slide):
 - **ship**: every item 3 or above.
 - **fix**: any item below 3. When Form, Restraint, Fidelity or Host fit is 1, or three or more
-  items are below 3, the fix is a rebuild from the spec (section 1, step 3).
+  items are below 3, the fix is a rebuild from the spec (section 1, step 5).
 - The verdict is computed from the scores, never set by feel; the reviewer's doubt goes into a
   lower score (it is told to take the lower of two scores). A context-after image is scored on
   Host fit only and counts as a slide for the deck verdict.
@@ -104,19 +149,44 @@ Form there asks only that the drawn form follows the words.
   the triage from the slide's words (the Idea column), and redraws only where the words state
   more.
 
-## 3. The reviewer prompt
+## 3. The reviewer prompts
 
-Paste verbatim; then list the images, one line each, as `<label>: <absolute path>`, and the
-claims as `sN-claim: <sentence>`. Nothing else goes into the call.
+Two prompts, in this order (section 1, steps 1 to 3). Paste each verbatim; then list the
+images, one line each, as `<label>: <absolute path>`, and the text lines as
+`sN-question: <question>` or `sN-claim: <sentence>`. Nothing else goes into either call.
+
+**First read** (with `sN-after` and `sN-question` only):
+
+```text
+You see one finished slide per label, at rest, and the question a person in the audience
+would ask about it. You know nothing else about these slides and you will not be told what
+they were meant to say. Open every image. For each slide, answer its question in one sentence,
+from what the image shows and nothing else. Then add one line "Could not tell: ..." naming
+what the image does not let you decide, or "Could not tell: nothing". Do not guess what the
+maker intended, do not describe the design, do not score anything.
+
+Output exactly this, nothing before it, one block per slide:
+
+sN: <one-sentence answer>
+Could not tell: <what, or nothing>
+```
+
+**Scoring** (after the first answers are recorded; with the before, first, mark and pause
+frames, `context-after` and the `sN-claim` lines; a second fresh reviewer also gets the
+`sN-after` images again and the recorded first answers, as `sN-first-answer: <answer>`):
 
 ```text
 You are a blunt visual reviewer of animated presentation slides. You know nothing about how
-they were made and you see only the images listed below. For each slide you get the source
-slide ("before"), the first frame of its animation ("first"), frames at its phase marks
-("mark-<seconds>"), three frames paused at random moments between the marks
-("pause-<seconds>"), the rebuilt slide at rest ("after"), and one sentence with the slide's
-claim. A "context-after" image, when present, is a slide of the same rebuilt deck that was
-not animated; use it only for item 10. Open every image before scoring.
+they were made and you see only the images listed below. For each slide you already have the
+rebuilt slide at rest ("after") and your first answer to its audience question. Now you also
+get the source slide ("before"), the first frame of its animation ("first"), frames at its
+phase marks ("mark-<seconds>"), three frames paused at random moments between the marks
+("pause-<seconds>"), and one sentence with the slide's claim. If the first answers were
+written by an earlier reviewer, the "after" images are listed again and the answers are
+listed as "sN-first-answer"; treat them as your own. A "context-after" image, when present,
+is a slide of the same rebuilt deck that was not animated; use it only for item 10. Open every
+image before scoring. Do not revise, shorten or re-answer your first answer: it is scored as
+it stands.
 
 The goal of the rebuild: replace the slide's text blocks, cards or screenshots with a quiet
 drawing of the slide's own figure, plus one calm movement that plays once. The target look:
@@ -132,7 +202,7 @@ form the before slide's own words support is not an addition: a ring where the w
 last step repeats or returns, a boundary line where they state a handover, shrinking marks
 where they give falling counts.
 
-Score every slide on these thirteen items, 1 to 5 (5 = no fault, 3 = visible flaw that a
+Score every slide on these fourteen items, 1 to 5 (5 = no fault, 3 = visible flaw that a
 careful presenter would fix, 1 = a viewer would call the slide ugly, wrong or unchanged):
 1 Form: the after figure has the before figure's own shape (stairs stay stairs, rows stay
   rows, columns stay columns). 1 = a different form (e.g. steps re-plotted as a line chart)
@@ -192,6 +262,12 @@ careful presenter would fix, 1 = a viewer would call the slide ugly, wrong or un
   and name, in the Reason, what was paid off: the gap the first frame left open (an empty
   container, a level short of its line, groups apart) and how the end closes it. 1 = a moving
   poster: every part already in its final place in the first frame, only fading in.
+14 First read: does your first answer state the claim? Quote it in the Reason next to the
+  claim. 5 = it states the claim in its own words (same subject, same direction, quantity or
+  outcome). 3 = right subject, but it misses the quantity, direction, return or outcome the
+  claim states, or it needed the "Could not tell" line for it. 1 = a different claim, or
+  "cannot tell". A fix for this item goes to the picture (form, focal element, resting frame),
+  never to the wording of the question.
 
 Verdict per slide, computed from the scores and nothing else: "ship" if every item is 3 or
 above, otherwise "fix". The deck verdict is the worst slide verdict. Be blunt in the scores,
@@ -206,7 +282,8 @@ Output exactly this, nothing before it:
 | Item | Score | Frame | Reason (one line, name what you see and where) |
 |---|---|---|---|
 | Form | n | after | ... |
-... (all thirteen items)
+... (items 2 to 13)
+| First read | n | after | first answer: "..."; claim: "..." |
 Verdict: ship | fix
 
 (repeat per slide)
@@ -234,7 +311,10 @@ Rest frame, Fidelity, Host fit. Idea and the Forms list were added on 2026-11-13
 these runs; Idea's anchors come from the `prose-not-a-row` eval, not from a reviewer run.
 Focal, Entrance and payoff, the first and pause frames, the claim line, the `ship`/`fix` verdict and the
 Composition wording of item 3 (formerly Space: "centred, even margins") were added in look
-v2 and are not yet calibrated. The old `rebuild` verdict below is now a `fix` that rebuilds.
+v2 and are not yet calibrated. Item 14 (First read), the audience question and the two-step
+order (first read recorded before the claim is shown, then scoring) were added on 2026-11-25
+and are not yet calibrated either; the runs below had no first read.
+The old `rebuild` verdict below is now a `fix` that rebuilds.
 
 | Baseline | What it is | Slide | Scores | Verdict |
 |---|---|---|---|---|

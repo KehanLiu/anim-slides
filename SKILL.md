@@ -45,7 +45,8 @@ Mode C and for a one-slide source: for that slide) three lines, in this order:
    as a sentence ending in a question mark, taken from the source and the occasion ("Which
    room seats 14 and has a step-free entrance?", "Is the pump running after the fourth
    reading?"). A slide with no such question is a statement: its question is "What is the one
-   thing to remember?".
+   thing to remember?". It is asked in the audience's words and never contains the answer or
+   the claim's key words or numbers: the blind review asks it of the resting slide.
 2. **Does the base answer it?** The base is the slide as the deck skill builds it (Mode A) or
    as it stands in the HTML deck (Mode B), complete: every fact of the source, nothing left
    for a figure to add. When a person can answer the question from that still slide, the
@@ -311,14 +312,19 @@ cheap; write them all before building), then builds.
    `sN-before.png` (`anim/render/full/p-NN.png`), `sN-first.png` (first frame), the mark
    frames, the three `--at-pauses` frames and `sN-after.png` (rest), plus one un-animated slide as `context-after.png`, into
    `anim/review/blind/`. ONE fresh reviewer that has not seen the build (a subagent where the
-   harness has one, otherwise a fresh pass that reads only these) gets the prompt in
-   `references/look-rubric.md` section 3, the labelled stills, each slide's claim in one
-   sentence and its Question: no brief, spec, triage or conversation. It answers the Question
-   from `sN-after.png` alone, then `ship` or `fix` (at most three problems, ranked) with the
-   frame each is on; a wrong or missing answer is a `fix`. `fix` blocks done: fix (or rebuild, as the
-   rubric says), re-render, review with a new reviewer. At most two rounds; still rebuilding
-   after the second means the picture idea is wrong: back to the brief. A finding is never
-   softened because the build took effort; findings left go into the hand-over and Decisions.
+   harness has one, otherwise a fresh pass) works in two steps (`references/look-rubric.md`
+   sections 1 and 3). **First read:** it gets only `sN-after.png` and the brief's Question per
+   slide, and answers each in one sentence plus "could not tell". Write each answer verbatim
+   as `sN-first-answer` under "First read" in Decisions before sending anything more; it is
+   never edited and the hand-over quotes it. **Scoring:** then the same reviewer (or a second
+   fresh one given the answers) gets the other stills and each slide's claim, scores the
+   fourteen items and answers `ship` or `fix` (at most three problems, ranked) with the frame
+   each is on. No brief, spec, triage or conversation at any step. `fix` blocks done: fix (or
+   rebuild, as the rubric says; a weak first read is fixed in the picture, never in the
+   question), re-render, review with a new reviewer, first read again. At most two rounds;
+   still rebuilding after the second means the picture idea is wrong: back to the brief. A
+   finding is never softened because the build took effort; findings left go into the
+   hand-over and Decisions.
 
 ## Phase 3: Deliver by showing
 
@@ -326,16 +332,25 @@ cheap; write them all before building), then builds.
    (inlines stylesheets, scripts, fonts and images), then `check_page.py deck.bundled.html`
    and one `render-phases.sh --page deck.bundled.html --slide N ... rest`. Do not read the
    bundled file.
-2. Render the resting frame of every animated slide of the integrated deck (in Mode A every
+2. When the deck will be printed or sent as a PDF:
+   `python3 <skill-dir>/scripts/export_pdf.py deck.html [--source static-deck.html] [--paper letter|a4|both]`.
+   It writes one landscape page per slide and reads the PDF back: every label of a slide must
+   be on its page, inside the page and drawn. Labels seen only during the pass (step captions,
+   a changing state label) are printed in a strip under their slide; with `--source` (the deck
+   before figures) so are the source words a figure shortened. A FAIL blocks the hand-over.
+   Do not export by hand from the deck's own print rule: a fixed 1920 px page loses the right
+   side of every slide on Letter and A4.
+3. Render the resting frame of every animated slide of the integrated deck (in Mode A every
    slide: the whole deck is new, and the review page's Deck column is empty for the rest) into
    `anim/review/after/` (`render-phases.sh --page deck.html --slide N <W> <H> rest --out anim/review/after/sN`,
    one folder per slide; `review_page.py --help` lists the other names it accepts), and make sure the source renders
    of those slides are in `anim/render/full/` (`render_deck.py --pages`).
-3. `python3 <skill-dir>/scripts/review_page.py --deck deck.html --before anim/render/full --after anim/review/after --triage anim/triage.md --title "<deck name>" -o anim/review/index.html`
+4. `python3 <skill-dir>/scripts/review_page.py --deck deck.html --before anim/render/full --after anim/review/after --triage anim/triage.md --title "<deck name>" -o anim/review/index.html`
    (optional `--only animated`, `--previous DIR`, `--link-images`). Animated slides play live
    on the page, on the deck's ground and theme, once in view and again with Replay; the resting
    still stays under them for print. Open it and the deck.
-4. Send a few lines: N of M slides animated, each with its Question and Insight in one line;
+5. Send a few lines: N of M slides animated, each with its Question and Insight in one line
+   and its recorded first answer quoted verbatim (every round);
    the slides kept as base with "base answers it"; the review page path; the deck path (the bundled
    one if shared); the two switches for later, one line each:
    `integrate_fragment.py ... --control step` (figures by click) and
@@ -397,9 +412,11 @@ cheap; write them all before building), then builds.
   stay. Work on a lean deck; bundle only at hand-over when it will be shared.
 - **Brief before drawing.** The brief names the focal element and carries the beat table
   before any SVG is written; motion uses only the easing set and enters by kind.
-- **Reviewed blind.** A fresh reviewer that sees only the stills (first frame, phase marks,
-  pauses, rest) and the claim answers `ship` or `fix` with `references/look-rubric.md`; at most two
-  rounds, findings left are named in the hand-over. Passing the checkers is not looking right.
+- **Reviewed blind.** A fresh reviewer first answers each slide's Question from the resting
+  slide alone, and that answer is recorded verbatim before it sees the claim or the other
+  stills; then it scores with `references/look-rubric.md` and answers `ship` or `fix`. At most
+  two rounds, each with a new reviewer; findings left are named in the hand-over. Passing the
+  checkers is not looking right.
 - **Deliver by showing.** The before/after review page (`review_page.py`) is part of done.
 
 ## Files
@@ -413,7 +430,7 @@ cheap; write them all before building), then builds.
 - `references/motion-verbs.md` — the twenty motion verbs: from the slide's claim to a verb, what is on screen, the CSS/SVG mechanism
 - `references/style.md` — the visual style and its checklist
 - `references/accuracy.md` — accuracy rules and the `verify_facts.py` gate
-- `references/look-rubric.md` — the look rubric, reviewer protocol and prompt (squint, labels covered, specificity); calibration
+- `references/look-rubric.md` — the look rubric, reviewer protocol and prompts (first read, squint, labels covered, specificity); calibration
 - `references/lessons.md` — gotchas from real runs
 - `references/reference-case.md` — a five-slide intro deck from a short prompt: what each slide's figure shows and which rule it demonstrates
 - `scripts/extract_slides.py` — pptx/html/md to outline JSON with archetype suggestions and `builds`
@@ -431,6 +448,7 @@ cheap; write them all before building), then builds.
 - `scripts/check_page.py` — page checks: external loads, markers, gating, print guard, step snippet
 - `scripts/check_verbs.py` — motion variety across the deck: a verb per fragment, repeats over a third need a reason in the triage, markers only under travel or cycle
 - `scripts/bundle_deck.py` — one self-contained file for hand-over (`--fetch` for remote assets)
+- `scripts/export_pdf.py` — PDF on Letter and A4, one slide per page; proves every label is on its page (needs poppler)
 - `scripts/review_page.py` — before/after review page for delivery
 - `scripts/snippets/observer.html`, `scripts/snippets/step-host.html` — host helpers (scroll gate; step mode)
 - `pool/` — finished, checked fragments with thumbnails and specs; `pool/index.yaml` lists them

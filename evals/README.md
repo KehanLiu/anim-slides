@@ -70,9 +70,11 @@ folder. Results and the HTML report go to `evals/results/` (ignored by git).
    the prompt from `evals/<case>/prompt.md` (the line above "Input files").
 3. When it finishes, check each statement in `evals/<case>/graders/` against the transcript
    and the files, and read `expected_outcome` in `case.yaml`.
-4. Review the result by eye with `references/look-rubric.md`: a fresh reviewer that sees
-   only the stills (before, first frame, phase marks, rest) and each slide's claim. A `fix`
-   verdict (any score below 3) is a failure of the case, even when all graders pass.
+4. Review the result by eye with `references/look-rubric.md`, in its two steps: a fresh
+   reviewer first answers each slide's audience question from the resting slide alone
+   (recorded verbatim), then sees the other stills (before, first frame, phase marks, pauses)
+   and each slide's claim and scores. A `fix` verdict (any score below 3) is a failure of the
+   case, even when all graders pass.
 
 ## Add a case
 

@@ -2,6 +2,28 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
+## Unreleased
+
+Two gaps found on the project's own five-slide deck (a frontend-slides deck, before and after
+figures).
+
+- **PDF export, one slide per page, every label kept** (`scripts/export_pdf.py`). The deck's
+  own print rule set a 1920 px page, so printing on Letter cut the right third of every slide
+  ("Upper gates", "Easy to review" and "Verify" were gone). And a resting frame cannot show
+  what is on screen only during the pass: the canal-lock slide lost three step captions and a
+  state label. The script prints a temporary copy on Letter and A4 landscape, scales a fixed
+  stage to the page, and then reads the PDF back: one page per slide, every text piece of the
+  slide's HTML on its page, inside the page box and drawn with ink. Labels the resting frame
+  does not show go into a strip under their slide, on the same page. With `--source` (the deck
+  before figures) the static slide's own wording is checked too and printed in the strip where
+  the figure shortened it. Tests in `tests/test_export_pdf.py`; CI installs poppler.
+- **First read before the claim** (`references/look-rubric.md`). The blind reviewer used to get
+  the stills and the claim in one call, and a reviewer told the claim confirms it. It now
+  answers the slide's audience question from the final frame alone; the answer is recorded
+  verbatim before the claim, the source slide and the other frames are sent. New rubric item
+  14, First read, scores that answer against the claim. The audience question is a new field
+  of the brief. Not yet calibrated.
+
 ## 0.14.0 - 2026-11-24
 
 Look v2. Driver: the owner still found the slides "too ugly" and had six outside sources read

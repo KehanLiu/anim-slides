@@ -215,6 +215,7 @@ PowerPoint needs different things for reading and for rendering:
 | Read a `.pptx` (text, bullets, notes, tables) | `extract_slides.py` | Python standard library only |
 | Render a `.pptx`, `.ppt` or `.odp` to page images for triage | `render_deck.py` | LibreOffice (`soffice`), poppler (`pdftoppm`), Chrome or Chromium |
 | Render an HTML deck or a fragment | `render_deck.py`, `render-phases.sh` | Chrome or Chromium (`CHROME=/path` overrides detection); `render_deck.py` also needs `pdftoppm` |
+| Export a deck to PDF, one slide per Letter or A4 page, every label checked | `export_pdf.py` | Chrome or Chromium, poppler (`pdftotext`, `pdftoppm`) |
 | Read a legacy `.ppt` | `extract_slides.py` | one `soffice --headless --convert-to pptx deck.ppt` first |
 
 Install on macOS with `brew install --cask libreoffice` and `brew install poppler`; on
@@ -368,9 +369,10 @@ animated deck) with graders, in the format `claude plugin eval` reads. Run
 `claude plugin eval . --allow-tools Write,Edit,Bash --scaffold` from the skill folder (billed;
 `--runs 1` for a quick pass), or run one case by hand as `evals/README.md` describes. Inside a
 run the skill checks itself twice: `scripts/check_look.py` measures the rendered figure
-(clipping, overlap, contrast, boxes, colours, density), and a fresh reviewer that sees only the
-stills (first frame, phase marks, three paused frames, rest) and the slide's claim answers `ship` or `fix` with
-`references/look-rubric.md` before "done".
+(clipping, overlap, contrast, boxes, colours, density), and a fresh reviewer first answers
+each slide's audience question from the resting slide alone; that answer is recorded before
+it sees the other stills (first frame, phase marks, three paused frames) and the slide's
+claim, then it answers `ship` or `fix` with `references/look-rubric.md` before "done".
 
 ## License
 

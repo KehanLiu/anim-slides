@@ -24,6 +24,10 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      # export_pdf.py reads the PDFs it writes with poppler; its tests skip without it
+      - name: Install poppler
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
       # check_fragment.py on every pool fragment at its viewBox width,
       # scaffold_from_spec.py on every pool/*/spec.yaml, build_gallery.py, py_compile
       - name: Pool and script checks
