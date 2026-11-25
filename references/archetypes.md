@@ -38,7 +38,7 @@ this step does not apply to it.
 | one thing contains another | rings inside rings | `nest`, `zoom` | `layers` | `number-sets`, `service-deps` (nest), `leaf-stomata` (zoom) |
 | one splits into several, or several merge | fan-out, fan-in | `split`, `merge` | `graph` | `mitosis` (split), `coalition-majority` (merge), `loan-decision` (a branch) |
 | actors exchange something | lanes, one token handed between them | `travel` (the thing exchanged) | `graph` | `hiring-lanes` |
-| a handover across a boundary | a drawn boundary line the token crosses | `travel` (the thing handed over) | `timeline` / `graph` | `court-case` |
+| a handover across a boundary | a drawn boundary line the token crosses | `travel` (the thing handed over) | `pipeline` / `timeline` / `graph` | `er-patient-flow` |
 | the same thing before and after | the thing in place, the old state as a ghost | `transform`, `wipe`, `switch` | `states` / `compare` | `oxbow-lake` (transform), `street-redesign` (wipe), `contract-formation`, `job-states`, `phase-changes` (switch) |
 | a physical mechanism the source describes | a scene: the thing itself, in cross-section | `drive`, `open` | `states` / `pipeline` | `breathing` (drive), `earth-layers` (open), `canal-lock` |
 | a place or a route | a map or a path with stations | `travel`, `trace` | `pipeline` | `parcel-route` (travel), `forgetting-curve` (trace) |

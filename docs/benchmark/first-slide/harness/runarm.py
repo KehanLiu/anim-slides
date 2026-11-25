@@ -1,6 +1,6 @@
 import json, os, signal, subprocess, sys, time, datetime
 arm, d, prompt_file = sys.argv[1:4]
-CL = "/Users/USER/.nvm/versions/node/v24.18.0/bin/claude"
+CL = os.environ.get("CLAUDE_BIN", "claude")  # path to the claude CLI binary
 prompt = open(prompt_file).read().strip()
 cmd = [CL, "-p", prompt, "--model", "opus", "--output-format", "stream-json", "--verbose",
        "--setting-sources", "project,local", "--strict-mcp-config",

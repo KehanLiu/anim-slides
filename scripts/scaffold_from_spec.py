@@ -926,19 +926,6 @@ def route(a, b, k=None):
     return cubic(p0, (p0[0], p0[1] + s * kk), (p3[0], p3[1] - s * kk), p3)
 
 
-def under_arc(a, b, depth=64):
-    p0 = (a['x'] + a['w'] / 2, a['y'] + a['h'])
-    p3 = (b['x'] + b['w'] / 2, b['y'] + b['h'])
-    yc = max(p0[1], p3[1]) + depth
-    return cubic(p0, (p0[0], yc), (p3[0], yc), p3)
-
-
-def over_arc(a, b, depth=64):
-    p0, p3 = (a['x'] + a['w'] / 2, a['y']), (b['x'] + b['w'] / 2, b['y'])
-    yc = min(p0[1], p3[1]) - depth
-    return cubic(p0, (p0[0], yc), (p3[0], yc), p3)
-
-
 # ============================================================================ layouts
 # Every layout returns a scene: nodes {id: mark}, edges {edge id: cubic}, containers (columns,
 # bands, lanes) and `back` markup drawn behind everything. A mark is the node's drawn shape (ring,

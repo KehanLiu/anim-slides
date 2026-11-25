@@ -261,6 +261,4 @@ Under 0.11.0: frontend-slides built the deck from the pptx, three fragments, bli
 - **Gaps seen in the runs, not yet fixed:** `check_look.py --page` scored slides that are
   invisible at rest on a deck whose reveal is keyed on its own class (the runs re-ran it on a
   copy, and one added the deck's `active` class to its CSS); `render_deck.py` output was
-  cropped on both decks; on a short deck the floor ("every qualifying slide gets a figure")
-  and "never two animated slides in a row" contradict each other, and both runs let the floor
-  win.
+  cropped on both decks.

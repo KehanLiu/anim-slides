@@ -5,14 +5,23 @@ body:
   - type: markdown
     attributes:
       value: |
-        The pool holds domain-neutral examples, one or more per archetype. Check the
-        [gallery](https://kehanliu.github.io/anim-slides/) first.
+        The pool holds domain-neutral examples, organised by motion verb: at least one per
+        verb, across many fields. Check the [gallery](https://kehanliu.github.io/anim-slides/)
+        and [references/motion-verbs.md](https://github.com/KehanLiu/anim-slides/blob/main/references/motion-verbs.md) first.
   - type: textarea
     id: story
     attributes:
       label: The story
       description: What the animation should show, in two or three sentences, as it would play on a slide.
-      placeholder: Messages pile up in a queue during a traffic spike, consumers autoscale and the backlog drains.
+      placeholder: A river carries sediment to the coast, it settles where the current slows, and a delta grows out into the sea layer by layer.
+    validations:
+      required: true
+  - type: dropdown
+    id: verb
+    attributes:
+      label: Motion verb
+      description: The one motion that carries the claim (see references/motion-verbs.md).
+      options: [grow, count, accumulate, thin, race, split, merge, sort, stack, nest, transform, wipe, switch, balance, drive, zoom, open, travel, trace, cycle, reveal, not sure]
     validations:
       required: true
   - type: dropdown
@@ -26,12 +35,12 @@ body:
     id: domain
     attributes:
       label: Domain
-      placeholder: data engineering, biology, finance, education, ...
+      placeholder: biology, finance, civics, earth science, education, ...
   - type: textarea
     id: technique
     attributes:
       label: Motion or technique you are after
-      description: A specific effect (packets on edges, a bar race, a swimlane handoff, a counter ticking), with links to examples if you have them.
+      description: A specific effect (a bar race, a column filling, a cutaway opening, a counter ticking), with links to examples if you have them.
   - type: checkboxes
     id: contribute
     attributes:

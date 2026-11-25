@@ -18,23 +18,23 @@ Date: 2026-11-24. Question: a first-time user has one slide. What does one neutr
 Each arm ran in its own new directory that held only `source.html` (the skill arm also held `.claude/skills/anim-slides`). The runner is `harness/runarm.py`. Exact command, identical in both arms, with the working directory set to the arm's folder and stdin closed:
 
 ```
-/Users/USER/.nvm/versions/node/v24.18.0/bin/claude -p "$(cat prompt.txt)" \
+claude -p "$(cat prompt.txt)" \
   --model opus --output-format stream-json --verbose \
   --setting-sources project,local --strict-mcp-config \
   --permission-mode bypassPermissions
 ```
 
-The real binary was called. In this shell `claude` is a zsh function wrapper, so the wrapper was bypassed.
+`claude` here stands for the CLI binary itself, called by its full path, not through a shell function or alias.
 
 ### Isolation
 
-This follows the earlier harness (`anim-slides-demos/harness-eval/run.py`), which used `--setting-sources project,local`. Nothing in `~/.claude` was modified.
+This follows an earlier private harness, which used `--setting-sources project,local`. Nothing in `~/.claude` was modified.
 
-- `--setting-sources project,local` leaves out user settings. With it, the user-level skills in `~/.claude/skills` (anim-slides, frontend-slides, gsap-*, motion-design, tennet-slides and others) and the user's `CLAUDE.md` are not loaded. User-enabled plugins and their skills are not loaded either.
+- `--setting-sources project,local` leaves out user settings. With it, the user-level skills in `~/.claude/skills` (among them anim-slides and frontend-slides) and the user's `CLAUDE.md` are not loaded. User-enabled plugins and their skills are not loaded either.
 - `--strict-mcp-config` with no `--mcp-config` removes all MCP servers (`mcp_servers: []` in both init events).
 - The earlier harness also passed `--disable-slash-commands` in the bare arm. That flag was not used here, because it also removes the built-in skills, and the two arms would then differ in more than the one skill.
 
-Evidence comes from the `system/init` event of each transcript (`bare/transcript.jsonl`, `skill/transcript.jsonl`, line 1 of the init event). See also `harness/transcript-stats.txt`.
+Evidence comes from the `system/init` event of each transcript (line 1 of each raw transcript; the raw transcripts are kept out of git, see Limits). See also `harness/transcript-stats.txt`.
 
 - bare `skills`: deep-research, design, design-sync, dataviz, update-config, verify, debug, code-review, simplify, batch, fewer-permission-prompts, doctor, claude-approvals, loop, schedule, claude-api, workflow-authoring, run, run-skill-generator, plugin-authoring. These are all built into the CLI. None is anim-slides, frontend-slides, gsap or motion-design.
 - skill `skills`: `anim-slides` plus exactly the same 20 built-in skills.
@@ -42,13 +42,13 @@ Evidence comes from the `system/init` event of each transcript (`bare/transcript
 - `tools`: the same list in both arms.
 - The bare session invoked no skill. The skill session invoked `Skill {"skill": "anim-slides"}` as its first tool call.
 
-Two cheap probe sessions (model haiku, `harness/probe-*-init.jsonl`) ran with the same flags. Each was asked whether its instructions contain the user's CLAUDE.md section "Parallelism" or the string "qwen-local". Both answered no, and both listed their skills: anim-slides was visible only in the skill probe. That answer is the model's self-report and is weaker evidence than the init event.
+Two cheap probe sessions (model haiku; their transcripts are kept out of git) ran with the same flags. Each was asked whether its instructions contain two strings that occur only in the user's global instruction file. Both answered no, and both listed their skills: anim-slides was visible only in the skill probe. That answer is the model's self-report and is weaker evidence than the init event.
 
 Built-in skills that might bear on the task were visible in both arms: `design`, `dataviz`. Neither session invoked them.
 
 ### Removed pool entry
 
-The skill copy has `pool/parcel-route/` deleted, and its entries removed from `pool/index.yaml` and `pool/README.md`. That pool entry is a finished animated figure of this same slide, and the session could otherwise have copied it.
+For this run only, the copy of the skill under test had `pool/parcel-route/` deleted, and its entries removed from `pool/index.yaml` and `pool/README.md`. That pool entry is a finished animated figure of this same slide, and the session could otherwise have copied it. The entry is still in the repository's pool; only the test copy lacked it.
 
 The name `parcel-route` still appears as an example in the copy's `references/motion-verbs.md` (line 266) and `references/archetypes.md` (line 44). Those two lines were left as committed.
 
@@ -67,13 +67,13 @@ The skill session named its fragment `parcel-route`, most likely taken from thos
 | Other files written | 6 PNG screenshots in `/tmp` (outside its project folder) | `anim/frames/`: 11 files, 701,613 bytes (check renders and previews, left in the project folder) |
 | Opens from disk | yes, no page errors | yes, no page errors |
 | Network loads | none (the only URL is the SVG namespace string) | none |
-| Play once / replay | loops: the 7-step sequence restarts about every 24 s, and the active stage has an endless pulse ring. Has buttons for back, pause, forward and replay, plus keys and `#0` to `#6` deep links | plays once (9 s) and rests on the finished frame; frames at rest and rest + 6 s are identical. No replay control: reload to replay |
+| Play once / replay | loops: the 7-step sequence restarts about every 24 s, and the active stage has an endless pulse ring. Has buttons for back, pause, forward and replay, plus keys and `#0` to `#6` deep links | plays once (9 s) and rests on the finished frame; the frame 6 s after rest is byte-identical to the rest frame. No replay control: reload to replay |
 | Reduced motion | finished frame (step 6), no motion | finished frame, no motion |
 | Print (`--print-to-pdf`) | prints the step that is current at print time (step 1 or 2 in the tests), with the control buttons; the lead time is missing | finished frame (print rule sets `animation: none`) |
 | Untraceable visible facts | 2 | 0 |
 | Manual corrections needed before showing | 3 | 0 (2 optional) |
 
-For `--print-to-pdf` and `--force-prefers-reduced-motion` runs, Chrome did not exit by itself in this environment. It was stopped by a 60 s `timeout` after it had written its output files. The PDFs were checked with `pdfinfo` and `pdftotext`, and rendered with `pdftoppm`.
+For `--print-to-pdf` and `--force-prefers-reduced-motion` runs, Chrome did not exit by itself in this environment. It was stopped by a 60 s `timeout` after it had written its output files. The PDFs were checked with `pdfinfo` and `pdftotext`, and rendered with `pdftoppm`. Only the PNG renders are stored.
 
 ### verify_facts.py (`--strict`)
 
@@ -84,7 +84,15 @@ The script as committed in 4034476 and the version with the label-to-value pairi
 
 ## Per-arm description
 
-Screenshots are in `bare/shots/` and `skill/shots/`, taken with Playwright driving the installed Google Chrome. Files: `desktop-*` at 1440x900 and `mobile-*` at 390x844, at 1 s (`t1s`), mid-pass (`mid`), at rest (`rest`), 6 s after rest (`rest-plus6s`), with reduced motion (`*-reduced-*`, plus `cli-reduced-motion-1440.png` from Chrome's `--force-prefers-reduced-motion`), and print (`print-vtb*.pdf` / `-1.png`). For the bare arm the times are 1 s, 10 s and 20 s, because its sequence lasts about 24 s. Two extra frames show steps 2 and 4 (`desktop-t5.5s-step2.png`, `desktop-t12.3s-step4.png`).
+Screenshots are in `bare/shots/` and `skill/shots/`, taken with Playwright driving the installed Google Chrome. Files: `desktop-*` at 1440x900 and `mobile-*` at 390x844, at 1 s (`t1s`), mid-pass (`mid`), at rest (`rest`), 6 s after rest (`rest-plus6s`), with reduced motion (`*-reduced-0.3s.png`, plus `cli-reduced-motion-1440.png` from Chrome's `--force-prefers-reduced-motion`), and print (`print-vtb1000-1.png`, `print-vtb30000-1.png`: page 1 of each PDF, printed at the two virtual-time budgets named in the file names).
+
+Frames that were byte-identical to another frame are not stored:
+
+- In both arms and at both sizes, the reduced-motion frame at 3.3 s was identical to the one at 0.3 s. `*-reduced-0.3s.png` stands for both: nothing moves under reduced motion.
+- In the skill arm, the frame 6 s after rest was identical to the rest frame at both sizes. `skill/shots/*-rest.png` stands for both. In the bare arm the two differ (the loop has restarted), so both are kept.
+- In the skill arm, the two print budgets gave identical renders. `skill/shots/print-vtb1000-1.png` stands for both.
+
+The print PDFs themselves are not stored; their PNG renders are. For the bare arm the times are 1 s, 10 s and 20 s, because its sequence lasts about 24 s. Two extra frames show steps 2 and 4 (`desktop-t5.5s-step2.png`, `desktop-t12.3s-step4.png`).
 
 ### bare
 
@@ -192,7 +200,7 @@ No replay control. Replaying needs a page reload. This is the skill's intended d
 
 - One run per arm (n=1). There is no variance estimate, and a second run of either arm could differ.
 - One slide, one prompt, one model (`claude-opus-5-5`), one harness (Claude Code 2.1.331), on one machine (macOS).
-- The skill under test is commit 4034476 (0.13.0). Its pool had `parcel-route` removed. Two reference lines still name `parcel-route`, as described above.
+- The skill under test is commit 4034476 (0.13.0). In the copy used for this run, the pool had `parcel-route` removed (it is still in the repository's pool). Two reference lines still name `parcel-route`, as described above.
 - Both arms used `--permission-mode bypassPermissions`, which does not confine file access to the project folder. The bare session wrote six screenshots to `/tmp`. Nothing confines either session to its folder other than its own choices.
 - Built-in CLI skills (including `design` and `dataviz`) were visible in both arms. They could not be hidden without also hiding project skills.
 - The user's `CLAUDE.md` exclusion is shown only by the haiku probe's self-report and by the documented meaning of `--setting-sources`. The init event does not list loaded memory files.
@@ -200,4 +208,4 @@ No replay control. Replaying needs a page reload. This is the skill's intended d
 - Screenshots were taken at fixed times. Motion between those times was not inspected frame by frame, except through the sessions' own renders and the extra bare frames.
 - The judgement of what counts as a needed correction is mine. It was not given to a second reviewer.
 - `verify_facts.py` reads static HTML only. The bare arm's labels drawn by script were checked by hand, not by the script.
-- The raw transcripts (`*/transcript.jsonl`) and probe transcripts are kept out of git (`.gitignore` in this folder) because they carry machine paths and session ids. In the files that are committed, the home folder is written as `/Users/USER` and the scratch folder as `<scratch>`; nothing else was edited.
+- The raw transcripts (`*/transcript.jsonl`) and probe transcripts are kept out of git (`.gitignore` in this folder) because they carry machine paths and session ids. In the files that are committed, the repository root is written as `<repo>`, the scratch folder as `<scratch>` and the CLI binary as `claude` (in `harness/runarm.py` it is read from `CLAUDE_BIN`). Byte-identical frames and the print PDFs were removed, as listed under Per-arm description. Nothing else was edited.

@@ -1531,7 +1531,6 @@ def main(argv=None):
     ap.add_argument("source", help="deck.pptx, deck.html or doc.md")
     ap.add_argument("--stage", nargs=2, type=int, metavar=("W", "H"))
     ap.add_argument("-o", "--output", help="write JSON here instead of stdout")
-    ap.add_argument("--no-pptx-lib", action="store_true", help=argparse.SUPPRESS)  # no-op, kept
     args = ap.parse_args(argv)
 
     ext = os.path.splitext(args.source)[1].lower()

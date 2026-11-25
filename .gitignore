@@ -11,3 +11,7 @@ gallery/
 .local/
 # claude plugin eval output
 evals/results/
+# local loop state
+.loop/
+# local agent settings
+.claude/

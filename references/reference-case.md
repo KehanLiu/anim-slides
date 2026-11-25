@@ -4,7 +4,7 @@ The prompt: "Make five slides introducing this project". No deck, no source file
 the chain SKILL.md Phase 0 describes for a topic with no deck, shown on anim-slides' own intro
 deck. The base comes from a deck skill when one is on disk (frontend-slides here); when none
 is found, from the built-in base, `base/deck.html`. The finished deck on the built-in base is
-`base/example.html` (a copy is `docs/intro-deck/index.html`); the chain is the same either way.
+`base/example.html`; the chain is the same either way.
 
 ## The chain
 

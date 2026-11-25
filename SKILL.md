@@ -1,6 +1,6 @@
 ---
 name: anim-slides
-description: Turn boring slides into animation-rich HTML, starting from the question each slide's audience must answer (a slide that already answers it ships unchanged; motion only where seeing a change unfold adds understanding). Builds self-contained animated SVG illustrations (CSS keyframes, optional click-driven step mode) that replace text blocks and screenshots in any HTML slide deck, and creates them directly from documentation of processes, dependencies, timelines or architectures. Use when the user wants to animate a PPT/PPTX or HTML deck, says "improve the slides", "add more animations", "make this deck less boring" or "animate slide 4", draw a process/pipeline/dependency graph/timeline/comparison as an animation, or turn a Mermaid diagram or a written procedure into an animated illustration. Not a deck designer: for a whole deck from scratch a deck skill builds the base first (a small built-in base deck is used only when none is installed); not for video.
+description: Turn boring slides into animation-rich HTML, starting from the question each slide's audience must answer (a slide that already answers it ships unchanged; motion only where seeing a change unfold adds understanding). Builds self-contained animated SVG illustrations (CSS keyframes, optional click-driven step mode) that replace text blocks and screenshots in any HTML slide deck, and creates them directly from documentation of processes, dependencies, timelines or architectures. Use when the user wants to animate a PPT/PPTX or HTML deck, says "improve the slides", "add more animations", "make this deck less boring" or "animate slide 4", draw a process/pipeline/dependency graph/timeline/comparison as an animation, or turn a Mermaid diagram or a written procedure into an animated illustration. Not a deck designer; for a whole deck from scratch a deck skill builds the base first (a small built-in base deck is used only when none is installed); not for video.
 license: MIT
 compatibility: Python 3.9+ for the scripts; a Chrome or Chromium binary for phase rendering; any harness that can run shell commands and view PNG files.
 metadata:
@@ -308,7 +308,10 @@ cheap; write them all before building), then builds.
    "Under a host theme").
    Open the deck in a real browser once: headless frames never prove smoothness. Audit with
    the checklist at the end of `references/motion-rules.md`.
-8. **Review by a fresh pair of eyes** (part of done). Render per animated slide
+8. **Review by a fresh pair of eyes** (part of done). Before the review, run step 5's
+   `verify_facts.py` command again with `--strict`: fix every `pairing` FAIL (a value beside
+   the wrong label), decide each `pairing: review` WARN by reading the source, and record any
+   FAIL on a label that is a true paraphrase, with its reason, in the brief. Render per animated slide
    `sN-before.png` (`anim/render/full/p-NN.png`), `sN-first.png` (first frame), the mark
    frames, the three `--at-pauses` frames and `sN-after.png` (rest), plus one un-animated slide as `context-after.png`, into
    `anim/review/blind/`. ONE fresh reviewer that has not seen the build (a subagent where the

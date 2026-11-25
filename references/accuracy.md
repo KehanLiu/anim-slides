@@ -76,8 +76,9 @@ source gives it, whether in the same text, the same group, or the same row or co
 that shows real numbers under the wrong labels no longer passes. Prose sentences and labels it
 cannot place are left alone, so a clean pairing result does not prove every value is in the right place.
 
-Every WARN needs a decision. `--strict` turns the label-level WARNs and pairing swaps into FAILs. Use it before a
-final review, not as the build gate: true labels with paraphrased words will fail too.
+Every WARN needs a decision. `--strict` turns the label-level WARNs and pairing swaps into FAILs. Use it before the
+final review (SKILL.md Phase 2, step 8), not as the build gate: true labels with paraphrased words
+will fail too, so record each with its reason in the brief. A figure marked illustrative keeps swaps at WARN.
 The gate cannot read pictures and does not check arrow directions or plotted positions: the
 rendered PNG next to the rendered source slide is still the final check.
 

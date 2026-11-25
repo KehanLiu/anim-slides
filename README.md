@@ -12,12 +12,13 @@
 ![Before: a bullet slide. After: the same content as an animated diagram, built by anim-slides](docs/media/hero.gif)
 
 ```bash
-npx skills add KehanLiu/anim-slides     # then ask your agent: "animate slide 4 of deck.pptx"
+npx skills add KehanLiu/anim-slides     # then ask your agent: "animate slide 4 of deck.html"
 ```
 
-The GIF is one real slide: the "before" frame is [`examples/first-slide/source.html`](examples/first-slide/source.html)
-as a browser renders it, and every label in the "after" figure is taken from that slide's own
-words (`tests/test_readme_demo.py` fails the build if one is not).
+The GIF's "before" frame is [`examples/first-slide/source.html`](examples/first-slide/source.html)
+as a browser renders it. The "after" frame is the pool's [`parcel-route`](pool/parcel-route/)
+figure, finished by hand from that slide. Every label in it comes from the slide
+(`tests/test_readme_demo.py` fails the build otherwise).
 
 ## Try it on one slide
 
@@ -32,23 +33,25 @@ One source slide, one prompt, one result. All three are in [`examples/first-slid
    ```
 
 3. **Result:** [`result.html`](examples/first-slide/result.html), the unedited first output of
-   that prompt (Claude Code, `claude-opus-5-5`, 213 s, no follow-up). Open it from disk: it
-   plays one pass and rests on the finished figure; reload to replay.
+   that prompt from version 0.13.0 (Claude Code, `claude-opus-5-5`, 213 s, no follow-up). It
+   keeps the slide's own light colours, so it looks different from the GIF. Open it from disk:
+   it plays one pass and rests on the finished figure; reload to replay.
 
 **Output format.** One HTML file with a `<style>` block and one inline `<svg>`, animated with
 CSS keyframes: no script, no framework, no network loads. It plays once when shown, and prints
 and honours reduced motion as the finished figure. Inside a deck the same figure is a
 *fragment* you paste into a slide (see [What you get](#what-you-get)).
 
-**With and without the skill.** The same prompt and slide were run once in a fresh session
-without the skill, same model and tools. Both made a real diagram. The run without the skill
-looped, showed two status labels the slide does not contain, and printed a half-finished
-step; the run with the skill needed no corrections. That is one run per arm on one slide, so
-read it as an example, not a measurement:
+**With and without the skill.** The same prompt was run once without the skill (same model,
+tools and harness). Both runs drew a real diagram. Without the skill the figure loops about
+every 24 s, shows a status pill whose values the slide does not give, and prints an early step
+without the lead time. With the skill (0.13.0) it plays once and every label traces to the
+slide; two optional fixes remain (a faint bracket line, leftover render files). One run per
+arm on one slide: an example, not a measurement.
 [`docs/benchmark/first-slide/`](docs/benchmark/first-slide/README.md) has both outputs, timings,
 screenshots and limits.
 
-Then try the slide you find hardest to explain: "animate slide 4 of `deck.pptx`", or paste a
+Then try the slide you find hardest to explain: "animate slide 4 of `deck.html`", or paste a
 process and ask for a diagram.
 
 An agent skill that turns boring slides into animation-rich HTML, and turns written processes
@@ -107,7 +110,6 @@ file that opens from disk, with Replay) or copy it as embeddable HTML. Resting f
 </table>
 
 More in [`pool/README.md`](pool/README.md), including how to keep a private pool of your own.
-Five older entries next to their rebuilt versions: [`docs/motion-before-after/`](docs/motion-before-after/index.html).
 
 ## What you get
 
@@ -115,16 +117,15 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
 
 - **Drop-in.** Works in reveal.js, impress.js, Slidev, frontend-slides decks, hand-written HTML
   and plain scrolling pages. No framework, no build tool, no dependency.
-- **Lean by default.** Rings and thin lines on a quiet dark ground, one focal element, one
-  accent only on what is active or reached, the deck's own font, mono only for numbers and
-  codes, no boxes. `references/style.md` is the guide; the scaffolder
-  emits it.
+- **Lean shapes.** Rings and hairlines, no boxes, one focal element, accent only on what is
+  active or reached, mono only for numbers and codes. `references/style.md` has the rules and
+  the scaffolder's output follows them.
 - **Themed by variables.** Fragments read `--anim-theme-*` CSS variables and carry neutral
   fallbacks, so one `:root` rule rethemes every illustration to your brand.
-- **Match or lean.** At intake the skill settles one look per deck: *match* keeps your deck's
-  palette and fonts (`scripts/host_theme.py` derives the rule from the deck's CSS), *lean*
-  puts the illustrations on their own dark ground. Shapes stay lean either way: a branded
-  deck gets rings and lines in its own blue, not its cards redrawn.
+- **Match or lean colours.** The skill settles one look per deck: *match* (the default for a
+  designed or branded deck) takes your deck's palette and fonts through
+  `scripts/host_theme.py`; *lean* puts the figures on their own dark ground. Shapes stay lean
+  either way: a branded deck gets rings and lines in its own blue, not its cards redrawn.
 - **Safe to paste.** Every class, id and keyframe is prefixed, so nothing collides with the deck's
   own CSS.
 - **Plays once, when shown.** A fragment plays one calm pass (4 to 10 s) when its slide becomes
@@ -132,9 +133,8 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
   while you talk, and PDF export and reduced-motion users get a complete still.
 - **Three control modes, one CSS fragment.** `once` (default) plays the pass when the slide appears;
   `step` plays the same fragment in phases, the entrance with the slide and each click landing
-  the next phase, through a small host script with no library; `loop` for kiosks and
-  galleries. Once is the default for the whole deck; ask for step if you want to click
-  through the phases.
+  the next phase, through a small host script with no library; `loop` for kiosks. Ask for
+  step if you want to click through the phases.
 - **Less by rule.** The fragment is the slide's own figure in its own form plus one movement.
   The checker measures how many things move and how many glow at the same instant, so "too much" fails before you see it.
 - **Shareable.** The skill adds no CDN or network loads, and `bundle_deck.py` turns the deck
@@ -144,7 +144,7 @@ Each illustration is one **fragment**: a `<style>` plus one inline `<svg>` in a 
 
 ## Install
 
-The skill is one folder (`SKILL.md`, `references/`, `scripts/`, `pool/`). Any harness that
+The skill is one folder (`SKILL.md`, `references/`, `scripts/`, `pool/`, `base/`). Any harness that
 reads the Agent Skills format picks it up from its skills directory; the folder name must stay
 `anim-slides`.
 
@@ -205,7 +205,8 @@ marketplaces). For a one-off trial from a local clone: `claude --plugin-dir ./an
 
 ### Requirements for the scripts
 
-Python 3.9+ and a Chrome or Chromium binary (for phase rendering). Optional: `pyyaml` for full
+Python 3.9+ and a Chrome or Chromium binary, for rendering and for the rendered checks
+(`check_look.py`, `measure_slot.py`). Optional: `pyyaml` for full
 YAML in specs (a built-in reader covers plain specs like the pool's, and JSON always works).
 
 PowerPoint needs different things for reading and for rendering:
@@ -315,8 +316,8 @@ A fragment adds motion, not facts. The skill is built to keep it that way:
   (`tests/test_verify_facts.py`).
 - **Source wording wins.** Labels use the slide's own words; "approved" stays "approved" and
   does not become "signed into law".
-- **Checked on real decks.** The rules come from converting six openly licensed decks (CDC,
-  NOAA, Lumen Learning, Sorbonne, SNAP) and auditing every rebuilt slide against its original.
+- **Checked on real decks.** The rules come from converting six openly licensed decks (among
+  them CDC, NOAA, Lumen Learning, Sorbonne and SNAP) and auditing every rebuilt slide against its original.
 
 `references/accuracy.md` has the full rules and a checklist for briefs.
 
@@ -347,12 +348,20 @@ slide class for decks that should keep their own look everywhere else.
 SKILL.md                 workflow and rules the agent follows (Agent Skills format)
 agents/openai.yaml       optional Codex metadata; other harnesses ignore it
 .claude-plugin/          marketplace manifest for the Claude Code plugin install
-references/              contract, accuracy, spec format, archetypes, input stage, brief, layouts, motion rules, lessons
-scripts/                 extract, scaffold, check, verify facts, render, integrate, check page, bundle, gallery; host snippets
-pool/                    finished fragments, one or more per archetype, with thumbnails, specs and index.yaml
+references/              fragment contract, accuracy, spec format, archetypes, motion verbs, motion rules,
+                         style, layouts, input stage, brief template, look rubric, reference case, lessons
+scripts/                 extract, render, measure slot, scaffold, check (fragment, look, page, verbs),
+                         verify facts, host theme, integrate, Markdown to deck, bundle, review page;
+                         host snippets. build_gallery.py is for CI and the gallery, not part of a skill run
+pool/                    finished fragments organised by motion verb (see pool/README.md), with
+                         thumbnails, specs and index.yaml
+base/                    the small built-in base deck, used only when no deck skill is installed
+evals/                   trap decks with graders (see the Self-test section)
 examples/first-slide/    one source slide, the prompt, and the result it produced
 tests/                   unit tests: fact pairing, the README demo, the built gallery and playable demo
-docs/                    design notes, history, and the first-slide run with and without the skill
+docs/                    design notes, README media, and the first-slide run with and without the skill
+CHANGELOG.md             changes per release
+CONTRIBUTING.md          how to contribute
 ```
 
 ## Background
@@ -373,6 +382,11 @@ run the skill checks itself twice: `scripts/check_look.py` measures the rendered
 each slide's audience question from the resting slide alone; that answer is recorded before
 it sees the other stills (first frame, phase marks, three paused frames) and the slide's
 claim, then it answers `ship` or `fix` with `references/look-rubric.md` before "done".
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to contribute and
+[`CHANGELOG.md`](CHANGELOG.md) for what changed in each release.
 
 ## License
 

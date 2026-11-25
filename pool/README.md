@@ -1,9 +1,10 @@
 # Pool
 
 Finished fragments that satisfy `references/fragment-contract.md`: one for each motion verb
-(`references/motion-verbs.md`) and at least one per build family, across a dozen fields
+(`references/motion-verbs.md`) and at least one per build family, across 17 fields
 (health, finance, biology, law, civics, earth science, education, logistics, software and
-more). The agent checks here before building from scratch (SKILL.md, step 1b): a close match
+more). The agent checks here before building from scratch (SKILL.md, Phase 2, step 2 "Pool
+first, for craft"): a close match
 is adapted (relabel, re-time, retheme), anything else still serves as the quality bar for
 density, timing and legibility. The pool sets the floor for craft and is looked up by verb,
 then form and moves; it is not the menu of pictures. `index.yaml` lists every entry with its

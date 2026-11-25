@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build the README hero: docs/media/hero.gif (before -> after) and docs/media/hero.png (after, resting frame).
+"""Build the README hero: docs/media/hero.gif (before -> after), and optionally a still PNG of the after slide.
 
 Usage (from the repo root):
-  python3 scripts/build_hero.py [SOURCE.html] [FRAGMENT.html] [--gif PATH] [--png PATH]
+  python3 .github/scripts/build_hero.py [SOURCE.html] [FRAGMENT.html] [--gif PATH] [--png PATH]
                                 [--fps 10] [--hold-before 1.3] [--hold-after 2.0] [--keep DIR]
 
   SOURCE.html    the "before" slide, a standalone HTML page (default examples/first-slide/source.html).
@@ -15,8 +15,8 @@ Usage (from the repo root):
 The GIF (1200x675 by default): the before slide held --hold-before s, a short wipe, then the fragment's
 one pass captured at --fps (each frame frozen at second t with a negative animation-delay and a paused
 play state, the method of render-phases.sh), then the resting frame held --hold-after s. Identical
-consecutive frames are merged. hero.png is the after slide's resting frame (gate class removed, as in
-print) at twice the GIF size (2400x1350).
+consecutive frames are merged. With --png PATH it also writes the after slide's resting frame (gate class
+removed, as in print) at twice the GIF size (2400x1350); without it only the GIF is written.
 
 Needs headless Chrome/Chromium/Edge (auto-detected, or set CHROME=/path) and Pillow (pip install pillow).
 Pillow is used only by this maintainer script, for GIF encoding and the wipe; the skill itself and
@@ -24,7 +24,7 @@ every other script stay stdlib-only.
 """
 import argparse, concurrent.futures, html, os, re, shutil, subprocess, sys, tempfile
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # .github/scripts/ -> repo root
 
 try:
     from PIL import Image, ImageChops
@@ -146,7 +146,7 @@ def main():
     ap.add_argument("source", nargs="?", default=os.path.join(ROOT, "examples/first-slide/source.html"))
     ap.add_argument("fragment", nargs="?", default=os.path.join(ROOT, "pool/parcel-route/parcel-route.html"))
     ap.add_argument("--gif", default=os.path.join(ROOT, "docs/media/hero.gif"))
-    ap.add_argument("--png", default=os.path.join(ROOT, "docs/media/hero.png"))
+    ap.add_argument("--png", help="also write the after slide's resting frame at 2x to this PNG (default: GIF only)")
     ap.add_argument("--width", type=int, default=1200)
     ap.add_argument("--height", type=int, default=675)
     ap.add_argument("--fps", type=float, default=10.0)
@@ -183,7 +183,8 @@ def main():
             jobs.append((t, f"after-{t:.3f}.html", f"after-{t:.3f}.png", 1))
         after_page(src, frag, os.path.join(work, "after-rest.html"), W, a.after_label, a.bg, None)
         jobs.append(("rest", "after-rest.html", "after-rest.png", 1))
-        jobs.append(("rest2x", "after-rest.html", "after-rest@2x.png", 2))
+        if a.png:
+            jobs.append(("rest2x", "after-rest.html", "after-rest@2x.png", 2))
 
         def run(j):
             key, page, png, scale = j
@@ -221,10 +222,12 @@ def main():
         os.makedirs(os.path.dirname(os.path.abspath(a.gif)), exist_ok=True)
         frames[0].save(a.gif, save_all=True, append_images=frames[1:], duration=durs, loop=0,
                        optimize=True, disposal=1)
-        shots["rest2x"].save(a.png, optimize=True)
         print(f"wrote {a.gif}: {W}x{H}, {len(frames)} frames, {sum(durs) / 1000:.2f} s, "
               f"{os.path.getsize(a.gif) / 1e6:.2f} MB")
-        print(f"wrote {a.png}: {shots['rest2x'].size[0]}x{shots['rest2x'].size[1]}")
+        if a.png:
+            os.makedirs(os.path.dirname(os.path.abspath(a.png)), exist_ok=True)
+            shots["rest2x"].save(a.png, optimize=True)
+            print(f"wrote {a.png}: {shots['rest2x'].size[0]}x{shots['rest2x'].size[1]}")
     finally:
         if not a.keep:
             shutil.rmtree(work, ignore_errors=True)
