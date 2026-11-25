@@ -2,7 +2,7 @@
 
 All notable changes to this project. Versions match `metadata.version` in `SKILL.md`.
 
-## Unreleased
+## 0.15.0 - 2026-11-25
 
 - **A short path for one named slide** (`references/quick.md`). "Animate slide N" no longer
   runs Phases 1 to 3: no brief, no previews, no review agents, no review page. One page names
@@ -14,7 +14,8 @@ All notable changes to this project. Versions match `metadata.version` in `SKILL
   under "Animate slide N spelled out" below. Deck-wide runs are unchanged.
 - **Every source label stays** (`scripts/check_labels.py BEFORE AFTER --slide N`). Fails when
   a text run of the source slide is missing from the animated one. All four label defects of
-  the baseline run were shortened or dropped labels. No unit test yet.
+  the baseline run were shortened or dropped labels. `tests/test_check_labels.py` covers a
+  wrapped label, a shortened label, a changed unit and a dropped table heading.
 
 - **A slide the user names always gets a figure.** In a blind comparison the skill answered
   "animate slide 3" with a byte-identical deck: the slide was a table of four waiting times

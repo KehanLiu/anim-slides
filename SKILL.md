@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.9+ and Chrome or Chromium for the scripts; for PowerPoint sources LibreOffice (soffice) and poppler (pdftoppm), which PDF export also needs; a harness that can run shell commands.
 metadata:
   author: Kehan Liu
-  version: "0.14.0"
+  version: "0.15.0"
   repository: https://github.com/KehanLiu/anim-slides
 ---
 

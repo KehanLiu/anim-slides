@@ -55,6 +55,6 @@ body:
     attributes:
       label: Environment
       description: Harness and model, OS, Python version, Chrome version, skill version (SKILL.md metadata).
-      placeholder: Claude Code, macOS 15, Python 3.12, Chrome 142, anim-slides 0.14.0
+      placeholder: Claude Code, macOS 15, Python 3.12, Chrome 142, anim-slides 0.15.0
     validations:
       required: true
